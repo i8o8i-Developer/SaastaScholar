@@ -56,8 +56,8 @@ COPY --from=builder /app/dist /usr/share/nginx/html
 # Copy custom Nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Expose Port 7865
-EXPOSE 7865
+# Expose Port 7865 and Port 80 for Coolify Traefik
+EXPOSE 7865 80
 
 # Healthcheck
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
