@@ -304,7 +304,7 @@ export function SiteFooter() {
           <div className="lg:col-span-4 min-w-0">
             <a href="#top" className="group inline-flex items-center gap-3">
               <img
-                src="/NIMSWallah.png"
+                src="/NIMSWallah.png?v=2"
                 alt="NimsWallah Logo"
                 className="h-9 w-9 sm:h-10 sm:w-10 object-contain rounded-xl shadow-xs transition-transform group-hover:scale-105"
               />

@@ -49,7 +49,7 @@ export function SiteNav() {
       >
         <a href="#top" className="flex items-center gap-2.5" aria-label="NimsWallah Home">
           <img
-            src="/NIMSWallah.png"
+            src="/NIMSWallah.png?v=2"
             alt="NimsWallah Logo"
             className="h-8 w-8 object-contain rounded-md"
           />
