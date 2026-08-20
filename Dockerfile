@@ -1,58 +1,42 @@
 # ==============================================================================
-# Multi-Stage Dockerfile for NimsWallah (TanStack Start + Nitro SSR)
-# Optimized for Coolify, VPS, and Docker Deployments
+# Multi-Stage Dockerfile for NimsWallah (Pure Vite + React SPA)
+# Ultra-Fast, Zero-SSR Overhead, Production Nginx on Port 7865
 # ==============================================================================
 
-# Stage 1: Build & Dependencies
+# Stage 1: Build Static Bundle
 FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Install build prerequisites
+# Install build dependencies
 RUN apk add --no-cache libc6-compat
 
-# Explicitly ensure development environment during build so all devDependencies are installed
-ENV NODE_ENV=development
-
-# Copy dependency manifests
+# Copy package manifests
 COPY package.json package-lock.json* ./
 
-# Install all dependencies including devDependencies (compiler, typescript, vite plugins)
-RUN npm ci --include=dev || npm install --include=dev
+# Install dependencies
+RUN npm ci || npm install
 
-# Copy all source files
+# Copy source files
 COPY . .
 
-# Build production application (Client, SSR, and Nitro server bundle)
+# Build production static bundle (outputs to /app/dist)
 RUN npm run build
 
-# Stage 2: Production Runner
-FROM node:22-alpine AS runner
+# Stage 2: Production Nginx Web Server
+FROM nginx:alpine AS runner
 
-WORKDIR /app
+# Remove default Nginx welcome site
+RUN rm -rf /usr/share/nginx/html/*
 
-ENV NODE_ENV=production
-ENV PORT=7865
-ENV HOST=0.0.0.0
-ENV NITRO_HOST=0.0.0.0
-ENV NITRO_PORT=7865
+# Copy built static files
+COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Create non-root user for security
-RUN addgroup --system --gid 1001 nodejs && \
-    adduser --system --uid 1001 nimswallah
+# Copy custom Nginx configuration
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copy built artifacts from builder stage
-COPY --from=builder /app/package.json ./package.json
-COPY --from=builder /app/.output ./.output
-COPY --from=builder /app/Public ./Public
-
-# Set correct ownership
-RUN chown -R nimswallah:nodejs /app
-
-USER nimswallah
-
-# Expose server port (Port: 7865)
+# Expose Port 7865
 EXPOSE 7865
 
-# Start production server
-CMD ["node", ".output/server/index.mjs"]
+# Start Nginx
+CMD ["nginx", "-g", "daemon off;"]

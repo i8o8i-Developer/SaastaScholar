@@ -1,45 +1,46 @@
-# Deploying NimsWallah On Coolify 🚀
+# 🚀 Coolify Deployment Guide (NimsWallah Pure Vite + React SPA)
 
-This repository is pre-configured for **instant, zero-config deployment on Coolify**.
+This project is configured as a **Pure Vite + React SPA** served by **Nginx on Alpine Linux** on **Port 7865**.
 
 ---
 
-## 1. Quick Deploy via Coolify Web Dashboard
+## 1. Quick Deploy on Coolify
 
-1. **Open your Coolify Dashboard** (e.g. `https://coolify.yourdomain.com`).
-2. Go to **Projects** → Select or create your Project & Environment.
-3. Click **+ New Resource** → Select **Public / Private Git Repository**.
-4. Paste your Git repository URL (e.g. `https://github.com/your-username/nimswallah.git`).
-5. Choose **Build Pack**:
-   - **Option A (Recommended)**: **Dockerfile** (Coolify will automatically detect the root `Dockerfile`).
+1. Open your **Coolify Dashboard**.
+2. Navigate to **Projects** > **New Resource** > **Public / Private Git Repository**.
+3. Enter repository URL:
+   ```
+   https://github.com/i8o8i-Developer/NIMS-Wallah.git
+   ```
+4. Select branch: `main`.
+5. Build Pack:
+   - **Option A (Recommended)**: **Dockerfile** (Coolify will detect the multi-stage Dockerfile).
    - **Option B**: **Docker Compose** (Coolify will detect `docker-compose.yml`).
-6. Configure Port:
+6. Port Configuration:
    - **Port**: `7865`
-7. Click **Deploy**.
+7. Custom Domain:
+   - `https://nimswallah.durgaaisolutions.in`
+8. Click **Deploy**.
 
 ---
 
-## 2. Environment Variables (Optional)
+## 2. Architecture & Performance Highlights
 
-| Variable | Default Value | Description |
-|---|---|---|
-| `NODE_ENV` | `production` | Production mode |
-| `PORT` | `7865` | Application HTTP Port |
-| `HOST` | `0.0.0.0` | Listen host |
-| `NITRO_PORT` | `7865` | Nitro server port |
-| `NITRO_HOST` | `0.0.0.0` | Nitro host binding |
+- **Static Build**: Pure Vite compilation into optimized static HTML, CSS, and JS.
+- **Web Server**: High-performance `nginx:alpine` container (< 10MB RAM).
+- **Gzip & Caching**: Pre-configured asset caching (`1y`) and gzip compression.
+- **SPA Fallback**: Direct routing fallback via `try_files $uri $uri/ /index.html;`.
+- **Zero SSR Dependencies**: No runtime Node crashes, no hydration mismatches.
 
 ---
 
-## 3. Local Docker Testing
-
-To test the container locally before deploying to Coolify:
+## 3. Local Testing with Docker
 
 ```bash
-# Build & start container
+# Build & start container locally
 docker compose up --build -d
 
-# Check running status
+# Verify container is healthy
 docker ps
 
 # Access in browser
