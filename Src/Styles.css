@@ -284,31 +284,24 @@
 }
 
 @keyframes marquee {
-  0% {
-    transform: translateX(0%);
+  from {
+    transform: translate3d(0, 0, 0);
   }
-  100% {
-    transform: translateX(-50%);
+  to {
+    transform: translate3d(-50%, 0, 0);
   }
 }
 
 .animate-marquee {
-  display: flex;
-  width: max-content;
-  animation: marquee 32s linear infinite;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  width: max-content !important;
+  animation: marquee 25s linear infinite !important;
   will-change: transform;
 }
 
 .animate-marquee:hover {
-  animation-play-state: paused;
+  animation-play-state: paused !important;
 }
 
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    transition-duration: 0.001ms !important;
-  }
-}
