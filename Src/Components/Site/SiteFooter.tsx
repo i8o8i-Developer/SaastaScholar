@@ -1,26 +1,25 @@
 import {
-  ArrowUp,
-  ArrowUpRight,
   BookOpen,
   Check,
   CheckCircle2,
   Cpu,
+  FileCheck2,
+  FileText,
   Flame,
+  FlaskConical,
   Github,
-  Globe,
   GraduationCap,
   Heart,
   Instagram,
   Linkedin,
   Mail,
-  MessageSquare,
-  School,
   Send,
   ShieldCheck,
   Sparkles,
   Twitter,
+  Zap,
 } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { FormEvent, useState } from "react";
 import { toast } from "sonner";
 
 import {
@@ -41,12 +40,20 @@ interface FooterLink {
 
 interface FooterColumn {
   title: string;
+  accent: string;
+  accentGradient: string;
+  hoverColor: string;
+  badgeStyle: string;
   links: FooterLink[];
 }
 
 const FOOTER_COLUMNS: FooterColumn[] = [
   {
     title: "Study Materials",
+    accent: "bg-emerald-400",
+    accentGradient: "from-emerald-400 to-teal-400",
+    hoverColor: "hover:text-emerald-500 dark:hover:text-emerald-400",
+    badgeStyle: "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
     links: [
       { label: "Topper Handwritten Notes", href: "#academic-hub", badge: "Core" },
       { label: "Solved PYQs (2020–2025)", href: "#academic-hub", badge: "Verified" },
@@ -57,6 +64,10 @@ const FOOTER_COLUMNS: FooterColumn[] = [
   },
   {
     title: "Labs & Practicals",
+    accent: "bg-cyan-400",
+    accentGradient: "from-cyan-400 to-blue-400",
+    hoverColor: "hover:text-cyan-500 dark:hover:text-cyan-400",
+    badgeStyle: "bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border-cyan-500/20",
     links: [
       { label: "Lab Manuals & Procedures", href: "#practicals" },
       { label: "Python, C++ & Java Codes", href: "#practicals", badge: "Tested" },
@@ -67,6 +78,10 @@ const FOOTER_COLUMNS: FooterColumn[] = [
   },
   {
     title: "Academic Workflow",
+    accent: "bg-purple-400",
+    accentGradient: "from-purple-400 to-pink-400",
+    hoverColor: "hover:text-purple-500 dark:hover:text-purple-400",
+    badgeStyle: "bg-purple-500/15 text-purple-600 dark:text-purple-400 border-purple-500/20",
     links: [
       { label: "AI Assignment Formatter", href: "#assignments", badge: "AI Tool" },
       { label: "IEEE & APA Citation Tools", href: "#assignments" },
@@ -77,6 +92,10 @@ const FOOTER_COLUMNS: FooterColumn[] = [
   },
   {
     title: "Trust & Legal",
+    accent: "bg-rose-400",
+    accentGradient: "from-rose-400 to-amber-400",
+    hoverColor: "hover:text-rose-500 dark:hover:text-rose-400",
+    badgeStyle: "bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/20",
     links: [
       { label: "Student Privacy Policy", modal: "Privacy Policy" },
       { label: "Terms Of Service", modal: "Terms Of Service" },
@@ -134,27 +153,29 @@ const POLICY_DETAILS: Record<string, { title: string; content: string[] }> = {
     content: [
       "We Use Essential Local Storage Tokens Only To Retain Your Active University Profile And Semester Preferences.",
       "No Third-Party Tracking Pixels Or Intrusive Profiling Cookies Are Deployed.",
+      "You May Clear Your Cached Session Preferences At Any Time From Your Account Dashboard.",
     ],
   },
   "System Uptime Status": {
-    title: "System Availability & Uptime",
+    title: "Platform Infrastructure & Service Status",
     content: [
-      "All Core Modules (Academic Hub, Notification Feed, AI Assignment Creator, Lab Packets) Are Operating At 99.98% Uptime.",
-      "Direct Sync With Department Servers Runs Automatically Every 15 Minutes.",
+      "Operational SLA: 99.98% Historical Uptime Across University Examination Seasons.",
+      "Real-Time CDN Redundancy Across Edge Server Clusters (Asia-South Pipeline).",
+      "All Microservices (Notes Pipeline, Assignment Engine, Timetable Sync) Are Currently 100% Fully Operational.",
     ],
   },
 };
 
 const CAMPUS_DEPARTMENTS = [
-  "B.Tech CSE",
-  "B.Tech AI & Data Science",
-  "B.Tech Cyber Security",
-  "B.Tech Mechanical / Civil",
-  "BCA & MCA",
-  "B.Sc / M.Sc Computer Science",
-  "B.Pharm / M.Pharm",
-  "BBA & MBA",
-  "Medical & Allied Sciences",
+  { name: "B.Tech CSE", hover: "hover:border-emerald-500/50 hover:text-emerald-500 hover:bg-emerald-500/10" },
+  { name: "B.Tech AI & Data Science", hover: "hover:border-cyan-500/50 hover:text-cyan-500 hover:bg-cyan-500/10" },
+  { name: "B.Tech Cyber Security", hover: "hover:border-indigo-500/50 hover:text-indigo-500 hover:bg-indigo-500/10" },
+  { name: "B.Tech Mechanical / Civil", hover: "hover:border-amber-500/50 hover:text-amber-500 hover:bg-amber-500/10" },
+  { name: "BCA & MCA", hover: "hover:border-purple-500/50 hover:text-purple-500 hover:bg-purple-500/10" },
+  { name: "B.Sc / M.Sc Computer Science", hover: "hover:border-teal-500/50 hover:text-teal-500 hover:bg-teal-500/10" },
+  { name: "B.Pharm / M.Pharm", hover: "hover:border-rose-500/50 hover:text-rose-500 hover:bg-rose-500/10" },
+  { name: "BBA & MBA", hover: "hover:border-orange-500/50 hover:text-orange-500 hover:bg-orange-500/10" },
+  { name: "Medical & Allied Sciences", hover: "hover:border-fuchsia-500/50 hover:text-fuchsia-500 hover:bg-fuchsia-500/10" },
 ];
 
 const SOCIAL_LINKS = [
@@ -162,25 +183,25 @@ const SOCIAL_LINKS = [
     name: "LinkedIn",
     href: "https://linkedin.com",
     icon: Linkedin,
-    hoverClass: "hover:text-[#0A66C2] hover:border-[#0A66C2]/30 hover:bg-[#0A66C2]/10",
+    hoverClass: "hover:text-[#0077b5] hover:border-[#0077b5]/40 hover:bg-[#0077b5]/10 shadow-[0_0_12px_rgba(0,119,181,0.2)]",
   },
   {
     name: "Instagram",
     href: "https://instagram.com",
     icon: Instagram,
-    hoverClass: "hover:text-[#E4405F] hover:border-[#E4405F]/30 hover:bg-[#E4405F]/10",
+    hoverClass: "hover:text-[#e1306c] hover:border-[#e1306c]/40 hover:bg-[#e1306c]/10 shadow-[0_0_12px_rgba(225,48,108,0.2)]",
   },
   {
-    name: "Twitter / X",
-    href: "https://x.com",
+    name: "Twitter",
+    href: "https://twitter.com",
     icon: Twitter,
-    hoverClass: "hover:text-foreground hover:border-foreground/30 hover:bg-foreground/10",
+    hoverClass: "hover:text-[#1da1f2] hover:border-[#1da1f2]/40 hover:bg-[#1da1f2]/10 shadow-[0_0_12px_rgba(29,161,242,0.2)]",
   },
   {
     name: "GitHub",
     href: "https://github.com",
     icon: Github,
-    hoverClass: "hover:text-foreground hover:border-foreground/30 hover:bg-foreground/10",
+    hoverClass: "hover:text-[#8b5cf6] hover:border-[#8b5cf6]/40 hover:bg-[#8b5cf6]/10 shadow-[0_0_12px_rgba(139,92,246,0.2)]",
   },
 ];
 
@@ -212,88 +233,103 @@ export function SiteFooter() {
   const currentPolicy = activeModal ? POLICY_DETAILS[activeModal] : null;
 
   return (
-    <footer className="relative border-t border-border bg-gradient-to-b from-surface/70 via-background to-surface/90 text-foreground overflow-hidden">
-      {/* Background ambient grid overlay */}
+    <footer className="relative bg-gradient-to-b from-surface/90 via-background to-surface text-foreground overflow-hidden">
+      {/* ===================== Top Vibrant Rainbow Gradient Edge Bar ===================== */}
+      <div className="h-[3px] w-full bg-gradient-to-r from-rose-500 via-amber-400 via-emerald-400 via-teal-400 via-cyan-400 via-indigo-500 to-fuchsia-500 shadow-[0_0_16px_rgba(236,72,153,0.35)]" />
+
+      {/* Multi-Color Ambient Mesh Glows */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute top-10 left-1/4 -z-10 h-[30rem] w-[40rem] -translate-x-1/2 rounded-full bg-gradient-to-tr from-rose-500/10 via-amber-500/10 to-emerald-500/10 blur-[140px] opacity-70"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute bottom-10 right-1/4 -z-10 h-[30rem] w-[40rem] translate-x-1/2 rounded-full bg-gradient-to-bl from-cyan-500/10 via-indigo-500/10 to-fuchsia-500/10 blur-[140px] opacity-70"
+      />
+
       <div
         aria-hidden
         className="grid-lines pointer-events-none absolute inset-0 opacity-[0.04]"
       />
 
       <div className="relative mx-auto w-full max-w-[84rem] px-3.5 pt-12 pb-10 sm:px-8 sm:pt-16 sm:pb-12 min-w-0">
-        {/* ===================== Top Newsletter Card ===================== */}
-        <div className="mb-12 sm:mb-16 overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-card/80 p-5 sm:p-10 shadow-[0_12px_40px_-20px_color-mix(in_oklab,var(--color-primary-deep)_25%,transparent)] backdrop-blur-sm min-w-0">
-          <div className="grid items-center gap-6 sm:gap-8 lg:grid-cols-[1.2fr_1fr] min-w-0">
-            <div className="min-w-0">
-              <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-accent/60 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[0.65rem] sm:text-xs font-semibold text-accent-foreground max-w-full">
-                <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
-                <span className="truncate">Weekly Academic Dispatch</span>
-              </div>
-              <h3 className="mt-3 text-xl sm:text-3xl font-bold tracking-tight text-foreground break-words leading-tight">
-                Stay Ahead In Your Semester.
-              </h3>
-              <p className="mt-2 text-xs sm:text-base leading-relaxed text-muted-foreground break-words">
-                Exam Alerts, Lab Viva Cheat-Sheets, Assignment Deadlines, And Curated University
-                Notes Delivered Directly To Your Student Inbox Every Monday.
-              </p>
-
-              <div className="mt-4 flex flex-wrap items-center gap-2.5 sm:gap-4 text-[0.7rem] sm:text-xs text-muted-foreground">
-                <span className="inline-flex items-center gap-1.5 font-medium">
-                  <ShieldCheck className="h-3.5 w-3.5 text-primary shrink-0" /> Verified Academic Content
-                </span>
-                <span className="inline-flex items-center gap-1.5 font-medium">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" /> 100% Free For Students
-                </span>
-                <span className="inline-flex items-center gap-1.5 font-medium">
-                  <Flame className="h-3.5 w-3.5 text-highlight shrink-0" /> NIMS Syllabus Aligned
-                </span>
-              </div>
-            </div>
-
-            <div className="min-w-0">
-              {subscribed ? (
-                <div className="flex items-center gap-3 rounded-xl border border-primary/30 bg-accent/40 p-4 text-xs sm:text-sm font-medium text-foreground min-w-0">
-                  <div className="grid h-8 w-8 sm:h-9 sm:w-9 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
-                    <Check className="h-4 w-4 sm:h-5 sm:w-5" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-semibold text-foreground truncate">You Are Officially Subscribed!</p>
-                    <p className="text-[0.7rem] sm:text-xs text-muted-foreground truncate">
-                      Check {email} For Your Orientation Toolkit.
-                    </p>
-                  </div>
+        {/* ===================== Top Rainbow-Bordered Newsletter Card ===================== */}
+        <div className="mb-12 sm:mb-16 relative p-[1.5px] rounded-2xl sm:rounded-3xl bg-gradient-to-r from-rose-500/35 via-amber-400/35 via-emerald-400/35 via-cyan-400/35 via-indigo-500/35 to-fuchsia-500/35 shadow-[0_16px_50px_-20px_rgba(16,185,129,0.25)] min-w-0">
+          <div className="rounded-[calc(1rem-1.5px)] sm:rounded-[calc(1.5rem-1.5px)] bg-card/95 p-5 sm:p-10 backdrop-blur-md min-w-0">
+            <div className="grid items-center gap-6 sm:gap-8 lg:grid-cols-[1.2fr_1fr] min-w-0">
+              <div className="min-w-0">
+                <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-gradient-to-r from-emerald-500/15 via-teal-500/15 to-cyan-500/15 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[0.65rem] sm:text-xs font-semibold text-foreground max-w-full">
+                  <Sparkles className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                  <span className="truncate">Weekly Academic Dispatch</span>
                 </div>
-              ) : (
-                <form onSubmit={handleSubscribe} className="flex flex-col gap-2 sm:flex-row min-w-0">
-                  <div className="relative flex-1 min-w-0">
-                    <Mail className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Enter Your Student Email (E.g. Name@University.edu)"
-                      required
-                      className="h-11 sm:h-12 w-full rounded-xl border border-border bg-background/90 pr-3 pl-10 text-xs sm:text-sm transition-colors placeholder:text-muted-foreground/70 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
-                    />
+
+                <h3 className="mt-3 text-xl sm:text-3xl font-bold tracking-tight text-foreground break-words leading-tight">
+                  Stay Ahead In Your Semester.
+                </h3>
+                <p className="mt-2 text-xs sm:text-base leading-relaxed text-muted-foreground break-words">
+                  Exam Alerts, Lab Viva Cheat-Sheets, Assignment Deadlines, And Curated University
+                  Notes Delivered Directly To Your Student Inbox Every Monday.
+                </p>
+
+                <div className="mt-4 flex flex-wrap items-center gap-2.5 sm:gap-4 text-[0.7rem] sm:text-xs">
+                  <span className="inline-flex items-center gap-1.5 font-medium text-emerald-600 dark:text-emerald-400">
+                    <ShieldCheck className="h-3.5 w-3.5 shrink-0" /> Verified Academic Content
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 font-medium text-cyan-600 dark:text-cyan-400">
+                    <CheckCircle2 className="h-3.5 w-3.5 shrink-0" /> 100% Free For Students
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 font-medium text-amber-600 dark:text-amber-400">
+                    <Flame className="h-3.5 w-3.5 shrink-0" /> NIMS Syllabus Aligned
+                  </span>
+                </div>
+              </div>
+
+              <div className="min-w-0">
+                {subscribed ? (
+                  <div className="flex items-center gap-3 rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-4 text-xs sm:text-sm font-medium text-foreground min-w-0">
+                    <div className="grid h-8 w-8 sm:h-9 sm:w-9 shrink-0 place-items-center rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 text-white shadow-sm">
+                      <Check className="h-4 w-4 sm:h-5 sm:w-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-bold text-foreground truncate">You Are Officially Subscribed!</p>
+                      <p className="text-[0.7rem] sm:text-xs text-muted-foreground truncate">
+                        Check {email} For Your Weekly Toolkit.
+                      </p>
+                    </div>
                   </div>
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="inline-flex h-11 sm:h-12 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-xs sm:text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary-deep hover:shadow hover:-translate-y-0.5 disabled:opacity-60 cursor-pointer shrink-0"
-                  >
-                    {loading ? (
-                      <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
-                    ) : (
-                      <>
-                        <span>Join Free</span>
-                        <Send className="h-3.5 w-3.5" />
-                      </>
-                    )}
-                  </button>
-                </form>
-              )}
-              <p className="mt-2 text-[0.7rem] sm:text-[0.75rem] text-muted-foreground">
-                Zero Spam. Unsubscribe Anytime With A Single Click.
-              </p>
+                ) : (
+                  <form onSubmit={handleSubscribe} className="flex flex-col gap-2 sm:flex-row min-w-0">
+                    <div className="relative flex-1 min-w-0">
+                      <Mail className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      <input
+                        type="email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Enter Your Student Email (E.g. Name@University.edu)"
+                        required
+                        className="h-11 sm:h-12 w-full rounded-xl border border-border bg-background/90 pr-3 pl-10 text-xs sm:text-sm transition-colors placeholder:text-muted-foreground/70 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 focus:outline-none"
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="inline-flex h-11 sm:h-12 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 px-5 text-xs sm:text-sm font-bold text-white shadow-md transition-all hover:from-emerald-500 hover:to-cyan-500 hover:shadow-lg hover:-translate-y-0.5 disabled:opacity-60 cursor-pointer shrink-0"
+                    >
+                      {loading ? (
+                        <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      ) : (
+                        <>
+                          <span>Join Free</span>
+                          <Send className="h-3.5 w-3.5" />
+                        </>
+                      )}
+                    </button>
+                  </form>
+                )}
+                <p className="mt-2 text-[0.7rem] sm:text-[0.75rem] text-muted-foreground">
+                  Zero Spam. Unsubscribe Anytime With A Single Click.
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -309,7 +345,7 @@ export function SiteFooter() {
                 className="h-9 w-9 sm:h-10 sm:w-10 object-contain rounded-xl shadow-xs transition-transform group-hover:scale-105"
               />
               <div>
-                <span className="font-display text-lg sm:text-xl font-bold tracking-tight text-foreground">
+                <span className="font-display text-lg sm:text-xl font-bold tracking-tight bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent dark:from-emerald-400 dark:via-teal-400 dark:to-cyan-400">
                   NimsWallah
                 </span>
                 <span className="block text-[0.65rem] sm:text-[0.7rem] font-semibold tracking-wider text-muted-foreground uppercase">
@@ -324,17 +360,17 @@ export function SiteFooter() {
             </p>
 
             {/* System Status Pill */}
-            <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-border/80 bg-surface px-3 py-1 text-[0.7rem] text-muted-foreground max-w-full">
+            <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-[0.7rem] text-muted-foreground max-w-full">
               <span className="relative flex h-2 w-2 shrink-0">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
               </span>
-              <span className="font-medium text-foreground truncate">All Systems Operational</span>
-              <span className="text-muted-foreground/60">•</span>
-              <span className="font-mono text-[0.65rem] shrink-0">v2.4</span>
+              <span className="font-semibold text-emerald-700 dark:text-emerald-300 truncate">All Systems Operational</span>
+              <span className="text-emerald-500/40">•</span>
+              <span className="font-mono text-[0.65rem] shrink-0 text-emerald-600 dark:text-emerald-400 font-bold">v2.4</span>
             </div>
 
-            {/* Social Icons */}
+            {/* Social Icons with Rainbow Glows */}
             <div className="mt-5 flex flex-wrap items-center gap-2">
               {SOCIAL_LINKS.map((item) => {
                 const Icon = item.icon;
@@ -346,7 +382,7 @@ export function SiteFooter() {
                     rel="noreferrer"
                     aria-label={item.name}
                     className={cn(
-                      "grid h-8 w-8 sm:h-9 sm:w-9 place-items-center rounded-lg border border-border bg-card text-muted-foreground transition-all duration-200 hover:-translate-y-0.5 cursor-pointer",
+                      "grid h-8 w-8 sm:h-9 sm:w-9 place-items-center rounded-xl border border-border bg-card/90 text-muted-foreground transition-all duration-200 hover:-translate-y-0.5 cursor-pointer shadow-2xs backdrop-blur-xs",
                       item.hoverClass,
                     )}
                   >
@@ -361,15 +397,22 @@ export function SiteFooter() {
           <div className="grid grid-cols-2 gap-6 sm:grid-cols-2 lg:col-span-8 lg:grid-cols-4 min-w-0">
             {FOOTER_COLUMNS.map((col) => (
               <div key={col.title} className="min-w-0">
-                <h4 className="label-caps text-xs font-bold text-foreground/90 truncate">{col.title}</h4>
-                <ul className="mt-3 space-y-2">
+                <div className="flex items-center gap-1.5">
+                  <span className={cn("h-1.5 w-1.5 rounded-full bg-gradient-to-r shrink-0", col.accentGradient)} />
+                  <h4 className="label-caps text-xs font-bold text-foreground/90 truncate">{col.title}</h4>
+                </div>
+
+                <ul className="mt-3.5 space-y-2">
                   {col.links.map((link) => (
                     <li key={link.label} className="min-w-0">
                       {link.modal ? (
                         <button
                           type="button"
                           onClick={() => setActiveModal(link.modal ?? null)}
-                          className="group inline-flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground transition-colors hover:text-primary text-left cursor-pointer break-words max-w-full"
+                          className={cn(
+                            "group inline-flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground transition-colors text-left cursor-pointer break-words max-w-full",
+                            col.hoverColor,
+                          )}
                         >
                           <span className="transition-transform duration-200 group-hover:translate-x-0.5">
                             {link.label}
@@ -378,7 +421,10 @@ export function SiteFooter() {
                       ) : (
                         <a
                           href={link.href}
-                          className="group inline-flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground transition-colors hover:text-primary break-words max-w-full"
+                          className={cn(
+                            "group inline-flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground transition-colors break-words max-w-full",
+                            col.hoverColor,
+                          )}
                         >
                           <span className="transition-transform duration-200 group-hover:translate-x-0.5">
                             {link.label}
@@ -386,13 +432,8 @@ export function SiteFooter() {
                           {link.badge ? (
                             <span
                               className={cn(
-                                "rounded px-1.5 py-0.2 text-[0.6rem] font-semibold uppercase leading-none shrink-0",
-                                link.badge === "New" && "bg-highlight/20 text-highlight",
-                                link.badge === "Live" && "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
-                                link.badge === "Core" && "bg-primary/15 text-primary",
-                                link.badge === "Updated" && "bg-blue-500/15 text-blue-600 dark:text-blue-400",
-                                link.badge === "Instant" && "bg-amber-500/15 text-amber-600 dark:text-amber-400",
-                                link.badge === "Hiring" && "bg-purple-500/15 text-purple-600 dark:text-purple-400",
+                                "rounded px-1.5 py-0.2 text-[0.6rem] font-bold uppercase leading-none shrink-0 border",
+                                col.badgeStyle,
                               )}
                             >
                               {link.badge}
@@ -408,20 +449,25 @@ export function SiteFooter() {
           </div>
         </div>
 
-        {/* ===================== Department Badges ===================== */}
+        {/* ===================== Department Badges with Rainbow Hover ===================== */}
         <div className="mt-10 sm:mt-14 border-t border-border/80 pt-6 sm:pt-8 min-w-0">
           <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between min-w-0">
-            <div className="flex items-center gap-2 text-[0.7rem] sm:text-xs font-semibold text-muted-foreground uppercase shrink-0">
-              <GraduationCap className="h-4 w-4 text-primary shrink-0" />
+            <div className="flex items-center gap-2 text-[0.7rem] sm:text-xs font-bold text-foreground uppercase tracking-wider shrink-0">
+              <div className="grid h-5 w-5 place-items-center rounded-md bg-gradient-to-r from-emerald-500 to-teal-500 text-white">
+                <GraduationCap className="h-3 w-3 shrink-0" />
+              </div>
               <span>Supported Programs:</span>
             </div>
             <div className="flex flex-wrap gap-1.5 min-w-0">
               {CAMPUS_DEPARTMENTS.map((dept) => (
                 <span
-                  key={dept}
-                  className="rounded-md border border-border/70 bg-card/60 px-2 py-0.5 sm:px-2.5 sm:py-1 text-[0.65rem] sm:text-xs text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground truncate"
+                  key={dept.name}
+                  className={cn(
+                    "rounded-lg border border-border/70 bg-card/70 px-2 py-0.5 sm:px-2.5 sm:py-1 text-[0.65rem] sm:text-xs font-medium text-muted-foreground transition-all duration-200 shadow-2xs backdrop-blur-xs cursor-default truncate",
+                    dept.hover,
+                  )}
                 >
-                  {dept}
+                  {dept.name}
                 </span>
               ))}
             </div>
@@ -437,83 +483,93 @@ export function SiteFooter() {
             <span className="hidden text-muted-foreground/40 sm:inline">•</span>
             <p className="inline-flex items-center gap-1">
               <span>Made With</span>
-              <Heart className="h-3 w-3 fill-rose-500 text-rose-500 shrink-0" />
-              <span>For University Students</span>
+              <Heart className="h-3 w-3 fill-rose-500 text-rose-500 shrink-0 animate-pulse" />
+              <span className="font-semibold bg-gradient-to-r from-rose-500 via-amber-500 to-emerald-500 bg-clip-text text-transparent">
+                For University Students
+              </span>
             </p>
           </div>
 
           <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-3 min-w-0">
-            <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
               <button
                 type="button"
                 onClick={() => setActiveModal("Privacy Policy")}
-                className="transition-colors hover:text-primary whitespace-nowrap cursor-pointer"
+                className="transition-colors hover:text-emerald-500 whitespace-nowrap cursor-pointer font-medium"
               >
                 Privacy Policy
               </button>
-              <span className="text-muted-foreground/40">·</span>
+              <span>•</span>
               <button
                 type="button"
                 onClick={() => setActiveModal("Terms Of Service")}
-                className="transition-colors hover:text-primary whitespace-nowrap cursor-pointer"
+                className="transition-colors hover:text-cyan-500 whitespace-nowrap cursor-pointer font-medium"
               >
                 Terms Of Service
               </button>
-              <span className="text-muted-foreground/40">·</span>
+              <span>•</span>
               <button
                 type="button"
                 onClick={() => setActiveModal("Security Policy")}
-                className="transition-colors hover:text-primary whitespace-nowrap cursor-pointer"
+                className="transition-colors hover:text-purple-500 whitespace-nowrap cursor-pointer font-medium"
               >
                 Security Policy
               </button>
             </div>
 
             <button
-              onClick={scrollToTop}
               type="button"
-              className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-1.5 text-xs font-semibold text-foreground shadow-2xs transition-all hover:border-primary hover:text-primary hover:-translate-y-0.5 active:translate-y-0 cursor-pointer shrink-0"
-              aria-label="Scroll Back To Top"
+              onClick={scrollToTop}
+              className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-card/90 px-3 py-1 text-xs font-bold text-foreground shadow-2xs transition-all duration-200 hover:border-transparent hover:bg-gradient-to-r hover:from-emerald-500/20 hover:via-cyan-500/20 hover:to-purple-500/20 hover:scale-105 cursor-pointer shrink-0"
             >
               <span>Back To Top</span>
-              <ArrowUp className="h-3.5 w-3.5" />
+              <span className="text-emerald-500">↑</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* Interactive Policy Modal */}
-      {currentPolicy ? (
-        <Dialog open={Boolean(activeModal)} onOpenChange={(open) => !open && setActiveModal(null)}>
-          <DialogContent className="max-w-md rounded-2xl bg-card p-6 shadow-xl border border-border">
-            <DialogHeader>
-              <DialogTitle className="text-xl font-bold tracking-tight text-foreground">
-                {currentPolicy.title}
-              </DialogTitle>
-              <DialogDescription className="text-xs text-muted-foreground">
-                Official NimsWallah Academic Governance &amp; Standards
-              </DialogDescription>
-            </DialogHeader>
-            <ul className="mt-4 space-y-3">
-              {currentPolicy.content.map((point) => (
-                <li key={point} className="flex items-start gap-2.5 text-xs leading-relaxed text-muted-foreground">
-                  <CheckCircle2 className="h-4 w-4 shrink-0 text-primary mt-0.5" />
-                  <span className="text-foreground/90">{point}</span>
-                </li>
-              ))}
-            </ul>
-            <div className="mt-6 flex justify-end">
-              <button
-                type="button"
-                onClick={() => setActiveModal(null)}
-                className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground transition-all hover:bg-primary-deep cursor-pointer"
-              >
-                Understood &amp; Accept
-              </button>
+      {/* ===================== Interactive Policy Modal Dialog ===================== */}
+      <Dialog open={!!activeModal} onOpenChange={(open) => !open && setActiveModal(null)}>
+        <DialogContent className="sm:max-w-lg bg-card/95 backdrop-blur-xl border border-border/80 shadow-2xl">
+          <DialogHeader>
+            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-500 mb-1">
+              <ShieldCheck className="h-4 w-4" />
+              <span>NimsWallah Governance</span>
             </div>
-          </DialogContent>
-        </Dialog>
-      ) : null}
+            <DialogTitle className="font-display text-xl font-bold text-foreground">
+              {currentPolicy?.title ?? activeModal}
+            </DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              Official University Guidelines &amp; Data Security Commitments
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="mt-4 space-y-3 text-xs leading-relaxed text-foreground/90">
+            {currentPolicy?.content.map((paragraph, index) => (
+              <div
+                key={index}
+                className="flex items-start gap-2.5 rounded-xl border border-border/60 bg-surface/70 p-3"
+              >
+                <div className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[0.65rem] font-bold mt-0.5">
+                  {index + 1}
+                </div>
+                <p className="flex-1">{paragraph}</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-6 flex justify-end border-t border-border/60 pt-4">
+            <button
+              type="button"
+              onClick={() => setActiveModal(null)}
+              className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-xs transition-all hover:bg-primary-deep cursor-pointer"
+            >
+              Understood &amp; Close
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </footer>
   );
 }
