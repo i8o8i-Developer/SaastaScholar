@@ -88,7 +88,7 @@ const TRACK_1_ITEMS = [
   { icon: BookMarked, text: "Topper Handwritten Unit Notes", tag: "Top Rated", tone: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
   { icon: Sparkles, text: "AI Assignment Creator & Formatter", tag: "AI Tool", tone: "bg-teal-500/10 text-teal-600 dark:text-teal-400" },
   { icon: ShieldCheck, text: "100% Free Starter Study Bundles", tag: "Free", tone: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
-  { icon: Users, text: "15,000+ Active University Students", tag: "Community", tone: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400" },
+  { icon: Users, text: "Verified Department Study Portal", tag: "Academic", tone: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400" },
   { icon: Award, text: "Faculty-Verified Model Answers", tag: "Exam Prep", tone: "bg-amber-500/10 text-amber-600 dark:text-amber-400" },
 ];
 
@@ -222,7 +222,7 @@ export function Hero() {
                 <span className="font-bold text-foreground ml-0.5">4.9/5</span>
               </div>
               <span>•</span>
-              <span className="font-medium text-foreground/80">15,000+ University Students</span>
+              <span className="font-medium text-foreground/80">Verified University Notes &amp; Solutions</span>
             </div>
           </div>
 

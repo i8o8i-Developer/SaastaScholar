@@ -244,7 +244,7 @@ export function SiteFooter() {
                   <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" /> 100% Free For Students
                 </span>
                 <span className="inline-flex items-center gap-1.5 font-medium">
-                  <Flame className="h-3.5 w-3.5 text-highlight shrink-0" /> 15,000+ Active Students
+                  <Flame className="h-3.5 w-3.5 text-highlight shrink-0" /> NIMS Syllabus Aligned
                 </span>
               </div>
             </div>

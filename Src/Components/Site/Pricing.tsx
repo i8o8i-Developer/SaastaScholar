@@ -276,7 +276,7 @@ export function Pricing() {
         <div className="mt-10 flex flex-wrap items-center justify-center gap-5 sm:gap-8 border-t border-border/80 pt-6 text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-1.5">
             <ShieldCheck className="h-3.5 w-3.5 text-primary shrink-0" />
-            <span>7-Day Full Money-Back Guarantee</span>
+            <span>Verified Handwritten Notes &amp; Solved PYQs</span>
           </span>
           <span className="inline-flex items-center gap-1.5">
             <Zap className="h-3.5 w-3.5 text-primary shrink-0" />
