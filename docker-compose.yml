@@ -13,8 +13,13 @@ services:
     container_name: nimswallah-app
     restart: unless-stopped
     ports:
-      - "${PORT:-7865}:7865"
-      - "80:80"
+      - "7865:7865"
+    environment:
+      - PORT=7865
+      - VITE_PORT=7865
+    labels:
+      - "coolify.managed=true"
+      - "coolify.port=7865"
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:7865/healthz || exit 1"]
       interval: 30s
