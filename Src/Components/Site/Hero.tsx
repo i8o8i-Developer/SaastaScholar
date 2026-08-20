@@ -15,6 +15,7 @@ import {
   GraduationCap,
   Layers,
   NotebookPen,
+  School,
   ShieldCheck,
   Sparkles,
   Star,
@@ -171,37 +172,62 @@ export function Hero() {
         className="grid-lines pointer-events-none absolute inset-0 opacity-100 [mask-image:linear-gradient(to_bottom,black_85%,transparent)]"
       />
 
-      {/* Red Line 1: Generous Top Spacing from Navbar */}
-      <div className="relative mx-auto grid w-full max-w-[84rem] gap-10 px-3.5 pt-12 pb-14 sm:px-8 sm:pt-16 sm:pb-16 lg:pt-20 lg:pb-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:items-center lg:gap-14 min-w-0">
-        <Reveal className="min-w-0">
-          <Pill tone="green">
-            <GraduationCap className="h-3.5 w-3.5 shrink-0" />
-            <span className="truncate">Built For Your University Syllabus</span>
-          </Pill>
+      {/* Hero Main Grid Container */}
+      <div className="relative mx-auto grid w-full max-w-[84rem] gap-10 px-3.5 pt-10 pb-12 sm:px-8 sm:pt-14 sm:pb-14 lg:pt-16 lg:pb-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:items-start lg:gap-12 min-w-0">
+        {/* Left Column */}
+        <Reveal className="min-w-0 flex flex-col justify-between">
+          <div>
+            <Pill tone="green">
+              <GraduationCap className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">Built For Your University Syllabus</span>
+            </Pill>
 
-          <h1 className="mt-6 text-[2.2rem] leading-[1.04] sm:text-5xl lg:text-[4.2rem] font-bold tracking-tight text-foreground break-words">
-            Your Entire University Life. Organized.
-          </h1>
+            <h1 className="mt-5 text-[2.2rem] leading-[1.04] sm:text-5xl lg:text-[4rem] font-bold tracking-tight text-foreground break-words">
+              Your Entire University Life. Organized.
+            </h1>
 
-          {/* Red Line 2: Expanded Gap Between Headline and Description */}
-          <p className="mt-6 max-w-xl text-sm sm:text-lg leading-relaxed text-muted-foreground break-words">
-            Access Daily Class Notes, Assignments, Practicals, Previous-Year Papers, Exam
-            Updates, University Notices And More — Organized By Your University, Department,
-            Semester And Section.
-          </p>
+            <p className="mt-5 max-w-xl text-sm sm:text-base leading-relaxed text-muted-foreground break-words">
+              Access Daily Class Notes, Assignments, Practicals, Previous-Year Papers, Exam
+              Updates, University Notices And More — Organized By Your University, Department,
+              Semester And Section.
+            </p>
 
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row min-w-0">
-            <Cta href="/login" size="lg" className="w-full sm:w-auto">
-              <span>Get Started</span>
-              <ArrowRight className="h-4 w-4 shrink-0" />
-            </Cta>
-            <Cta href="#features" variant="outline" size="lg" className="w-full sm:w-auto">
-              Explore Features
-            </Cta>
+            {/* CTAs + Social Proof Row */}
+            <div className="mt-7 flex flex-col gap-3.5 sm:flex-row sm:items-center min-w-0">
+              <Cta href="/login" size="lg" className="w-full sm:w-auto">
+                <span>Get Started</span>
+                <ArrowRight className="h-4 w-4 shrink-0" />
+              </Cta>
+              <Cta href="#features" variant="outline" size="lg" className="w-full sm:w-auto">
+                Explore Features
+              </Cta>
+            </div>
+
+            {/* Student Rating & Social Proof Bar */}
+            <div className="mt-4 flex flex-wrap items-center gap-2.5 text-xs text-muted-foreground">
+              <div className="flex -space-x-1.5 shrink-0">
+                {["bg-emerald-500", "bg-teal-600", "bg-indigo-600", "bg-amber-500"].map((bg, idx) => (
+                  <div
+                    key={idx}
+                    className={`grid h-6 w-6 place-items-center rounded-full border-2 border-background text-[0.6rem] font-bold text-white ${bg}`}
+                  >
+                    {["A", "R", "S", "P"][idx]}
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="h-3 w-3 fill-amber-400 text-amber-400" />
+                ))}
+                <span className="font-bold text-foreground ml-0.5">4.9/5</span>
+              </div>
+              <span>•</span>
+              <span className="font-medium text-foreground/80">15,000+ University Students</span>
+            </div>
           </div>
 
-          {/* Attractive Glassmorphic Metric Stat Cards */}
-          <div className="mt-8 sm:mt-10 grid max-w-xl grid-cols-3 gap-2.5 sm:gap-3.5 min-w-0">
+          {/* Attractive Glassmorphic Metric Stat Cards (Left Bottom) */}
+          <div className="mt-7 grid grid-cols-3 gap-2.5 sm:gap-3 min-w-0">
             {[
               {
                 value: "6",
@@ -229,22 +255,22 @@ export function Hero() {
               return (
                 <div
                   key={stat.label}
-                  className="group relative flex flex-col justify-between rounded-2xl border border-border/80 bg-card/90 p-3 sm:p-4 shadow-2xs backdrop-blur-xs transition-all duration-200 hover:border-primary/50 hover:bg-card hover:-translate-y-0.5 hover:shadow-sm min-w-0"
+                  className="group relative flex flex-col justify-between rounded-2xl border border-border/80 bg-card/90 p-3 sm:p-3.5 shadow-2xs backdrop-blur-xs transition-all duration-200 hover:border-primary/50 hover:bg-card hover:-translate-y-0.5 min-w-0"
                 >
                   <div className="flex items-center justify-between gap-1 min-w-0">
-                    <div className={cn("grid h-7 w-7 sm:h-8 sm:w-8 place-items-center rounded-xl bg-gradient-to-br shadow-2xs", stat.accent)}>
-                      <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                    <div className={cn("grid h-7 w-7 place-items-center rounded-lg bg-gradient-to-br shadow-2xs", stat.accent)}>
+                      <Icon className="h-3.5 w-3.5 shrink-0" />
                     </div>
-                    <span className="font-display text-2xl sm:text-3xl font-black tracking-tight bg-gradient-to-br from-primary via-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                    <span className="font-display text-xl sm:text-2xl font-black tracking-tight bg-gradient-to-br from-primary via-emerald-600 to-teal-600 bg-clip-text text-transparent">
                       {stat.value}
                     </span>
                   </div>
 
-                  <div className="mt-2.5 min-w-0">
-                    <p className="font-semibold text-xs sm:text-sm text-foreground leading-tight truncate">
+                  <div className="mt-2 min-w-0">
+                    <p className="font-semibold text-xs text-foreground leading-tight truncate">
                       {stat.label}
                     </p>
-                    <p className="mt-0.5 text-[0.65rem] sm:text-xs text-muted-foreground truncate">
+                    <p className="mt-0.5 text-[0.62rem] sm:text-[0.68rem] text-muted-foreground truncate">
                       {stat.sub}
                     </p>
                   </div>
@@ -252,44 +278,19 @@ export function Hero() {
               );
             })}
           </div>
-
-          {/* Red Line 4: Expanded Gap Between Stats Row and Social Proof Card */}
-          <div className="mt-8 sm:mt-10 flex flex-wrap items-center gap-4 rounded-2xl border border-border/80 bg-card/75 p-4 sm:p-4.5 shadow-2xs backdrop-blur-xs min-w-0">
-            <div className="flex -space-x-2 shrink-0">
-              {["bg-emerald-500 text-white", "bg-teal-600 text-white", "bg-indigo-600 text-white", "bg-amber-500 text-white"].map((bg, idx) => (
-                <div
-                  key={idx}
-                  className={`grid h-8 w-8 place-items-center rounded-full border-2 border-card text-[0.7rem] font-bold ${bg}`}
-                >
-                  {["A", "R", "S", "P"][idx]}
-                </div>
-              ))}
-            </div>
-
-            <div className="min-w-0">
-              <div className="flex items-center gap-1">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
-                ))}
-                <span className="ml-1 text-xs sm:text-sm font-bold text-foreground">4.9/5</span>
-              </div>
-              <p className="mt-0.5 text-xs text-muted-foreground truncate">
-                Trusted By 15,000+ University Students Across Departments
-              </p>
-            </div>
-          </div>
         </Reveal>
 
-        <Reveal delay={120} className="relative min-w-0">
+        {/* Right Column: Dashboard Mock Window + Two Live Companion Badges */}
+        <Reveal delay={120} className="relative min-w-0 flex flex-col justify-between">
           <div className="animate-float-slow min-w-0">
             <MockWindow
               title="NimsWallah · Dashboard"
               actions={<Pill tone="green">Sem 1 · Sec A</Pill>}
-              className="shadow-[0_28px_80px_-25px_color-mix(in_oklab,var(--color-primary-deep)_40%,transparent)]"
+              className="shadow-[0_24px_70px_-25px_color-mix(in_oklab,var(--color-primary-deep)_35%,transparent)]"
             >
-              <div className="border-b border-border bg-card px-5 py-4 min-w-0">
-                <p className="label-caps text-[0.7rem] text-muted-foreground font-semibold">Good Morning, Aarav</p>
-                <p className="mt-1 font-display text-base sm:text-lg font-bold text-foreground truncate">
+              <div className="border-b border-border bg-card px-4 py-3 sm:px-5 sm:py-3.5 min-w-0">
+                <p className="label-caps text-[0.68rem] text-muted-foreground font-semibold">Good Morning, Aarav</p>
+                <p className="mt-0.5 font-display text-sm sm:text-base font-bold text-foreground truncate">
                   NIMS University · B.Tech AI &amp; ML
                 </p>
               </div>
@@ -297,24 +298,24 @@ export function Hero() {
                 {DASHBOARD_ITEMS.map((item, i) => (
                   <li
                     key={item.title}
-                    className="group bg-card p-3.5 sm:p-4 transition-all duration-200 hover:bg-accent/40 min-w-0"
+                    className="group bg-card p-3 sm:p-3.5 transition-all duration-200 hover:bg-accent/40 min-w-0"
                     style={{ animation: `fade-in 0.5s ease-out ${0.15 + i * 0.08}s both` }}
                   >
                     <div className="flex items-center justify-between gap-1.5 min-w-0">
                       <span className="flex items-center gap-1.5 text-muted-foreground group-hover:text-primary transition-colors min-w-0">
-                        <item.icon className="h-4 w-4 shrink-0 text-primary" />
-                        <span className="label-caps text-[0.68rem] font-semibold truncate">{item.label}</span>
+                        <item.icon className="h-3.5 w-3.5 shrink-0 text-primary" />
+                        <span className="label-caps text-[0.65rem] font-semibold truncate">{item.label}</span>
                       </span>
                       <Pill tone={item.tone}>{item.tag}</Pill>
                     </div>
-                    <p className="mt-2 text-xs sm:text-sm font-semibold leading-snug group-hover:text-primary transition-colors truncate">
+                    <p className="mt-1.5 text-xs font-semibold leading-snug group-hover:text-primary transition-colors truncate">
                       {item.title}
                     </p>
-                    <p className="mt-1 text-[0.7rem] text-muted-foreground truncate">{item.meta}</p>
+                    <p className="mt-0.5 text-[0.65rem] text-muted-foreground truncate">{item.meta}</p>
                   </li>
                 ))}
               </ul>
-              <div className="flex items-center justify-between gap-2 border-t border-border bg-surface px-4 py-3 sm:px-5 sm:py-3 min-w-0">
+              <div className="flex items-center justify-between gap-2 border-t border-border bg-surface px-4 py-2.5 min-w-0">
                 <span className="text-xs text-muted-foreground font-medium truncate">
                   Synced With Computer Science
                 </span>
@@ -322,11 +323,42 @@ export function Hero() {
               </div>
             </MockWindow>
           </div>
+
+          {/* Two Companion Cards At End of Right Side (Balances Both Columns) */}
+          <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2.5 min-w-0">
+            <div className="flex items-center gap-3 rounded-2xl border border-border/80 bg-card/90 p-3 shadow-2xs backdrop-blur-xs transition-all hover:border-primary/50 min-w-0">
+              <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-primary/15 text-primary">
+                <School className="h-4 w-4 shrink-0" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-bold text-foreground truncate">
+                  NIMS Official Syllabus
+                </p>
+                <p className="text-[0.65rem] text-muted-foreground truncate">
+                  Aligned To Batch 2026 Grading
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 rounded-2xl border border-border/80 bg-card/90 p-3 shadow-2xs backdrop-blur-xs transition-all hover:border-primary/50 min-w-0">
+              <div className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-teal-500/15 text-teal-600 dark:text-teal-400">
+                <FileCheck2 className="h-4 w-4 shrink-0" />
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-bold text-foreground truncate">
+                  Solved PYQs (2020–2025)
+                </p>
+                <p className="text-[0.65rem] text-muted-foreground truncate">
+                  100% Model Step-by-Step Solutions
+                </p>
+              </div>
+            </div>
+          </div>
         </Reveal>
       </div>
 
       {/* ===================== Rich Dual Horizontal Ticker Section ===================== */}
-      <div className="relative border-t border-border/80 bg-surface/70 py-4.5 backdrop-blur-md overflow-hidden space-y-3">
+      <div className="relative border-t border-border/80 bg-surface/70 py-4 backdrop-blur-md overflow-hidden space-y-2.5">
         {/* Left & Right Fade Gradient Masks */}
         <div
           aria-hidden
