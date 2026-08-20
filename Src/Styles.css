@@ -292,6 +292,15 @@
   }
 }
 
+@keyframes marquee-reverse {
+  from {
+    transform: translate3d(-50%, 0, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
 .animate-marquee {
   display: flex !important;
   flex-direction: row !important;
@@ -304,4 +313,18 @@
 .animate-marquee:hover {
   animation-play-state: paused !important;
 }
+
+.animate-marquee-reverse {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  width: max-content !important;
+  animation: marquee-reverse 28s linear infinite !important;
+  will-change: transform;
+}
+
+.animate-marquee-reverse:hover {
+  animation-play-state: paused !important;
+}
+
 

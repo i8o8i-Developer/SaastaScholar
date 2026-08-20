@@ -20,7 +20,7 @@ const FILTERED = [
 
 export function Personalization() {
   return (
-    <Section id="features" tone="surface">
+    <Section id="features" tone="surface" className="py-10 sm:py-16">
       <div className="grid gap-14 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-center">
         <Reveal>
           <SectionHeading
