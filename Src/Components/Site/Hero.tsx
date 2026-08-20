@@ -169,24 +169,26 @@ export function Hero() {
         className="grid-lines pointer-events-none absolute inset-0 opacity-100 [mask-image:linear-gradient(to_bottom,black_85%,transparent)]"
       />
 
-      <div className="relative mx-auto grid w-full max-w-[84rem] gap-6 px-3.5 pt-6 pb-6 sm:px-8 sm:pt-10 sm:pb-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:items-center lg:gap-10 min-w-0">
+      {/* Red Line 1: Generous Top Spacing from Navbar */}
+      <div className="relative mx-auto grid w-full max-w-[84rem] gap-10 px-3.5 pt-12 pb-14 sm:px-8 sm:pt-16 sm:pb-16 lg:pt-20 lg:pb-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:items-center lg:gap-14 min-w-0">
         <Reveal className="min-w-0">
           <Pill tone="green">
             <GraduationCap className="h-3.5 w-3.5 shrink-0" />
             <span className="truncate">Built For Your University Syllabus</span>
           </Pill>
 
-          <h1 className="mt-4 text-[1.85rem] leading-[1.05] sm:text-5xl lg:text-[4rem] font-bold tracking-tight text-foreground break-words">
+          <h1 className="mt-6 text-[2.2rem] leading-[1.04] sm:text-5xl lg:text-[4.2rem] font-bold tracking-tight text-foreground break-words">
             Your Entire University Life. Organized.
           </h1>
 
-          <p className="mt-3.5 max-w-xl text-xs sm:text-base leading-relaxed text-muted-foreground break-words">
+          {/* Red Line 2: Expanded Gap Between Headline and Description */}
+          <p className="mt-6 max-w-xl text-sm sm:text-lg leading-relaxed text-muted-foreground break-words">
             Access Daily Class Notes, Assignments, Practicals, Previous-Year Papers, Exam
             Updates, University Notices And More — Organized By Your University, Department,
             Semester And Section.
           </p>
 
-          <div className="mt-6 flex flex-col gap-2.5 sm:flex-row min-w-0">
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row min-w-0">
             <Cta href="/login" size="lg" className="w-full sm:w-auto">
               <span>Get Started</span>
               <ArrowRight className="h-4 w-4 shrink-0" />
@@ -196,26 +198,27 @@ export function Hero() {
             </Cta>
           </div>
 
-          <dl className="mt-6 grid max-w-lg grid-cols-3 gap-2 sm:gap-6 border-t border-border pt-4">
+          {/* Red Line 3: Expanded Gap Between Buttons and Stats Row */}
+          <dl className="mt-10 sm:mt-12 grid max-w-lg grid-cols-3 gap-3 sm:gap-6 border-t border-border pt-7 sm:pt-8">
             {[
               ["6", "Academic Modules"],
               ["1", "Unified Feed"],
               ["0", "Group Noise"],
             ].map(([value, label]) => (
               <div key={label} className="min-w-0">
-                <dt className="font-display text-xl sm:text-3xl font-bold text-primary">{value}</dt>
-                <dd className="label-caps mt-1 text-[0.6rem] sm:text-xs text-muted-foreground truncate">{label}</dd>
+                <dt className="font-display text-2xl sm:text-3xl font-bold text-primary">{value}</dt>
+                <dd className="label-caps mt-1.5 text-[0.65rem] sm:text-xs text-muted-foreground truncate">{label}</dd>
               </div>
             ))}
           </dl>
 
-          {/* Social Proof & Trust Badges Row (Fills bottom-left empty gap) */}
-          <div className="mt-6 flex flex-wrap items-center gap-3.5 rounded-2xl border border-border/80 bg-card/70 p-3 sm:p-3.5 shadow-2xs backdrop-blur-xs min-w-0">
+          {/* Red Line 4: Expanded Gap Between Stats Row and Social Proof Card */}
+          <div className="mt-8 sm:mt-10 flex flex-wrap items-center gap-4 rounded-2xl border border-border/80 bg-card/75 p-4 sm:p-4.5 shadow-2xs backdrop-blur-xs min-w-0">
             <div className="flex -space-x-2 shrink-0">
               {["bg-emerald-500 text-white", "bg-teal-600 text-white", "bg-indigo-600 text-white", "bg-amber-500 text-white"].map((bg, idx) => (
                 <div
                   key={idx}
-                  className={`grid h-7 w-7 place-items-center rounded-full border-2 border-card text-[0.65rem] font-bold ${bg}`}
+                  className={`grid h-8 w-8 place-items-center rounded-full border-2 border-card text-[0.7rem] font-bold ${bg}`}
                 >
                   {["A", "R", "S", "P"][idx]}
                 </div>
@@ -225,11 +228,11 @@ export function Hero() {
             <div className="min-w-0">
               <div className="flex items-center gap-1">
                 {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="h-3 w-3 fill-amber-400 text-amber-400" />
+                  <Star key={i} className="h-3.5 w-3.5 fill-amber-400 text-amber-400" />
                 ))}
-                <span className="ml-1 text-xs font-bold text-foreground">4.9/5</span>
+                <span className="ml-1 text-xs sm:text-sm font-bold text-foreground">4.9/5</span>
               </div>
-              <p className="text-[0.68rem] text-muted-foreground truncate">
+              <p className="mt-0.5 text-xs text-muted-foreground truncate">
                 Trusted By 15,000+ University Students Across Departments
               </p>
             </div>
@@ -243,9 +246,9 @@ export function Hero() {
               actions={<Pill tone="green">Sem 1 · Sec A</Pill>}
               className="shadow-[0_28px_80px_-25px_color-mix(in_oklab,var(--color-primary-deep)_40%,transparent)]"
             >
-              <div className="border-b border-border bg-card px-4 py-3 sm:px-5 sm:py-3.5 min-w-0">
-                <p className="label-caps text-[0.65rem] text-muted-foreground font-semibold">Good Morning, Aarav</p>
-                <p className="mt-0.5 font-display text-sm sm:text-base font-bold text-foreground truncate">
+              <div className="border-b border-border bg-card px-5 py-4 min-w-0">
+                <p className="label-caps text-[0.7rem] text-muted-foreground font-semibold">Good Morning, Aarav</p>
+                <p className="mt-1 font-display text-base sm:text-lg font-bold text-foreground truncate">
                   NIMS University · B.Tech AI &amp; ML
                 </p>
               </div>
@@ -254,36 +257,36 @@ export function Hero() {
                   <li
                     key={item.title}
                     onClick={() => toast.info(`📌 Opening ${item.title}...`)}
-                    className="group bg-card p-3 transition-all duration-200 hover:bg-accent/40 cursor-pointer min-w-0"
+                    className="group bg-card p-3.5 sm:p-4 transition-all duration-200 hover:bg-accent/40 cursor-pointer min-w-0"
                     style={{ animation: `fade-in 0.5s ease-out ${0.15 + i * 0.08}s both` }}
                   >
                     <div className="flex items-center justify-between gap-1.5 min-w-0">
                       <span className="flex items-center gap-1.5 text-muted-foreground group-hover:text-primary transition-colors min-w-0">
-                        <item.icon className="h-3.5 w-3.5 shrink-0 text-primary" />
-                        <span className="label-caps text-[0.65rem] font-semibold truncate">{item.label}</span>
+                        <item.icon className="h-4 w-4 shrink-0 text-primary" />
+                        <span className="label-caps text-[0.68rem] font-semibold truncate">{item.label}</span>
                       </span>
                       <Pill tone={item.tone}>{item.tag}</Pill>
                     </div>
-                    <p className="mt-1.5 text-xs sm:text-sm font-semibold leading-snug group-hover:text-primary transition-colors truncate">
+                    <p className="mt-2 text-xs sm:text-sm font-semibold leading-snug group-hover:text-primary transition-colors truncate">
                       {item.title}
                     </p>
-                    <p className="mt-0.5 text-[0.68rem] text-muted-foreground truncate">{item.meta}</p>
+                    <p className="mt-1 text-[0.7rem] text-muted-foreground truncate">{item.meta}</p>
                   </li>
                 ))}
               </ul>
-              <div className="flex items-center justify-between gap-2 border-t border-border bg-surface px-3.5 py-2 sm:px-5 sm:py-2.5 min-w-0">
-                <span className="text-[0.65rem] sm:text-xs text-muted-foreground font-medium truncate">
+              <div className="flex items-center justify-between gap-2 border-t border-border bg-surface px-4 py-3 sm:px-5 sm:py-3 min-w-0">
+                <span className="text-xs text-muted-foreground font-medium truncate">
                   Synced With Computer Science
                 </span>
-                <span className="label-caps text-[0.65rem] text-primary font-bold shrink-0">Live</span>
+                <span className="label-caps text-xs text-primary font-bold shrink-0">Live</span>
               </div>
             </MockWindow>
           </div>
         </Reveal>
       </div>
 
-      {/* ===================== Rich Dual Horizontal Ticker Section (Fills Entire Bottom Area) ===================== */}
-      <div className="relative border-t border-border/80 bg-surface/70 py-4 backdrop-blur-md overflow-hidden space-y-2.5">
+      {/* ===================== Rich Dual Horizontal Ticker Section ===================== */}
+      <div className="relative border-t border-border/80 bg-surface/70 py-4.5 backdrop-blur-md overflow-hidden space-y-3">
         {/* Left & Right Fade Gradient Masks */}
         <div
           aria-hidden
@@ -293,7 +296,7 @@ export function Hero() {
         {/* Track 1: Accreditation & Features (Moves Left) */}
         <div
           ref={track1Ref}
-          className="flex items-center gap-3 whitespace-nowrap cursor-pointer will-change-transform"
+          className="flex items-center gap-3.5 whitespace-nowrap cursor-pointer will-change-transform"
           style={{ width: "max-content" }}
         >
           {[...TRACK_1_ITEMS, ...TRACK_1_ITEMS, ...TRACK_1_ITEMS].map((item, idx) => {
@@ -302,7 +305,7 @@ export function Hero() {
               <div
                 key={idx}
                 onClick={() => toast.info(`📚 ${item.text} is included with NimsWallah!`)}
-                className="inline-flex shrink-0 items-center gap-2 rounded-full border border-border/80 bg-card/95 px-3 py-1.5 shadow-2xs transition-all duration-200 hover:border-primary hover:bg-accent/60 hover:scale-[1.03]"
+                className="inline-flex shrink-0 items-center gap-2 rounded-full border border-border/80 bg-card/95 px-3.5 py-1.5 shadow-2xs transition-all duration-200 hover:border-primary hover:bg-accent/60 hover:scale-[1.03]"
               >
                 <div className="grid h-5 w-5 place-items-center rounded-full bg-primary/15 text-primary">
                   <Icon className="h-3 w-3 shrink-0" />
@@ -321,7 +324,7 @@ export function Hero() {
         {/* Track 2: Live Course Notes & PYQ Packs (Moves Right) */}
         <div
           ref={track2Ref}
-          className="flex items-center gap-3 whitespace-nowrap cursor-pointer will-change-transform"
+          className="flex items-center gap-3.5 whitespace-nowrap cursor-pointer will-change-transform"
           style={{ width: "max-content" }}
         >
           {[...TRACK_2_ITEMS, ...TRACK_2_ITEMS, ...TRACK_2_ITEMS].map((item, idx) => {
@@ -330,11 +333,11 @@ export function Hero() {
               <div
                 key={idx}
                 onClick={() => toast.info(`📖 Opening preview for ${item.title}...`)}
-                className="inline-flex shrink-0 items-center gap-2.5 rounded-xl border border-border/80 bg-card/95 px-3.5 py-1.5 shadow-2xs transition-all duration-200 hover:border-primary hover:bg-accent/60 hover:scale-[1.03]"
+                className="inline-flex shrink-0 items-center gap-2.5 rounded-xl border border-border/80 bg-card/95 px-4 py-2 shadow-2xs transition-all duration-200 hover:border-primary hover:bg-accent/60 hover:scale-[1.03]"
               >
                 <Icon className="h-3.5 w-3.5 text-primary shrink-0" />
                 <span className="text-xs font-bold text-foreground">{item.title}</span>
-                <span className="text-[0.68rem] text-muted-foreground">{item.desc}</span>
+                <span className="text-[0.7rem] text-muted-foreground">{item.desc}</span>
                 <span className="rounded bg-secondary px-1.5 py-0.2 text-[0.6rem] font-semibold text-muted-foreground">
                   {item.badge}
                 </span>
