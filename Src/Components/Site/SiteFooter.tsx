@@ -117,10 +117,19 @@ const POLICY_DETAILS: Record<string, { title: string; content: string[] }> = {
     ],
   },
   "Data Security Policy": {
-    title: "Data Security & Infrastructure",
+    title: "Data Security & Infrastructure Policy",
     content: [
       "Our Infrastructure Employs Automated SSL/TLS Protocols, Role-Based Access Controls, And Isolated Container Sandboxes.",
-      "Continuous Backups Ensure Zero Data Loss For Semester Course Notes And Saved Timetables.",
+      "Continuous Redundant Backups Ensure Zero Data Loss For Semester Course Notes And Saved Timetables.",
+      "Zero Unauthorized Access: Course Materials And Student Profiles Are Partitioned By Verified University Domains.",
+    ],
+  },
+  "Security Policy": {
+    title: "Data Security & Infrastructure Policy",
+    content: [
+      "Our Infrastructure Employs Automated SSL/TLS Protocols, Role-Based Access Controls, And Isolated Container Sandboxes.",
+      "Continuous Redundant Backups Ensure Zero Data Loss For Semester Course Notes And Saved Timetables.",
+      "Zero Unauthorized Access: Course Materials And Student Profiles Are Partitioned By Verified University Domains.",
     ],
   },
   "Cookie Preferences": {
