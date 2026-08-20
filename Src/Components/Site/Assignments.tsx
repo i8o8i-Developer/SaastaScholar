@@ -31,25 +31,16 @@ const TRACKER = [
 
 export function Assignments() {
   const [generating, setGenerating] = useState(false);
+  const [generated, setGenerated] = useState(false);
   const [activeFormat, setActiveFormat] = useState("University Template");
   const [activeCitation, setActiveCitation] = useState("IEEE");
 
   const handleGenerate = () => {
     setGenerating(true);
-    toast.loading("AI Is Analyzing Sorting Algorithms Topic & Structuring Headings...", {
-      id: "ai-draft",
-    });
     setTimeout(() => {
       setGenerating(false);
-      toast.success(
-        "✨ Academic Draft Generated! 4 Units Structured, 6 IEEE Citations Attached.",
-        { id: "ai-draft" },
-      );
-    }, 1200);
-  };
-
-  const handleDownload = (format: string) => {
-    toast.success(`📄 Exporting Formatted ${format} File According To University Guidelines...`);
+      setGenerated(true);
+    }, 600);
   };
 
   return (
@@ -119,30 +110,27 @@ export function Assignments() {
                   <Sparkles className="h-3.5 w-3.5" />
                   <span>{generating ? "Drafting..." : "Generate Draft"}</span>
                 </button>
-                <button
-                  type="button"
-                  onClick={() => handleDownload("PDF")}
+                <a
+                  href="/login"
                   className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3.5 py-2.5 text-xs font-semibold text-foreground transition-all hover:border-primary hover:text-primary hover:-translate-y-0.5 cursor-pointer"
                 >
                   <FileDown className="h-3.5 w-3.5 text-primary" />
-                  <span>PDF</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDownload("Word Document (.docx)")}
+                  <span>PDF Export</span>
+                </a>
+                <a
+                  href="/login"
                   className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3.5 py-2.5 text-xs font-semibold text-foreground transition-all hover:border-primary hover:text-primary hover:-translate-y-0.5 cursor-pointer"
                 >
                   <FileDown className="h-3.5 w-3.5 text-primary" />
-                  <span>Word</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleDownload("IEEE Reference List")}
+                  <span>Word DOCX</span>
+                </a>
+                <a
+                  href="/login"
                   className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3.5 py-2.5 text-xs font-semibold text-foreground transition-all hover:border-primary hover:text-primary hover:-translate-y-0.5 cursor-pointer"
                 >
                   <Quote className="h-3.5 w-3.5 text-primary" />
-                  <span>References</span>
-                </button>
+                  <span>IEEE References</span>
+                </a>
               </div>
             </div>
           </MockWindow>

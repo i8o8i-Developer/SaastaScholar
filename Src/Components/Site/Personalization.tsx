@@ -18,7 +18,6 @@ import {
   Zap,
 } from "lucide-react";
 import { useState } from "react";
-import { toast } from "sonner";
 
 import { Cta, Pill, Reveal, Section, SectionHeading } from "./Primitives";
 
@@ -28,7 +27,6 @@ const CHAIN = [
     value: "NIMS University",
     icon: Building2,
     tag: "Verified Campus",
-    highlight: true,
   },
   {
     level: "Department",
@@ -47,7 +45,6 @@ const CHAIN = [
     value: "Semester 1",
     icon: Calendar,
     tag: "Active Term",
-    active: true,
   },
   {
     level: "Section",
@@ -65,29 +62,29 @@ const CHAIN = [
 
 const FILTERED_ITEMS = [
   {
-    title: "Unit 2 — Search Algorithms & Heuristics",
-    meta: "Class Notes · Uploaded Today",
-    badge: "Notes",
+    title: "Unit 2 — Search Algorithms & Heuristic Cost",
+    meta: "Class Notes · 14 Pages PDF · Uploaded Today",
+    badge: "Unit Notes",
     tagTone: "green" as const,
     icon: FileText,
   },
   {
-    title: "Assignment 3 — Uninformed Search Space",
-    meta: "Due 24 Aug · Section A Only",
-    badge: "Due Soon",
+    title: "Assignment 3 — State Space & Problem Formulation",
+    meta: "Tutorial Sheet · Step-by-Step Solution Key",
+    badge: "Assignment",
     tagTone: "warn" as const,
     icon: Zap,
   },
   {
-    title: "AI Lab Experiment 6 — A* Pathfinding",
-    meta: "Lab Manual + 50 Viva Q&A",
-    badge: "Viva Ready",
+    title: "AI Lab Experiment 6 — A* Algorithm Python Code",
+    meta: "Executable Code + Observation Table + 50 Viva Q&A",
+    badge: "Lab Manual",
     tagTone: "neutral" as const,
     icon: FlaskConical,
   },
   {
-    title: "2024 Mid-Sem University Exam Paper",
-    meta: "Previous-Year Paper · 100% Solved",
+    title: "2024 End-Semester University Solved Paper",
+    meta: "Previous-Year Paper · 100% Model Solutions Included",
     badge: "Solved PYQ",
     tagTone: "green" as const,
     icon: FileCheck2,
@@ -95,7 +92,7 @@ const FILTERED_ITEMS = [
 ];
 
 export function Personalization() {
-  const [selectedNode, setSelectedNode] = useState<string>("Semester 1");
+  const [selectedLevel, setSelectedLevel] = useState<string>("Semester 1");
 
   return (
     <Section id="features" tone="surface" className="relative py-14 sm:py-20 overflow-hidden">
@@ -119,7 +116,7 @@ export function Personalization() {
 
           <div className="mt-8 flex flex-wrap items-center gap-4">
             <Cta href="/login" size="lg" className="shadow-md hover:shadow-lg">
-              <span>Try Interactive Filter</span>
+              <span>Access Your Semester Hub</span>
               <ArrowRight className="h-4 w-4 shrink-0" />
             </Cta>
             <Cta href="#academic-hub" variant="outline" size="lg">
@@ -156,15 +153,12 @@ export function Personalization() {
 
                 {CHAIN.map((node) => {
                   const Icon = node.icon;
-                  const isSelected = selectedNode === node.value;
+                  const isSelected = selectedLevel === node.value;
 
                   return (
                     <li
                       key={node.level}
-                      onClick={() => {
-                        setSelectedNode(node.value);
-                        toast.success(`🎯 Scope set to ${node.level}: ${node.value}`);
-                      }}
+                      onClick={() => setSelectedLevel(node.value)}
                       className={`group relative flex items-start gap-3 rounded-xl p-2.5 transition-all duration-200 cursor-pointer min-w-0 ${
                         isSelected
                           ? "bg-accent/80 border border-primary/40 shadow-xs"
@@ -219,8 +213,7 @@ export function Personalization() {
                     return (
                       <li
                         key={item.title}
-                        onClick={() => toast.info(`📖 Opening ${item.title}...`)}
-                        className="group flex items-start justify-between gap-2.5 rounded-xl border border-border/70 bg-surface/60 p-3 transition-all duration-200 hover:border-primary/50 hover:bg-accent/50 cursor-pointer min-w-0"
+                        className="group flex items-start justify-between gap-2.5 rounded-xl border border-border/70 bg-surface/60 p-3 transition-all duration-200 hover:border-primary/50 hover:bg-accent/50 min-w-0"
                       >
                         <div className="flex items-start gap-2.5 min-w-0">
                           <div className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md bg-card text-primary shadow-2xs">

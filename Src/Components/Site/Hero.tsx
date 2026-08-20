@@ -256,8 +256,7 @@ export function Hero() {
                 {DASHBOARD_ITEMS.map((item, i) => (
                   <li
                     key={item.title}
-                    onClick={() => toast.info(`📌 Opening ${item.title}...`)}
-                    className="group bg-card p-3.5 sm:p-4 transition-all duration-200 hover:bg-accent/40 cursor-pointer min-w-0"
+                    className="group bg-card p-3.5 sm:p-4 transition-all duration-200 hover:bg-accent/40 min-w-0"
                     style={{ animation: `fade-in 0.5s ease-out ${0.15 + i * 0.08}s both` }}
                   >
                     <div className="flex items-center justify-between gap-1.5 min-w-0">
@@ -296,7 +295,7 @@ export function Hero() {
         {/* Track 1: Accreditation & Features (Moves Left) */}
         <div
           ref={track1Ref}
-          className="flex items-center gap-3.5 whitespace-nowrap cursor-pointer will-change-transform"
+          className="flex items-center gap-3.5 whitespace-nowrap will-change-transform"
           style={{ width: "max-content" }}
         >
           {[...TRACK_1_ITEMS, ...TRACK_1_ITEMS, ...TRACK_1_ITEMS].map((item, idx) => {
@@ -304,7 +303,6 @@ export function Hero() {
             return (
               <div
                 key={idx}
-                onClick={() => toast.info(`📚 ${item.text} is included with NimsWallah!`)}
                 className="inline-flex shrink-0 items-center gap-2 rounded-full border border-border/80 bg-card/95 px-3.5 py-1.5 shadow-2xs transition-all duration-200 hover:border-primary hover:bg-accent/60 hover:scale-[1.03]"
               >
                 <div className="grid h-5 w-5 place-items-center rounded-full bg-primary/15 text-primary">
@@ -324,16 +322,16 @@ export function Hero() {
         {/* Track 2: Live Course Notes & PYQ Packs (Moves Right) */}
         <div
           ref={track2Ref}
-          className="flex items-center gap-3.5 whitespace-nowrap cursor-pointer will-change-transform"
+          className="flex items-center gap-3.5 whitespace-nowrap will-change-transform"
           style={{ width: "max-content" }}
         >
           {[...TRACK_2_ITEMS, ...TRACK_2_ITEMS, ...TRACK_2_ITEMS].map((item, idx) => {
             const Icon = item.icon;
             return (
-              <div
+              <a
                 key={idx}
-                onClick={() => toast.info(`📖 Opening preview for ${item.title}...`)}
-                className="inline-flex shrink-0 items-center gap-2.5 rounded-xl border border-border/80 bg-card/95 px-4 py-2 shadow-2xs transition-all duration-200 hover:border-primary hover:bg-accent/60 hover:scale-[1.03]"
+                href="/login"
+                className="inline-flex shrink-0 items-center gap-2.5 rounded-xl border border-border/80 bg-card/95 px-4 py-2 shadow-2xs transition-all duration-200 hover:border-primary hover:bg-accent/60 hover:scale-[1.03] cursor-pointer"
               >
                 <Icon className="h-3.5 w-3.5 text-primary shrink-0" />
                 <span className="text-xs font-bold text-foreground">{item.title}</span>
@@ -341,7 +339,7 @@ export function Hero() {
                 <span className="rounded bg-secondary px-1.5 py-0.2 text-[0.6rem] font-semibold text-muted-foreground">
                   {item.badge}
                 </span>
-              </div>
+              </a>
             );
           })}
         </div>

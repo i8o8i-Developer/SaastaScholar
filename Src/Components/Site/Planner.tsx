@@ -56,10 +56,7 @@ export function Planner() {
               {WEEK.map((d) => (
                 <li
                   key={d.day}
-                  onClick={() => {
-                    setActiveDay(d.day);
-                    toast.info(`📅 Switched View To ${d.day} (${d.date} Aug)`);
-                  }}
+                  onClick={() => setActiveDay(d.day)}
                   className={
                     activeDay === d.day
                       ? "bg-primary px-0.5 py-2 sm:px-2 sm:py-3 text-center text-primary-foreground cursor-pointer transition-all min-w-0"
@@ -76,8 +73,7 @@ export function Planner() {
               {TIMELINE.map(([time, title, meta, tone, tag]) => (
                 <li
                   key={title}
-                  onClick={() => toast.success(`⏰ Reminder Set For: ${title} At ${time}`)}
-                  className="grid grid-cols-[2.8rem_minmax(0,1fr)] sm:grid-cols-[3.5rem_minmax(0,1fr)] gap-2 sm:gap-4 border-l border-border pl-0 group cursor-pointer min-w-0"
+                  className="grid grid-cols-[2.8rem_minmax(0,1fr)] sm:grid-cols-[3.5rem_minmax(0,1fr)] gap-2 sm:gap-4 border-l border-border pl-0 group min-w-0"
                 >
                   <span className="label-caps pt-2.5 sm:pt-3.5 text-[0.65rem] sm:text-xs text-muted-foreground font-mono truncate">{time}</span>
                   <span className="relative border-l border-border py-2 sm:py-3 pl-3 sm:pl-5 transition-colors group-hover:bg-accent/30 rounded-r-lg min-w-0">

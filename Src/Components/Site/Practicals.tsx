@@ -220,42 +220,27 @@ export function Practicals() {
                     Ready-To-Use Lab Packets
                   </span>
                   <div className="mt-2.5 flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      onClick={() =>
-                        toast.success(
-                          `📖 Opening Official Lab Manual For Experiment ${currentExp.number}: ${currentExp.title}`,
-                        )
-                      }
+                    <a
+                      href="/login"
                       className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2 text-xs font-semibold text-foreground transition-all hover:border-primary hover:text-primary hover:-translate-y-0.5 cursor-pointer"
                     >
                       <BookMarked className="h-3.5 w-3.5 text-primary" />
                       <span>Lab Manual</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        toast.success(
-                          `💻 Fetching Verified Clean Python/C++ Code For Experiment ${currentExp.number}...`,
-                        )
-                      }
+                    </a>
+                    <a
+                      href="/login"
                       className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2 text-xs font-semibold text-foreground transition-all hover:border-primary hover:text-primary hover:-translate-y-0.5 cursor-pointer"
                     >
                       <Code2 className="h-3.5 w-3.5 text-primary" />
                       <span>Source Code</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        toast.success(
-                          `📑 Generating Printable University Record Template For Experiment ${currentExp.number}...`,
-                        )
-                      }
+                    </a>
+                    <a
+                      href="/login"
                       className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-surface px-3 py-2 text-xs font-semibold text-foreground transition-all hover:border-primary hover:text-primary hover:-translate-y-0.5 cursor-pointer"
                     >
                       <FileSpreadsheet className="h-3.5 w-3.5 text-primary" />
                       <span>Record Template</span>
-                    </button>
+                    </a>
                   </div>
                 </div>
               </div>

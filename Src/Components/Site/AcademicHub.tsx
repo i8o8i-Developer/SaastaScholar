@@ -107,8 +107,7 @@ export function AcademicHub() {
               {filteredResources.map((res) => (
                 <li
                   key={res.title}
-                  onClick={() => toast.success(`📑 Opening ${res.title} (${res.size})...`)}
-                  className="flex items-center gap-3 px-4 py-3.5 transition-all hover:bg-surface cursor-pointer group"
+                  className="flex items-center gap-3 px-4 py-3.5 transition-all hover:bg-surface group"
                 >
                   <span className="grid h-9 w-9 shrink-0 place-items-center rounded-md border border-border bg-surface transition-colors group-hover:border-primary group-hover:bg-accent/40">
                     <FileText className="h-4 w-4 text-primary" />
