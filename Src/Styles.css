@@ -278,14 +278,31 @@
   animation: pulse-glow 5s ease-in-out infinite;
 }
 
-.card-hover-effect {
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease;
-}
-
 .card-hover-effect:hover {
   transform: translateY(-4px);
   box-shadow: 0 20px 45px -15px color-mix(in oklab, var(--color-primary) 20%, transparent);
 }
+
+@keyframes marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 32s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
 
 @media (prefers-reduced-motion: reduce) {
   *,

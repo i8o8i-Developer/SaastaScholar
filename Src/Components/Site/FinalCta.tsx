@@ -28,7 +28,7 @@ export function FinalCta() {
         </p>
         <div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row">
           <Cta
-            href="#get-started"
+            href="/login"
             size="lg"
             className="bg-white text-emerald-950 font-bold shadow-lg hover:bg-emerald-50 hover:scale-[1.02] transition-transform cursor-pointer"
           >

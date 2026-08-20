@@ -1,12 +1,20 @@
 import {
   ArrowRight,
+  Award,
   BellRing,
+  BookMarked,
   BookOpen,
   CalendarClock,
+  CheckCircle2,
+  Cpu,
+  FileCheck2,
   FileText,
   FlaskConical,
   GraduationCap,
   NotebookPen,
+  ShieldCheck,
+  Sparkles,
+  Users,
 } from "lucide-react";
 
 import { toast } from "sonner";
@@ -64,6 +72,18 @@ const DASHBOARD_ITEMS = [
   },
 ];
 
+const MARQUEE_ITEMS = [
+  { icon: GraduationCap, text: "NIMS University Syllabus Aligned" },
+  { icon: Cpu, text: "B.Tech Computer Science & AI" },
+  { icon: FileCheck2, text: "Solved Previous-Year Question Papers (PYQs)" },
+  { icon: FlaskConical, text: "Lab Manuals & Practical Codes" },
+  { icon: BookMarked, text: "Topper Handwritten Notes" },
+  { icon: Sparkles, text: "AI Assignment Creator & Formatter" },
+  { icon: ShieldCheck, text: "100% Free Starter Study Bundles" },
+  { icon: Users, text: "15,000+ Active University Students" },
+  { icon: Award, text: "Faculty-Verified Model Answers" },
+];
+
 export function Hero() {
   return (
     <div id="top" className="relative overflow-hidden bg-radial from-emerald-500/5 via-background to-background">
@@ -81,7 +101,8 @@ export function Hero() {
         aria-hidden
         className="grid-lines pointer-events-none absolute inset-0 opacity-100 [mask-image:linear-gradient(to_bottom,black_80%,transparent)]"
       />
-      <div className="relative mx-auto grid w-full max-w-[84rem] gap-8 px-3.5 pt-8 pb-14 sm:px-8 sm:pt-20 sm:pb-28 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:items-center lg:gap-12 min-w-0">
+
+      <div className="relative mx-auto grid w-full max-w-[84rem] gap-8 px-3.5 pt-8 pb-12 sm:px-8 sm:pt-20 sm:pb-20 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:items-center lg:gap-12 min-w-0">
         <Reveal className="min-w-0">
           <Pill tone="green">
             <GraduationCap className="h-3.5 w-3.5 shrink-0" />
@@ -96,7 +117,7 @@ export function Hero() {
             Semester And Section.
           </p>
           <div className="mt-7 flex flex-col gap-2.5 sm:flex-row min-w-0">
-            <Cta href="#get-started" size="lg" className="w-full sm:w-auto">
+            <Cta href="/login" size="lg" className="w-full sm:w-auto">
               <span>Get Started</span>
               <ArrowRight className="h-4 w-4 shrink-0" />
             </Cta>
@@ -162,6 +183,35 @@ export function Hero() {
             </MockWindow>
           </div>
         </Reveal>
+      </div>
+
+      {/* ===================== Infinite Horizontal Ticker / Logo Band ===================== */}
+      <div className="relative border-y border-border/80 bg-surface/60 py-3.5 backdrop-blur-xs overflow-hidden">
+        {/* Left and right fade gradient mask */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 z-10 [background:linear-gradient(to_right,var(--color-background),transparent_12%,transparent_88%,var(--color-background))]"
+        />
+
+        <div className="animate-marquee flex items-center gap-4">
+          {[...MARQUEE_ITEMS, ...MARQUEE_ITEMS].map((item, idx) => {
+            const Icon = item.icon;
+            return (
+              <div
+                key={idx}
+                className="inline-flex shrink-0 items-center gap-2 rounded-full border border-border/80 bg-card/90 px-3.5 py-1.5 shadow-2xs transition-colors hover:border-primary/50 hover:bg-accent/40"
+              >
+                <div className="grid h-6 w-6 place-items-center rounded-full bg-primary/10 text-primary">
+                  <Icon className="h-3.5 w-3.5 shrink-0" />
+                </div>
+                <span className="text-xs font-semibold tracking-tight text-foreground whitespace-nowrap">
+                  {item.text}
+                </span>
+                <span className="h-1 w-1 rounded-full bg-primary/40" />
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );

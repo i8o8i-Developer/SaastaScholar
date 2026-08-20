@@ -75,7 +75,7 @@ export function SiteNav() {
           <Cta href="/login" variant="ghost" size="sm">
             Log In
           </Cta>
-          <Cta href="#get-started" size="sm">
+          <Cta href="/login" size="sm">
             Get Started
           </Cta>
         </div>
@@ -111,7 +111,7 @@ export function SiteNav() {
               <Cta href="/login" variant="outline" size="lg" onClick={() => setOpen(false)}>
                 Log In
               </Cta>
-              <Cta href="#get-started" size="lg" onClick={() => setOpen(false)}>
+              <Cta href="/login" size="lg" onClick={() => setOpen(false)}>
                 Get Started
               </Cta>
             </div>
