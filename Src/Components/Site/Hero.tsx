@@ -13,6 +13,7 @@ import {
   Flame,
   FlaskConical,
   GraduationCap,
+  Layers,
   NotebookPen,
   ShieldCheck,
   Sparkles,
@@ -24,6 +25,7 @@ import {
 import { useEffect, useRef } from "react";
 import { toast } from "sonner";
 
+import { cn } from "@/Lib/Utils";
 import { Cta, MockWindow, Pill, Reveal } from "./Primitives";
 
 const DASHBOARD_ITEMS = [
@@ -198,19 +200,58 @@ export function Hero() {
             </Cta>
           </div>
 
-          {/* Red Line 3: Expanded Gap Between Buttons and Stats Row */}
-          <dl className="mt-10 sm:mt-12 grid max-w-lg grid-cols-3 gap-3 sm:gap-6 border-t border-border pt-7 sm:pt-8">
+          {/* Attractive Glassmorphic Metric Stat Cards */}
+          <div className="mt-8 sm:mt-10 grid max-w-xl grid-cols-3 gap-2.5 sm:gap-3.5 min-w-0">
             {[
-              ["6", "Academic Modules"],
-              ["1", "Unified Feed"],
-              ["0", "Group Noise"],
-            ].map(([value, label]) => (
-              <div key={label} className="min-w-0">
-                <dt className="font-display text-2xl sm:text-3xl font-bold text-primary">{value}</dt>
-                <dd className="label-caps mt-1.5 text-[0.65rem] sm:text-xs text-muted-foreground truncate">{label}</dd>
-              </div>
-            ))}
-          </dl>
+              {
+                value: "6",
+                label: "Academic Modules",
+                sub: "Notes, PYQs & Labs",
+                icon: Layers,
+                accent: "from-emerald-500/15 to-teal-500/10 text-emerald-600 dark:text-emerald-400",
+              },
+              {
+                value: "1",
+                label: "Unified Feed",
+                sub: "Zero WhatsApp Clutter",
+                icon: Zap,
+                accent: "from-teal-500/15 to-cyan-500/10 text-teal-600 dark:text-teal-400",
+              },
+              {
+                value: "0",
+                label: "Group Noise",
+                sub: "100% Verified Only",
+                icon: ShieldCheck,
+                accent: "from-emerald-500/15 to-teal-500/10 text-emerald-600 dark:text-emerald-400",
+              },
+            ].map((stat) => {
+              const Icon = stat.icon;
+              return (
+                <div
+                  key={stat.label}
+                  className="group relative flex flex-col justify-between rounded-2xl border border-border/80 bg-card/90 p-3 sm:p-4 shadow-2xs backdrop-blur-xs transition-all duration-200 hover:border-primary/50 hover:bg-card hover:-translate-y-0.5 hover:shadow-sm min-w-0"
+                >
+                  <div className="flex items-center justify-between gap-1 min-w-0">
+                    <div className={cn("grid h-7 w-7 sm:h-8 sm:w-8 place-items-center rounded-xl bg-gradient-to-br shadow-2xs", stat.accent)}>
+                      <Icon className="h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0" />
+                    </div>
+                    <span className="font-display text-2xl sm:text-3xl font-black tracking-tight bg-gradient-to-br from-primary via-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                      {stat.value}
+                    </span>
+                  </div>
+
+                  <div className="mt-2.5 min-w-0">
+                    <p className="font-semibold text-xs sm:text-sm text-foreground leading-tight truncate">
+                      {stat.label}
+                    </p>
+                    <p className="mt-0.5 text-[0.65rem] sm:text-xs text-muted-foreground truncate">
+                      {stat.sub}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
 
           {/* Red Line 4: Expanded Gap Between Stats Row and Social Proof Card */}
           <div className="mt-8 sm:mt-10 flex flex-wrap items-center gap-4 rounded-2xl border border-border/80 bg-card/75 p-4 sm:p-4.5 shadow-2xs backdrop-blur-xs min-w-0">
