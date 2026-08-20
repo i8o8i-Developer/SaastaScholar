@@ -11,17 +11,19 @@ WORKDIR /app
 # Install build prerequisites
 RUN apk add --no-cache libc6-compat
 
+# Explicitly ensure development environment during build so all devDependencies are installed
+ENV NODE_ENV=development
+
 # Copy dependency manifests
 COPY package.json package-lock.json* ./
 
-# Install dependencies
-RUN npm ci
+# Install all dependencies including devDependencies (compiler, typescript, vite plugins)
+RUN npm ci --include=dev || npm install --include=dev
 
 # Copy all source files
 COPY . .
 
-# Build production application (Client, SSR, and Nitro server)
-ENV NODE_ENV=production
+# Build production application (Client, SSR, and Nitro server bundle)
 RUN npm run build
 
 # Stage 2: Production Runner
