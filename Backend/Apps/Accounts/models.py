@@ -60,7 +60,7 @@ class StudentUser(AbstractUser):
 class SecuritySession(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(StudentUser, on_delete=models.CASCADE, related_name="security_sessions")
-    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    ip_address = models.CharField(max_length=255, blank=True, default="127.0.0.1")
     user_agent = models.TextField(blank=True)
     device_fingerprint = models.CharField(max_length=255, blank=True)
     last_active = models.DateTimeField(auto_now=True)
@@ -94,7 +94,7 @@ class AdminAuditLog(models.Model):
     action_type = models.CharField(max_length=50, choices=ActionType.choices, db_index=True)
     reason = models.TextField(help_text="Administrative justification for the action")
     metadata = models.JSONField(default=dict, blank=True)
-    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    ip_address = models.CharField(max_length=255, blank=True, default="127.0.0.1")
     timestamp = models.DateTimeField(auto_now_add=True, db_index=True)
 
     class Meta:
