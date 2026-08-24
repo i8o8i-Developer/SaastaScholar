@@ -154,7 +154,7 @@ export function StudentProfile() {
                 </span>
               </div>
               <p className="text-xs sm:text-sm text-muted-foreground mt-1 truncate">
-                {user?.email} · Roll No: {user?.roll_number || "ADMIN01"}
+                {user?.email} · Student ID: {user?.roll_number || "ADMIN01"}
               </p>
               <p className="text-xs text-foreground/80 mt-1 max-w-xl font-medium line-clamp-1">
                 {bio}
@@ -228,7 +228,7 @@ export function StudentProfile() {
               </div>
 
               <div className="flex items-center justify-between p-3 rounded-2xl bg-surface/60 border border-border/60">
-                <span className="text-muted-foreground font-medium">University Roll Number</span>
+                <span className="text-muted-foreground font-medium">Student ID</span>
                 <span className="font-mono font-bold text-foreground">{user?.roll_number || "ADMIN01"}</span>
               </div>
 

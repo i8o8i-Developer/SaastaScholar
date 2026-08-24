@@ -410,12 +410,12 @@ export function Login() {
 
                       <div className="grid grid-cols-3 gap-3">
                         <div>
-                          <label className="block text-xs font-bold text-foreground mb-1">Roll Number</label>
+                          <label className="block text-xs font-bold text-foreground mb-1">Student ID</label>
                           <input
                             type="text"
                             value={rollNumber}
                             onChange={(e) => setRollNumber(e.target.value)}
-                            placeholder="24BCSE102"
+                            placeholder="e.g. 24BCSE102"
                             required
                             className="h-11 w-full rounded-2xl border border-border bg-background px-3 text-xs font-mono focus:border-primary focus:outline-none transition-colors"
                           />
