@@ -14,17 +14,30 @@ from .serializers import (
     AdminAuditLogSerializer,
 )
 
+def get_client_ip(request):
+    raw_ip = request.META.get("HTTP_X_FORWARDED_FOR")
+    if raw_ip:
+        ip = raw_ip.split(",")[0].strip()
+    else:
+        ip = request.META.get("REMOTE_ADDR")
+    if ip and ":" in ip and "." in ip:
+        ip = ip.split(":")[-1]
+    return ip or "127.0.0.1"
+
 class CustomLoginView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
         if response.status_code == 200:
-            user = StudentUser.objects.filter(email=request.data.get("email")).first()
-            if user:
-                ip = request.META.get("HTTP_X_FORWARDED_FOR", request.META.get("REMOTE_ADDR"))
-                ua = request.META.get("HTTP_USER_AGENT", "")
-                SecuritySession.objects.create(user=user, ip_address=ip, user_agent=ua)
+            try:
+                user = StudentUser.objects.filter(email=request.data.get("email")).first()
+                if user:
+                    ip = get_client_ip(request)
+                    ua = request.META.get("HTTP_USER_AGENT", "")[:255]
+                    SecuritySession.objects.create(user=user, ip_address=ip, user_agent=ua)
+            except Exception:
+                pass
         return response
 
 class RegisterView(generics.CreateAPIView):
@@ -257,7 +270,7 @@ class AdminStudentSecurityActionView(APIView):
             return Response({"error": f"Unknown Security Action Type '{action_type}'."}, status=status.HTTP_400_BAD_REQUEST)
 
         # Log Immutable Audit Record
-        client_ip = request.META.get("HTTP_X_FORWARDED_FOR", request.META.get("REMOTE_ADDR", "127.0.0.1"))
+        client_ip = get_client_ip(request)
         AdminAuditLog.objects.create(
             actor=request.user,
             target_user=target_user,

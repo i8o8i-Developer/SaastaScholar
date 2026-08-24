@@ -15,6 +15,16 @@ from Apps.Academic.models import AcademicMaterial, MaterialPage
 from .models import DrmSecurityIncident, DrmSession
 from .serializers import DrmSecurityIncidentSerializer
 
+def get_client_ip(request):
+    raw_ip = request.META.get("HTTP_X_FORWARDED_FOR")
+    if raw_ip:
+        ip = raw_ip.split(",")[0].strip()
+    else:
+        ip = request.META.get("REMOTE_ADDR")
+    if ip and ":" in ip and "." in ip:
+        ip = ip.split(":")[-1]
+    return ip or "127.0.0.1"
+
 class DrmSessionInitView(APIView):
     """
     Creates an ephemeral DRM viewing session with dynamic forensic watermark parameters.
@@ -49,7 +59,7 @@ class DrmSessionInitView(APIView):
         raw = f"{user.id}:{material.id}:{time.time()}:{settings.SECRET_KEY}"
         token = hashlib.sha256(raw.encode()).hexdigest()
         
-        client_ip = request.META.get("HTTP_X_FORWARDED_FOR", request.META.get("REMOTE_ADDR", "127.0.0.1"))
+        client_ip = get_client_ip(request)
         now_str = timezone.now().strftime("%Y-%m-%d %H:%M:%S UTC")
         session_hash = f"SEC-{uuid.uuid4().hex[:6].upper()}-NIMS"
 
@@ -185,7 +195,7 @@ class DrmSecurityReportView(APIView):
     def post(self, request):
         user = request.user
         event_type = request.data.get("event_type", "SECURITY_ALERT")
-        client_ip = request.META.get("HTTP_X_FORWARDED_FOR", request.META.get("REMOTE_ADDR"))
+        client_ip = get_client_ip(request)
         details = request.data.get("details", {})
         material_id = request.data.get("material_id")
 
