@@ -12,6 +12,7 @@ import {
   Clock,
   Code2,
   Database,
+  Edit3,
   FileCheck2,
   FileText,
   Filter,
@@ -29,6 +30,7 @@ import {
   MapPin,
   Megaphone,
   MessageSquare,
+  Pencil,
   Plus,
   RefreshCw,
   Search,
@@ -156,17 +158,37 @@ export function AdminPortal() {
   const [selectedSectionId, setSelectedSectionId] = useState<string>("");
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>("");
 
-  // Modals
+  // Modals & Editing State Containers
   const [showDeptModal, setShowDeptModal] = useState<boolean>(false);
+  const [editingDeptId, setEditingDeptId] = useState<string | null>(null);
+
   const [showProgramModal, setShowProgramModal] = useState<boolean>(false);
+  const [editingProgramId, setEditingProgramId] = useState<string | null>(null);
+
   const [showSectionModal, setShowSectionModal] = useState<boolean>(false);
+  const [editingSectionId, setEditingSectionId] = useState<string | null>(null);
+
   const [showSubjectModal, setShowSubjectModal] = useState<boolean>(false);
+  const [editingSubjectId, setEditingSubjectId] = useState<string | null>(null);
+
   const [showMaterialModal, setShowMaterialModal] = useState<boolean>(false);
+  const [editingMaterialId, setEditingMaterialId] = useState<string | null>(null);
+
   const [showLabModal, setShowLabModal] = useState<boolean>(false);
+  const [editingLabId, setEditingLabId] = useState<string | null>(null);
+
   const [showAssignmentModal, setShowAssignmentModal] = useState<boolean>(false);
+  const [editingAssignmentId, setEditingAssignmentId] = useState<string | null>(null);
+
   const [showTimetableModal, setShowTimetableModal] = useState<boolean>(false);
+  const [editingTimetableId, setEditingTimetableId] = useState<string | null>(null);
+
   const [showMilestoneModal, setShowMilestoneModal] = useState<boolean>(false);
+  const [editingMilestoneId, setEditingMilestoneId] = useState<string | null>(null);
+
   const [showNoticeModal, setShowNoticeModal] = useState<boolean>(false);
+  const [editingNoticeId, setEditingNoticeId] = useState<string | null>(null);
+
   const [previewMaterialId, setPreviewMaterialId] = useState<string | null>(null);
 
   // Form State Containers
@@ -488,40 +510,214 @@ export function AdminPortal() {
     return true;
   });
 
-  // Handlers for Creation
-  const handleCreateDept = async (e: React.FormEvent) => {
+  // ================= Edit Triggers for Every Entity =================
+  const handleEditDept = (dept: Department) => {
+    setEditingDeptId(dept.id);
+    setNewDept({
+      name: dept.name,
+      code: dept.code,
+      description: dept.description || "",
+      head_of_department: dept.head_of_department || "",
+    });
+    setShowDeptModal(true);
+  };
+
+  const handleEditProgram = (prog: ProgramSpecialization) => {
+    setEditingProgramId(prog.id);
+    setNewProgram({
+      department: prog.department || selectedDeptId || "",
+      name: prog.name,
+      code: prog.code,
+      degree_level: prog.degree_level || "Undergraduate (B.Tech)",
+      duration_years: prog.duration_years || 4,
+      total_semesters: prog.total_semesters || 8,
+    });
+    setShowProgramModal(true);
+  };
+
+  const handleEditSection = (sec: SectionBatch) => {
+    setEditingSectionId(sec.id);
+    setNewSection({
+      program: sec.program || selectedProgramId || "",
+      semester: sec.semester || 1,
+      section: sec.section || sec.section_name || "A",
+      academic_year: sec.academic_year || "2025-2026",
+      max_capacity: sec.max_capacity || 60,
+    });
+    setShowSectionModal(true);
+  };
+
+  const handleEditSubject = (sub: Subject) => {
+    setEditingSubjectId(sub.id);
+    setNewSubject({
+      program: sub.program || selectedProgramId || "",
+      semester: sub.semester || 1,
+      name: sub.name,
+      code: sub.code,
+      credits: sub.credits || 4,
+      syllabus_summary: sub.syllabus_summary || "",
+    });
+    setShowSubjectModal(true);
+  };
+
+  const handleEditMaterial = (mat: AcademicMaterial) => {
+    setEditingMaterialId(mat.id);
+    setNewMaterial({
+      subject: mat.subject || selectedSubjectId || "",
+      title: mat.title,
+      material_type: mat.material_type || publisherType || "NOTES",
+      unit_number: mat.unit_number || 1,
+      academic_year: mat.academic_year || "2024",
+      summary: mat.summary || "",
+      page_count: mat.page_count || 1,
+      is_topper_verified: mat.is_topper_verified ?? true,
+      tag_input: Array.isArray(mat.tags) ? mat.tags.join(", ") : "",
+      file: null,
+    });
+    if (Array.isArray(mat.pages) && mat.pages.length > 0) {
+      setMaterialPages(mat.pages.map((p) => ({
+        page_number: p.page_number,
+        page_title: p.page_title || `Page ${p.page_number}`,
+        content_html: p.content_html || "",
+      })));
+      setMaterialUploadMode("STUDIO");
+    } else {
+      setMaterialUploadMode(mat.file ? "FILE" : "STUDIO");
+    }
+    setActivePageIndex(0);
+    setShowMaterialModal(true);
+  };
+
+  const handleEditLab = (lab: LabExperiment) => {
+    setEditingLabId(lab.id);
+    setNewLab({
+      subject: lab.subject || selectedSubjectId || "",
+      experiment_number: lab.experiment_number || 1,
+      title: lab.title,
+      aim: lab.aim || "",
+    });
+    if (lab.code_snippets && typeof lab.code_snippets === "object") {
+      const entries = Object.entries(lab.code_snippets).map(([lang, code]) => ({ lang, code: String(code) }));
+      setLabCodes(entries.length > 0 ? entries : [{ lang: "python", code: "" }]);
+    }
+    if (Array.isArray(lab.viva_questions) && lab.viva_questions.length > 0) {
+      setVivaList(lab.viva_questions.map((v: any) => ({
+        question: v.question || v.q || "",
+        answer: v.answer || v.a || "",
+      })));
+    }
+    setShowLabModal(true);
+  };
+
+  const handleEditAssignment = (ass: StudentAssignment) => {
+    setEditingAssignmentId(ass.id);
+    setNewAssignment({
+      subject: ass.subject || selectedSubjectId || "",
+      title: ass.title,
+      description: ass.description || "",
+      due_date: ass.due_date ? ass.due_date.split("T")[0] : new Date().toISOString().split("T")[0],
+      total_marks: ass.total_marks || 20,
+      weightage_percentage: ass.weightage_percentage || 10,
+    });
+    setShowAssignmentModal(true);
+  };
+
+  const handleEditTimetable = (slot: TimetableSlot) => {
+    setEditingTimetableId(slot.id);
+    setNewTimetableSlot({
+      semester: slot.semester || 1,
+      section: slot.section || "A",
+      day_of_week: slot.day_of_week || "Mon",
+      start_time: slot.start_time || "09:00",
+      end_time: slot.end_time || "10:30",
+      title: slot.title || "",
+      subject: slot.subject || "",
+      room_number: slot.room_number || "LT-01",
+      faculty_name: slot.faculty_name || "",
+      event_type: slot.event_type || "Class",
+      tone: slot.tone || "green",
+    });
+    setShowTimetableModal(true);
+  };
+
+  const handleEditMilestone = (ms: MilestoneCountdown) => {
+    setEditingMilestoneId(ms.id);
+    setNewMilestone({
+      title: ms.title,
+      target_date: ms.target_date ? ms.target_date.split("T")[0] : new Date().toISOString().split("T")[0],
+      category: ms.category || "Mid-Semester Theory Exams",
+      semester: ms.semester || 1,
+      tag: ms.tag || "Term 1",
+    });
+    setShowMilestoneModal(true);
+  };
+
+  const handleEditNotice = (notice: DepartmentNotice) => {
+    setEditingNoticeId(notice.id);
+    setNewNotice({
+      title: notice.title,
+      content: notice.content || "",
+      category: notice.category || "Examination",
+      priority: notice.priority || "HIGH",
+      target_department: notice.target_department || "",
+      target_semester: notice.target_semester || 1,
+      is_broadcast_all: notice.is_broadcast_all ?? true,
+    });
+    setShowNoticeModal(true);
+  };
+
+  // Handlers for Creation & Mutation
+  const handleSaveDept = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await apiFetch("/academic/admin/departments/", {
-        method: "POST",
-        body: JSON.stringify(newDept),
-      });
-      toast.success("Academic Department Registered Successfully.");
+      if (editingDeptId) {
+        await apiFetch(`/academic/admin/departments/${editingDeptId}/`, {
+          method: "PATCH",
+          body: JSON.stringify(newDept),
+        });
+        toast.success("Academic Department Updated Successfully.");
+      } else {
+        await apiFetch("/academic/admin/departments/", {
+          method: "POST",
+          body: JSON.stringify(newDept),
+        });
+        toast.success("Academic Department Registered Successfully.");
+      }
       setShowDeptModal(false);
+      setEditingDeptId(null);
       setNewDept({ name: "", code: "", description: "", head_of_department: "" });
       loadAdminData();
     } catch (err: any) {
-      toast.error(err.message || "Failed To Create Department.");
+      toast.error(err.message || "Failed To Save Department.");
     }
   };
 
-  const handleCreateProgram = async (e: React.FormEvent) => {
+  const handleSaveProgram = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await apiFetch("/academic/admin/programs/", {
-        method: "POST",
-        body: JSON.stringify(newProgram),
-      });
-      toast.success("Degree Program Specialization Created.");
+      if (editingProgramId) {
+        await apiFetch(`/academic/admin/programs/${editingProgramId}/`, {
+          method: "PATCH",
+          body: JSON.stringify(newProgram),
+        });
+        toast.success("Degree Program Specialization Updated.");
+      } else {
+        await apiFetch("/academic/admin/programs/", {
+          method: "POST",
+          body: JSON.stringify(newProgram),
+        });
+        toast.success("Degree Program Specialization Created.");
+      }
       setShowProgramModal(false);
+      setEditingProgramId(null);
       setNewProgram({ department: selectedDeptId || "", name: "", code: "", degree_level: "Undergraduate (B.Tech)", duration_years: 4, total_semesters: 8 });
       loadAdminData();
     } catch (err: any) {
-      toast.error(err.message || "Failed To Create Program.");
+      toast.error(err.message || "Failed To Save Program.");
     }
   };
 
-  const handleCreateSection = async (e: React.FormEvent) => {
+  const handleSaveSection = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const payload = {
@@ -533,20 +729,29 @@ export function AdminPortal() {
         batch_code: `${newSection.academic_year || "2025-2026"} Batch`,
         max_capacity: Number(newSection.max_capacity) || 60,
       };
-      await apiFetch("/academic/admin/sections/", {
-        method: "POST",
-        body: JSON.stringify(payload),
-      });
-      toast.success("Semester Section Batch Created Successfully.");
+      if (editingSectionId) {
+        await apiFetch(`/academic/admin/sections/${editingSectionId}/`, {
+          method: "PATCH",
+          body: JSON.stringify(payload),
+        });
+        toast.success("Semester Section Batch Updated Successfully.");
+      } else {
+        await apiFetch("/academic/admin/sections/", {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
+        toast.success("Semester Section Batch Created Successfully.");
+      }
       setShowSectionModal(false);
+      setEditingSectionId(null);
       setNewSection({ program: selectedProgramId || "", semester: selectedSemester || 1, section: "B", academic_year: "2025-2026", max_capacity: 60 });
       loadAdminData();
     } catch (err: any) {
-      toast.error(err.message || "Failed To Create Section.");
+      toast.error(err.message || "Failed To Save Section.");
     }
   };
 
-  const handleCreateSubject = async (e: React.FormEvent) => {
+  const handleSaveSubject = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const targetProg = programs.find((p) => p.id === newSubject.program) || programs[0];
@@ -557,21 +762,31 @@ export function AdminPortal() {
         credits: Number(newSubject.credits) || 4,
         program: targetProg?.id || newSubject.program || "",
         department: targetProg?.department || selectedDeptId || (departments[0]?.id || ""),
+        syllabus_summary: newSubject.syllabus_summary || "",
       };
-      await apiFetch("/academic/admin/subjects/", {
-        method: "POST",
-        body: JSON.stringify(payload),
-      });
-      toast.success("Course Subject Registered Successfully.");
+      if (editingSubjectId) {
+        await apiFetch(`/academic/admin/subjects/${editingSubjectId}/`, {
+          method: "PATCH",
+          body: JSON.stringify(payload),
+        });
+        toast.success("Course Subject Updated Successfully.");
+      } else {
+        await apiFetch("/academic/admin/subjects/", {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
+        toast.success("Course Subject Registered Successfully.");
+      }
       setShowSubjectModal(false);
+      setEditingSubjectId(null);
       setNewSubject({ program: selectedProgramId || "", semester: selectedSemester || 1, name: "", code: "", credits: 4, syllabus_summary: "" });
       loadAdminData();
     } catch (err: any) {
-      toast.error(err.message || "Failed To Create Subject.");
+      toast.error(err.message || "Failed To Save Subject.");
     }
   };
 
-  const handleCreateMaterial = async (e: React.FormEvent) => {
+  const handleSaveMaterial = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const targetSubjectId = newMaterial.subject || selectedSubjectId || (subjects[0]?.id || "");
@@ -610,8 +825,11 @@ export function AdminPortal() {
       }
 
       const token = localStorage.getItem("nimswallah_access_token");
-      const res = await fetch("/api/academic/admin/materials/", {
-        method: "POST",
+      const url = editingMaterialId ? `/api/academic/admin/materials/${editingMaterialId}/` : "/api/academic/admin/materials/";
+      const method = editingMaterialId ? "PATCH" : "POST";
+
+      const res = await fetch(url, {
+        method: method,
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -626,11 +844,12 @@ export function AdminPortal() {
             .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`)
             .join(" | ");
         }
-        throw new Error(errorMsg || "Failed To Publish Study Material.");
+        throw new Error(errorMsg || "Failed To Save Study Material.");
       }
 
-      toast.success("Academic Study Material Published Successfully.");
+      toast.success(editingMaterialId ? "Study Material Updated Successfully." : "Academic Study Material Published Successfully.");
       setShowMaterialModal(false);
+      setEditingMaterialId(null);
       setNewMaterial({
         subject: selectedSubjectId || (subjects[0]?.id || ""),
         title: "",
@@ -653,11 +872,11 @@ export function AdminPortal() {
       setActivePageIndex(0);
       loadAdminData();
     } catch (err: any) {
-      toast.error(err.message || "Failed To Publish Material.");
+      toast.error(err.message || "Failed To Save Material.");
     }
   };
 
-  const handleCreateLab = async (e: React.FormEvent) => {
+  const handleSaveLab = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const filteredViva = vivaList.filter((v) => v.question.trim() || v.answer.trim());
@@ -672,13 +891,21 @@ export function AdminPortal() {
         ],
       };
 
-      await apiFetch("/academic/admin/labs/", {
-        method: "POST",
-        body: JSON.stringify(payload),
-      });
-
-      toast.success("Practical Lab Experiment & Viva Drills Published.");
+      if (editingLabId) {
+        await apiFetch(`/academic/admin/labs/${editingLabId}/`, {
+          method: "PATCH",
+          body: JSON.stringify(payload),
+        });
+        toast.success("Practical Lab Experiment & Viva Drills Updated.");
+      } else {
+        await apiFetch("/academic/admin/labs/", {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
+        toast.success("Practical Lab Experiment & Viva Drills Published.");
+      }
       setShowLabModal(false);
+      setEditingLabId(null);
       setNewLab({
         subject: selectedSubjectId || "",
         experiment_number: 1,
@@ -691,22 +918,32 @@ export function AdminPortal() {
       ]);
       loadAdminData();
     } catch (err: any) {
-      toast.error(err.message || "Failed to create lab experiment.");
+      toast.error(err.message || "Failed to save lab experiment.");
     }
   };
 
-  const handleCreateAssignment = async (e: React.FormEvent) => {
+  const handleSaveAssignment = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await apiFetch("/assignments/admin/assignments/", {
-        method: "POST",
-        body: JSON.stringify({
-          ...newAssignment,
-          subject: newAssignment.subject || selectedSubjectId,
-        }),
-      });
-      toast.success("Course Assignment Broadcasted to Students.");
+      const payload = {
+        ...newAssignment,
+        subject: newAssignment.subject || selectedSubjectId,
+      };
+      if (editingAssignmentId) {
+        await apiFetch(`/assignments/admin/assignments/${editingAssignmentId}/`, {
+          method: "PATCH",
+          body: JSON.stringify(payload),
+        });
+        toast.success("Course Assignment Updated Successfully.");
+      } else {
+        await apiFetch("/assignments/admin/assignments/", {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
+        toast.success("Course Assignment Broadcasted to Students.");
+      }
       setShowAssignmentModal(false);
+      setEditingAssignmentId(null);
       setNewAssignment({
         subject: selectedSubjectId || "",
         title: "",
@@ -717,19 +954,28 @@ export function AdminPortal() {
       });
       loadAdminData();
     } catch (err: any) {
-      toast.error(err.message || "Failed to create assignment.");
+      toast.error(err.message || "Failed to save assignment.");
     }
   };
 
-  const handleCreateTimetableSlot = async (e: React.FormEvent) => {
+  const handleSaveTimetableSlot = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await apiFetch("/planner/admin/timetable/", {
-        method: "POST",
-        body: JSON.stringify(newTimetableSlot),
-      });
-      toast.success("Timetable Lecture Slot Added.");
+      if (editingTimetableId) {
+        await apiFetch(`/planner/admin/timetable/${editingTimetableId}/`, {
+          method: "PATCH",
+          body: JSON.stringify(newTimetableSlot),
+        });
+        toast.success("Timetable Lecture Slot Updated.");
+      } else {
+        await apiFetch("/planner/admin/timetable/", {
+          method: "POST",
+          body: JSON.stringify(newTimetableSlot),
+        });
+        toast.success("Timetable Lecture Slot Added.");
+      }
       setShowTimetableModal(false);
+      setEditingTimetableId(null);
       setNewTimetableSlot({
         semester: selectedSemester || 1,
         section: sections.find((s) => s.id === selectedSectionId)?.section || "A",
@@ -745,19 +991,28 @@ export function AdminPortal() {
       });
       loadAdminData();
     } catch (err: any) {
-      toast.error(err.message || "Failed to create timetable slot.");
+      toast.error(err.message || "Failed to save timetable slot.");
     }
   };
 
-  const handleCreateMilestone = async (e: React.FormEvent) => {
+  const handleSaveMilestone = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await apiFetch("/planner/admin/milestones/", {
-        method: "POST",
-        body: JSON.stringify(newMilestone),
-      });
-      toast.success("Exam Milestone Countdown Added Live.");
+      if (editingMilestoneId) {
+        await apiFetch(`/planner/admin/milestones/${editingMilestoneId}/`, {
+          method: "PATCH",
+          body: JSON.stringify(newMilestone),
+        });
+        toast.success("Exam Milestone Countdown Updated Live.");
+      } else {
+        await apiFetch("/planner/admin/milestones/", {
+          method: "POST",
+          body: JSON.stringify(newMilestone),
+        });
+        toast.success("Exam Milestone Countdown Added Live.");
+      }
       setShowMilestoneModal(false);
+      setEditingMilestoneId(null);
       setNewMilestone({
         title: "",
         target_date: new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0],
@@ -767,23 +1022,33 @@ export function AdminPortal() {
       });
       loadAdminData();
     } catch (err: any) {
-      toast.error(err.message || "Failed to create milestone.");
+      toast.error(err.message || "Failed to save milestone.");
     }
   };
 
-  const handleCreateNotice = async (e: React.FormEvent) => {
+  const handleSaveNotice = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await apiFetch("/academic/admin/notices/", {
-        method: "POST",
-        body: JSON.stringify({
-          ...newNotice,
-          target_department: selectedDeptId || null,
-          target_semester: selectedSemester || 1,
-        }),
-      });
-      toast.success("Department Circular Broadcasted Live.");
+      const payload = {
+        ...newNotice,
+        target_department: selectedDeptId || null,
+        target_semester: selectedSemester || 1,
+      };
+      if (editingNoticeId) {
+        await apiFetch(`/academic/admin/notices/${editingNoticeId}/`, {
+          method: "PATCH",
+          body: JSON.stringify(payload),
+        });
+        toast.success("Department Circular Updated Live.");
+      } else {
+        await apiFetch("/academic/admin/notices/", {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
+        toast.success("Department Circular Broadcasted Live.");
+      }
       setShowNoticeModal(false);
+      setEditingNoticeId(null);
       setNewNotice({
         title: "",
         content: "",
@@ -795,7 +1060,7 @@ export function AdminPortal() {
       });
       loadAdminData();
     } catch (err: any) {
-      toast.error(err.message || "Failed to broadcast notice.");
+      toast.error(err.message || "Failed to save notice.");
     }
   };
 
@@ -1202,7 +1467,11 @@ export function AdminPortal() {
                         Create Your First Academic Department (E.g. Department Of Computer Science &amp; Engineering).
                       </p>
                       <button
-                        onClick={() => setShowDeptModal(true)}
+                        onClick={() => {
+                          setEditingDeptId(null);
+                          setNewDept({ name: "", code: "", description: "", head_of_department: "" });
+                          setShowDeptModal(true);
+                        }}
                         className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-md cursor-pointer"
                       >
                         <Plus className="h-4 w-4" />
@@ -1225,13 +1494,22 @@ export function AdminPortal() {
                                 {dept.code}
                               </span>
                             </div>
-                            <button
-                              onClick={() => handleDeleteItem("/academic/admin/departments/", dept.id, dept.name, loadAdminData)}
-                              className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer transition-colors"
-                              title="Delete Department"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={() => handleEditDept(dept)}
+                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
+                                title="Edit Department"
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteItem("/academic/admin/departments/", dept.id, dept.name, loadAdminData)}
+                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer transition-colors"
+                                title="Delete Department"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
                           </div>
 
                           <div>
@@ -1297,13 +1575,22 @@ export function AdminPortal() {
                                 </span>
                               )}
                             </div>
-                            <button
-                              onClick={() => handleDeleteItem("/academic/admin/programs/", prog.id, prog.name, loadAdminData)}
-                              className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer transition-colors"
-                              title="Delete Specialization"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={() => handleEditProgram(prog)}
+                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-cyan-500/10 hover:text-cyan-500 cursor-pointer transition-colors"
+                                title="Edit Specialization"
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteItem("/academic/admin/programs/", prog.id, prog.name, loadAdminData)}
+                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer transition-colors"
+                                title="Delete Specialization"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
                           </div>
                           <div>
                             <h3 className="font-display text-base font-bold text-foreground leading-snug group-hover:text-cyan-600 transition-colors">
@@ -1352,18 +1639,27 @@ export function AdminPortal() {
                                 <span className="font-mono font-bold text-foreground text-xs">Section {sec.section || sec.section_name || "A"}</span>
                               </div>
                             </div>
-                            <button
-                              onClick={() => handleDeleteItem("/academic/admin/sections/", sec.id, `Section ${sec.section || sec.section_name || "A"}`, loadAdminData)}
-                              className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer transition-colors"
-                              title="Delete Section Cohort"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={() => handleEditSection(sec)}
+                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
+                                title="Edit Section Cohort"
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteItem("/academic/admin/sections/", sec.id, `Section ${sec.section || sec.section_name || "A"}`, loadAdminData)}
+                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer transition-colors"
+                                title="Delete Section Cohort"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
                           </div>
 
                           <div>
                             <div className="flex items-center gap-2 mb-1">
-                              <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-[0.65rem] font-bold text-emerald-600 dark:text-emerald-400">
+                              <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 text-[0.65rem] font-bold text-emerald-600 dark:text-emerald-400">
                                 Semester {sec.semester}
                               </span>
                               {sec.program_code && (
@@ -1416,13 +1712,22 @@ export function AdminPortal() {
                             <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 text-xs font-bold font-mono text-emerald-600 dark:text-emerald-400">
                               {sub.code}
                             </span>
-                            <button
-                              onClick={() => handleDeleteItem("/academic/admin/subjects/", sub.id, sub.name, loadAdminData)}
-                              className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer transition-colors"
-                              title="Delete Subject"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={() => handleEditSubject(sub)}
+                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
+                                title="Edit Course Subject"
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteItem("/academic/admin/subjects/", sub.id, sub.name, loadAdminData)}
+                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer transition-colors"
+                                title="Delete Subject"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
                           </div>
                           <div>
                             <h3 className="font-display text-base font-bold text-foreground leading-snug group-hover:text-primary transition-colors">
@@ -1611,6 +1916,13 @@ export function AdminPortal() {
                               </div>
                               <div className="flex items-center gap-1 shrink-0">
                                 <button
+                                  onClick={() => handleEditMaterial(mat)}
+                                  className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
+                                  title="Edit Notes"
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                </button>
+                                <button
                                   onClick={() => setPreviewMaterialId(mat.id)}
                                   className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
                                   title="Preview in DRM Secure Reader"
@@ -1692,6 +2004,13 @@ export function AdminPortal() {
                                 )}
                               </div>
                               <div className="flex items-center gap-1 shrink-0">
+                                <button
+                                  onClick={() => handleEditMaterial(mat)}
+                                  className="rounded-xl p-1.5 text-muted-foreground hover:bg-cyan-500/10 hover:text-cyan-500 cursor-pointer transition-colors"
+                                  title="Edit Solved PYQ"
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                </button>
                                 <button
                                   onClick={() => setPreviewMaterialId(mat.id)}
                                   className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
@@ -1777,6 +2096,13 @@ export function AdminPortal() {
                             </span>
                             <div className="flex items-center gap-1 shrink-0">
                                 <button
+                                  onClick={() => handleEditMaterial(material)}
+                                  className="rounded-xl p-1.5 text-muted-foreground hover:bg-blue-500/10 hover:text-blue-500 cursor-pointer transition-colors"
+                                  title="Edit Faculty Material"
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                </button>
+                                <button
                                   onClick={() => setPreviewMaterialId(material.id)}
                                   className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
                                   title="Preview in DRM Secure Reader"
@@ -1816,12 +2142,21 @@ export function AdminPortal() {
                             <span className="rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-bold font-mono text-amber-600 dark:text-amber-400">
                               {lab.subject_code} · Exp {lab.experiment_number}
                             </span>
-                            <button
-                              onClick={() => handleDeleteItem("/academic/admin/labs/", lab.id, lab.title, loadAdminData)}
-                              className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={() => handleEditLab(lab)}
+                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-amber-500/10 hover:text-amber-500 cursor-pointer transition-colors"
+                                title="Edit Practical Lab Experiment"
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteItem("/academic/admin/labs/", lab.id, lab.title, loadAdminData)}
+                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
                           </div>
                           <h3 className="mt-3 font-display text-base font-bold text-foreground">{lab.title}</h3>
                           <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{lab.aim}</p>
@@ -1910,12 +2245,22 @@ export function AdminPortal() {
                         <span className="rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-bold text-emerald-600 font-mono">
                           {slot.day_of_week} · {slot.start_time} - {slot.end_time}
                         </span>
-                        <button
-                          onClick={() => handleDeleteItem("/planner/admin/timetable/", slot.id, slot.title, loadAdminData)}
-                          className="rounded-xl p-1 text-muted-foreground hover:text-rose-500 cursor-pointer"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </button>
+                        <div className="flex items-center gap-1">
+                          <button
+                            onClick={() => handleEditTimetable(slot)}
+                            className="rounded-xl p-1 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
+                            title="Edit Timetable Slot"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteItem("/planner/admin/timetable/", slot.id, slot.title, loadAdminData)}
+                            className="rounded-xl p-1 text-muted-foreground hover:text-rose-500 cursor-pointer"
+                            title="Delete Timetable Slot"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
                       </div>
                       <h4 className="font-bold text-sm text-foreground">{slot.title}</h4>
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -1951,9 +2296,14 @@ export function AdminPortal() {
                 </div>
                 <button
                   onClick={() => {
+                    setEditingAssignmentId(null);
                     setNewAssignment({
-                      ...newAssignment,
                       subject: selectedSubjectId || (subjects[0]?.id || ""),
+                      title: "",
+                      description: "",
+                      due_date: new Date(Date.now() + 7 * 86400000).toISOString().split("T")[0],
+                      total_marks: 20,
+                      weightage_percentage: 10,
                     });
                     setShowAssignmentModal(true);
                   }}
@@ -1982,12 +2332,22 @@ export function AdminPortal() {
                           <span className="rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-bold font-mono text-amber-600 dark:text-amber-400">
                             {a.subject_code} · Due {a.due_date}
                           </span>
-                          <button
-                            onClick={() => handleDeleteItem("/assignments/admin/assignments/", a.id, a.title, loadAdminData)}
-                            className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => handleEditAssignment(a)}
+                              className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
+                              title="Edit Assignment"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteItem("/assignments/admin/assignments/", a.id, a.title, loadAdminData)}
+                              className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer"
+                              title="Delete Assignment"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
                         </div>
                         <h3 className="mt-3 font-display text-base font-bold text-foreground">{a.title}</h3>
                         <p className="mt-1 text-xs text-muted-foreground line-clamp-3 leading-relaxed">{a.description || "Official course evaluation."}</p>
@@ -2020,10 +2380,15 @@ export function AdminPortal() {
                 </div>
                 <button
                   onClick={() => {
+                    setEditingNoticeId(null);
                     setNewNotice({
-                      ...newNotice,
+                      title: "",
+                      content: "",
+                      category: "Examination",
+                      priority: "HIGH",
                       target_department: selectedDeptId || "",
                       target_semester: selectedSemester || 1,
+                      is_broadcast_all: true,
                     });
                     setShowNoticeModal(true);
                   }}
@@ -2052,12 +2417,22 @@ export function AdminPortal() {
                           <span className="rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-bold text-emerald-600">
                             {n.category}
                           </span>
-                          <button
-                            onClick={() => handleDeleteItem("/academic/admin/notices/", n.id, n.title, loadAdminData)}
-                            className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => handleEditNotice(n)}
+                              className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
+                              title="Edit Notice"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteItem("/academic/admin/notices/", n.id, n.title, loadAdminData)}
+                              className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer"
+                              title="Delete Notice"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
                         </div>
                         <h3 className="mt-3 font-display text-base font-bold text-foreground">{n.title}</h3>
                         <p className="mt-1 text-xs text-muted-foreground line-clamp-3 leading-relaxed">{n.content}</p>
@@ -2094,9 +2469,13 @@ export function AdminPortal() {
                   </span>
                   <button
                     onClick={() => {
+                      setEditingMilestoneId(null);
                       setNewMilestone({
-                        ...newMilestone,
+                        title: "",
+                        target_date: new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0],
+                        category: "Mid-Semester Theory Exams",
                         semester: selectedSemester || 1,
+                        tag: "Term 1",
                       });
                       setShowMilestoneModal(true);
                     }}
@@ -2126,12 +2505,22 @@ export function AdminPortal() {
                           <span className="rounded-full bg-rose-500/10 px-2.5 py-0.5 text-xs font-bold text-rose-600 font-mono">
                             {m.category}
                           </span>
-                          <button
-                            onClick={() => handleDeleteItem("/planner/admin/milestones/", m.id, m.title, loadAdminData)}
-                            className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </button>
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => handleEditMilestone(m)}
+                              className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
+                              title="Edit Milestone"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteItem("/planner/admin/milestones/", m.id, m.title, loadAdminData)}
+                              className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer"
+                              title="Delete Milestone"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
                         </div>
                         <h4 className="mt-3 font-display font-bold text-base text-foreground">{m.title}</h4>
                         <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground font-mono">
@@ -3164,17 +3553,25 @@ export function AdminPortal() {
 
       {/* ===================== Creation Modals ===================== */}
 
-      {/* Modal: Create Department */}
+      {/* Modal: Create / Edit Department */}
       {showDeptModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
           <div className="w-full max-w-lg rounded-3xl border border-border bg-card p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-border pb-3">
-              <h3 className="font-display font-bold text-lg text-foreground">Create Academic Department</h3>
-              <button onClick={() => setShowDeptModal(false)} className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer">
+              <h3 className="font-display font-bold text-lg text-foreground">
+                {editingDeptId ? "Edit Academic Department" : "Create Academic Department"}
+              </h3>
+              <button
+                onClick={() => {
+                  setShowDeptModal(false);
+                  setEditingDeptId(null);
+                }}
+                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <form onSubmit={handleCreateDept} className="space-y-3.5 text-xs">
+            <form onSubmit={handleSaveDept} className="space-y-3.5 text-xs">
               <div>
                 <label className="block font-bold mb-1">Department Name</label>
                 <input
@@ -3220,24 +3617,32 @@ export function AdminPortal() {
                 />
               </div>
               <button type="submit" className="h-11 w-full rounded-2xl bg-primary font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer">
-                Create Department
+                {editingDeptId ? "Save Department Changes" : "Create Department"}
               </button>
             </form>
           </div>
         </div>
       )}
 
-      {/* Modal: Create Program / Specialization */}
+      {/* Modal: Create / Edit Program / Specialization */}
       {showProgramModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
           <div className="w-full max-w-lg rounded-3xl border border-border bg-card p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-border pb-3">
-              <h3 className="font-display font-bold text-lg text-foreground">Add Degree Program / Specialization</h3>
-              <button onClick={() => setShowProgramModal(false)} className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer">
+              <h3 className="font-display font-bold text-lg text-foreground">
+                {editingProgramId ? "Edit Degree Program / Specialization" : "Add Degree Program / Specialization"}
+              </h3>
+              <button
+                onClick={() => {
+                  setShowProgramModal(false);
+                  setEditingProgramId(null);
+                }}
+                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <form onSubmit={handleCreateProgram} className="space-y-3.5 text-xs">
+            <form onSubmit={handleSaveProgram} className="space-y-3.5 text-xs">
               <div>
                 <label className="block font-bold mb-1">Parent Department</label>
                 <select
@@ -3308,24 +3713,32 @@ export function AdminPortal() {
                 </div>
               </div>
               <button type="submit" className="h-11 w-full rounded-2xl bg-primary font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer">
-                Create Specialization Program
+                {editingProgramId ? "Save Specialization Changes" : "Create Specialization Program"}
               </button>
             </form>
           </div>
         </div>
       )}
 
-      {/* Modal: Create Section */}
+      {/* Modal: Create / Edit Section */}
       {showSectionModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
           <div className="w-full max-w-lg rounded-3xl border border-border bg-card p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-border pb-3">
-              <h3 className="font-display font-bold text-lg text-foreground">Configure Semester Section Batch</h3>
-              <button onClick={() => setShowSectionModal(false)} className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer">
+              <h3 className="font-display font-bold text-lg text-foreground">
+                {editingSectionId ? "Edit Semester Section Batch" : "Configure Semester Section Batch"}
+              </h3>
+              <button
+                onClick={() => {
+                  setShowSectionModal(false);
+                  setEditingSectionId(null);
+                }}
+                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <form onSubmit={handleCreateSection} className="space-y-3.5 text-xs">
+            <form onSubmit={handleSaveSection} className="space-y-3.5 text-xs">
               <div>
                 <label className="block font-bold mb-1">Parent Program</label>
                 <select
@@ -3387,24 +3800,32 @@ export function AdminPortal() {
                 </div>
               </div>
               <button type="submit" className="h-11 w-full rounded-2xl bg-primary font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer">
-                Create Section Cohort
+                {editingSectionId ? "Save Section Changes" : "Create Section Cohort"}
               </button>
             </form>
           </div>
         </div>
       )}
 
-      {/* Modal: Register Subject */}
+      {/* Modal: Register / Edit Subject */}
       {showSubjectModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
           <div className="w-full max-w-lg rounded-3xl border border-border bg-card p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-border pb-3">
-              <h3 className="font-display font-bold text-lg text-foreground">Register Course Subject</h3>
-              <button onClick={() => setShowSubjectModal(false)} className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer">
+              <h3 className="font-display font-bold text-lg text-foreground">
+                {editingSubjectId ? "Edit Course Subject" : "Register Course Subject"}
+              </h3>
+              <button
+                onClick={() => {
+                  setShowSubjectModal(false);
+                  setEditingSubjectId(null);
+                }}
+                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <form onSubmit={handleCreateSubject} className="space-y-3.5 text-xs">
+            <form onSubmit={handleSaveSubject} className="space-y-3.5 text-xs">
               <div>
                 <label className="block font-bold mb-1">Parent Program</label>
                 <select
@@ -3465,27 +3886,35 @@ export function AdminPortal() {
                 </div>
               </div>
               <button type="submit" className="h-11 w-full rounded-2xl bg-primary font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer">
-                Register Subject
+                {editingSubjectId ? "Save Subject Changes" : "Register Subject"}
               </button>
             </form>
           </div>
         </div>
       )}
 
-      {/* Modal: Publish Academic Study Material (Dual-Mode Studio: Multi-Page Composition & Direct Document Upload) */}
+      {/* Modal: Publish / Edit Academic Study Material (Dual-Mode Studio: Multi-Page Composition & Direct Document Upload) */}
       {showMaterialModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
           <div className="w-full max-w-2xl sm:max-w-3xl rounded-3xl border border-border bg-card p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-border pb-3">
               <div>
                 <h3 className="font-display font-bold text-lg text-foreground">
-                  Publish {publisherType === "NOTES" ? "Unit Handwritten Notes" : "Solved University PYQ"}
+                  {editingMaterialId
+                    ? "Edit Academic Study Material"
+                    : `Publish ${publisherType === "NOTES" ? "Unit Handwritten Notes" : publisherType === "FACULTY" ? "Faculty Material" : "Solved University PYQ"}`}
                 </h3>
                 <p className="text-xs text-muted-foreground">
                   Compose page-by-page DRM manuscripts or upload full PDF/PPT courseware documents.
                 </p>
               </div>
-              <button onClick={() => setShowMaterialModal(false)} className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer">
+              <button
+                onClick={() => {
+                  setShowMaterialModal(false);
+                  setEditingMaterialId(null);
+                }}
+                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -3520,7 +3949,7 @@ export function AdminPortal() {
               </button>
             </div>
 
-            <form onSubmit={handleCreateMaterial} className="space-y-4 text-xs">
+            <form onSubmit={handleSaveMaterial} className="space-y-4 text-xs">
               {/* Primary Material Metadata (Subject, Unit/Year, Title) */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
@@ -3897,27 +4326,35 @@ export function AdminPortal() {
 
               <button type="submit" className="h-11 w-full rounded-2xl bg-primary font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer flex items-center justify-center gap-2 text-sm">
                 <Sparkles className="h-4 w-4" />
-                <span>Publish Study Material Live</span>
+                <span>{editingMaterialId ? "Save Study Material Changes" : "Publish Study Material Live"}</span>
               </button>
             </form>
           </div>
         </div>
       )}
 
-      {/* Modal: Create Lab Experiment & Multiple Viva Drills */}
+      {/* Modal: Create / Edit Lab Experiment & Multiple Viva Drills */}
       {showLabModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
           <div className="w-full max-w-2xl rounded-3xl border border-border bg-card p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-border pb-3">
               <div>
-                <h3 className="font-display font-bold text-lg text-foreground">Add Practical Experiment &amp; Viva Drills</h3>
+                <h3 className="font-display font-bold text-lg text-foreground">
+                  {editingLabId ? "Edit Practical Experiment & Viva Drills" : "Add Practical Experiment & Viva Drills"}
+                </h3>
                 <p className="text-xs text-muted-foreground">Register full laboratory algorithms and multiple interactive viva examination questions.</p>
               </div>
-              <button onClick={() => setShowLabModal(false)} className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer">
+              <button
+                onClick={() => {
+                  setShowLabModal(false);
+                  setEditingLabId(null);
+                }}
+                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <form onSubmit={handleCreateLab} className="space-y-4 text-xs">
+            <form onSubmit={handleSaveLab} className="space-y-4 text-xs">
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="sm:col-span-2">
                   <label className="block font-bold mb-1">Target Subject</label>
@@ -4100,24 +4537,32 @@ export function AdminPortal() {
 
               <button type="submit" className="h-11 w-full rounded-2xl bg-primary font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer flex items-center justify-center gap-2 text-sm">
                 <Sparkles className="h-4 w-4" />
-                <span>Create Lab Experiment &amp; Viva Drills</span>
+                <span>{editingLabId ? "Save Lab Experiment & Viva Changes" : "Create Lab Experiment & Viva Drills"}</span>
               </button>
             </form>
           </div>
         </div>
       )}
 
-      {/* Modal: Create Assignment */}
+      {/* Modal: Create / Edit Assignment */}
       {showAssignmentModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
           <div className="w-full max-w-lg rounded-3xl border border-border bg-card p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-border pb-3">
-              <h3 className="font-display font-bold text-lg text-foreground">Create Course Assignment</h3>
-              <button onClick={() => setShowAssignmentModal(false)} className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer">
+              <h3 className="font-display font-bold text-lg text-foreground">
+                {editingAssignmentId ? "Edit Course Assignment" : "Create Course Assignment"}
+              </h3>
+              <button
+                onClick={() => {
+                  setShowAssignmentModal(false);
+                  setEditingAssignmentId(null);
+                }}
+                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <form onSubmit={handleCreateAssignment} className="space-y-3.5 text-xs">
+            <form onSubmit={handleSaveAssignment} className="space-y-3.5 text-xs">
               <div>
                 <label className="block font-bold mb-1">Subject</label>
                 <select
@@ -4175,24 +4620,32 @@ export function AdminPortal() {
                 />
               </div>
               <button type="submit" className="h-11 w-full rounded-2xl bg-primary font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer">
-                Broadcast Assignment
+                {editingAssignmentId ? "Save Assignment Changes" : "Broadcast Assignment"}
               </button>
             </form>
           </div>
         </div>
       )}
 
-      {/* Modal: Create Timetable Slot */}
+      {/* Modal: Create / Edit Timetable Slot */}
       {showTimetableModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
           <div className="w-full max-w-lg rounded-3xl border border-border bg-card p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-border pb-3">
-              <h3 className="font-display font-bold text-lg text-foreground">Add Timetable Lecture Slot</h3>
-              <button onClick={() => setShowTimetableModal(false)} className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer">
+              <h3 className="font-display font-bold text-lg text-foreground">
+                {editingTimetableId ? "Edit Timetable Lecture Slot" : "Add Timetable Lecture Slot"}
+              </h3>
+              <button
+                onClick={() => {
+                  setShowTimetableModal(false);
+                  setEditingTimetableId(null);
+                }}
+                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <form onSubmit={handleCreateTimetableSlot} className="space-y-3.5 text-xs">
+            <form onSubmit={handleSaveTimetableSlot} className="space-y-3.5 text-xs">
               <div>
                 <label className="block font-bold mb-1">Subject</label>
                 <select
@@ -4304,24 +4757,32 @@ export function AdminPortal() {
                 </div>
               </div>
               <button type="submit" className="h-11 w-full rounded-2xl bg-primary font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer">
-                Add Timetable Slot
+                {editingTimetableId ? "Save Slot Changes" : "Add Timetable Slot"}
               </button>
             </form>
           </div>
         </div>
       )}
 
-      {/* Modal: Broadcast Notice */}
+      {/* Modal: Broadcast / Edit Notice */}
       {showNoticeModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
           <div className="w-full max-w-lg rounded-3xl border border-border bg-card p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-border pb-3">
-              <h3 className="font-display font-bold text-lg text-foreground">Broadcast Official Notice</h3>
-              <button onClick={() => setShowNoticeModal(false)} className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer">
+              <h3 className="font-display font-bold text-lg text-foreground">
+                {editingNoticeId ? "Edit Department Notice / Circular" : "Broadcast Official Notice"}
+              </h3>
+              <button
+                onClick={() => {
+                  setShowNoticeModal(false);
+                  setEditingNoticeId(null);
+                }}
+                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <form onSubmit={handleCreateNotice} className="space-y-3.5 text-xs">
+            <form onSubmit={handleSaveNotice} className="space-y-3.5 text-xs">
               <div>
                 <label className="block font-bold mb-1">Headline</label>
                 <input
@@ -4371,24 +4832,32 @@ export function AdminPortal() {
                 />
               </div>
               <button type="submit" className="h-11 w-full rounded-2xl bg-primary font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer">
-                Broadcast Circular
+                {editingNoticeId ? "Save Notice Changes" : "Broadcast Circular"}
               </button>
             </form>
           </div>
         </div>
       )}
 
-      {/* Modal: Create Exam Milestone Countdown */}
+      {/* Modal: Create / Edit Exam Milestone Countdown */}
       {showMilestoneModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
           <div className="w-full max-w-lg rounded-3xl border border-border bg-card p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b border-border pb-3">
-              <h3 className="font-display font-bold text-lg text-foreground">Add Examination Milestone Countdown</h3>
-              <button onClick={() => setShowMilestoneModal(false)} className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer">
+              <h3 className="font-display font-bold text-lg text-foreground">
+                {editingMilestoneId ? "Edit Examination Milestone Countdown" : "Add Examination Milestone Countdown"}
+              </h3>
+              <button
+                onClick={() => {
+                  setShowMilestoneModal(false);
+                  setEditingMilestoneId(null);
+                }}
+                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <form onSubmit={handleCreateMilestone} className="space-y-3.5 text-xs">
+            <form onSubmit={handleSaveMilestone} className="space-y-3.5 text-xs">
               <div>
                 <label className="block font-bold mb-1">Milestone Event Title</label>
                 <input
@@ -4450,7 +4919,7 @@ export function AdminPortal() {
                 </div>
               </div>
               <button type="submit" className="h-11 w-full rounded-2xl bg-primary font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer">
-                Add Exam Milestone Countdown
+                {editingMilestoneId ? "Save Milestone Changes" : "Add Exam Milestone Countdown"}
               </button>
             </form>
           </div>

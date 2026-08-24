@@ -109,6 +109,7 @@ export interface Subject {
   code: string;
   semester: number;
   credits: number;
+  syllabus_summary?: string;
   faculty_name?: string;
   icon_name?: string;
   color_accent?: string;
@@ -133,6 +134,7 @@ export interface AcademicMaterial {
   is_topper_verified: boolean;
   file?: string;
   tags?: string[];
+  pages?: Array<{ page_number: number; page_title?: string; content_html?: string }>;
   views_count: number;
   is_bookmarked?: boolean;
   created_at: string;
