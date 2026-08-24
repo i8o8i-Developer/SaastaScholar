@@ -1,0 +1,392 @@
+import json
+from rest_framework import serializers
+from .models import (
+    AcademicMaterial,
+    Department,
+    DepartmentNotice,
+    LabExperiment,
+    MaterialPage,
+    ProgramSpecialization,
+    SectionBatch,
+    SidebarBadgeConfig,
+    Subject,
+    UserBookmark,
+)
+
+class SafeJSONField(serializers.Field):
+    def to_representation(self, value):
+        if value is None:
+            return []
+        if isinstance(value, str):
+            try:
+                return json.loads(value)
+            except Exception:
+                return [t.strip() for t in value.split(",") if t.strip()]
+        return value
+
+    def to_internal_value(self, data):
+        if data is None or data == "" or data == "null":
+            return []
+        if isinstance(data, (list, dict)):
+            return data
+        if isinstance(data, str):
+            try:
+                return json.loads(data)
+            except Exception:
+                return [t.strip() for t in data.split(",") if t.strip()]
+        return data
+
+class ProgramSpecializationSerializer(serializers.ModelSerializer):
+    department_name = serializers.CharField(source="department.name", read_only=True)
+    department_code = serializers.CharField(source="department.code", read_only=True)
+
+    class Meta:
+        model = ProgramSpecialization
+        fields = [
+            "id",
+            "department",
+            "department_name",
+            "department_code",
+            "name",
+            "code",
+            "degree_level",
+            "duration_years",
+            "total_semesters",
+            "created_at",
+        ]
+
+class SectionBatchSerializer(serializers.ModelSerializer):
+    program_name = serializers.CharField(source="program.name", read_only=True)
+    program_code = serializers.CharField(source="program.code", read_only=True)
+    section = serializers.SerializerMethodField()
+
+    class Meta:
+        model = SectionBatch
+        fields = [
+            "id",
+            "program",
+            "program_name",
+            "program_code",
+            "semester",
+            "section",
+            "section_name",
+            "batch_code",
+            "academic_year",
+            "max_capacity",
+            "created_at",
+        ]
+        extra_kwargs = {
+            "section_name": {"required": False},
+            "batch_code": {"required": False},
+        }
+
+    def get_section(self, obj):
+        return obj.section_name
+
+    def to_internal_value(self, data):
+        data = data.copy() if hasattr(data, "copy") else dict(data)
+        if not data.get("program"):
+            first_prog = ProgramSpecialization.objects.first()
+            if first_prog:
+                data["program"] = str(first_prog.id)
+        if "section" in data and not data.get("section_name"):
+            data["section_name"] = str(data["section"]).strip().upper()
+        if "section_name" in data and data.get("section_name"):
+            data["section_name"] = str(data["section_name"]).strip().upper()
+        if not data.get("section_name"):
+            data["section_name"] = "A"
+        if not data.get("batch_code") and data.get("academic_year"):
+            data["batch_code"] = f"{data['academic_year']} Batch"
+        elif not data.get("batch_code"):
+            data["batch_code"] = "2025-2026 Batch"
+        return super().to_internal_value(data)
+
+class DepartmentSerializer(serializers.ModelSerializer):
+    programs = ProgramSpecializationSerializer(many=True, read_only=True)
+    subjects_count = serializers.IntegerField(source="subjects.count", read_only=True)
+
+    class Meta:
+        model = Department
+        fields = ["id", "name", "code", "description", "head_of_department", "programs", "subjects_count", "created_at"]
+
+class SubjectSerializer(serializers.ModelSerializer):
+    department_name = serializers.CharField(source="department.name", read_only=True)
+    department_code = serializers.CharField(source="department.code", read_only=True)
+    materials_count = serializers.IntegerField(read_only=True, default=0)
+    experiments_count = serializers.IntegerField(read_only=True, default=0)
+    program = serializers.UUIDField(write_only=True, required=False)
+
+    class Meta:
+        model = Subject
+        fields = [
+            "id",
+            "department",
+            "department_name",
+            "department_code",
+            "program",
+            "name",
+            "code",
+            "semester",
+            "credits",
+            "faculty_name",
+            "icon_name",
+            "color_accent",
+            "materials_count",
+            "experiments_count",
+        ]
+        extra_kwargs = {
+            "department": {"required": False},
+        }
+
+    def to_internal_value(self, data):
+        data = data.copy() if hasattr(data, "copy") else dict(data)
+        if "program" in data and not data.get("department"):
+            try:
+                prog = ProgramSpecialization.objects.get(id=data["program"])
+                data["department"] = prog.department.id
+            except Exception:
+                pass
+        if not data.get("department"):
+            first_dept = Department.objects.first()
+            if first_dept:
+                data["department"] = first_dept.id
+        return super().to_internal_value(data)
+
+    def create(self, validated_data):
+        validated_data.pop("program", None)
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        validated_data.pop("program", None)
+        return super().update(instance, validated_data)
+
+import json
+
+class MaterialPageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MaterialPage
+        fields = ["id", "page_number", "page_title", "content_html", "diagram_svg"]
+
+class AcademicMaterialSerializer(serializers.ModelSerializer):
+    subject_code = serializers.CharField(source="subject.code", read_only=True)
+    subject_name = serializers.CharField(source="subject.name", read_only=True)
+    semester = serializers.IntegerField(source="subject.semester", read_only=True)
+    is_bookmarked = serializers.SerializerMethodField()
+    pages = MaterialPageSerializer(many=True, read_only=True)
+    pages_input = serializers.CharField(write_only=True, required=False, allow_blank=True)
+    tags = SafeJSONField(required=False, default=list)
+
+    class Meta:
+        model = AcademicMaterial
+        fields = [
+            "id",
+            "subject",
+            "subject_code",
+            "subject_name",
+            "semester",
+            "title",
+            "material_type",
+            "academic_year",
+            "unit_number",
+            "summary",
+            "page_count",
+            "preview_pages_count",
+            "is_free",
+            "is_topper_verified",
+            "file",
+            "tags",
+            "views_count",
+            "is_bookmarked",
+            "pages",
+            "pages_input",
+            "created_at",
+        ]
+
+    def to_internal_value(self, data):
+        data = data.copy() if hasattr(data, "copy") else dict(data)
+
+        if not data.get("subject"):
+            first_sub = Subject.objects.first()
+            if first_sub:
+                data["subject"] = str(first_sub.id)
+
+        if not data.get("material_type"):
+            data["material_type"] = "NOTES"
+
+        if not data.get("academic_year"):
+            data["academic_year"] = "2026-2027"
+
+        # Handle FormData string conversions  
+
+        if "is_free" in data:
+            val = str(data["is_free"]).lower()
+            data["is_free"] = val in ["true", "1", "yes"]
+
+        if "is_topper_verified" in data:
+            val = str(data["is_topper_verified"]).lower()
+            data["is_topper_verified"] = val in ["true", "1", "yes"]
+
+        if "unit_number" in data:
+            try:
+                data["unit_number"] = int(data["unit_number"]) if data["unit_number"] not in [None, "", "null"] else None
+            except (ValueError, TypeError):
+                data["unit_number"] = 1
+
+        if "page_count" in data:
+            try:
+                data["page_count"] = int(data["page_count"]) if data["page_count"] not in [None, "", "null"] else 1
+            except (ValueError, TypeError):
+                data["page_count"] = 1
+
+        if "tags" in data:
+            tags_val = data["tags"]
+            if isinstance(tags_val, str):
+                try:
+                    parsed = json.loads(tags_val)
+                    data["tags"] = parsed if isinstance(parsed, list) else [str(parsed)]
+                except Exception:
+                    data["tags"] = [t.strip() for t in tags_val.split(",") if t.strip()]
+
+        return super().to_internal_value(data)
+
+    def create(self, validated_data):
+        pages_input = validated_data.pop("pages_input", None)
+        pages_list = []
+        if pages_input:
+            if isinstance(pages_input, str):
+                try:
+                    pages_list = json.loads(pages_input)
+                except Exception:
+                    pages_list = []
+            elif isinstance(pages_input, list):
+                pages_list = pages_input
+
+        if pages_list:
+            validated_data["page_count"] = len(pages_list)
+
+        material = super().create(validated_data)
+
+        if pages_list:
+            for p in pages_list:
+                p_num = p.get("page_number") or 1
+                p_title = p.get("page_title") or f"Page {p_num}"
+                p_content = p.get("content_html") or p.get("content") or ""
+                MaterialPage.objects.create(
+                    material=material,
+                    page_number=p_num,
+                    page_title=p_title,
+                    content_html=p_content,
+                )
+        elif material.file:
+            from Apps.Academic.document_processor import extract_and_populate_pages
+            extract_and_populate_pages(material)
+        return material
+
+    def update(self, instance, validated_data):
+        pages_input = validated_data.pop("pages_input", None)
+        material = super().update(instance, validated_data)
+        if material.file and not pages_input:
+            from Apps.Academic.document_processor import extract_and_populate_pages
+            extract_and_populate_pages(material)
+        return material
+
+        pages_list = None
+        if pages_input is not None:
+            if isinstance(pages_input, str):
+                try:
+                    pages_list = json.loads(pages_input)
+                except Exception:
+                    pages_list = []
+            elif isinstance(pages_input, list):
+                pages_list = pages_input
+
+        if pages_list is not None:
+            MaterialPage.objects.filter(material=material).delete()
+            for p in pages_list:
+                p_num = p.get("page_number") or 1
+                p_title = p.get("page_title") or f"Page {p_num}"
+                p_content = p.get("content_html") or p.get("content") or ""
+                MaterialPage.objects.create(
+                    material=material,
+                    page_number=p_num,
+                    page_title=p_title,
+                    content_html=p_content,
+                )
+            material.page_count = len(pages_list) or 1
+            material.save(update_fields=["page_count"])
+
+        return material
+
+    def get_is_bookmarked(self, obj):
+        request = self.context.get("request")
+        if request and request.user.is_authenticated:
+            return UserBookmark.objects.filter(user=request.user, material=obj).exists()
+        return False
+
+class LabExperimentSerializer(serializers.ModelSerializer):
+    subject_code = serializers.CharField(source="subject.code", read_only=True)
+    subject_name = serializers.CharField(source="subject.name", read_only=True)
+    procedure_steps = SafeJSONField(required=False, default=list)
+    code_snippets = SafeJSONField(required=False, default=dict)
+    viva_questions = SafeJSONField(required=False, default=list)
+
+    class Meta:
+        model = LabExperiment
+        fields = [
+            "id",
+            "subject",
+            "subject_code",
+            "subject_name",
+            "experiment_number",
+            "title",
+            "aim",
+            "apparatus_required",
+            "theory",
+            "procedure_steps",
+            "code_snippets",
+            "output_sample",
+            "viva_questions",
+        ]
+
+class DepartmentNoticeSerializer(serializers.ModelSerializer):
+    department_name = serializers.CharField(source="department.name", read_only=True)
+    department_code = serializers.CharField(source="department.code", read_only=True)
+    program_name = serializers.CharField(source="program.name", read_only=True)
+
+    class Meta:
+        model = DepartmentNotice
+        fields = [
+            "id",
+            "department",
+            "department_name",
+            "department_code",
+            "program",
+            "program_name",
+            "title",
+            "content",
+            "category",
+            "priority",
+            "tag",
+            "target_semester",
+            "target_section",
+            "is_broadcast_all",
+            "reference_number",
+            "published_by",
+            "published_at",
+        ]
+
+
+class SidebarBadgeConfigSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SidebarBadgeConfig
+        fields = [
+            "id",
+            "label",
+            "badge_text",
+            "badge_variant",
+            "is_active",
+            "display_order",
+            "updated_at",
+        ]
+
+

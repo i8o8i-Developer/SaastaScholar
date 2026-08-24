@@ -20,10 +20,22 @@ dist-ssr
 .env
 .env.local
 .env.*.local
+venv/
 
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars
+
+# Python & Django
+Backend/venv/
+Backend/db.sqlite3
+Backend/drm_vault/
+Backend/staticfiles/
+Backend/media/
+__pycache__/
+*.py[cod]
+*$py.class
+*.sqlite3
 
 # Editor directories and files
 .vscode/*

@@ -1,13 +1,12 @@
 # ==============================================================================
-# Multi-Stage Dockerfile for NimsWallah (Pure Vite + React SPA)
-# Ultra-Fast, Production Nginx Web Server on Port 7865
-# Compatible with Coolify Docker & Docker Compose Buildpacks
+# Multi-Stage Dockerfile for NimsWallah Full-Stack
+# React Frontend (Vite) + Django Python Backend (Gunicorn + PostgreSQL) + Nginx
+# Listens on Port 7865 (Compatible with Coolify Traefik Network)
 # ==============================================================================
 
-# Stage 1: Build Static Bundle
-FROM node:22-alpine AS builder
+# Stage 1: Build Static React Frontend Bundle
+FROM node:22-alpine AS frontend-builder
 
-# Accept Coolify & Vite build arguments
 ARG VITE_SITE_URL=https://nimswallah.durgaaisolutions.in
 ARG VITE_SITE_NAME=NimsWallah
 ARG VITE_SITE_DOMAIN=nimswallah.durgaaisolutions.in
@@ -26,32 +25,57 @@ ENV NODE_ENV=development
 
 WORKDIR /app
 
-# Install build dependencies
 RUN apk add --no-cache libc6-compat
-
-# Copy package manifests
 COPY package.json package-lock.json* ./
-
-# Install all dependencies required for building
 RUN npm install --include=dev
 
-# Copy source code
 COPY . .
-
-# Build production static bundle (outputs to /app/dist)
 RUN npm run build
 
-# Stage 2: Production Nginx Web Server
-FROM nginx:alpine AS runner
+# Stage 2: Full-Stack Production Runner (Nginx + Python Django API)
+FROM python:3.10-slim AS runner
 
 ARG PORT=7865
 ARG COOLIFY_FQDN=nimswallah.durgaaisolutions.in
 
-# Remove default Nginx welcome site
-RUN rm -rf /usr/share/nginx/html/*
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PORT=7865
 
-# Copy built static files from builder
-COPY --from=builder /app/dist /usr/share/nginx/html
+# Install system dependencies, Nginx, wget for healthcheck, LibreOffice, and metric-compatible Microsoft fonts
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    nginx \
+    wget \
+    libpq5 \
+    libreoffice-core \
+    libreoffice-writer \
+    libreoffice-impress \
+    libreoffice-calc \
+    fonts-liberation \
+    fonts-dejavu \
+    fonts-crosextra-carlito \
+    fonts-crosextra-caladea \
+    fontconfig \
+    && rm -rf /var/lib/apt/lists/*
+
+# Rebuild font cache
+RUN fc-cache -f -v
+
+WORKDIR /app
+
+# Copy Backend & Requirements
+COPY Backend/Requirements.txt /app/Backend/Requirements.txt
+RUN pip install --no-cache-dir -r /app/Backend/Requirements.txt
+
+COPY Backend /app/Backend
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
+
+# Remove default Nginx welcome site & configs
+RUN rm -rf /usr/share/nginx/html/* /var/www/html/* /etc/nginx/sites-enabled/default
+
+# Copy built frontend static files from frontend-builder
+COPY --from=frontend-builder /app/dist /usr/share/nginx/html
 
 # Copy custom Nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
@@ -60,8 +84,8 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 7865
 
 # Healthcheck
-HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:7865/healthz || exit 1
 
-# Start Nginx
-CMD ["nginx", "-g", "daemon off;"]
+# Start Full-Stack Services
+CMD ["/app/start.sh"]

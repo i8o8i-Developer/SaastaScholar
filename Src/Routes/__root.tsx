@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Outlet, Link, createRootRouteWithContext, useRouter } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { Toaster } from "@/Components/Ui/Sonner";
+import { AuthProvider } from "@/Hooks/UseAuth";
 import { reportLovableError } from "../Lib/LovableErrorReporting";
 
 function NotFoundComponent() {
@@ -75,8 +76,10 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
-      <Toaster position="bottom-right" richColors />
+      <AuthProvider>
+        <Outlet />
+        <Toaster position="bottom-right" richColors />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

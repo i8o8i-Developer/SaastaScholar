@@ -150,10 +150,10 @@ export function Faq() {
             </p>
 
             <div className="mt-5 flex flex-wrap gap-2.5">
-              <Cta href="#get-started" size="sm" variant="primary">
+              <Cta href="/dashboard?tab=student-desk" size="sm" variant="primary">
                 Contact Student Desk
               </Cta>
-              <Cta href="#top" size="sm" variant="outline">
+              <Cta href="/dashboard?tab=community-forum" size="sm" variant="outline">
                 Community Forum
               </Cta>
             </div>

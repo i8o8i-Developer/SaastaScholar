@@ -142,7 +142,16 @@ export function Pricing() {
       </Reveal>
 
       {/* 3-Tier Pricing Grid */}
-      <div className="mt-10 grid gap-5 lg:grid-cols-3 min-w-0">
+      <div className="mt-10 grid gap-5 lg:grid-cols-3 min-w-0 relative">
+        {/* Free Floating Banner Overlay - Glassmorphic & Elegant */}
+        <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none px-4">
+          <div className="rotate-[-2deg] rounded-3xl bg-background/40 px-8 py-6 text-center shadow-[0_0_100px_rgba(16,185,129,0.2)] border border-primary/20 backdrop-blur-xl ring-1 ring-white/10 transition-transform hover:scale-105">
+            <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-red-500 to-rose-700 drop-shadow-sm">
+              Everything Is Free <br className="hidden sm:block" /> Till 29 August 2026
+            </h2>
+          </div>
+        </div>
+
         {PLANS.map((plan, i) => (
           <Reveal key={plan.name} delay={i * 70} className="min-w-0">
             <div
@@ -200,7 +209,11 @@ export function Pricing() {
                     <span
                       className={cn(
                         "font-display text-3xl sm:text-4xl font-black tracking-tight",
-                        plan.popular ? "text-white" : "text-foreground",
+                        plan.price !== "₹0"
+                          ? "line-through decoration-primary/40 decoration-[3px] text-muted-foreground/60"
+                          : plan.popular
+                            ? "text-white"
+                            : "text-foreground",
                       )}
                     >
                       {plan.price}
@@ -252,13 +265,14 @@ export function Pricing() {
               {/* Action Button */}
               <div className="mt-6 pt-3 border-t border-border/40 min-w-0">
                 <Cta
-                  href="/login"
+                  href={plan.price !== "₹0" ? undefined : "/login"}
                   size="md"
                   className={cn(
-                    "w-full justify-center text-xs font-bold shadow-xs cursor-pointer py-2.5",
+                    "w-full justify-center text-xs font-bold shadow-xs py-2.5",
                     plan.popular
                       ? "bg-white text-emerald-950 hover:bg-emerald-50 hover:scale-[1.02] shadow-[0_8px_20px_-5px_rgba(255,255,255,0.3)]"
                       : "hover:border-primary",
+                    plan.price !== "₹0" ? "opacity-50 pointer-events-none cursor-not-allowed grayscale" : "cursor-pointer"
                   )}
                   variant={plan.popular ? "inverse" : plan.variant}
                 >

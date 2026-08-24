@@ -1,4 +1,24 @@
 services:
+  postgres_db:
+    image: postgres:16-alpine
+    container_name: nimswallah-postgres
+    restart: unless-stopped
+    command: -p 4611
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-nimswallah_db}
+      POSTGRES_USER: ${POSTGRES_USER:-nimswallah_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-NimswallahDB@Secured2026!}
+      PGPORT: 4611
+    ports:
+      - "4611:4611"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-nimswallah_admin} -d ${POSTGRES_DB:-nimswallah_db} -p 4611 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   nimswallah:
     build:
       context: .
@@ -12,13 +32,31 @@ services:
         HOST: ${HOST:-0.0.0.0}
     container_name: nimswallah-app
     restart: unless-stopped
+    depends_on:
+      postgres_db:
+        condition: service_healthy
     ports:
       - "7865:7865"
-    networks:
-      - coolify
+    env_file:
+      - .env
     environment:
-      - PORT=7865
-      - VITE_PORT=7865
+      PORT: 7865
+      VITE_PORT: 7865
+      POSTGRES_DB: ${POSTGRES_DB:-nimswallah_db}
+      POSTGRES_USER: ${POSTGRES_USER:-nimswallah_admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-NimswallahDB@Secured2026!}
+      POSTGRES_HOST: postgres_db
+      POSTGRES_PORT: 4611
+      DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-nimswallah_admin}:${POSTGRES_PASSWORD:-NimswallahDB@Secured2026!}@postgres_db:4611/${POSTGRES_DB:-nimswallah_db}}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@nims.edu.in}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-Admin@123}
+      ADMIN_NAME: ${ADMIN_NAME:-Institutional Administrator}
+      ADMIN_PHONE: ${ADMIN_PHONE:-+91 9876543210}
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-nimswallah-drm-academic-core-secret-key-2026-prod-9a8f7b6c5d4e3f2a1b}
+      DRM_SIGNING_KEY: ${DRM_SIGNING_KEY:-nimswallah-forensic-drm-watermark-secure-key-2026-8f7e6d5c4b3a2}
+    volumes:
+      - media_data:/app/Backend/media
+      - drm_vault_data:/app/Backend/drm_vault
     labels:
       - "coolify.managed=true"
     healthcheck:
@@ -26,8 +64,9 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
-      start_period: 5s
+      start_period: 10s
 
-networks:
-  coolify:
-    external: true
+volumes:
+  postgres_data:
+  media_data:
+  drm_vault_data:
