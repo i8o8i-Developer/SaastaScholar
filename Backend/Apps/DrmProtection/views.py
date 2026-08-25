@@ -26,10 +26,7 @@ def get_client_ip(request):
     return ip or "127.0.0.1"
 
 class GlobalDrmConfigView(APIView):
-    def get_permissions(self):
-        if self.request.method in ["POST", "PATCH"]:
-            return [permissions.IsAuthenticated]
-        return [permissions.AllowAny]
+    permission_classes = [permissions.AllowAny]
 
     def get(self, request):
         try:
