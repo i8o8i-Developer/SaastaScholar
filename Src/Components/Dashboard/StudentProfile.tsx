@@ -28,10 +28,13 @@ import { apiFetch, toTitleCase } from "@/Lib/Api";
 import { toast } from "sonner";
 import { cn } from "@/Lib/Utils";
 
+import { isDrmGloballyDisabled, setDrmGloballyDisabled } from "@/Hooks/UseDrmProtection";
+
 export function StudentProfile() {
   const { user, updateProfile, logout } = useAuth();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  const [isDrmDisabled, setIsDrmDisabled] = useState<boolean>(isDrmGloballyDisabled);
   const [fullName, setFullName] = useState<string>(user?.full_name || "");
   const [phoneNumber, setPhoneNumber] = useState<string>(user?.phone_number || "+91 98111 22334");
   const [targetCgpa, setTargetCgpa] = useState<number>(user?.target_cgpa ? Number(user.target_cgpa) : 10.0);
@@ -40,6 +43,17 @@ export function StudentProfile() {
   const [preferredLanguage, setPreferredLanguage] = useState<string>("Python 3.10");
   const [uploadingAvatar, setUploadingAvatar] = useState<boolean>(false);
   const [saving, setSaving] = useState<boolean>(false);
+
+  const handleToggleDrm = () => {
+    const nextState = !isDrmDisabled;
+    setIsDrmDisabled(nextState);
+    setDrmGloballyDisabled(nextState);
+    if (nextState) {
+      toast.warning("Master DRM Protection Completely Stopped & Disabled.");
+    } else {
+      toast.success("Master DRM Protection Actively Enabled & Enforced.");
+    }
+  };
 
   const handleAvatarFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -239,7 +253,46 @@ export function StudentProfile() {
             </div>
           </div>
 
-          <div className="pt-2">
+          <div className="pt-2 space-y-3">
+            {/* Master DRM Controls Box */}
+            <div className={cn(
+              "rounded-2xl border p-4 text-xs space-y-3 transition-all",
+              isDrmDisabled ? "border-amber-500/40 bg-amber-500/5" : "border-emerald-500/30 bg-emerald-500/5"
+            )}>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 font-bold text-foreground">
+                  <ShieldCheck className={cn("h-4 w-4 shrink-0", isDrmDisabled ? "text-amber-500" : "text-emerald-500")} />
+                  <span>Master DRM Document Protection</span>
+                </div>
+                <span className={cn(
+                  "px-2 py-0.5 rounded-full text-[0.65rem] font-bold border",
+                  isDrmDisabled
+                    ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
+                    : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
+                )}>
+                  {isDrmDisabled ? "DRM STOPPED" : "DRM ACTIVE"}
+                </span>
+              </div>
+              <p className="text-[0.7rem] text-muted-foreground leading-relaxed">
+                {isDrmDisabled
+                  ? "DRM protections are currently completely STOPPED. All documents, PDFs, and notes can be viewed and copied without restrictions."
+                  : "DRM protections are actively enforcing real-time screenshot defense, clipboard sanitization, and forensic watermarking."}
+              </p>
+              <button
+                type="button"
+                onClick={handleToggleDrm}
+                className={cn(
+                  "w-full h-9 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs active:scale-95",
+                  isDrmDisabled
+                    ? "bg-emerald-600 hover:bg-emerald-500 text-white"
+                    : "bg-amber-600 hover:bg-amber-500 text-white"
+                )}
+              >
+                <Zap className="h-3.5 w-3.5" />
+                <span>{isDrmDisabled ? "Activate & Enable Master DRM" : "Completely Stop & Disable DRM"}</span>
+              </button>
+            </div>
+
             {/* DRM Watermark Live Preview Box */}
             <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4 text-xs space-y-1.5">
               <div className="flex items-center gap-2 font-bold text-emerald-800 dark:text-emerald-300 text-xs">

@@ -7,7 +7,19 @@ interface UseDrmProtectionProps {
   enabled?: boolean;
 }
 
+export function isDrmGloballyDisabled(): boolean {
+  if (typeof window === "undefined") return false;
+  return localStorage.getItem("nimswallah_drm_disabled") === "true";
+}
+
+export function setDrmGloballyDisabled(disabled: boolean): void {
+  if (typeof window === "undefined") return;
+  localStorage.setItem("nimswallah_drm_disabled", disabled ? "true" : "false");
+  window.dispatchEvent(new CustomEvent("drm-setting-changed", { detail: { disabled } }));
+}
+
 export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectionProps = {}) {
+  const [isDrmDisabled, setIsDrmDisabled] = useState(isDrmGloballyDisabled);
   const [isScreenBlurred, setIsScreenBlurred] = useState(false);
   const [isDevtoolsOpen, setIsDevtoolsOpen] = useState(false);
   const [isSecurityAlertActive, setIsSecurityAlertActive] = useState(false);
@@ -15,6 +27,23 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
   const [blockReason, setBlockReason] = useState("");
   const [violationsCount, setViolationsCount] = useState(0);
   const alertTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    const handleDrmSettingChange = (e: any) => {
+      const disabled = e.detail?.disabled ?? isDrmGloballyDisabled();
+      setIsDrmDisabled(disabled);
+      if (disabled) {
+        setIsScreenBlurred(false);
+        setIsSecurityAlertActive(false);
+      }
+    };
+    window.addEventListener("drm-setting-changed", handleDrmSettingChange);
+    window.addEventListener("storage", handleDrmSettingChange);
+    return () => {
+      window.removeEventListener("drm-setting-changed", handleDrmSettingChange);
+      window.removeEventListener("storage", handleDrmSettingChange);
+    };
+  }, []);
 
   const resumeReading = () => {
     if (isAccountBlocked) return;
@@ -24,7 +53,11 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
   };
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled || isDrmDisabled) {
+      setIsScreenBlurred(false);
+      setIsSecurityAlertActive(false);
+      return;
+    }
 
     const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
     const isAndroid = /Android/i.test(navigator.userAgent);
@@ -390,5 +423,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
     isAccountBlocked,
     blockReason,
     violationsCount,
+    isDrmDisabled,
+    toggleDrm: () => setDrmGloballyDisabled(!isDrmDisabled),
   };
 }

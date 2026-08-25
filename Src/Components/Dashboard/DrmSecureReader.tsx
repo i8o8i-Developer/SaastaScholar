@@ -128,7 +128,7 @@ const SAMPLE_PAGES: Record<number, DrmPageVector> = {
 
 export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
   const { user } = useAuth();
-  const { isScreenBlurred, resumeReading, isAccountBlocked, blockReason, violationsCount } = useDrmProtection({ materialId });
+  const { isScreenBlurred, resumeReading, isAccountBlocked, blockReason, violationsCount, isDrmDisabled, toggleDrm } = useDrmProtection({ materialId });
 
   const [payload, setPayload] = useState<DrmMaterialPayload>(FALLBACK_PAYLOAD);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -423,6 +423,22 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
               <ZoomIn className="h-3.5 w-3.5" />
             </button>
           </div>
+
+          {/* Master DRM Mode Toggle Button */}
+          <button
+            type="button"
+            onClick={toggleDrm}
+            title={isDrmDisabled ? "DRM Protections Are Disabled. Click To Enable." : "DRM Protections Are Active. Click To Disable."}
+            className={cn(
+              "hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[0.68rem] font-bold border transition-all cursor-pointer shadow-2xs active:scale-95",
+              isDrmDisabled
+                ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/20"
+                : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20"
+            )}
+          >
+            <ShieldCheck className="h-3.5 w-3.5" />
+            <span>{isDrmDisabled ? "DRM Stopped" : "DRM Active"}</span>
+          </button>
 
           {/* Fullscreen Toggle */}
           <button
