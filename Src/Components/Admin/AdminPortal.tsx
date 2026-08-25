@@ -320,6 +320,7 @@ export function AdminPortal() {
         postsRes,
         auditRes,
         incidentsRes,
+        drmConfigRes,
       ] = await Promise.all([
         apiFetch("/academic/admin/departments/"),
         apiFetch("/academic/admin/programs/"),
@@ -337,7 +338,14 @@ export function AdminPortal() {
         communityApi.getPosts(),
         studentSecurityApi.getAuditLogs(),
         studentSecurityApi.getDrmIncidents(),
+        globalDrmApi.getConfig().catch(() => ({ is_drm_enabled: true })),
       ]);
+
+      if (drmConfigRes && typeof (drmConfigRes as any).is_drm_enabled === "boolean") {
+        const disabled = !(drmConfigRes as any).is_drm_enabled;
+        setIsDrmDisabled(disabled);
+        setDrmGloballyDisabled(disabled);
+      }
 
       setDepartments(extractArray<Department>(deptsRes));
       setPrograms(extractArray<ProgramSpecialization>(progsRes));
