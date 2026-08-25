@@ -208,7 +208,7 @@ export function PdfCanvasViewer({
   return (
     <div
       ref={containerRef}
-      className="relative w-full flex flex-col items-center overflow-x-auto overflow-y-visible min-h-[50vh] sm:min-h-[70vh] bg-surface/30 rounded-xl sm:rounded-2xl p-1 xs:p-2 sm:p-4 select-none scrollbar-thin"
+      className="relative w-full flex flex-col items-center overflow-x-auto overflow-y-visible bg-surface/20 rounded-xl sm:rounded-2xl p-1 xs:p-1.5 select-none scrollbar-thin"
       style={{ touchAction: zoomLevel > 100 ? "pan-x pan-y" : "pan-y" }}
     >
       {/* Active Rendering Indicator */}

@@ -559,7 +559,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
           )}
 
           {/* Page Footer Security Signature */}
-          <div className="mt-6 sm:mt-10 pt-3 sm:pt-4 border-t border-current/20 flex flex-wrap items-center justify-between text-[0.6rem] sm:text-[0.65rem] font-mono opacity-60 gap-1">
+          <div className="mt-3 sm:mt-4 pt-2 sm:pt-3 border-t border-current/20 flex flex-wrap items-center justify-between text-[0.6rem] sm:text-[0.65rem] font-mono opacity-60 gap-1">
             <span>NimsWallah Academic DRM Pipeline · Page {currentPage} Of {payload.total_pages}</span>
             <span>Student ID: {user?.roll_number || payload.watermark.roll_number}</span>
           </div>
