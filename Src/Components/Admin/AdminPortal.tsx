@@ -116,7 +116,7 @@ export function AdminPortal() {
   const [activeStation, setActiveStation] = useState<AdminStation>("structure");
   const [structureSubTab, setStructureSubTab] = useState<"departments" | "programs" | "sections" | "subjects">("departments");
   const [publisherType, setPublisherType] = useState<PublisherContentType>("NOTES");
-  const [selectedTimetableDay, setSelectedTimetableDay] = useState<string>("ALL");
+  const [selectedTimetableDay, setSelectedTimetableDay] = useState<string>("Mon");
   const [loading, setLoading] = useState<boolean>(true);
 
   // Core Data Stores
@@ -486,7 +486,7 @@ export function AdminPortal() {
       const targetSecCode = targetSec?.section || targetSec?.section_name;
       if (targetSecCode && slot.section !== targetSecCode) return false;
     }
-    if (selectedTimetableDay !== "ALL" && slot.day_of_week !== selectedTimetableDay) return false;
+    if (selectedTimetableDay && slot.day_of_week !== selectedTimetableDay) return false;
     return true;
   });
 
@@ -2298,23 +2298,12 @@ export function AdminPortal() {
               {/* Day Selector & Action Bar */}
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
                 <div className="flex flex-wrap items-center gap-1.5 bg-surface p-1 rounded-2xl border border-border">
-                  <button
-                    onClick={() => setSelectedTimetableDay("ALL")}
-                    className={cn(
-                      "px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer",
-                      selectedTimetableDay === "ALL"
-                        ? "bg-primary text-primary-foreground shadow-xs"
-                        : "text-muted-foreground hover:text-foreground",
-                    )}
-                  >
-                    All Days
-                  </button>
                   {WEEKDAYS.map((d) => (
                     <button
                       key={d}
                       onClick={() => setSelectedTimetableDay(d)}
                       className={cn(
-                        "px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer",
+                        "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer",
                         selectedTimetableDay === d
                           ? "bg-primary text-primary-foreground shadow-xs"
                           : "text-muted-foreground hover:text-foreground",
