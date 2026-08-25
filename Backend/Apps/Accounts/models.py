@@ -83,6 +83,8 @@ class ActionType(models.TextChoices):
     RESET_VIOLATIONS = "RESET_VIOLATIONS", "Reset Violations Counter"
     CHANGE_TIER = "CHANGE_TIER", "Change Access Tier"
     HARD_DELETE_USER = "HARD_DELETE_USER", "Hard Delete User Account"
+    RESET_FRESH_USER = "RESET_FRESH_USER", "Reset User to Fresh Slate"
+    GLOBAL_BULK_RESET = "GLOBAL_BULK_RESET", "Global Reset of All Security Locks"
 
 class AdminAuditLog(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

@@ -683,6 +683,11 @@ export const studentSecurityApi = {
     ),
   hardDeleteStudent: (userId: string) =>
     apiFetch<{ message: string; deleted_id: string }>(`/academic/admin/students/${userId}/`, { method: "DELETE" }),
+  bulkResetSecurity: (reason?: string) =>
+    apiFetch<{ message: string; affected_users_count: number }>("/accounts/admin/users/bulk-reset-security/", {
+      method: "POST",
+      body: JSON.stringify({ reason: reason || "Global Clean Slate Administrative Reset For All Users" }),
+    }),
   getAuditLogs: async (params?: { action?: string; target_id?: string; search?: string }): Promise<AdminAuditLog[]> => {
     const query = new URLSearchParams();
     if (params?.action) query.set("action", params.action);

@@ -2819,13 +2819,38 @@ export function AdminPortal() {
                   </button>
                 </div>
 
-                <button
-                  onClick={loadAdminData}
-                  className="inline-flex items-center gap-2 rounded-2xl border border-border bg-card px-3.5 py-2 text-xs font-bold text-foreground shadow-xs hover:bg-surface cursor-pointer"
-                >
-                  <RefreshCw className="h-4 w-4" />
-                  <span>Refresh Registry</span>
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={async () => {
+                      const confirmed = confirm(
+                        "✨ GLOBAL CLEAN SLATE CONFIRMATION:\n\nAre you sure you want to reset and clear all DRM locks, login suspensions, cooldown periods, warning banners, and security violation counters for EVERY registered student across the entire platform?"
+                      );
+                      if (!confirmed) return;
+
+                      try {
+                        const res = await studentSecurityApi.bulkResetSecurity(
+                          "Global Administrative Clean Slate Reset For All Students"
+                        );
+                        toast.success(toTitleCase(res.message || "Global Clean Slate Reset Completed Successfully."));
+                        loadAdminData();
+                      } catch (err: any) {
+                        toast.error(toTitleCase(err.message || "Failed To Execute Global Reset."));
+                      }
+                    }}
+                    className="inline-flex items-center gap-2 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 shadow-xs hover:bg-emerald-500/20 active:scale-95 transition-all cursor-pointer"
+                  >
+                    <Sparkles className="h-4 w-4" />
+                    <span>Global Clean Slate (Reset Everyone)</span>
+                  </button>
+
+                  <button
+                    onClick={loadAdminData}
+                    className="inline-flex items-center gap-2 rounded-2xl border border-border bg-card px-3.5 py-2 text-xs font-bold text-foreground shadow-xs hover:bg-surface cursor-pointer"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                    <span>Refresh Registry</span>
+                  </button>
+                </div>
               </div>
 
               {/* TAB 1: SCHOLARS REGISTRY */}
@@ -2946,6 +2971,23 @@ export function AdminPortal() {
                                       onClick={() => {
                                         setSelectedStudentForAction(st);
                                         setSecurityActionForm({
+                                          action_type: "RESET_FRESH_USER",
+                                          reason: "Reset student account to 100% fresh clean slate.",
+                                          cooldown_hours: 24,
+                                          warning_message: "",
+                                          access_tier: st.access_tier || "SEMESTER_TOPPER",
+                                        });
+                                        setShowSecurityModal(true);
+                                      }}
+                                      title="Make Account Fresh (Clear All Locks, Cooldowns & Violations)"
+                                      className="inline-flex items-center gap-1 rounded-xl bg-emerald-500/10 p-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all cursor-pointer shadow-2xs"
+                                    >
+                                      <Sparkles className="h-3.5 w-3.5" />
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        setSelectedStudentForAction(st);
+                                        setSecurityActionForm({
                                           action_type: "HARD_DELETE_USER",
                                           reason: "Permanent Administrative Hard Delete",
                                           cooldown_hours: 24,
@@ -2994,6 +3036,8 @@ export function AdminPortal() {
                         className="h-8 rounded-xl border border-border bg-card px-2.5 text-xs font-bold focus:border-primary focus:outline-none"
                       >
                         <option value="ALL">All Action Types</option>
+                        <option value="RESET_FRESH_USER">Reset User To Fresh Slate</option>
+                        <option value="GLOBAL_BULK_RESET">Global Reset Of All Security Locks</option>
                         <option value="BLOCK_DRM">Block DRM Content Access</option>
                         <option value="UNBLOCK_DRM">Unblock DRM Content Access</option>
                         <option value="SUSPEND_LOGIN">Suspend User Login</option>
@@ -3004,6 +3048,7 @@ export function AdminPortal() {
                         <option value="REVOKE_SESSIONS">Revoke All Security Sessions</option>
                         <option value="RESET_VIOLATIONS">Reset Violations Counter</option>
                         <option value="CHANGE_TIER">Change Access Tier</option>
+                        <option value="HARD_DELETE_USER">Hard Delete User Account</option>
                       </select>
                     </div>
                   </div>
@@ -5357,6 +5402,7 @@ export function AdminPortal() {
                   onChange={(e) => setSecurityActionForm({ ...securityActionForm, action_type: e.target.value })}
                   className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-semibold focus:border-primary focus:outline-none"
                 >
+                  <option value="RESET_FRESH_USER" className="text-emerald-600 font-bold">✨ Reset Account To Fresh Slate (Clear All Locks, Cooldowns &amp; Violations)</option>
                   <option value="BLOCK_DRM">🚫 Block DRM Content Access (Lock Reading Vault)</option>
                   <option value="UNBLOCK_DRM">✅ Unblock DRM Content Access (Restore Reading)</option>
                   <option value="SUSPEND_LOGIN">⛔ Suspend User Login (Full Account Lockout)</option>
@@ -5371,6 +5417,19 @@ export function AdminPortal() {
                   <option value="HARD_DELETE_USER" className="text-rose-600 font-bold">🗑️ Permanent Hard Delete Account (Purge All Records &amp; DRM)</option>
                 </select>
               </div>
+
+              {/* Informative Alert Box for Fresh Reset */}
+              {securityActionForm.action_type === "RESET_FRESH_USER" && (
+                <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-3.5 space-y-1.5 text-emerald-700 dark:text-emerald-300">
+                  <div className="flex items-center gap-2 font-bold text-xs">
+                    <Sparkles className="h-4 w-4 shrink-0 text-emerald-500" />
+                    <span>Account Fresh Slate Reset</span>
+                  </div>
+                  <p className="text-[0.7rem] text-muted-foreground leading-relaxed">
+                    This will immediately clear all active DRM reading locks, unban login status, lift cooldown periods, wipe disciplinary warnings, and reset the security violations counter to zero.
+                  </p>
+                </div>
+              )}
 
               {/* Critical Alert Box for Hard Delete */}
               {securityActionForm.action_type === "HARD_DELETE_USER" && (

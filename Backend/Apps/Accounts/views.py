@@ -285,6 +285,27 @@ class AdminStudentSecurityActionView(APIView):
             else:
                 return Response({"error": "Invalid Access Tier Selected."}, status=status.HTTP_400_BAD_REQUEST)
 
+        elif action_type == ActionType.RESET_FRESH_USER or action_type == "RESET_FRESH_USER":
+            target_user.is_drm_blocked = False
+            target_user.is_login_blocked = False
+            target_user.is_active = True
+            target_user.cooldown_until = None
+            target_user.block_reason = ""
+            target_user.security_warning_note = ""
+            target_user.drm_violations_count = 0
+            target_user.save(update_fields=[
+                "is_drm_blocked",
+                "is_login_blocked",
+                "is_active",
+                "cooldown_until",
+                "block_reason",
+                "security_warning_note",
+                "drm_violations_count",
+                "updated_at",
+            ])
+            SecuritySession.objects.filter(user=target_user, is_revoked=False).update(is_revoked=True)
+            meta_info["status"] = "User Account Reset To 100% Fresh Slate"
+
         elif action_type == ActionType.HARD_DELETE_USER or action_type == "HARD_DELETE_USER":
             target_email = target_user.email
             target_name = target_user.full_name or target_user.username
@@ -359,3 +380,40 @@ class AdminAuditLogListView(generics.ListAPIView):
                 | Q(reason__icontains=search)
             )
         return qs
+
+class AdminBulkResetSecurityView(APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    def post(self, request):
+        reason = request.data.get("reason", "Global Clean Slate Administrative Reset For All Users").strip()
+        
+        # Reset all student accounts
+        updated_count = StudentUser.objects.all().update(
+            is_drm_blocked=False,
+            is_login_blocked=False,
+            is_active=True,
+            cooldown_until=None,
+            block_reason="",
+            security_warning_note="",
+            drm_violations_count=0,
+        )
+
+        # Clear all active security sessions
+        SecuritySession.objects.filter(is_revoked=False).update(is_revoked=True)
+
+        client_ip = get_client_ip(request)
+        AdminAuditLog.objects.create(
+            actor=request.user,
+            target_user=None,
+            target_email="ALL_USERS@SYSTEM",
+            target_name="All Registered Scholars",
+            action_type=ActionType.GLOBAL_BULK_RESET,
+            reason=reason,
+            metadata={"affected_users_count": updated_count, "status": "Global Clean Slate Executed"},
+            ip_address=client_ip,
+        )
+
+        return Response({
+            "message": f"Global Clean Slate Completed: All Security Locks, Cooldowns, And Violations Have Been Cleared For {updated_count} Accounts.",
+            "affected_users_count": updated_count,
+        })
