@@ -494,8 +494,11 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
 
         {/* Paper Container: Full Page Crystal Clear Reading */}
         <div
-          style={{ transform: `scale(${zoomLevel / 100})`, transformOrigin: "top center" }}
-          className="relative z-10 w-full max-w-4xl rounded-2xl sm:rounded-3xl border border-border/80 bg-card text-foreground p-3 xs:p-5 sm:p-8 shadow-lg transition-transform duration-200 overflow-hidden select-none min-w-0"
+          style={isPdfDoc ? undefined : { transform: `scale(${zoomLevel / 100})`, transformOrigin: "top center" }}
+          className={cn(
+            "relative z-10 w-full rounded-2xl sm:rounded-3xl border border-border/80 bg-card text-foreground shadow-lg transition-all duration-200 overflow-hidden select-none min-w-0 mx-auto",
+            isPdfDoc ? "max-w-5xl p-2 xs:p-4 sm:p-6" : "max-w-4xl p-3 xs:p-5 sm:p-8"
+          )}
         >
           {isPdfDoc ? (
             <div className="space-y-3 sm:space-y-4 min-w-0">

@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as pdfjsLib from "pdfjs-dist";
-import { Loader2, AlertCircle, RefreshCw, ZoomIn, ZoomOut } from "lucide-react";
+import { Loader2, AlertCircle, RefreshCw } from "lucide-react";
 
-// 
+// Configure PDF.js worker to use CDN matching installed version with fallback
 if (typeof window !== "undefined") {
   try {
     pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
@@ -37,6 +37,8 @@ export function PdfCanvasViewer({
   const renderTaskRef = useRef<any>(null);
 
   const [pdfDoc, setPdfDoc] = useState<any>(null);
+  const [pageAspectRatio, setPageAspectRatio] = useState<number>(0.707); // Default A4
+  const [naturalWidth, setNaturalWidth] = useState<number>(800);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [rendering, setRendering] = useState<boolean>(false);
@@ -88,7 +90,7 @@ export function PdfCanvasViewer({
     };
   }, [fileUrl]);
 
-  // 2. Render Target Page to HTML5 Canvas
+  // 2. Render Target Page to HTML5 Canvas With 100% Proportional Aspect Ratio
   useEffect(() => {
     let isCancelled = false;
 
@@ -116,17 +118,25 @@ export function PdfCanvasViewer({
         const context = canvas.getContext("2d", { alpha: false });
         if (!context) return;
 
-        const dpr = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
-        const baseScale = (zoomLevel / 100) * 1.5;
-        const viewport = page.getViewport({ scale: baseScale });
+        // Extract native PDF page dimensions
+        const baseViewport = page.getViewport({ scale: 1.0 });
+        const ratio = baseViewport.width / baseViewport.height;
+        setPageAspectRatio(ratio);
+        setNaturalWidth(baseViewport.width);
 
-        canvas.width = Math.floor(viewport.width * dpr);
-        canvas.height = Math.floor(viewport.height * dpr);
-        canvas.style.width = `${Math.floor(viewport.width)}px`;
-        canvas.style.height = `${Math.floor(viewport.height)}px`;
+        // Render at crisp high resolution (2x native scale)
+        const renderScale = 2.0;
+        const viewport = page.getViewport({ scale: renderScale });
 
-        context.setTransform(1, 0, 0, 1, 0, 0);
-        context.scale(dpr, dpr);
+        // Set internal canvas pixel buffer dimensions
+        canvas.width = Math.floor(viewport.width);
+        canvas.height = Math.floor(viewport.height);
+
+        // Reset inline styles so CSS width/height never squeeze the canvas
+        canvas.style.width = "100%";
+        canvas.style.height = "auto";
+        canvas.style.aspectRatio = `${ratio}`;
+        canvas.style.display = "block";
 
         const renderContext = {
           canvasContext: context,
@@ -159,7 +169,7 @@ export function PdfCanvasViewer({
         } catch {}
       }
     };
-  }, [pdfDoc, currentPage, zoomLevel]);
+  }, [pdfDoc, currentPage]);
 
   if (loading) {
     return (
@@ -195,11 +205,17 @@ export function PdfCanvasViewer({
         </div>
       )}
 
-      {/* Primary HTML5 PDF Canvas Container */}
-      <div className="relative shadow-2xl rounded-xl sm:rounded-2xl overflow-hidden border border-border/80 bg-white max-w-full">
+      {/* Primary HTML5 PDF Canvas Container With Proportional Dimensions */}
+      <div
+        style={{
+          width: "100%",
+          maxWidth: `${Math.min(naturalWidth * (zoomLevel / 100) * 1.15, 1100)}px`,
+        }}
+        className="relative shadow-2xl rounded-xl sm:rounded-2xl overflow-hidden border border-border/80 bg-white mx-auto"
+      >
         <canvas
           ref={canvasRef}
-          className="block max-w-full h-auto transition-all select-none pointer-events-none"
+          className="block w-full h-auto select-none pointer-events-none"
           onContextMenu={(e) => e.preventDefault()}
         />
 
