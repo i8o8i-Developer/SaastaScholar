@@ -259,56 +259,46 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       }
     };
 
-    // 4. Window Focus Blur (iOS/Android Screenshot Button Combos & Snipping Tool Overlays)
+    // 4. Window Focus Blur (Engages Visual Blackout Shield Locally On App Switch / Screen Loss)
     const handleBlur = () => {
-      if (isIOS) {
-        triggerBlackoutShield("IOS_SCREENSHOT_DETECTED", 6000);
-        toast.error(toTitleCase("iOS Screen Capture Attempt Intercepted."));
-      } else if (isAndroid) {
-        triggerBlackoutShield("MOBILE_HARDWARE_SCREENSHOT", 6000);
-        toast.error(toTitleCase("Mobile Screen Capture Attempt Intercepted."));
-      } else {
-        triggerBlackoutShield(
-          isMetaPressed || isShiftPressed || isCtrlPressed ? "SNIPPING_TOOL_OVERLAY_ACTIVE" : "WINDOW_FOCUS_LOST",
-          5000
-        );
+      setIsScreenBlurred(true);
+      overwriteClipboard();
+      if (isMetaPressed || isShiftPressed || isCtrlPressed) {
+        triggerBlackoutShield("SNIPPING_TOOL_OVERLAY_ACTIVE", 4000);
       }
     };
 
     const handleFocus = () => {
-      if (!isSecurityAlertActive && !isAccountBlocked) {
+      if (!isAccountBlocked) {
         setIsScreenBlurred(false);
+        setIsSecurityAlertActive(false);
       }
     };
 
-    // 5. Visibility Change (iOS / Android System Screenshot or App Switching)
+    // 5. Visibility Change (Seamless Obfuscation On Tab Minimize / Phone Screen Lock)
     const handleVisibilityChange = () => {
       if (document.hidden) {
-        if (isIOS) {
-          triggerBlackoutShield("IOS_SCREENSHOT_DETECTED", 5000);
-        } else if (isAndroid) {
-          triggerBlackoutShield("MOBILE_BACKGROUND_CAPTURE", 4500);
-        } else {
-          triggerBlackoutShield("PAGE_VISIBILITY_HIDDEN", 3500);
-        }
+        setIsScreenBlurred(true);
+        overwriteClipboard();
       } else {
-        if (!isSecurityAlertActive && !isAccountBlocked) {
+        if (!isAccountBlocked) {
           setIsScreenBlurred(false);
+          setIsSecurityAlertActive(false);
         }
       }
     };
 
-    // 6. Mobile Touch & iOS Multi-Touch Gesture Detection
+    // 6. Mobile Touch & 3+ Finger Gesture Detection
     let touchTimer: NodeJS.Timeout | null = null;
     const handleTouchStart = (e: TouchEvent) => {
       if (touchTimer) clearTimeout(touchTimer);
 
-      // Check for 3+ finger swipe (common mobile screenshot gesture)
+      // Check for 3+ finger swipe (mobile capture gesture)
       if (e.touches && e.touches.length >= 3) {
         e.preventDefault();
         overwriteClipboard();
-        triggerBlackoutShield("MULTI_FINGER_MOBILE_CAPTURE", 4500);
-        toast.error(toTitleCase("Multi-Touch Screen Capture Intercepted."));
+        triggerBlackoutShield("MULTI_FINGER_MOBILE_CAPTURE", 3500);
+        toast.error(toTitleCase("Multi-Touch Capture Intercepted."));
         return;
       }
 
@@ -329,15 +319,10 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       if (touchTimer) clearTimeout(touchTimer);
     };
 
-    // 7. iOS WebKit Gesture Event Interceptor
-    const handleGestureStart = (e: Event) => {
-      e.preventDefault();
-      triggerBlackoutShield("IOS_GESTURE_CAPTURE_BLOCKED", 4000);
-    };
-
-    // 8. Mobile Page Hide Listener
+    // 7. Mobile Page Hide Listener
     const handlePageHide = () => {
-      triggerBlackoutShield(isIOS ? "IOS_SCREENSHOT_DETECTED" : "PAGE_HIDE_CAPTURE_TRIGGER", 5000);
+      setIsScreenBlurred(true);
+      overwriteClipboard();
     };
 
     const mediaQueryList = window.matchMedia("print");
@@ -363,7 +348,6 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
     window.addEventListener("blur", handleBlur);
     window.addEventListener("focus", handleFocus);
     document.addEventListener("visibilitychange", handleVisibilityChange);
-    window.addEventListener("gesturestart", handleGestureStart as any, { passive: false });
 
     if (mediaQueryList.addEventListener) {
       mediaQueryList.addEventListener("change", handlePrintChange);
@@ -389,7 +373,6 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       window.removeEventListener("blur", handleBlur);
       window.removeEventListener("focus", handleFocus);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("gesturestart", handleGestureStart as any);
       if (mediaQueryList.removeEventListener) {
         mediaQueryList.removeEventListener("change", handlePrintChange);
       } else {

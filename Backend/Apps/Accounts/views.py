@@ -66,7 +66,14 @@ class CurrentUserView(generics.RetrieveUpdateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_object(self):
-        return self.request.user
+        user = self.request.user
+        if user.is_drm_blocked and any(x in (user.block_reason or "") for x in ["MOBILE_HARDWARE_SCREENSHOT", "IOS_SCREENSHOT_DETECTED", "WINDOW_FOCUS_LOST", "MOBILE_BACKGROUND_CAPTURE", "PAGE_HIDE_CAPTURE_TRIGGER"]):
+            user.is_drm_blocked = False
+            user.block_reason = ""
+            user.security_warning_note = ""
+            user.cooldown_until = None
+            user.save(update_fields=["is_drm_blocked", "block_reason", "security_warning_note", "cooldown_until"])
+        return user
 
 class AcknowledgeWarningView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -74,7 +81,10 @@ class AcknowledgeWarningView(APIView):
     def post(self, request):
         user = request.user
         user.security_warning_note = ""
-        user.save(update_fields=["security_warning_note"])
+        user.is_drm_blocked = False
+        user.block_reason = ""
+        user.cooldown_until = None
+        user.save(update_fields=["security_warning_note", "is_drm_blocked", "block_reason", "cooldown_until"])
         return Response({"message": "Disciplinary Warning Acknowledged And Cleared."})
 
 class SecuritySessionsView(generics.ListAPIView):
@@ -143,6 +153,14 @@ class DashboardSummaryView(APIView):
                 "faculty": next_slot.faculty_name or "Faculty Department",
                 "topic": next_slot.meta_info or f"{next_slot.event_type} Session",
             }
+
+        # Auto-recover false-positive automated focus blocks
+        if user.is_drm_blocked and any(x in (user.block_reason or "") for x in ["MOBILE_HARDWARE_SCREENSHOT", "IOS_SCREENSHOT_DETECTED", "WINDOW_FOCUS_LOST", "MOBILE_BACKGROUND_CAPTURE", "PAGE_HIDE_CAPTURE_TRIGGER"]):
+            user.is_drm_blocked = False
+            user.block_reason = ""
+            user.security_warning_note = ""
+            user.cooldown_until = None
+            user.save(update_fields=["is_drm_blocked", "block_reason", "security_warning_note", "cooldown_until"])
 
         return Response({
             "user_name": user.full_name or user.username,
