@@ -6,23 +6,30 @@ from django.shortcuts import get_object_or_404
 from .models import PersonalStudyTask, TimetableSlot
 from .serializers import PersonalStudyTaskSerializer, TimetableSlotSerializer
 
+from Apps.Academic.cache_utils import get_or_set_redis_cache, make_cache_key
+
 class TimetableScheduleView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
         user = request.user
         day = request.query_params.get("day")
-        qs = TimetableSlot.objects.filter(semester=user.semester, section=user.section)
-        if day:
-            qs = qs.filter(day_of_week=day)
+        cache_key = f"planner:timetable:{user.semester}:{user.section}:{day or 'all'}"
         
-        serializer = TimetableSlotSerializer(qs, many=True)
-        return Response({
-            "semester": user.semester,
-            "section": user.section,
-            "day": day or "All",
-            "slots": serializer.data,
-        })
+        def _fetch():
+            qs = TimetableSlot.objects.filter(semester=user.semester, section=user.section)
+            if day:
+                qs = qs.filter(day_of_week=day)
+            serializer = TimetableSlotSerializer(qs, many=True)
+            return {
+                "semester": user.semester,
+                "section": user.section,
+                "day": day or "All",
+                "slots": serializer.data,
+            }
+
+        data = get_or_set_redis_cache(cache_key, _fetch, timeout=600)
+        return Response(data)
 
 class PersonalStudyTaskListCreateView(generics.ListCreateAPIView):
     serializer_class = PersonalStudyTaskSerializer
@@ -65,6 +72,15 @@ class MilestoneCountdownListView(generics.ListAPIView):
     def get_queryset(self):
         user = self.request.user
         return MilestoneCountdown.objects.filter(is_active=True, semester=user.semester)
+
+    def list(self, request, *args, **kwargs):
+        user = request.user
+        cache_key = f"planner:milestones:{user.semester}"
+        def _fetch():
+            response = super(MilestoneCountdownListView, self).list(request, *args, **kwargs)
+            return response.data
+        data = get_or_set_redis_cache(cache_key, _fetch, timeout=600)
+        return Response(data)
 
 class AdminMilestoneListCreateView(generics.ListCreateAPIView):
     queryset = MilestoneCountdown.objects.all()

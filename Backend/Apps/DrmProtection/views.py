@@ -25,21 +25,27 @@ def get_client_ip(request):
         ip = ip.split(":")[-1]
     return ip or "127.0.0.1"
 
+from Apps.Academic.cache_utils import get_or_set_redis_cache, invalidate_redis_pattern
+
 class GlobalDrmConfigView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def get(self, request):
-        try:
-            config = GlobalDrmConfig.get_config()
-            return Response({
-                "is_drm_enabled": bool(getattr(config, "is_drm_enabled", True)),
-                "updated_at": getattr(config, "updated_at", None),
-            })
-        except Exception:
-            return Response({
-                "is_drm_enabled": True,
-                "updated_at": None,
-            })
+        cache_key = "drm:config:global:state"
+        def _fetch():
+            try:
+                config = GlobalDrmConfig.get_config()
+                return {
+                    "is_drm_enabled": bool(getattr(config, "is_drm_enabled", True)),
+                    "updated_at": getattr(config, "updated_at", None),
+                }
+            except Exception:
+                return {
+                    "is_drm_enabled": True,
+                    "updated_at": None,
+                }
+        data = get_or_set_redis_cache(cache_key, _fetch, timeout=300)
+        return Response(data)
 
     def post(self, request):
         if not (request.user and request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser)):
@@ -61,6 +67,8 @@ class GlobalDrmConfigView(APIView):
                 pass
         except Exception:
             pass
+
+        invalidate_redis_pattern("drm:config")
 
         # Log Administrative Action to Audit Log
         try:

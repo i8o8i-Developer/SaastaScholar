@@ -27,7 +27,9 @@ from .serializers import (
     SubjectSerializer,
 )
 from Apps.Accounts.models import StudentUser
+from Apps.Accounts.models import StudentUser
 from Apps.Accounts.serializers import StudentUserSerializer
+from .cache_utils import get_or_set_redis_cache, make_cache_key, invalidate_redis_pattern
 
 class DepartmentListView(generics.ListAPIView):
     queryset = Department.objects.prefetch_related("programs", "subjects").all()
@@ -35,17 +37,41 @@ class DepartmentListView(generics.ListAPIView):
     permission_classes = [permissions.AllowAny]
     pagination_class = None
 
+    def list(self, request, *args, **kwargs):
+        cache_key = "academic:departments:list:all"
+        def _fetch():
+            response = super(DepartmentListView, self).list(request, *args, **kwargs)
+            return response.data
+        data = get_or_set_redis_cache(cache_key, _fetch, timeout=900)
+        return Response(data)
+
 class ProgramSpecializationListView(generics.ListAPIView):
     queryset = ProgramSpecialization.objects.select_related("department").all()
     serializer_class = ProgramSpecializationSerializer
     permission_classes = [permissions.AllowAny]
     pagination_class = None
 
+    def list(self, request, *args, **kwargs):
+        cache_key = "academic:programs:list:all"
+        def _fetch():
+            response = super(ProgramSpecializationListView, self).list(request, *args, **kwargs)
+            return response.data
+        data = get_or_set_redis_cache(cache_key, _fetch, timeout=900)
+        return Response(data)
+
 class SectionBatchListView(generics.ListAPIView):
     queryset = SectionBatch.objects.select_related("program").all()
     serializer_class = SectionBatchSerializer
     permission_classes = [permissions.AllowAny]
     pagination_class = None
+
+    def list(self, request, *args, **kwargs):
+        cache_key = "academic:sections:list:all"
+        def _fetch():
+            response = super(SectionBatchListView, self).list(request, *args, **kwargs)
+            return response.data
+        data = get_or_set_redis_cache(cache_key, _fetch, timeout=900)
+        return Response(data)
 
 class SubjectListView(generics.ListAPIView):
     serializer_class = SubjectSerializer
@@ -66,6 +92,14 @@ class SubjectListView(generics.ListAPIView):
         if program:
             qs = qs.filter(Q(programs__id=program) | Q(programs__code=program) | Q(programs__isnull=True)).distinct()
         return qs
+
+    def list(self, request, *args, **kwargs):
+        cache_key = make_cache_key("academic:subjects", **request.query_params.dict())
+        def _fetch():
+            response = super(SubjectListView, self).list(request, *args, **kwargs)
+            return response.data
+        data = get_or_set_redis_cache(cache_key, _fetch, timeout=600)
+        return Response(data)
 
 class AcademicMaterialListView(generics.ListAPIView):
     serializer_class = AcademicMaterialSerializer
@@ -98,6 +132,14 @@ class AcademicMaterialListView(generics.ListAPIView):
                 | Q(subject__code__icontains=search)
             )
         return qs
+
+    def list(self, request, *args, **kwargs):
+        cache_key = make_cache_key("academic:materials", **request.query_params.dict())
+        def _fetch():
+            response = super(AcademicMaterialListView, self).list(request, *args, **kwargs)
+            return response.data
+        data = get_or_set_redis_cache(cache_key, _fetch, timeout=600)
+        return Response(data)
 
 class AcademicMaterialDetailView(generics.RetrieveAPIView):
     queryset = AcademicMaterial.objects.select_related("subject")

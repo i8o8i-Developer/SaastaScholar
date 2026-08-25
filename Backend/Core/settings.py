@@ -115,6 +115,37 @@ else:
         }
     }
 
+# ==============================================================================
+# REDIS HIGH-PERFORMANCE CACHING LAYER (PORT 5666)
+# ==============================================================================
+REDIS_HOST = os.environ.get("REDIS_HOST", "127.0.0.1")
+REDIS_PORT = os.environ.get("REDIS_PORT", "5666")
+REDIS_PASSWORD = os.environ.get("REDIS_PASSWORD", None)
+
+if REDIS_PASSWORD:
+    REDIS_LOCATION = f"redis://:{REDIS_PASSWORD}@{REDIS_HOST}:{REDIS_PORT}/1"
+else:
+    REDIS_LOCATION = f"redis://{REDIS_HOST}:{REDIS_PORT}/1"
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": REDIS_LOCATION,
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            "CONNECTION_POOL_KWARGS": {
+                "max_connections": 100,
+                "retry_on_timeout": True,
+            },
+            "SOCKET_CONNECT_TIMEOUT": 2,
+            "SOCKET_TIMEOUT": 2,
+            "IGNORE_EXCEPTIONS": True, # Fail-safe fallback so API always succeeds
+        },
+        "KEY_PREFIX": "nimswallah",
+        "TIMEOUT": 600, # 10 Minutes Default Cache
+    }
+}
+
 # Military-Grade Cryptographic Password Hashers (Argon2 + PBKDF2 SHA-256)
 PASSWORD_HASHERS = [
     "django.contrib.auth.hashers.PBKDF2PasswordHasher",
