@@ -452,26 +452,29 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
         </div>
       </div>
 
-      {/* Print Quarantine CSS & Anti-Selection Style Injection */}
-      <style>{`
-        @media print {
-          body * { display: none !important; }
-          body { background: #000000 !important; }
-        }
-        .drm-protected-content, .drm-protected-content * {
-          user-select: none !important;
-          -webkit-user-select: none !important;
-          -moz-user-select: none !important;
-          -ms-user-select: none !important;
-          -webkit-touch-callout: none !important;
-        }
-      `}</style>
+      {/* Print Quarantine CSS & Anti-Selection Style Injection (Active Only When DRM Is Enabled) */}
+      {!isDrmDisabled && (
+        <style>{`
+          @media print {
+            body * { display: none !important; }
+            body { background: #000000 !important; }
+          }
+          .drm-protected-content, .drm-protected-content * {
+            user-select: none !important;
+            -webkit-user-select: none !important;
+            -moz-user-select: none !important;
+            -ms-user-select: none !important;
+            -webkit-touch-callout: none !important;
+          }
+        `}</style>
+      )}
 
       {/* Main Secure Canvas Reading Zone with Dynamic Watermark */}
       <div
         className={cn(
-          "relative flex-1 overflow-y-auto p-2 xs:p-4 sm:p-8 flex justify-center items-start drm-protected-content transition-all duration-75 min-w-0 w-full",
-          isScreenBlurred ? "hidden opacity-0 pointer-events-none select-none invisible" : "flex"
+          "relative flex-1 overflow-y-auto p-2 xs:p-4 sm:p-8 flex justify-center items-start transition-all duration-75 min-w-0 w-full",
+          !isDrmDisabled ? "drm-unrestricted-content" : "drm-protected-content",
+          isScreenBlurred && !isDrmDisabled ? "flex" : isScreenBlurred ? "hidden opacity-0 pointer-events-none select-none invisible" : "flex"
         )}
       >
         {/* Dynamic Watermark Background Grid Overlay */}

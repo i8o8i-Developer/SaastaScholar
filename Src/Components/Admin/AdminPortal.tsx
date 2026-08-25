@@ -391,6 +391,19 @@ export function AdminPortal() {
     }
   }, [isLoading, isAuthenticated, user]);
 
+  useEffect(() => {
+    const handleDrmChange = (e: any) => {
+      const disabled = e.detail?.disabled ?? isDrmGloballyDisabled();
+      setIsDrmDisabled(disabled);
+    };
+    window.addEventListener("drm-setting-changed", handleDrmChange);
+    window.addEventListener("storage", handleDrmChange);
+    return () => {
+      window.removeEventListener("drm-setting-changed", handleDrmChange);
+      window.removeEventListener("storage", handleDrmChange);
+    };
+  }, []);
+
   const handleSaveBadge = async (badgeId: string) => {
     const draft = editingBadge[badgeId];
     if (!draft) return;

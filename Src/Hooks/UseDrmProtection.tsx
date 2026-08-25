@@ -412,7 +412,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
         mediaQueryList.removeListener(handlePrintChange);
       }
     };
-  }, [enabled, materialId, isSecurityAlertActive, isAccountBlocked]);
+  }, [enabled, materialId, isDrmDisabled, isSecurityAlertActive, isAccountBlocked]);
 
   return {
     isScreenBlurred,

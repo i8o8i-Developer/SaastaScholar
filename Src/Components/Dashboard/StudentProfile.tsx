@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Award,
   BookOpen,
@@ -35,6 +35,20 @@ export function StudentProfile() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [isDrmDisabled, setIsDrmDisabled] = useState<boolean>(isDrmGloballyDisabled);
+
+  useEffect(() => {
+    const handleDrmChange = (e: any) => {
+      const disabled = e.detail?.disabled ?? isDrmGloballyDisabled();
+      setIsDrmDisabled(disabled);
+    };
+    window.addEventListener("drm-setting-changed", handleDrmChange);
+    window.addEventListener("storage", handleDrmChange);
+    return () => {
+      window.removeEventListener("drm-setting-changed", handleDrmChange);
+      window.removeEventListener("storage", handleDrmChange);
+    };
+  }, []);
+
   const [fullName, setFullName] = useState<string>(user?.full_name || "");
   const [phoneNumber, setPhoneNumber] = useState<string>(user?.phone_number || "+91 98111 22334");
   const [targetCgpa, setTargetCgpa] = useState<number>(user?.target_cgpa ? Number(user.target_cgpa) : 10.0);
