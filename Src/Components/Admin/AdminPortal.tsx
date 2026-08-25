@@ -442,7 +442,7 @@ export function AdminPortal() {
 
     if (securityActionForm.action_type === "HARD_DELETE_USER") {
       const confirmed = confirm(
-        `⚠️ CRITICAL HARD DELETE CONFIRMATION:\n\nAre you absolutely sure you want to permanently delete student account "${selectedStudentForAction.full_name || selectedStudentForAction.email}"?\n\nAll credentials, assignments, and DRM status will be permanently purged and lost forever.`
+        `⚠️ CRITICAL HARD DELETE CONFIRMATION:\n\nAre You Absolutely Sure You Want To Permanently Delete Student Account "${selectedStudentForAction.full_name || selectedStudentForAction.email}"?\n\nAll Credentials, Assignments, And DRM Status Will Be Permanently Purged And Lost Forever.`
       );
       if (!confirmed) return;
     }
@@ -5702,7 +5702,7 @@ export function AdminPortal() {
                     <span>Irrevocable Permanent Hard Delete</span>
                   </div>
                   <p className="text-[0.7rem] text-zinc-300 leading-relaxed">
-                    This will permanently delete the student account from the database. All user profile records, DRM access permissions, session histories, and disciplinary records will be lost forever.
+                    This Will Permanently Delete The Student Account From The Database. All User Profile Records, DRM Access Permissions, Session Histories, And Disciplinary Records Will Be Lost Forever.
                   </p>
                 </div>
               )}

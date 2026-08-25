@@ -207,6 +207,43 @@ class MaterialPageSerializer(serializers.ModelSerializer):
         model = MaterialPage
         fields = ["id", "page_number", "page_title", "content_html", "diagram_svg"]
 
+class AcademicMaterialListSerializer(serializers.ModelSerializer):
+    subject_code = serializers.CharField(source="subject.code", read_only=True)
+    subject_name = serializers.CharField(source="subject.name", read_only=True)
+    semester = serializers.IntegerField(source="subject.semester", read_only=True)
+    is_bookmarked = serializers.SerializerMethodField()
+    tags = SafeJSONField(required=False, default=list)
+
+    class Meta:
+        model = AcademicMaterial
+        fields = [
+            "id",
+            "subject",
+            "subject_code",
+            "subject_name",
+            "semester",
+            "title",
+            "material_type",
+            "academic_year",
+            "unit_number",
+            "summary",
+            "page_count",
+            "preview_pages_count",
+            "is_free",
+            "is_topper_verified",
+            "file",
+            "tags",
+            "views_count",
+            "is_bookmarked",
+            "created_at",
+        ]
+
+    def get_is_bookmarked(self, obj):
+        request = self.context.get("request")
+        if request and request.user.is_authenticated:
+            return UserBookmark.objects.filter(user=request.user, material=obj).exists()
+        return False
+
 class AcademicMaterialSerializer(serializers.ModelSerializer):
     subject_code = serializers.CharField(source="subject.code", read_only=True)
     subject_name = serializers.CharField(source="subject.name", read_only=True)

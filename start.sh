@@ -34,9 +34,9 @@ python Manage.py migrate --noinput
 echo "-> Checking And Seeding Database Records..."
 python SeedDatabase.py || true
 
-# Start Django Gunicorn On 127.0.0.1:8000 In Background
+# Start Django Gunicorn On 127.0.0.1:8000 In Background With High Concurrency
 echo "-> Starting Django API Server Via Gunicorn on 127.0.0.1:8000..."
-gunicorn Core.wsgi:application --bind 127.0.0.1:8000 --workers 3 --timeout 120 &
+gunicorn Core.wsgi:application --bind 127.0.0.1:8000 --workers 4 --threads 2 --timeout 120 &
 
 # Start Nginx In Foreground On 7865
 echo "-> Starting Nginx On Port 7865..."

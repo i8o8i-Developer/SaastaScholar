@@ -17,6 +17,7 @@ from .models import (
     UserBookmark,
 )
 from .serializers import (
+    AcademicMaterialListSerializer,
     AcademicMaterialSerializer,
     DepartmentNoticeSerializer,
     DepartmentSerializer,
@@ -102,7 +103,7 @@ class SubjectListView(generics.ListAPIView):
         return Response(data)
 
 class AcademicMaterialListView(generics.ListAPIView):
-    serializer_class = AcademicMaterialSerializer
+    serializer_class = AcademicMaterialListSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
@@ -251,9 +252,13 @@ class AdminSubjectDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 class AdminMaterialListCreateView(generics.ListCreateAPIView):
     queryset = AcademicMaterial.objects.select_related("subject").all()
-    serializer_class = AcademicMaterialSerializer
     permission_classes = [permissions.IsAdminUser]
     pagination_class = None
+
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return AcademicMaterialSerializer
+        return AcademicMaterialListSerializer
 
     def post(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)

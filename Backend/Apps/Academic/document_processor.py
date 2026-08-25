@@ -168,68 +168,33 @@ def extract_and_populate_pages(material):
             except Exception as e:
                 print("LibreOffice conversion failed:", e)
 
-        # 1. PDF Handler
+        # 1. PDF Handler: Instantaneous High-Speed Page Count Extraction
         if file_name.endswith(".pdf"):
-            extracted_pages = []
             try:
-                # Engine A: pypdf
+                total_pages = 1
+                # Fast Page Count via pypdf
                 try:
                     import pypdf
                     reader = pypdf.PdfReader(file_path)
-                    for idx, page in enumerate(reader.pages, start=1):
-                        txt = (page.extract_text() or "").strip()
-                        extracted_pages.append((idx, txt))
+                    total_pages = len(reader.pages)
                 except Exception:
-                    pass
-
-                # Engine B: PyPDF2 fallback
-                if not extracted_pages:
                     try:
                         import PyPDF2
                         reader = PyPDF2.PdfReader(file_path)
-                        for idx, page in enumerate(reader.pages, start=1):
-                            txt = (page.extract_text() or "").strip()
-                            extracted_pages.append((idx, txt))
+                        total_pages = len(reader.pages)
                     except Exception:
-                        pass
+                        try:
+                            import fitz
+                            doc = fitz.open(file_path)
+                            total_pages = len(doc)
+                        except Exception:
+                            total_pages = 1
 
-                # Engine C: fitz (PyMuPDF) fallback
-                if not extracted_pages:
-                    try:
-                        import fitz
-                        doc = fitz.open(file_path)
-                        for idx, page in enumerate(doc, start=1):
-                            txt = page.get_text().strip()
-                            extracted_pages.append((idx, txt))
-                    except Exception:
-                        pass
-
-                total_pages = len(extracted_pages) if extracted_pages else 1
-
-                if extracted_pages:
-                    for idx, raw_text in extracted_pages:
-                        if not raw_text:
-                            raw_text = f"## Page {idx}: {material.title}\n\n- Key Examination Concepts & Derivations\n- Verified Faculty Courseware Manuscript"
-
-                        formatted_html = parse_markdown_to_html(
-                            raw_text=raw_text,
-                            subject_code=subject_code,
-                            unit_number=unit_num,
-                            page_number=idx,
-                            total_pages=total_pages,
-                            title=f"{material.title} (Page {idx})",
-                        )
-                        MaterialPage.objects.create(
-                            material=material,
-                            page_number=idx,
-                            page_title=f"Page {idx}: {material.title}",
-                            content_html=formatted_html,
-                        )
-                    material.page_count = total_pages
-                    material.save(update_fields=["page_count"])
-                    return
+                material.page_count = max(total_pages, 1)
+                material.save(update_fields=["page_count"])
+                return
             except Exception as e:
-                print("PDF Extraction Error:", e)
+                print("PDF Fast Processing Error:", e)
 
         # 2. PPTX / PPT Presentation Handler
         elif file_name.endswith((".pptx", ".ppt")):
