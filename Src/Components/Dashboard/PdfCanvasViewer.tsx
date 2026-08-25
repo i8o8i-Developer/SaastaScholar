@@ -2,13 +2,21 @@ import React, { useEffect, useRef, useState } from "react";
 import * as pdfjsLib from "pdfjs-dist";
 import { Loader2, AlertCircle, RefreshCw, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
 
-// Configure PDF.js worker
+// Configure PDF.js worker and suppress non-fatal warnings
 if (typeof window !== "undefined") {
   try {
     pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
   } catch {
     pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs`;
   }
+
+  const origWarn = console.warn;
+  console.warn = (...args: any[]) => {
+    if (typeof args[0] === "string" && (args[0].includes("Knockout groups") || args[0].includes("knockout"))) {
+      return;
+    }
+    origWarn.apply(console, args);
+  };
 }
 
 interface PdfCanvasViewerProps {
@@ -65,6 +73,8 @@ export function PdfCanvasViewer({
           cMapPacked: true,
           standardFontDataUrl: "https://unpkg.com/pdfjs-dist/standard_fonts/",
           withCredentials: false,
+          verbosity: 0,
+          stopAtErrors: false,
         });
 
         const doc = await loadingTask.promise;
@@ -127,10 +137,12 @@ export function PdfCanvasViewer({
         setNaturalWidth(baseViewport.width);
         setNaturalHeight(baseViewport.height);
 
-        // High resolution rasterization scale:
-        // Always render at high DPI (2.5x base scale) so zoomed in text remains ultra sharp
-        const dpr = typeof window !== "undefined" ? Math.max(window.devicePixelRatio || 1, 1.5) : 2;
-        const renderScale = Math.max(2.0, (zoomLevel / 100) * 1.8) * dpr;
+        // High resolution rasterization scale with adaptive memory cap:
+        // Maintains ultra-sharp text at all zoom levels while keeping GPU canvas buffer within optimal memory limits
+        const dpr = typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1.5;
+        const targetZoomFactor = zoomLevel / 100;
+        const baseScale = Math.min(Math.max(1.3, targetZoomFactor * 1.3), 2.5);
+        const renderScale = baseScale * Math.min(dpr, 1.5);
         const viewport = page.getViewport({ scale: renderScale });
 
         // Set internal canvas pixel buffer size

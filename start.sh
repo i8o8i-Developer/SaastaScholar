@@ -34,9 +34,8 @@ python Manage.py migrate --noinput
 echo "-> Checking And Seeding Database Records..."
 python SeedDatabase.py || true
 
-# Start Django Gunicorn On 127.0.0.1:8000 In Background
-echo "-> Starting Django API Server Via Gunicorn On 127.0.0.1:8000..."
-gunicorn Core.wsgi:application --bind 127.0.0.1:8000 --workers 3 --timeout 120 &
+echo "-> Starting Django API Server Via Gunicorn On 127.0.0.1:8000 (Multi-Threaded)..."
+gunicorn Core.wsgi:application --bind 127.0.0.1:8000 --workers 3 --threads 4 --timeout 300 &
 
 # Ensure Gunicorn Is Ready Before Launching Nginx
 echo "-> Verifying Django API Server Status..."
