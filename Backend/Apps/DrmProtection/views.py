@@ -189,7 +189,7 @@ class DrmPageView(APIView):
 class DrmSecurityReportView(APIView):
     """
     Receives security telemetry from frontend DRM hooks & updates violations counter.
-    Automatically enforces disciplinary warning and temporary cooldown upon repeated violations.
+    Immediately blocks user account from DRM access upon unauthorized screenshot capture attempts.
     """
     permission_classes = [permissions.IsAuthenticated]
 
@@ -210,19 +210,41 @@ class DrmSecurityReportView(APIView):
             details=details,
         )
 
-        # Increment DRM violation counter for all security trigger types
+        # 1. Increment DRM violation counter for all security triggers
         user.drm_violations_count = (user.drm_violations_count or 0) + 1
-        
-        # Enforce progressive disciplinary policy upon repeated violations (>= 5 triggers)
-        if user.drm_violations_count >= 5 and not user.is_drm_blocked:
-            user.cooldown_until = timezone.now() + timedelta(minutes=15)
-            user.security_warning_note = f"Multiple Unauthorized Screen Capture Or Extraction Triggers ({user.drm_violations_count} Detected). Account Under Active 15-Minute Security Review."
 
-        user.save(update_fields=["drm_violations_count", "cooldown_until", "security_warning_note"])
+        # 2. Critical Capture Events -> Immediate Account Block
+        screenshot_events = [
+            "IOS_SCREENSHOT_DETECTED",
+            "MOBILE_HARDWARE_SCREENSHOT",
+            "SCREENSHOT_HOTKEY_DETECTED",
+            "SNIPPING_TOOL_SHORTCUT",
+            "SNIPPING_TOOL_OVERLAY_ACTIVE",
+            "MULTI_FINGER_MOBILE_CAPTURE",
+            "MOBILE_BACKGROUND_CAPTURE",
+            "PAGE_HIDE_CAPTURE_TRIGGER",
+            "SCREEN_RECORDING_DETECTED",
+            "PRINT_DIALOG_DETECTED",
+            "DEVTOOLS_ATTEMPT",
+        ]
+
+        if event_type in screenshot_events or user.drm_violations_count >= 3:
+            user.is_drm_blocked = True
+            user.block_reason = f"Security Policy Violation: Unauthorized Screen Capture Attempt ({event_type}) On DRM Material."
+            user.security_warning_note = f"Your DRM Content Access Has Been Suspended Due To Screen Capture Activity Detected At {timezone.now().strftime('%Y-%m-%d %H:%M:%S UTC')}."
+            user.cooldown_until = timezone.now() + timedelta(hours=24)
+        else:
+            user.cooldown_until = timezone.now() + timedelta(minutes=30)
+            user.security_warning_note = f"DRM Warning: Security Trigger ({event_type}) Detected. Attempt Recorded In Disciplinary Audit Log."
+
+        user.save(update_fields=["drm_violations_count", "is_drm_blocked", "block_reason", "security_warning_note", "cooldown_until"])
 
         return Response({
             "status": "logged",
             "violations_count": user.drm_violations_count,
+            "is_drm_blocked": user.is_drm_blocked,
+            "block_reason": user.block_reason,
+            "warning_note": user.security_warning_note,
             "cooldown_active": bool(user.cooldown_until and user.cooldown_until > timezone.now()),
             "timestamp": timezone.now(),
         })

@@ -128,7 +128,7 @@ const SAMPLE_PAGES: Record<number, DrmPageVector> = {
 
 export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
   const { user } = useAuth();
-  const { isScreenBlurred, resumeReading } = useDrmProtection({ materialId });
+  const { isScreenBlurred, resumeReading, isAccountBlocked, blockReason, violationsCount } = useDrmProtection({ materialId });
 
   const [payload, setPayload] = useState<DrmMaterialPayload>(FALLBACK_PAYLOAD);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -191,11 +191,12 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
   };
 
   const handleToggleFullscreen = () => {
+    if (!containerRef.current) return;
     if (!document.fullscreenElement) {
-      containerRef.current?.requestFullscreen();
+      containerRef.current.requestFullscreen().catch(() => {});
       setIsFullscreen(true);
     } else {
-      document.exitFullscreen();
+      document.exitFullscreen().catch(() => {});
       setIsFullscreen(false);
     }
   };
@@ -203,10 +204,64 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
   return (
     <div
       ref={containerRef}
-      className="relative flex flex-col h-[92vh] w-full max-w-6xl mx-auto rounded-3xl border border-border/80 bg-background text-foreground shadow-2xl overflow-hidden select-none"
+      className={cn(
+        "relative flex h-screen w-full flex-col bg-background text-foreground select-none overflow-hidden min-w-0",
+        isFullscreen ? "fixed inset-0 z-50" : ""
+      )}
     >
-      {/* 🔒 Anti-Screen Capture Obfuscation Blackout Shield */}
-      {isScreenBlurred && (
+      {/* ================= ACCOUNT SECURITY LOCKDOWN OVERLAY ================= */}
+      {isAccountBlocked && (
+        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/95 text-white p-6 text-center backdrop-blur-3xl animate-in fade-in select-none">
+          <div className="relative z-10 max-w-lg rounded-3xl border border-rose-500/50 bg-zinc-950/95 p-8 shadow-[0_0_80px_-15px_rgba(244,63,94,0.6)] backdrop-blur-2xl space-y-5">
+            <div className="relative mx-auto grid h-20 w-20 place-items-center rounded-3xl bg-rose-500/20 border border-rose-500/40 text-rose-500 shadow-inner">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-3xl bg-rose-500/25 opacity-75" />
+              <ShieldAlert className="h-10 w-10 text-rose-500" />
+            </div>
+
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-rose-500/40 bg-rose-500/20 px-3 py-1 text-xs font-bold text-rose-400">
+                <AlertTriangle className="h-3.5 w-3.5" />
+                <span>Security Lockdown · Account Restricted</span>
+              </div>
+
+              <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                DRM Access Blocked
+              </h2>
+
+              <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-md mx-auto">
+                {blockReason || "Unauthorized Screen Capture Attempt Detected On Protected DRM Material."}
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-rose-950 bg-rose-950/30 p-3.5 text-[0.7rem] font-mono text-zinc-400 space-y-1.5 text-left">
+              <div className="flex items-center justify-between text-rose-400 font-bold">
+                <span>Student ID / Scholar:</span>
+                <span>{user?.roll_number || payload.watermark.roll_number}</span>
+              </div>
+              <div className="flex items-center justify-between text-zinc-400">
+                <span>Total Violations Recorded:</span>
+                <span className="text-rose-400 font-bold">{violationsCount || 1}</span>
+              </div>
+              <div className="flex items-center justify-between text-zinc-500">
+                <span>Enforcement Action:</span>
+                <span className="text-rose-400 font-bold">DRM Content Access Suspended</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={onClose}
+              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl bg-rose-600 text-white font-bold text-xs shadow-lg transition-all hover:bg-rose-500 active:scale-95 cursor-pointer"
+            >
+              <span>Exit Reader &amp; Return To Dashboard</span>
+              <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ================= BLACKOUT SHIELD OVERLAY ================= */}
+      {isScreenBlurred && !isAccountBlocked && (
         <div
           onClick={() => resumeReading()}
           className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/90 text-white p-6 text-center backdrop-blur-2xl animate-in fade-in duration-75 cursor-pointer select-none"
