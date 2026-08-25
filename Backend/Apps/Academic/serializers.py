@@ -342,10 +342,6 @@ class AcademicMaterialSerializer(serializers.ModelSerializer):
             validated_data["page_count"] = len(pages_list)
 
         material = super().create(validated_data)
-
-    def create(self, validated_data):
-        pages_input = validated_data.pop("pages_input", None)
-        material = super().create(validated_data)
         
         pages_list = None
         if pages_input:

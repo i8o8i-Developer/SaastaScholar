@@ -34,9 +34,24 @@ python Manage.py migrate --noinput
 echo "-> Checking And Seeding Database Records..."
 python SeedDatabase.py || true
 
-# Start Django Gunicorn On 127.0.0.1:8000 In Background With High Concurrency
-echo "-> Starting Django API Server Via Gunicorn on 127.0.0.1:8000..."
-gunicorn Core.wsgi:application --bind 127.0.0.1:8000 --workers 4 --threads 2 --timeout 120 &
+# Start Django Gunicorn On 127.0.0.1:8000 In Background
+echo "-> Starting Django API Server Via Gunicorn On 127.0.0.1:8000..."
+gunicorn Core.wsgi:application --bind 127.0.0.1:8000 --workers 3 --timeout 120 &
+
+# Ensure Gunicorn Is Ready Before Launching Nginx
+echo "-> Verifying Django API Server Status..."
+python - <<END
+import time, socket
+for i in range(30):
+    try:
+        with socket.create_connection(("127.0.0.1", 8000), timeout=2):
+            print("-> Django API Server Is Ready On 127.0.0.1:8000")
+            break
+    except OSError:
+        time.sleep(0.5)
+else:
+    print("-> Django API Server Startup Timeout, Proceeding...")
+END
 
 # Start Nginx In Foreground On 7865
 echo "-> Starting Nginx On Port 7865..."
