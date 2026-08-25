@@ -35,3 +35,16 @@ class DrmSecurityIncident(models.Model):
 
     def __str__(self):
         return f"Security Alert: {self.event_type} by {self.user}"
+
+class GlobalDrmConfig(models.Model):
+    is_drm_enabled = models.BooleanField(default=True, help_text="Master Switch To Activate/Stop All DRM Rules Platform-Wide")
+    updated_at = models.DateTimeField(auto_now=True)
+    updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+
+    @classmethod
+    def get_config(cls):
+        config, _ = cls.objects.get_or_create(id=1, defaults={"is_drm_enabled": True})
+        return config
+
+    def __str__(self):
+        return f"Global DRM Engine: {'ACTIVE' if self.is_drm_enabled else 'STOPPED'}"

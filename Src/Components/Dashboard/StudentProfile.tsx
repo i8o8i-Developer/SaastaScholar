@@ -268,53 +268,19 @@ export function StudentProfile() {
           </div>
 
           <div className="pt-2 space-y-3">
-            {/* Master DRM Controls Box */}
-            <div className={cn(
-              "rounded-2xl border p-4 text-xs space-y-3 transition-all",
-              isDrmDisabled ? "border-amber-500/40 bg-amber-500/5" : "border-emerald-500/30 bg-emerald-500/5"
-            )}>
+            {/* Official Academic Security Standing Box */}
+            <div className="rounded-2xl border border-border/80 bg-surface/40 p-4 text-xs space-y-2">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 font-bold text-foreground">
-                  <ShieldCheck className={cn("h-4 w-4 shrink-0", isDrmDisabled ? "text-amber-500" : "text-emerald-500")} />
-                  <span>Master DRM Document Protection</span>
+                  <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
+                  <span>Academic Security Standing</span>
                 </div>
-                <span className={cn(
-                  "px-2 py-0.5 rounded-full text-[0.65rem] font-bold border",
-                  isDrmDisabled
-                    ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20"
-                    : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
-                )}>
-                  {isDrmDisabled ? "DRM STOPPED" : "DRM ACTIVE"}
+                <span className="px-2.5 py-0.5 rounded-full text-[0.65rem] font-bold border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
+                  VERIFIED SCHOLAR
                 </span>
               </div>
               <p className="text-[0.7rem] text-muted-foreground leading-relaxed">
-                {isDrmDisabled
-                  ? "DRM protections are currently completely STOPPED. All documents, PDFs, and notes can be viewed and copied without restrictions."
-                  : "DRM protections are actively enforcing real-time screenshot defense, clipboard sanitization, and forensic watermarking."}
-              </p>
-              <button
-                type="button"
-                onClick={handleToggleDrm}
-                className={cn(
-                  "w-full h-9 rounded-xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs active:scale-95",
-                  isDrmDisabled
-                    ? "bg-emerald-600 hover:bg-emerald-500 text-white"
-                    : "bg-amber-600 hover:bg-amber-500 text-white"
-                )}
-              >
-                <Zap className="h-3.5 w-3.5" />
-                <span>{isDrmDisabled ? "Activate & Enable Master DRM" : "Completely Stop & Disable DRM"}</span>
-              </button>
-            </div>
-
-            {/* DRM Watermark Live Preview Box */}
-            <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4 text-xs space-y-1.5">
-              <div className="flex items-center gap-2 font-bold text-emerald-800 dark:text-emerald-300 text-xs">
-                <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
-                <span>Protected DRM Identity Watermark</span>
-              </div>
-              <p className="text-[0.7rem] text-muted-foreground leading-relaxed">
-                Your Verified Institutional Record ({user?.roll_number || "ADMIN01"} · {user?.email}) Is Dynamically Embedded Across All Academic Notes And Examination Question Sheets.
+                Your Academic Account Is In Good Standing. All Courseware Access, Exam Question Banks, And Unit Manuscripts Are Authorized For Semester {user?.semester || 1}.
               </p>
             </div>
           </div>

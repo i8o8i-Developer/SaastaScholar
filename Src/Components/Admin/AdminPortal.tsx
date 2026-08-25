@@ -81,6 +81,7 @@ import {
   SupportTicket,
   ForumPost,
   communityApi,
+  globalDrmApi,
   toTitleCase,
 } from "@/Lib/Api";
 import { cn } from "@/Lib/Utils";
@@ -2823,14 +2824,20 @@ export function AdminPortal() {
 
                   <button
                     type="button"
-                    onClick={() => {
+                    onClick={async () => {
                       const nextState = !isDrmDisabled;
                       setIsDrmDisabled(nextState);
                       setDrmGloballyDisabled(nextState);
-                      if (nextState) {
-                        toast.warning("Master DRM Protection Stopped Platform-Wide For All Users.");
-                      } else {
-                        toast.success("Master DRM Protection Actively Enforced Platform-Wide.");
+                      try {
+                        const res = await globalDrmApi.updateConfig(!nextState);
+                        if (nextState) {
+                          toast.warning("Master DRM Protection Stopped Platform-Wide For All Users.");
+                        } else {
+                          toast.success("Master DRM Protection Actively Enforced Platform-Wide.");
+                        }
+                        loadAdminData();
+                      } catch (err: any) {
+                        toast.error(toTitleCase(err.message || "Failed To Update Global DRM Engine Status."));
                       }
                     }}
                     className={cn(

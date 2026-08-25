@@ -12,7 +12,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from Apps.Academic.models import AcademicMaterial, MaterialPage
-from .models import DrmSecurityIncident, DrmSession
+from .models import DrmSecurityIncident, DrmSession, GlobalDrmConfig
 from .serializers import DrmSecurityIncidentSerializer
 
 def get_client_ip(request):
@@ -25,6 +25,51 @@ def get_client_ip(request):
         ip = ip.split(":")[-1]
     return ip or "127.0.0.1"
 
+class GlobalDrmConfigView(APIView):
+    def get_permissions(self):
+        if self.request.method in ["POST", "PATCH"]:
+            return [permissions.IsAuthenticated]
+        return [permissions.AllowAny]
+
+    def get(self, request):
+        config = GlobalDrmConfig.get_config()
+        return Response({
+            "is_drm_enabled": config.is_drm_enabled,
+            "updated_at": config.updated_at,
+        })
+
+    def post(self, request):
+        if not (request.user and request.user.is_authenticated and (request.user.is_staff or request.user.is_superuser)):
+            return Response(
+                {"detail": "Only University Administrators Can Modify Global DRM Engine Status."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        enabled = request.data.get("is_drm_enabled", True)
+        config = GlobalDrmConfig.get_config()
+        config.is_drm_enabled = bool(enabled)
+        config.updated_by = request.user
+        config.save()
+
+        # Log Administrative Action
+        try:
+            from Apps.Accounts.models import AdminAuditLog, ActionType
+            AdminAuditLog.objects.create(
+                admin_user=request.user,
+                admin_email=request.user.email,
+                action_type=ActionType.GLOBAL_BULK_RESET if not config.is_drm_enabled else ActionType.UNBLOCK_DRM,
+                reason=f"Administrator {'ACTIVATED' if config.is_drm_enabled else 'COMPLETELY STOPPED'} Master DRM Protection Platform-Wide Across All Materials & Sections.",
+                target_name="All Students & Materials",
+                target_email="platform-wide",
+            )
+        except Exception:
+            pass
+
+        return Response({
+            "is_drm_enabled": config.is_drm_enabled,
+            "message": f"Master DRM Protection Engine Is Now {'ACTIVELY ENFORCED' if config.is_drm_enabled else 'COMPLETELY STOPPED'} Platform-Wide.",
+        })
+
 class DrmSessionInitView(APIView):
     """
     Creates an ephemeral DRM viewing session with dynamic forensic watermark parameters.
@@ -34,6 +79,7 @@ class DrmSessionInitView(APIView):
 
     def get(self, request, material_id):
         user = request.user
+        config = GlobalDrmConfig.get_config()
 
         # Auto-recover false-positive automated focus blocks
         if user.is_drm_blocked and any(x in (user.block_reason or "") for x in ["MOBILE_HARDWARE_SCREENSHOT", "IOS_SCREENSHOT_DETECTED", "WINDOW_FOCUS_LOST", "MOBILE_BACKGROUND_CAPTURE", "PAGE_HIDE_CAPTURE_TRIGGER"]):
@@ -43,8 +89,8 @@ class DrmSessionInitView(APIView):
             user.cooldown_until = None
             user.save(update_fields=["is_drm_blocked", "block_reason", "security_warning_note", "cooldown_until"])
 
-        # 1. Check DRM Access Block
-        if user.is_drm_blocked:
+        # 1. Check DRM Access Block (Only active if DRM is globally enabled)
+        if config.is_drm_enabled and user.is_drm_blocked:
             reason = user.block_reason or "Your DRM Content Access Has Been Suspended By University Administration."
             return Response(
                 {"detail": f"DRM Access Suspended: {reason}"},
@@ -52,7 +98,7 @@ class DrmSessionInitView(APIView):
             )
 
         # 2. Check Security Cooldown
-        if user.cooldown_until and user.cooldown_until > timezone.now():
+        if config.is_drm_enabled and user.cooldown_until and user.cooldown_until > timezone.now():
             diff = user.cooldown_until - timezone.now()
             hours = int(diff.total_seconds() // 3600)
             minutes = int((diff.total_seconds() % 3600) // 60)
@@ -113,6 +159,7 @@ class DrmSessionInitView(APIView):
             "file_url": file_url,
             "file_name": file_name,
             "file_ext": file_ext,
+            "is_drm_enabled": config.is_drm_enabled,
         })
 
 class DrmPageView(APIView):
@@ -124,9 +171,10 @@ class DrmPageView(APIView):
 
     def get(self, request, material_id, page_number):
         user = request.user
+        config = GlobalDrmConfig.get_config()
 
         # 1. Check DRM Access Block
-        if user.is_drm_blocked:
+        if config.is_drm_enabled and user.is_drm_blocked:
             reason = user.block_reason or "Your DRM Content Access Has Been Suspended By University Administration."
             return Response(
                 {"detail": f"DRM Access Suspended: {reason}"},
@@ -134,7 +182,7 @@ class DrmPageView(APIView):
             )
 
         # 2. Check Security Cooldown
-        if user.cooldown_until and user.cooldown_until > timezone.now():
+        if config.is_drm_enabled and user.cooldown_until and user.cooldown_until > timezone.now():
             return Response(
                 {"detail": f"Security Cooldown Active Until {user.cooldown_until.strftime('%Y-%m-%d %H:%M:%S UTC')}."},
                 status=status.HTTP_403_FORBIDDEN,
@@ -170,6 +218,7 @@ class DrmPageView(APIView):
                 "file_url": file_url,
                 "file_name": file_name,
                 "file_ext": file_ext,
+                "is_drm_enabled": config.is_drm_enabled,
             })
 
         content = page.content_html or ""
@@ -192,6 +241,7 @@ class DrmPageView(APIView):
             "file_url": file_url,
             "file_name": file_name,
             "file_ext": file_ext,
+            "is_drm_enabled": config.is_drm_enabled,
         })
 
 class DrmSecurityReportView(APIView):
@@ -202,6 +252,10 @@ class DrmSecurityReportView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
+        config = GlobalDrmConfig.get_config()
+        if not config.is_drm_enabled:
+            return Response({"status": "drm_globally_disabled", "is_drm_enabled": False})
+
         user = request.user
         event_type = request.data.get("event_type", "SECURITY_ALERT")
         client_ip = get_client_ip(request)

@@ -424,21 +424,19 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
             </button>
           </div>
 
-          {/* Master DRM Mode Toggle Button */}
-          <button
-            type="button"
-            onClick={toggleDrm}
-            title={isDrmDisabled ? "DRM Protections Are Disabled. Click To Enable." : "DRM Protections Are Active. Click To Disable."}
+          {/* Institutional DRM Engine Status Indicator (Admin-Controlled Read-Only) */}
+          <div
+            title={isDrmDisabled ? "Master DRM Protection Is Completely Stopped Platform-Wide By University Administration." : "Master DRM Protection Is Actively Enforced."}
             className={cn(
-              "hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[0.68rem] font-bold border transition-all cursor-pointer shadow-2xs active:scale-95",
+              "hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[0.68rem] font-bold border select-none transition-all shadow-2xs",
               isDrmDisabled
-                ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/20"
-                : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30 hover:bg-emerald-500/20"
+                ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30"
+                : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
             )}
           >
             <ShieldCheck className="h-3.5 w-3.5" />
             <span>{isDrmDisabled ? "DRM Stopped" : "DRM Active"}</span>
-          </button>
+          </div>
 
           {/* Fullscreen Toggle */}
           <button
@@ -477,18 +475,20 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
           isScreenBlurred && !isDrmDisabled ? "flex" : isScreenBlurred ? "hidden opacity-0 pointer-events-none select-none invisible" : "flex"
         )}
       >
-        {/* Dynamic Watermark Background Grid Overlay */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 z-20 flex flex-wrap items-center justify-around gap-8 sm:gap-12 p-2 sm:p-4 opacity-[0.12] dark:opacity-[0.08] overflow-hidden select-none"
-        >
-          {Array.from({ length: 30 }).map((_, i) => (
-            <div key={i} className="rotate-[-26deg] text-center font-mono text-[0.6rem] sm:text-xs font-bold tracking-widest uppercase select-none">
-              <p className="text-emerald-700 dark:text-emerald-300 drop-shadow-xs">{user?.full_name || payload.watermark.student_name} · {user?.roll_number || payload.watermark.roll_number}</p>
-              <p className="text-[0.55rem] sm:text-[0.65rem] text-muted-foreground font-semibold">NIMS DRM · {payload.watermark.ip_address} · {payload.watermark.session_hash}</p>
-            </div>
-          ))}
-        </div>
+        {/* Dynamic Watermark Background Grid Overlay (Visible Only When DRM Is Active) */}
+        {!isDrmDisabled && (
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 z-20 flex flex-wrap items-center justify-around gap-8 sm:gap-12 p-2 sm:p-4 opacity-[0.12] dark:opacity-[0.08] overflow-hidden select-none"
+          >
+            {Array.from({ length: 30 }).map((_, i) => (
+              <div key={i} className="rotate-[-26deg] text-center font-mono text-[0.6rem] sm:text-xs font-bold tracking-widest uppercase select-none">
+                <p className="text-emerald-700 dark:text-emerald-300 drop-shadow-xs">{user?.full_name || payload.watermark.student_name} · {user?.roll_number || payload.watermark.roll_number}</p>
+                <p className="text-[0.55rem] sm:text-[0.65rem] text-muted-foreground font-semibold">NIMS DRM · {payload.watermark.ip_address} · {payload.watermark.session_hash}</p>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Paper Container: Full Page Crystal Clear Reading */}
         <div
@@ -528,24 +528,28 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
                   className="w-full h-full border-0 rounded-xl sm:rounded-2xl pointer-events-auto select-none"
                   title="PDF Document Preview"
                 />
-                {/* Forensic DRM Watermark Overlay Directly Over PDF */}
-                <div
-                  aria-hidden
-                  className="pointer-events-none absolute inset-0 z-20 flex flex-wrap items-center justify-around gap-6 sm:gap-10 p-4 opacity-25 dark:opacity-20 overflow-hidden select-none"
-                >
-                  {Array.from({ length: 16 }).map((_, i) => (
-                    <div key={i} className="rotate-[-28deg] text-center font-mono text-[0.65rem] xs:text-xs font-bold tracking-widest uppercase select-none text-emerald-800 dark:text-emerald-300">
-                      <p className="drop-shadow-xs">{user?.full_name || payload.watermark.student_name} · {user?.roll_number || payload.watermark.roll_number}</p>
-                      <p className="text-[0.55rem] xs:text-[0.65rem] opacity-80 font-semibold">NIMS DRM · {payload.watermark.ip_address} · {payload.watermark.session_hash}</p>
-                    </div>
-                  ))}
-                </div>
-                {/* Non-Intrusive DRM Gesture Shield Layer */}
-                <div
-                  onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                  onCopy={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                  className="absolute inset-0 pointer-events-none select-none z-30"
-                />
+                {/* Forensic DRM Watermark Overlay Directly Over PDF (Visible Only When DRM Is Active) */}
+                {!isDrmDisabled && (
+                  <div
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 z-20 flex flex-wrap items-center justify-around gap-6 sm:gap-10 p-4 opacity-25 dark:opacity-20 overflow-hidden select-none"
+                  >
+                    {Array.from({ length: 16 }).map((_, i) => (
+                      <div key={i} className="rotate-[-28deg] text-center font-mono text-[0.65rem] xs:text-xs font-bold tracking-widest uppercase select-none text-emerald-800 dark:text-emerald-300">
+                        <p className="drop-shadow-xs">{user?.full_name || payload.watermark.student_name} · {user?.roll_number || payload.watermark.roll_number}</p>
+                        <p className="text-[0.55rem] xs:text-[0.65rem] opacity-80 font-semibold">NIMS DRM · {payload.watermark.ip_address} · {payload.watermark.session_hash}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {/* Non-Intrusive DRM Gesture Shield Layer (Active Only When DRM Is Active) */}
+                {!isDrmDisabled && (
+                  <div
+                    onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                    onCopy={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                    className="absolute inset-0 pointer-events-none select-none z-30"
+                  />
+                )}
               </div>
             </div>
           ) : (
@@ -554,18 +558,20 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
                 dangerouslySetInnerHTML={{ __html: pageData.content_html }}
                 className="prose prose-sm max-w-none font-sans leading-relaxed select-none min-w-0 overflow-hidden break-words text-xs sm:text-sm"
               />
-              {/* Forensic Watermark Floating Over Manuscript */}
-              <div
-                aria-hidden
-                className="pointer-events-none absolute inset-0 z-10 flex flex-wrap items-center justify-around gap-6 p-4 opacity-20 dark:opacity-15 overflow-hidden select-none"
-              >
-                {Array.from({ length: 12 }).map((_, i) => (
-                  <div key={i} className="rotate-[-26deg] text-center font-mono text-[0.65rem] font-bold tracking-widest uppercase select-none text-emerald-800 dark:text-emerald-300">
-                    <p>{user?.full_name || payload.watermark.student_name} · {user?.roll_number || payload.watermark.roll_number}</p>
-                    <p className="text-[0.55rem] opacity-75">NIMS DRM · {payload.watermark.ip_address}</p>
-                  </div>
-                ))}
-              </div>
+              {/* Forensic Watermark Floating Over Manuscript (Visible Only When DRM Is Active) */}
+              {!isDrmDisabled && (
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 z-10 flex flex-wrap items-center justify-around gap-6 p-4 opacity-20 dark:opacity-15 overflow-hidden select-none"
+                >
+                  {Array.from({ length: 12 }).map((_, i) => (
+                    <div key={i} className="rotate-[-26deg] text-center font-mono text-[0.65rem] font-bold tracking-widest uppercase select-none text-emerald-800 dark:text-emerald-300">
+                      <p>{user?.full_name || payload.watermark.student_name} · {user?.roll_number || payload.watermark.roll_number}</p>
+                      <p className="text-[0.55rem] opacity-75">NIMS DRM · {payload.watermark.ip_address}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 

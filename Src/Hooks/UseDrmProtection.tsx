@@ -29,12 +29,27 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
   const alertTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
+    // 1. Fetch Global Server-Side DRM Configuration
+    apiFetch<{ is_drm_enabled: boolean }>("/drm/config/")
+      .then((res) => {
+        if (res && typeof res.is_drm_enabled === "boolean") {
+          const disabled = !res.is_drm_enabled;
+          if (disabled !== isDrmGloballyDisabled()) {
+            setDrmGloballyDisabled(disabled);
+          }
+          setIsDrmDisabled(disabled);
+        }
+      })
+      .catch(() => {});
+
+    // 2. Listen For Local & Cross-Tab Admin Toggle Events
     const handleDrmSettingChange = (e: any) => {
       const disabled = e.detail?.disabled ?? isDrmGloballyDisabled();
       setIsDrmDisabled(disabled);
       if (disabled) {
         setIsScreenBlurred(false);
         setIsSecurityAlertActive(false);
+        setIsAccountBlocked(false);
       }
     };
     window.addEventListener("drm-setting-changed", handleDrmSettingChange);

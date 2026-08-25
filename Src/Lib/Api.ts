@@ -709,4 +709,13 @@ export const studentSecurityApi = {
     apiFetch<{ message: string }>("/accounts/acknowledge-warning/", { method: "POST" }),
 };
 
+export const globalDrmApi = {
+  getConfig: () => apiFetch<{ is_drm_enabled: boolean; updated_at?: string }>("/drm/config/"),
+  updateConfig: (is_drm_enabled: boolean) =>
+    apiFetch<{ is_drm_enabled: boolean; message: string }>("/drm/config/", {
+      method: "POST",
+      body: JSON.stringify({ is_drm_enabled }),
+    }),
+};
+
 
