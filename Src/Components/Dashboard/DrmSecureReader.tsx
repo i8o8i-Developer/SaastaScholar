@@ -210,7 +210,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
       )}
     >
       {/* ================= ACCOUNT SECURITY LOCKDOWN OVERLAY ================= */}
-      {isAccountBlocked && (
+      {isAccountBlocked && !isDrmDisabled && (
         <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/95 text-white p-6 text-center backdrop-blur-3xl animate-in fade-in select-none">
           <div className="relative z-10 max-w-lg rounded-3xl border border-rose-500/50 bg-zinc-950/95 p-8 shadow-[0_0_80px_-15px_rgba(244,63,94,0.6)] backdrop-blur-2xl space-y-5">
             <div className="relative mx-auto grid h-20 w-20 place-items-center rounded-3xl bg-rose-500/20 border border-rose-500/40 text-rose-500 shadow-inner">
@@ -261,7 +261,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
       )}
 
       {/* ================= BLACKOUT SHIELD OVERLAY ================= */}
-      {isScreenBlurred && !isAccountBlocked && (
+      {isScreenBlurred && !isAccountBlocked && !isDrmDisabled && (
         <div
           onClick={() => resumeReading()}
           className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/90 text-white p-6 text-center backdrop-blur-2xl animate-in fade-in duration-75 cursor-pointer select-none"
@@ -505,11 +505,26 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
                   <h2 className="text-base sm:text-xl font-bold mt-1 text-foreground truncate">{payload.title}</h2>
                   <p className="text-[0.65rem] sm:text-[0.7rem] text-muted-foreground truncate">{payload.file_name || "Official Courseware Document"}</p>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setReaderViewMode("manuscript")}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold transition-all border border-primary/30 cursor-pointer shadow-2xs active:scale-95"
+                >
+                  <span>📝 View Clean Notes Manuscript</span>
+                </button>
               </div>
               <div className="relative w-full h-[60vh] xs:h-[68vh] sm:h-[74vh] rounded-xl sm:rounded-2xl overflow-hidden bg-background border border-border/80 shadow-inner select-none">
                 <iframe
                   key={`pdf-page-${currentPage}-${pageData.file_url || payload.file_url}`}
-                  src={`${pageData.file_url || payload.file_url}#page=${currentPage}&toolbar=0&navpanes=0&scrollbar=0`}
+                  src={(() => {
+                    const pdfRaw = pageData.file_url || payload.file_url;
+                    if (!pdfRaw) return "";
+                    const isMobile = typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+                    if (isMobile && pdfRaw.startsWith("http")) {
+                      return `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(pdfRaw)}`;
+                    }
+                    return `${pdfRaw}#page=${currentPage}&toolbar=0&navpanes=0&scrollbar=0`;
+                  })()}
                   className="w-full h-full border-0 rounded-xl sm:rounded-2xl pointer-events-auto select-none"
                   title="PDF Document Preview"
                 />

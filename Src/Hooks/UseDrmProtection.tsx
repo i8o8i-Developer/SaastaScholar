@@ -74,6 +74,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
     };
 
     const triggerBlackoutShield = (reason: string, durationMs = 4000) => {
+      if (isDrmDisabled || !enabled) return;
       setIsScreenBlurred(true);
       setIsSecurityAlertActive(true);
       overwriteClipboard();
