@@ -97,71 +97,84 @@ const FOOTER_COLUMNS: FooterColumn[] = [
     hoverColor: "hover:text-rose-500 dark:hover:text-rose-400",
     badgeStyle: "bg-rose-500/15 text-rose-600 dark:text-rose-400 border-rose-500/20",
     links: [
+      { label: "University Legal Disclaimer", modal: "Legal Disclaimer" },
       { label: "Student Privacy Policy", modal: "Privacy Policy" },
-      { label: "Terms Of Service", modal: "Terms Of Service" },
-      { label: "Academic Integrity & Honor", modal: "Academic Integrity & Honor" },
-      { label: "Data Security Policy", modal: "Data Security Policy" },
-      { label: "Cookie Preferences", modal: "Cookie Preferences" },
-      { label: "System Uptime Status", modal: "System Uptime Status" },
+      { label: "Terms Of Service & Honor Code", modal: "Terms Of Service" },
+      { label: "DMCA & Copyright Takedown", modal: "DMCA & Copyright Policy" },
+      { label: "Data Security & Infrastructure", modal: "Data Security Policy" },
+      { label: "Cookie & Session Telemetry", modal: "Cookie Preferences" },
     ],
   },
 ];
 
-const POLICY_DETAILS: Record<string, { title: string; content: string[] }> = {
-  "Privacy Policy": {
-    title: "Student Privacy Policy",
+const POLICY_DETAILS: Record<string, { title: string; subtitle: string; content: string[] }> = {
+  "Legal Disclaimer": {
+    title: "University Non-Affiliation & Fair Use Legal Disclaimer",
+    subtitle: "Statutory Educational Fair Use Declaration Under Section 52(1)(a) Indian Copyright Act 1957",
     content: [
-      "We Collect Only Minimal Information Necessary To Personalize Your University Workspace (Institution, Department, Program, Semester, Section).",
-      "We Never Sell Student Personal Data, Academic Submissions, Or Coursework Details To Third-Party Advertisers.",
-      "All Exam History, Course Notes, And Assignment Drafts Are Stored With Industry-Standard AES-256 Cloud Encryption.",
+      "Independent Student Initiative: NimsWallah is an independent student-led peer-to-peer educational support portal. It is NOT officially affiliated with, endorsed, sponsored, or operated by NIMS University Rajasthan or any university governing body.",
+      "Fair Use Doctrine (Indian Copyright Act, 1957): All syllabus breakdowns, handwritten student notes, past examination archives, and reference study guides hosted on this platform are distributed strictly under the 'Fair Dealing' exception (Section 52(1)(a) of the Indian Copyright Act, 1957) exclusively for non-commercial private study, research, and academic scholarship.",
+      "Trademarks & Registered Intellectual Property: All university names, institution insignias, official subject acronyms, and course codes referenced on this site belong exclusively to their respective institutional trademark proprietors. Their reference on NimsWallah is strictly nominative and intended solely for student courseware organization.",
+      "Peer-To-Peer Content: All courseware uploaded by scholars remains the intellectual authorship of the respective student or contributing educator. NimsWallah acts as a passive technical platform hosting study units with forensic DRM protections.",
+    ],
+  },
+  "Privacy Policy": {
+    title: "Student Privacy Policy & Data Protection Charter",
+    subtitle: "Compliant with Information Technology Act, 2000 (SPDI Rules 2011) & International Privacy Principles",
+    content: [
+      "Information We Collect: We collect only the essential credentials required to provision your academic workspace (Full Name, Student Roll Number, Department, Program Specialization, Semester, Cohort Section, and Verified Email Address).",
+      "Forensic DRM Watermark Telemetry: To protect published scholar notes against illegal scraping and commercial distribution, our DRM engine dynamically renders real-time forensic session watermarks (Student Name, Roll Number, Session Hash, and Client IP). This telemetry data is never sold or used for behavioral profiling.",
+      "Zero Third-Party Advertising: NimsWallah maintains a strict zero-tracker policy. We never sell, lease, or monetize student personal records, course choices, or academic analytics with third-party advertisers or data brokers.",
+      "Cryptographic Security & Data Storage: All passwords are encrypted with military-grade Argon2 and PBKDF2 SHA-256 algorithms. All data in transit is shielded via TLS 1.3 encryption with strict HTTP Strict Transport Security (HSTS).",
+      "Student Rights & Data Erasure: In compliance with the IT Act 2000, you possess the permanent legal right to inspect, correct, export, or permanently erase your academic profile and submissions at any time by contacting compliance@nimswallah.in.",
     ],
   },
   "Terms Of Service": {
-    title: "Student Terms Of Service",
+    title: "Terms Of Service & Academic User Agreement",
+    subtitle: "Legally Binding User Agreement Governing Platform Usage, Content Ownership, and DRM Integrity",
     content: [
-      "NimsWallah Is Designed Exclusively As An Academic Study Assistant And Organizational Workspace For University Scholars.",
-      "Users Retain Full Authorship And Responsibility For Any Submitted Assignments, Coursework, And Lab Records.",
-      "Access Is Subject To Continuous Compliance With University Honor Codes And Academic Standards.",
+      "Single-Scholar Educational License: Access to NimsWallah courseware is granted under a personal, non-exclusive, non-transferable, revocable license strictly for the individual student's examination preparation. Account sharing, credential reselling, or unauthorized group access is strictly prohibited.",
+      "DRM Anti-Circumvention Covenant: Students expressly agree NOT to bypass, disable, decompile, tamper with, or circumvent any forensic DRM watermarks, capture-prevention overlays, or viewing safeguards implemented across the platform. Violations will result in immediate permanent account termination.",
+      "Uploader Content Warranty: Any student or faculty contributor uploading notes, lab codes, or solutions warrants that they hold the requisite permissions to share such educational study aids and that their submission does not violate confidentiality or intellectual property rights.",
+      "Disclaimers of Academic Warranty: NimsWallah study materials and AI-generated assignment outlines are structured to assist conceptual mastery. The platform makes no guarantees of specific examination grades or institutional curriculum alignment.",
+      "Governing Law & Jurisdiction: These terms and conditions are governed by and construed in accordance with the laws of the Republic of India, with exclusive jurisdiction situated in Jaipur, Rajasthan.",
     ],
   },
-  "Academic Integrity & Honor": {
-    title: "Academic Integrity & Honor Code",
+  "DMCA & Copyright Policy": {
+    title: "DMCA & Copyright Infringement Takedown Policy",
+    subtitle: "Expedited Notice-and-Takedown Protocol for Copyright Holders & Academic Authors",
     content: [
-      "All AI-Generated Outlines, Solutions, And References Must Be Used For Conceptual Learning And Study Aid Purposes Only.",
-      "Direct Submission Of Unreviewed Material Is Strictly In Violation Of Academic Honor Guidelines.",
-      "We Encourage Rigorous Citation, Ethical Writing, And Thorough Personal Understanding.",
+      "Commitment To Copyright Compliance: NimsWallah respects all intellectual property rights and promptly addresses formal notices of alleged copyright infringement under applicable copyright acts and international standards.",
+      "Notice Submission Requirements: If you believe your copyrighted material is present on this platform without authorization, submit a formal notice to legal@nimswallah.in including: (1) Identification of the copyrighted work, (2) Direct URL/material identifier, (3) Proof of copyright ownership or legal authorization, and (4) Contact details with a statement of good faith.",
+      "24-Hour Expedited Material Review: Upon receipt of a valid copyright notice, our legal administration will immediately review and temporarily restrict or permanently remove the challenged material within 24 hours pending verification.",
+      "Repeat Infringer Policy: Contributing accounts that repeatedly upload non-compliant copyrighted documents will face immediate and permanent platform exclusion.",
     ],
   },
   "Data Security Policy": {
     title: "Data Security & Infrastructure Policy",
+    subtitle: "Container Sandboxing, End-to-End Encryption, and High-Availability Architecture",
     content: [
-      "Our Infrastructure Employs Automated SSL/TLS Protocols, Role-Based Access Controls, And Isolated Container Sandboxes.",
-      "Continuous Redundant Backups Ensure Zero Data Loss For Semester Course Notes And Saved Timetables.",
-      "Zero Unauthorized Access: Course Materials And Student Profiles Are Partitioned By Verified University Domains.",
+      "Zero-Trust Infrastructure: Our deployment architecture runs within isolated container sandboxes with automated TLS 1.3 certificates and hardened Linux environments.",
+      "Automated Database Redundancy: Student profiles, course configurations, and academic records are backed up with cryptographic verification to ensure 100% data durability.",
+      "Active Threat Mitigation: Automated rate-limiting, IP-level brute-force defense, and SQL injection firewalls protect all API endpoints against hostile network activity.",
     ],
   },
   "Security Policy": {
     title: "Data Security & Infrastructure Policy",
+    subtitle: "Container Sandboxing, End-to-End Encryption, and High-Availability Architecture",
     content: [
-      "Our Infrastructure Employs Automated SSL/TLS Protocols, Role-Based Access Controls, And Isolated Container Sandboxes.",
-      "Continuous Redundant Backups Ensure Zero Data Loss For Semester Course Notes And Saved Timetables.",
-      "Zero Unauthorized Access: Course Materials And Student Profiles Are Partitioned By Verified University Domains.",
+      "Zero-Trust Infrastructure: Our deployment architecture runs within isolated container sandboxes with automated TLS 1.3 certificates and hardened Linux environments.",
+      "Automated Database Redundancy: Student profiles, course configurations, and academic records are backed up with cryptographic verification to ensure 100% data durability.",
+      "Active Threat Mitigation: Automated rate-limiting, IP-level brute-force defense, and SQL injection firewalls protect all API endpoints against hostile network activity.",
     ],
   },
   "Cookie Preferences": {
-    title: "Cookie & Local Storage Policy",
+    title: "Cookie & Session Telemetry Policy",
+    subtitle: "Essential Functional Tokens Only · Zero Advertising Trackers",
     content: [
-      "We Use Essential Local Storage Tokens Only To Retain Your Active University Profile And Semester Preferences.",
-      "No Third-Party Tracking Pixels Or Intrusive Profiling Cookies Are Deployed.",
-      "You May Clear Your Cached Session Preferences At Any Time From Your Account Dashboard.",
-    ],
-  },
-  "System Uptime Status": {
-    title: "Platform Infrastructure & Service Status",
-    content: [
-      "Operational SLA: 99.98% Historical Uptime Across University Examination Seasons.",
-      "Real-Time CDN Redundancy Across Edge Server Clusters (Asia-South Pipeline).",
-      "All Microservices (Notes Pipeline, Assignment Engine, Timetable Sync) Are Currently 100% Fully Operational.",
+      "Essential Session Tokens: We utilize strictly essential HTTP cookies and local storage items solely to authenticate your login state, theme mode, and semester preferences.",
+      "Zero Advertising Trackers: We do not deploy third-party advertising cookies, fingerprinting pixels, or behavioral marketing trackers.",
+      "Complete User Control: You can clear your stored browser session data at any time via your browser settings or by signing out of your workspace.",
     ],
   },
 };
@@ -539,7 +552,7 @@ export function SiteFooter() {
               {currentPolicy?.title ?? activeModal}
             </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
-              Official University Guidelines &amp; Data Security Commitments
+              {currentPolicy?.subtitle || "Official Institutional Guidelines & Compliance Directives"}
             </DialogDescription>
           </DialogHeader>
 
