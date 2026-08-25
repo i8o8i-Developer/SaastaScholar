@@ -22,17 +22,25 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
   useEffect(() => {
     if (!enabled) return;
 
+    const overwriteClipboard = () => {
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(
+            "🔒 Protected Academic Material — Copyright NIMS University. Screen capture and copying are strictly prohibited."
+          );
+        }
+      } catch {
+      }
+    };
+
     const triggerBlackoutShield = (reason: string, durationMs = 3500) => {
       setIsScreenBlurred(true);
       setIsSecurityAlertActive(true);
+      overwriteClipboard();
 
-      // Overwrite clipboard immediately on screenshot shortcut attempt
       try {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText("🔒 Protected Academic Material — Copyright NIMS University. Redistribution is strictly prohibited.");
-        }
-      } catch (e) {
-        // Ignore clipboard write restrictions
+        window.getSelection()?.removeAllRanges();
+      } catch {
       }
 
       if (alertTimerRef.current) clearTimeout(alertTimerRef.current);
@@ -57,55 +65,95 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       }).catch(() => {});
     };
 
-    // Track keys for Snipping Tool heuristic
+    // 
     let isMetaPressed = false;
     let isShiftPressed = false;
+    let isCtrlPressed = false;
 
     const handleKeyTrackerDown = (e: KeyboardEvent) => {
       if (e.key === "Meta" || e.metaKey) isMetaPressed = true;
       if (e.key === "Shift" || e.shiftKey) isShiftPressed = true;
+      if (e.key === "Control" || e.ctrlKey) isCtrlPressed = true;
     };
+
     const handleKeyTrackerUp = (e: KeyboardEvent) => {
       if (e.key === "Meta") isMetaPressed = false;
       if (e.key === "Shift") isShiftPressed = false;
+      if (e.key === "Control") isCtrlPressed = false;
     };
 
     // 1. Intercept Right-Click Context Menu
     const handleContextMenu = (e: MouseEvent) => {
       e.preventDefault();
+      e.stopPropagation();
       triggerBlackoutShield("CONTEXT_MENU_BLOCKED", 2500);
       toast.error(toTitleCase("Right-Click Context Actions Are Disabled On DRM Documents."));
+      return false;
     };
 
-    // 2. Comprehensive Screenshot, DevTools & Print Interceptor
+    // 2. Intercept Copy, Cut, SelectStart & DragStart Events
+    const handleCopy = (e: ClipboardEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      overwriteClipboard();
+      triggerBlackoutShield("COPY_ATTEMPT_INTERCEPTED", 3000);
+      toast.error(toTitleCase("Text Selection And Copying Are Prohibited By DRM Policy."));
+      return false;
+    };
+
+    const handleCut = (e: ClipboardEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      overwriteClipboard();
+      triggerBlackoutShield("CUT_ATTEMPT_INTERCEPTED", 3000);
+      toast.error(toTitleCase("Document Content Extraction Is Strictly Restricted."));
+      return false;
+    };
+
+    const handleSelectStart = (e: Event) => {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    };
+
+    const handleDragStart = (e: DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      return false;
+    };
+
+    // 3. Comprehensive Screenshot, DevTools & Print Interceptor
     const handleKeyDown = (e: KeyboardEvent) => {
       const isCtrlOrMeta = e.ctrlKey || e.metaKey;
-      const key = e.key.toLowerCase();
+      const key = (e.key || "").toLowerCase();
+      const code = (e.code || "").toLowerCase();
 
-      // PrintScreen Key
-      if (e.key === "PrintScreen" || e.code === "PrintScreen" || key === "printscreen") {
+      // PrintScreen Key (PrtScn / PrintScreen)
+      if (e.key === "PrintScreen" || code === "printscreen" || key === "printscreen") {
         e.preventDefault();
         e.stopPropagation();
-        triggerBlackoutShield("SCREENSHOT_HOTKEY_DETECTED", 3000);
-        toast.error(toTitleCase("Screen Capture Intercepted. Blackout Engaged."));
+        overwriteClipboard();
+        triggerBlackoutShield("SCREENSHOT_HOTKEY_DETECTED", 3500);
+        toast.error(toTitleCase("Screen Capture Intercepted. Blackout Shield Engaged."));
         return;
       }
 
-      // Windows / Mac Snipping Combos (Ctrl+Shift+S, Meta+Shift+S, Cmd+Shift+3/4/5)
+      // Windows / Mac Snipping Combos (Win+Shift+S, Ctrl+Shift+S, Cmd+Shift+3/4/5/S, Alt+PrtScn)
       if (
-        (isCtrlOrMeta && e.shiftKey && (key === "s" || e.code === "KeyS")) ||
+        (isCtrlOrMeta && e.shiftKey && (key === "s" || code === "keys")) ||
         (e.metaKey && e.shiftKey && ["3", "4", "5", "s"].includes(key)) ||
-        (e.altKey && e.key === "PrintScreen")
+        (e.altKey && (e.key === "PrintScreen" || code === "printscreen"))
       ) {
         e.preventDefault();
         e.stopPropagation();
-        triggerBlackoutShield("SNIPPING_TOOL_SHORTCUT", 3000);
+        overwriteClipboard();
+        triggerBlackoutShield("SNIPPING_TOOL_SHORTCUT", 4000);
         toast.error(toTitleCase("Snipping Tool Shortcut Intercepted."));
         return;
       }
 
       // Print Prevention: Ctrl+P / Cmd+P
-      if (isCtrlOrMeta && (key === "p" || e.code === "KeyP")) {
+      if (isCtrlOrMeta && (key === "p" || code === "keyp")) {
         e.preventDefault();
         e.stopPropagation();
         triggerBlackoutShield("PRINT_BLOCKED", 3000);
@@ -114,7 +162,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       }
 
       // Save Webpage: Ctrl+S / Cmd+S
-      if (isCtrlOrMeta && (key === "s" || e.code === "KeyS")) {
+      if (isCtrlOrMeta && (key === "s" || code === "keys")) {
         e.preventDefault();
         e.stopPropagation();
         triggerBlackoutShield("SAVE_BLOCKED", 2500);
@@ -125,7 +173,8 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       // View Source / Inspection: Ctrl+U, F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C
       if (
         e.key === "F12" ||
-        (isCtrlOrMeta && key === "u") ||
+        code === "f12" ||
+        (isCtrlOrMeta && (key === "u" || code === "keyu")) ||
         (isCtrlOrMeta && e.shiftKey && ["i", "j", "c"].includes(key)) ||
         (e.metaKey && e.altKey && ["i", "j", "c", "u"].includes(key))
       ) {
@@ -141,17 +190,26 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       if (isCtrlOrMeta && ["a", "c", "x"].includes(key)) {
         e.preventDefault();
         e.stopPropagation();
-        triggerBlackoutShield("COPY_BLOCKED", 2000);
+        overwriteClipboard();
+        triggerBlackoutShield("COPY_BLOCKED", 2500);
         toast.error(toTitleCase("Text Selection And Copying Are Prohibited."));
         return;
       }
     };
 
-    // 3. Tab Visibility & Snipping Tool Blur Heuristic
+    // 4. Window Focus Blur (Snipping Tool / Screenshot Grabber Activation Detection)
     const handleBlur = () => {
-      if (isMetaPressed && isShiftPressed) {
-        triggerBlackoutShield("SNIPPING_TOOL_SHORTCUT", 5000);
-        toast.error(toTitleCase("Snipping Tool Intercepted."));
+      if (isMetaPressed || isShiftPressed || isCtrlPressed) {
+        triggerBlackoutShield("SNIPPING_TOOL_OVERLAY_ACTIVE", 4500);
+        toast.error(toTitleCase("Screen Capture Utility Intercepted."));
+      } else {
+        setIsScreenBlurred(true);
+      }
+    };
+
+    const handleFocus = () => {
+      if (!isSecurityAlertActive) {
+        setIsScreenBlurred(false);
       }
     };
 
@@ -159,12 +217,13 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       if (document.hidden) {
         setIsScreenBlurred(true);
       } else {
-        setIsScreenBlurred(false);
-        setIsSecurityAlertActive(false);
+        if (!isSecurityAlertActive) {
+          setIsScreenBlurred(false);
+        }
       }
     };
 
-    // 4. Native Print Media Query Listener
+    // 5. Native Print Media Query Listener
     const mediaQueryList = window.matchMedia("print");
     const handlePrintChange = (mql: MediaQueryListEvent | MediaQueryList) => {
       if (mql.matches) {
@@ -173,11 +232,16 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
     };
 
     window.addEventListener("beforeprint", () => triggerBlackoutShield("PRINT_DIALOG_DETECTED", 4000));
-    window.addEventListener("contextmenu", handleContextMenu);
+    window.addEventListener("contextmenu", handleContextMenu, true);
+    window.addEventListener("copy", handleCopy, true);
+    window.addEventListener("cut", handleCut, true);
+    window.addEventListener("selectstart", handleSelectStart, true);
+    window.addEventListener("dragstart", handleDragStart, true);
     window.addEventListener("keydown", handleKeyTrackerDown, true);
     window.addEventListener("keyup", handleKeyTrackerUp, true);
     window.addEventListener("keydown", handleKeyDown, true);
     window.addEventListener("blur", handleBlur);
+    window.addEventListener("focus", handleFocus);
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
     if (mediaQueryList.addEventListener) {
@@ -188,11 +252,16 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
 
     return () => {
       if (alertTimerRef.current) clearTimeout(alertTimerRef.current);
-      window.removeEventListener("contextmenu", handleContextMenu);
+      window.removeEventListener("contextmenu", handleContextMenu, true);
+      window.removeEventListener("copy", handleCopy, true);
+      window.removeEventListener("cut", handleCut, true);
+      window.removeEventListener("selectstart", handleSelectStart, true);
+      window.removeEventListener("dragstart", handleDragStart, true);
       window.removeEventListener("keydown", handleKeyTrackerDown, true);
       window.removeEventListener("keyup", handleKeyTrackerUp, true);
       window.removeEventListener("keydown", handleKeyDown, true);
       window.removeEventListener("blur", handleBlur);
+      window.removeEventListener("focus", handleFocus);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       if (mediaQueryList.removeEventListener) {
         mediaQueryList.removeEventListener("change", handlePrintChange);
@@ -200,7 +269,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
         mediaQueryList.removeListener(handlePrintChange);
       }
     };
-  }, [enabled, materialId]);
+  }, [enabled, materialId, isSecurityAlertActive]);
 
   return {
     isScreenBlurred,

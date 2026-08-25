@@ -263,19 +263,20 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
       )}
 
       {/* Top DRM Reader Toolbar */}
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/80 bg-card/95 px-4 py-3 sm:px-6 backdrop-blur-md shrink-0 shadow-2xs">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-1.5 xs:gap-2 sm:gap-3 border-b border-border/80 bg-card/95 px-2 xs:px-3 sm:px-6 py-2 xs:py-3 backdrop-blur-md shrink-0 shadow-2xs min-w-0">
+        <div className="flex items-center gap-1.5 xs:gap-3 min-w-0">
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface px-3 py-1.5 text-xs font-bold text-foreground hover:bg-surface/80 hover:border-primary/50 active:scale-95 transition-all cursor-pointer shadow-2xs"
+            className="inline-flex items-center gap-1 rounded-xl border border-border bg-surface px-2 xs:px-3 py-1.5 text-xs font-bold text-foreground hover:bg-surface/80 hover:border-primary/50 active:scale-95 transition-all cursor-pointer shadow-2xs shrink-0"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            <span>Return To Dashboard</span>
+            <span className="hidden xs:inline">Return To Dashboard</span>
+            <span className="xs:hidden">Back</span>
           </button>
 
-          <div className="hidden md:flex items-center gap-2">
-            <span className="font-mono text-xs font-bold text-primary bg-primary/10 px-2.5 py-0.5 rounded-lg border border-primary/20">
+          <div className="hidden md:flex items-center gap-2 min-w-0">
+            <span className="font-mono text-xs font-bold text-primary bg-primary/10 px-2.5 py-0.5 rounded-lg border border-primary/20 shrink-0">
               {payload.subject_code}
             </span>
             <span className="text-xs font-bold text-foreground truncate max-w-sm">
@@ -285,34 +286,34 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
         </div>
 
         {/* Center Page Navigator */}
-        <div className="flex items-center gap-1.5 text-xs bg-surface/80 p-1 rounded-2xl border border-border/80 shadow-2xs">
+        <div className="flex items-center gap-1 text-[0.65rem] xs:text-xs bg-surface/80 p-0.5 xs:p-1 rounded-xl xs:rounded-2xl border border-border/80 shadow-2xs shrink-0">
           <button
             type="button"
             onClick={handlePrevPage}
             disabled={currentPage <= 1}
-            className="grid h-7 w-7 place-items-center rounded-xl bg-card text-foreground disabled:opacity-30 disabled:cursor-not-allowed hover:bg-surface active:scale-90 transition-all cursor-pointer border border-border/60"
+            className="grid h-6 w-6 xs:h-7 xs:w-7 place-items-center rounded-lg xs:rounded-xl bg-card text-foreground disabled:opacity-30 disabled:cursor-not-allowed hover:bg-surface active:scale-90 transition-all cursor-pointer border border-border/60"
             title="Previous Page"
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-3.5 w-3.5 xs:h-4 xs:w-4" />
           </button>
 
-          <span className="font-mono font-bold text-foreground px-2.5 text-xs select-none">
-            Page {currentPage} / {payload.total_pages}
+          <span className="font-mono font-bold text-foreground px-1.5 xs:px-2.5 text-[0.65rem] xs:text-xs select-none">
+            {currentPage} / {payload.total_pages}
           </span>
 
           <button
             type="button"
             onClick={handleNextPage}
             disabled={currentPage >= payload.total_pages}
-            className="grid h-7 w-7 place-items-center rounded-xl bg-card text-foreground disabled:opacity-30 disabled:cursor-not-allowed hover:bg-surface active:scale-90 transition-all cursor-pointer border border-border/60"
+            className="grid h-6 w-6 xs:h-7 xs:w-7 place-items-center rounded-lg xs:rounded-xl bg-card text-foreground disabled:opacity-30 disabled:cursor-not-allowed hover:bg-surface active:scale-90 transition-all cursor-pointer border border-border/60"
             title="Next Page"
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-3.5 w-3.5 xs:h-4 xs:w-4" />
           </button>
         </div>
 
         {/* Right Tools (Mode Toggle, Zoom, Fullscreen) */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 xs:gap-2 shrink-0">
           {/* Document View Toggle */}
           {(payload.file_url || pageData.file_url) && (
             <div className="flex items-center gap-1 bg-surface/80 p-1 rounded-2xl border border-border/80 text-xs shadow-2xs">
@@ -386,30 +387,31 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
           body * { display: none !important; }
           body { background: #000000 !important; }
         }
-        .drm-protected-content {
+        .drm-protected-content, .drm-protected-content * {
           user-select: none !important;
           -webkit-user-select: none !important;
           -moz-user-select: none !important;
           -ms-user-select: none !important;
+          -webkit-touch-callout: none !important;
         }
       `}</style>
 
       {/* Main Secure Canvas Reading Zone with Dynamic Watermark */}
       <div
         className={cn(
-          "relative flex-1 overflow-y-auto p-4 sm:p-8 flex justify-center items-start drm-protected-content transition-all duration-75",
+          "relative flex-1 overflow-y-auto p-2 xs:p-4 sm:p-8 flex justify-center items-start drm-protected-content transition-all duration-75 min-w-0 w-full",
           isScreenBlurred ? "hidden opacity-0 pointer-events-none select-none invisible" : "flex"
         )}
       >
         {/* Dynamic Watermark Background Grid Overlay */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 z-20 flex flex-wrap items-center justify-around gap-12 p-4 opacity-[0.11] dark:opacity-[0.08] overflow-hidden select-none"
+          className="pointer-events-none absolute inset-0 z-20 flex flex-wrap items-center justify-around gap-8 sm:gap-12 p-2 sm:p-4 opacity-[0.12] dark:opacity-[0.08] overflow-hidden select-none"
         >
           {Array.from({ length: 30 }).map((_, i) => (
-            <div key={i} className="rotate-[-26deg] text-center font-mono text-xs font-bold tracking-widest uppercase select-none">
+            <div key={i} className="rotate-[-26deg] text-center font-mono text-[0.6rem] sm:text-xs font-bold tracking-widest uppercase select-none">
               <p className="text-emerald-700 dark:text-emerald-300 drop-shadow-xs">{user?.full_name || payload.watermark.student_name} · {user?.roll_number || payload.watermark.roll_number}</p>
-              <p className="text-[0.65rem] text-muted-foreground font-semibold">NIMS DRM · {payload.watermark.ip_address} · {payload.watermark.session_hash}</p>
+              <p className="text-[0.55rem] sm:text-[0.65rem] text-muted-foreground font-semibold">NIMS DRM · {payload.watermark.ip_address} · {payload.watermark.session_hash}</p>
             </div>
           ))}
         </div>
@@ -417,44 +419,50 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
         {/* Paper Container: Full Page Crystal Clear Reading */}
         <div
           style={{ transform: `scale(${zoomLevel / 100})`, transformOrigin: "top center" }}
-          className="relative z-10 w-full max-w-4xl rounded-3xl border border-border/80 bg-card text-foreground p-5 sm:p-8 shadow-lg transition-transform duration-200 overflow-hidden select-none"
+          className="relative z-10 w-full max-w-4xl rounded-2xl sm:rounded-3xl border border-border/80 bg-card text-foreground p-3 xs:p-5 sm:p-8 shadow-lg transition-transform duration-200 overflow-hidden select-none min-w-0"
         >
           {readerViewMode === "document" && payload.file_ext === "pdf" && (payload.file_url || pageData.file_url) ? (
-            <div className="space-y-4">
-              <div className="border-b border-border/60 pb-3 flex items-center justify-between">
-                <div>
-                  <span className="text-[0.65rem] uppercase tracking-wider font-bold text-rose-600 dark:text-rose-400 font-mono bg-rose-500/10 px-2 py-0.5 rounded-md border border-rose-500/20">
-                    {payload.subject_code} · PDF DOCUMENT
+            <div className="space-y-3 sm:space-y-4 min-w-0">
+              <div className="border-b border-border/60 pb-2 sm:pb-3 flex flex-wrap items-center justify-between gap-2">
+                <div className="min-w-0">
+                  <span className="text-[0.6rem] sm:text-[0.65rem] uppercase tracking-wider font-bold text-rose-600 dark:text-rose-400 font-mono bg-rose-500/10 px-2 py-0.5 rounded-md border border-rose-500/20">
+                    {payload.subject_code} · PDF DOCUMENT (VIEW-ONLY)
                   </span>
-                  <h2 className="text-xl font-bold mt-1 text-foreground">{payload.title}</h2>
-                  <p className="text-[0.7rem] text-muted-foreground">{payload.file_name || "Official Courseware Document"}</p>
+                  <h2 className="text-base sm:text-xl font-bold mt-1 text-foreground truncate">{payload.title}</h2>
+                  <p className="text-[0.65rem] sm:text-[0.7rem] text-muted-foreground truncate">{payload.file_name || "Official Courseware Document"}</p>
                 </div>
               </div>
-              <div className="w-full h-[72vh] rounded-2xl overflow-hidden bg-background border border-border/80 shadow-inner">
+              <div className="relative w-full h-[60vh] xs:h-[68vh] sm:h-[74vh] rounded-xl sm:rounded-2xl overflow-hidden bg-background border border-border/80 shadow-inner select-none">
                 <iframe
-                  src={`${pageData.file_url || payload.file_url}#toolbar=0&navpanes=0`}
-                  className="w-full h-full border-0 rounded-2xl"
+                  src={`${pageData.file_url || payload.file_url}#toolbar=0&navpanes=0&scrollbar=0`}
+                  className="w-full h-full border-0 rounded-xl sm:rounded-2xl pointer-events-auto select-none"
                   title="PDF Document Preview"
+                />
+                {/* Non-Intrusive DRM Gesture Shield Layer */}
+                <div
+                  onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                  onCopy={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                  className="absolute inset-0 pointer-events-none select-none z-10"
                 />
               </div>
             </div>
           ) : (
             <div
               dangerouslySetInnerHTML={{ __html: pageData.content_html }}
-              className="prose prose-sm max-w-none font-sans leading-relaxed select-none"
+              className="prose prose-sm max-w-none font-sans leading-relaxed select-none min-w-0 overflow-hidden break-words text-xs sm:text-sm"
             />
           )}
 
           {/* Page Footer Security Signature */}
-          <div className="mt-10 pt-4 border-t border-current/20 flex items-center justify-between text-[0.65rem] font-mono opacity-60">
+          <div className="mt-6 sm:mt-10 pt-3 sm:pt-4 border-t border-current/20 flex flex-wrap items-center justify-between text-[0.6rem] sm:text-[0.65rem] font-mono opacity-60 gap-1">
             <span>NimsWallah Academic DRM Pipeline · Page {currentPage} Of {payload.total_pages}</span>
-            <span>Watermark ID: {user?.roll_number || payload.watermark.roll_number}</span>
+            <span>Student ID: {user?.roll_number || payload.watermark.roll_number}</span>
           </div>
         </div>
       </div>
 
       {/* Reader Bottom Bar */}
-      <div className="border-t border-border/80 bg-card/90 px-4 py-2 text-center text-[0.7rem] text-muted-foreground shrink-0 font-medium select-none flex items-center justify-between">
+      <div className="border-t border-border/80 bg-card/90 px-3 sm:px-4 py-2 text-center text-[0.65rem] sm:text-[0.7rem] text-muted-foreground shrink-0 font-medium select-none flex flex-wrap items-center justify-between gap-1">
         <span className="hidden sm:inline">🔒 Strictly View-Only Protected Academic Record · High-Frequency Forensic Telemetry Active</span>
         <span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold mx-auto sm:mx-0">
           Forensic ID: {user?.roll_number || payload.watermark.roll_number}

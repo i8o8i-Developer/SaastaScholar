@@ -318,31 +318,31 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
       {/* ===================== Mobile Drawer ===================== */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 flex lg:hidden bg-black/60 backdrop-blur-xs">
-          <div className="flex h-full w-72 flex-col justify-between bg-card p-5 shadow-2xl">
-            <div>
+          <div className="flex h-full w-[85vw] max-w-xs flex-col justify-between bg-card p-3 xs:p-5 shadow-2xl">
+            <div className="min-w-0">
               <div className="flex items-center justify-between border-b border-border pb-3">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 min-w-0">
                   <img
                     src="/NIMSWallah.png"
                     onError={(e) => {
                       e.currentTarget.src = "/favicon.png";
                     }}
                     alt="Logo"
-                    className="h-7 w-7 object-contain"
+                    className="h-7 w-7 object-contain shrink-0"
                   />
-                  <span className="font-bold text-sm bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
+                  <span className="font-bold text-sm bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent truncate">
                     NimsWallah
                   </span>
                 </div>
                 <button
                   onClick={() => setMobileOpen(false)}
-                  className="rounded-xl p-1.5 hover:bg-surface text-muted-foreground hover:text-foreground cursor-pointer"
+                  className="rounded-xl p-1.5 hover:bg-surface text-muted-foreground hover:text-foreground cursor-pointer shrink-0"
                 >
                   <X className="h-5 w-5" />
                 </button>
               </div>
 
-              <div className="overflow-y-auto py-4 space-y-1.5">
+              <div className="overflow-y-auto py-3 space-y-1 max-h-[calc(100vh-140px)]">
                 {NAV_ITEMS.map((item) => {
                   const Icon = item.icon;
                   const isActive = activeTab === item.id;
@@ -356,20 +356,20 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
                       key={item.id}
                       onClick={() => handleNavClick(item.id)}
                       className={cn(
-                        "flex w-full items-center justify-between rounded-2xl px-3.5 py-2.5 text-xs font-semibold cursor-pointer transition-all",
+                        "flex w-full items-center justify-between rounded-xl xs:rounded-2xl px-2.5 xs:px-3.5 py-2 xs:py-2.5 text-xs font-semibold cursor-pointer transition-all",
                         isActive
                           ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-600/25"
                           : "text-muted-foreground hover:bg-surface hover:text-foreground",
                       )}
                     >
-                      <div className="flex items-center gap-3">
-                        <Icon className="h-4 w-4" />
-                        <span>{item.label}</span>
+                      <div className="flex items-center gap-2 xs:gap-3 min-w-0">
+                        <Icon className="h-4 w-4 shrink-0" />
+                        <span className="truncate">{item.label}</span>
                       </div>
                       {hasBadge && (
                         <span
                           className={cn(
-                            "rounded-full px-2 py-0.5 text-[0.6rem] font-bold",
+                            "rounded-full px-1.5 xs:px-2 py-0.5 text-[0.55rem] xs:text-[0.6rem] font-bold shrink-0",
                             variant === "amber"
                               ? "bg-amber-500/15 text-amber-600 dark:text-amber-400"
                               : variant === "purple"
@@ -392,10 +392,10 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
               </div>
             </div>
 
-            <div className="pt-3 border-t border-border space-y-2">
+            <div className="pt-2 xs:pt-3 border-t border-border space-y-2">
               <button
                 onClick={logout}
-                className="flex w-full items-center justify-center gap-2 rounded-2xl border border-rose-500/20 bg-rose-500/5 p-2.5 text-xs font-bold text-rose-500 hover:bg-rose-500/10 cursor-pointer transition-all active:scale-95"
+                className="flex w-full items-center justify-center gap-2 rounded-xl xs:rounded-2xl border border-rose-500/20 bg-rose-500/5 p-2 xs:p-2.5 text-xs font-bold text-rose-500 hover:bg-rose-500/10 cursor-pointer transition-all active:scale-95"
               >
                 <LogOut className="h-4 w-4" />
                 <span>Sign Out Of Workspace</span>
@@ -408,14 +408,14 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
       {/* ===================== Main Routed Content & Header ===================== */}
       <div className="flex flex-1 flex-col min-w-0 overflow-hidden h-screen">
         {/* Top Header */}
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border/80 bg-card/85 px-4 sm:px-8 backdrop-blur-md shrink-0">
-          <div className="flex items-center gap-3 min-w-0">
+        <header className="sticky top-0 z-30 flex h-14 sm:h-16 items-center justify-between border-b border-border/80 bg-card/85 px-2 xs:px-4 sm:px-8 backdrop-blur-md shrink-0">
+          <div className="flex items-center gap-2 xs:gap-3 min-w-0">
             <button
               type="button"
               onClick={() => setMobileOpen(true)}
-              className="grid h-9 w-9 place-items-center rounded-xl border border-border bg-surface text-foreground lg:hidden cursor-pointer"
+              className="grid h-8 w-8 xs:h-9 xs:w-9 place-items-center rounded-xl border border-border bg-surface text-foreground lg:hidden cursor-pointer shrink-0"
             >
-              <Menu className="h-5 w-5" />
+              <Menu className="h-4 w-4 xs:h-5 xs:w-5" />
             </button>
 
             {/* Program & Semester Badge */}
@@ -430,14 +430,14 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
           </div>
 
           {/* Quick Header Tools (Search Trigger, Notifications, User) */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-1.5 xs:gap-2.5">
             {/* Search Trigger Button */}
             <button
               type="button"
               onClick={() => onSelectTab("notes")}
-              className="flex items-center gap-2 rounded-2xl border border-border bg-surface px-3 py-1.5 text-xs text-muted-foreground hover:border-primary/50 hover:text-foreground transition-all cursor-pointer shadow-2xs"
+              className="flex items-center gap-1.5 xs:gap-2 rounded-xl xs:rounded-2xl border border-border bg-surface px-2 xs:px-3 py-1.5 text-xs text-muted-foreground hover:border-primary/50 hover:text-foreground transition-all cursor-pointer shadow-2xs"
             >
-              <Search className="h-3.5 w-3.5 text-primary" />
+              <Search className="h-3.5 w-3.5 text-primary shrink-0" />
               <span className="hidden md:inline font-medium">Search Courseware...</span>
             </button>
 
@@ -446,7 +446,7 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
               <button
                 type="button"
                 onClick={() => setNotificationsOpen(!notificationsOpen)}
-                className="relative grid h-9 w-9 place-items-center rounded-xl border border-border bg-surface text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors cursor-pointer"
+                className="relative grid h-8 w-8 xs:h-9 xs:w-9 place-items-center rounded-xl border border-border bg-surface text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors cursor-pointer"
               >
                 <Bell className="h-4 w-4" />
                 {unreadCount > 0 && (
@@ -456,18 +456,18 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
 
               {/* Notification Modal / Popover Dropdown */}
               {notificationsOpen && (
-                <div className="absolute right-0 mt-3 w-80 sm:w-96 rounded-3xl border border-border bg-card p-4 shadow-2xl z-50 animate-in fade-in zoom-in-95">
-                  <div className="flex items-center justify-between border-b border-border/80 pb-3">
-                    <div className="flex items-center gap-2">
-                      <Bell className="h-4 w-4 text-primary" />
-                      <h3 className="font-display font-bold text-sm text-foreground">
-                        Official Academic Notifications
+                <div className="absolute right-[-3rem] xs:right-0 mt-3 w-[calc(100vw-1.5rem)] max-w-sm rounded-2xl xs:rounded-3xl border border-border bg-card p-3 xs:p-4 shadow-2xl z-50 animate-in fade-in zoom-in-95">
+                  <div className="flex items-center justify-between border-b border-border/80 pb-2.5 xs:pb-3">
+                    <div className="flex items-center gap-1.5 xs:gap-2">
+                      <Bell className="h-4 w-4 text-primary shrink-0" />
+                      <h3 className="font-display font-bold text-xs xs:text-sm text-foreground truncate">
+                        Academic Notifications
                       </h3>
                     </div>
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1">
                       {unreadCount > 0 && (
-                        <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[0.65rem] font-bold text-emerald-600 dark:text-emerald-400">
-                          {unreadCount} Unread
+                        <span className="rounded-full bg-emerald-500/10 px-1.5 xs:px-2 py-0.5 text-[0.55rem] xs:text-[0.65rem] font-bold text-emerald-600 dark:text-emerald-400 shrink-0">
+                          {unreadCount} New
                         </span>
                       )}
                       <button
@@ -481,20 +481,20 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
                   </div>
 
                   {/* Responsive Action Buttons Bar */}
-                  <div className="grid grid-cols-2 gap-2 my-3">
+                  <div className="grid grid-cols-2 gap-1.5 xs:gap-2 my-2.5 xs:my-3">
                     <button
                       type="button"
                       onClick={handleMarkAllNotificationsRead}
                       disabled={unreadCount === 0}
                       className={cn(
-                        "flex items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold transition-all cursor-pointer shadow-2xs",
+                        "flex items-center justify-center gap-1 rounded-xl px-2 xs:px-3 py-1.5 xs:py-2 text-[0.65rem] xs:text-xs font-bold transition-all cursor-pointer shadow-2xs",
                         unreadCount > 0
                           ? "bg-primary/10 text-primary hover:bg-primary hover:text-primary-foreground active:scale-95"
                           : "bg-surface text-muted-foreground/50 border border-border cursor-not-allowed",
                       )}
                     >
-                      <CheckCheck className="h-3.5 w-3.5" />
-                      <span>Mark As Read</span>
+                      <CheckCheck className="h-3 w-3 xs:h-3.5 xs:w-3.5 shrink-0" />
+                      <span className="truncate">Mark Read</span>
                     </button>
 
                     <button
@@ -502,26 +502,24 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
                       onClick={handleClearAllNotifications}
                       disabled={notifications.length === 0}
                       className={cn(
-                        "flex items-center justify-center gap-1.5 rounded-xl px-3 py-2 text-xs font-bold transition-all cursor-pointer shadow-2xs",
+                        "flex items-center justify-center gap-1 rounded-xl px-2 xs:px-3 py-1.5 xs:py-2 text-[0.65rem] xs:text-xs font-bold transition-all cursor-pointer shadow-2xs",
                         notifications.length > 0
                           ? "bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white active:scale-95"
                           : "bg-surface text-muted-foreground/50 border border-border cursor-not-allowed",
                       )}
                     >
-                      <Trash2 className="h-3.5 w-3.5" />
-                      <span>Clear All</span>
+                      <Trash2 className="h-3 w-3 xs:h-3.5 xs:w-3.5 shrink-0" />
+                      <span className="truncate">Clear All</span>
                     </button>
                   </div>
 
                   {/* Notification Items List */}
-                  <div className="space-y-2.5 max-h-[320px] overflow-y-auto pr-1 scrollbar-thin">
+                  <div className="space-y-2 max-h-[280px] xs:max-h-[320px] overflow-y-auto pr-1 scrollbar-thin">
                     {notifications.length === 0 ? (
-                      <div className="py-8 text-center text-xs text-muted-foreground">
-                        <CheckCircle2 className="h-9 w-9 text-emerald-500 mx-auto mb-2 opacity-60" />
-                        <p className="font-bold text-sm text-foreground">Inbox Is Clean</p>
-                        <p className="text-xs text-muted-foreground mt-1 max-w-[240px] mx-auto">
-                          You Have Read All Current Department Examination &amp; Academic Circulars.
-                        </p>
+                      <div className="py-6 xs:py-8 text-center text-xs text-muted-foreground">
+                        <CheckCircle2 className="h-8 w-8 text-emerald-500 mx-auto mb-2 opacity-60" />
+                        <p className="font-bold text-foreground">You Are All Caught Up!</p>
+                        <p className="text-[0.65rem] mt-0.5">No Unread Notices In Your Pipeline.</p>
                       </div>
                     ) : (
                       notifications.map((item) => (
@@ -529,27 +527,29 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
                           key={item.id}
                           onClick={() => handleToggleNotificationRead(item.id)}
                           className={cn(
-                            "group rounded-2xl border p-3.5 text-xs transition-all cursor-pointer hover:scale-[1.01] active:scale-[0.99]",
+                            "rounded-xl xs:rounded-2xl border p-2.5 xs:p-3 text-xs transition-all cursor-pointer group",
                             item.is_read
-                              ? "border-border/50 bg-surface/40 opacity-75 hover:opacity-100"
-                              : "border-emerald-500/40 bg-emerald-500/5 shadow-xs hover:border-emerald-500/70",
+                              ? "border-border/50 bg-card/40 opacity-75 hover:opacity-100 hover:bg-surface/50"
+                              : "border-emerald-500/30 bg-emerald-500/5 hover:border-emerald-500/50 hover:bg-emerald-500/10",
                           )}
                         >
-                          <div className="flex items-center justify-between">
-                            <span className="rounded-lg bg-primary/10 text-primary px-2 py-0.5 text-[0.65rem] font-bold">
+                          <div className="flex items-center justify-between gap-1 mb-1">
+                            <span className="rounded-md bg-surface px-1.5 py-0.5 text-[0.6rem] font-bold font-mono text-primary truncate max-w-[120px]">
                               {item.category}
                             </span>
-                            <span className="text-[0.65rem] text-muted-foreground font-mono">{item.time}</span>
+                            <span className="text-[0.6rem] font-mono text-muted-foreground shrink-0">
+                              {item.time}
+                            </span>
                           </div>
 
-                          <h4 className="mt-2 font-bold text-foreground text-xs leading-snug group-hover:text-primary transition-colors">
+                          <h4 className="font-bold text-foreground text-xs leading-snug break-words">
                             {item.title}
                           </h4>
-                          <p className="mt-1 text-[0.75rem] text-muted-foreground leading-relaxed">
+                          <p className="mt-1 text-[0.7rem] text-muted-foreground line-clamp-2 leading-relaxed break-words">
                             {item.content}
                           </p>
 
-                          <div className="mt-2.5 flex items-center justify-between pt-2 border-t border-border/40 text-[0.65rem] text-muted-foreground">
+                          <div className="mt-2 flex items-center justify-between pt-1.5 border-t border-border/40 text-[0.6rem] text-muted-foreground">
                             <span>{item.is_read ? "Status: Read" : "Status: Unread"}</span>
                             <span className="text-primary font-bold opacity-0 group-hover:opacity-100 transition-opacity">
                               {item.is_read ? "Click To Mark Unread" : "Click To Mark Read"}
@@ -568,9 +568,9 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
               <button
                 type="button"
                 onClick={() => setUserDropdownOpen(!userDropdownOpen)}
-                className="flex items-center gap-2 rounded-xl border border-border bg-surface p-1.5 sm:px-2.5 transition-colors hover:border-primary/50 cursor-pointer"
+                className="flex items-center gap-1.5 rounded-xl border border-border bg-surface p-1 xs:p-1.5 sm:px-2.5 transition-colors hover:border-primary/50 cursor-pointer shrink-0"
               >
-                <div className="grid h-6 w-6 place-items-center rounded-lg bg-primary text-primary-foreground text-xs font-bold overflow-hidden">
+                <div className="grid h-6 w-6 place-items-center rounded-lg bg-primary text-primary-foreground text-xs font-bold overflow-hidden shrink-0">
                   {user?.avatar_url ? (
                     <img
                       src={user.avatar_url}
@@ -583,14 +583,14 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
                   ) : null}
                   <span className="font-bold">{user?.full_name?.charAt(0) || "S"}</span>
                 </div>
-                <span className="hidden sm:inline font-bold text-xs text-foreground">
+                <span className="hidden sm:inline font-bold text-xs text-foreground truncate max-w-[80px]">
                   {user?.full_name?.split(" ")[0] || "Scholar"}
                 </span>
-                <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                <ChevronDown className="h-3 w-3 xs:h-3.5 xs:w-3.5 text-muted-foreground shrink-0" />
               </button>
 
               {userDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-56 rounded-2xl border border-border bg-card p-2 shadow-xl z-50 space-y-1">
+                <div className="absolute right-0 mt-2 w-[calc(100vw-1.5rem)] max-w-[14rem] rounded-2xl border border-border bg-card p-2 shadow-xl z-50 space-y-1">
                   <div className="p-2 border-b border-border/60">
                     <p className="font-bold text-xs text-foreground truncate">{user?.full_name}</p>
                     <p className="text-[0.65rem] text-muted-foreground truncate">{user?.email}</p>
@@ -602,15 +602,15 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
                     }}
                     className="flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-semibold text-foreground hover:bg-surface cursor-pointer"
                   >
-                    <User className="h-3.5 w-3.5 text-primary" />
-                    <span>Academic Profile Settings</span>
+                    <User className="h-3.5 w-3.5 text-primary shrink-0" />
+                    <span className="truncate">Profile Settings</span>
                   </button>
                   <button
                     onClick={logout}
                     className="flex w-full items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-bold text-rose-500 hover:bg-rose-500/10 cursor-pointer"
                   >
-                    <LogOut className="h-3.5 w-3.5" />
-                    <span>Sign Out Of Workspace</span>
+                    <LogOut className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">Sign Out</span>
                   </button>
                 </div>
               )}
@@ -619,7 +619,7 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
         </header>
 
         {/* Routed Dashboard Page Canvas */}
-        <main className="flex-1 overflow-y-auto p-4 sm:p-8 bg-background scrollbar-thin min-w-0">
+        <main className="flex-1 overflow-y-auto p-2 xs:p-4 sm:p-6 lg:p-8 bg-background scrollbar-thin min-w-0 overflow-x-hidden">
           {children}
         </main>
       </div>
