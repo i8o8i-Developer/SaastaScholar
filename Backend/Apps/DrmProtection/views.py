@@ -35,7 +35,7 @@ class GlobalDrmConfigView(APIView):
         try:
             config = GlobalDrmConfig.get_config()
             return Response({
-                "is_drm_enabled": getattr(config, "is_drm_enabled", True),
+                "is_drm_enabled": bool(getattr(config, "is_drm_enabled", True)),
                 "updated_at": getattr(config, "updated_at", None),
             })
         except Exception:
@@ -51,39 +51,39 @@ class GlobalDrmConfigView(APIView):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
+        enabled = request.data.get("is_drm_enabled", True)
+        is_enabled = bool(enabled)
+
         try:
-            enabled = request.data.get("is_drm_enabled", True)
             config = GlobalDrmConfig.get_config()
-            config.is_drm_enabled = bool(enabled)
+            config.is_drm_enabled = is_enabled
             config.updated_by = request.user
             try:
                 config.save()
             except Exception:
                 pass
+        except Exception:
+            pass
 
-            # Log Administrative Action
-            try:
-                from Apps.Accounts.models import AdminAuditLog, ActionType
-                AdminAuditLog.objects.create(
-                    admin_user=request.user,
-                    admin_email=request.user.email,
-                    action_type=ActionType.GLOBAL_BULK_RESET if not config.is_drm_enabled else ActionType.UNBLOCK_DRM,
-                    reason=f"Administrator {'ACTIVATED' if config.is_drm_enabled else 'COMPLETELY STOPPED'} Master DRM Protection Platform-Wide Across All Materials & Sections.",
-                    target_name="All Students & Materials",
-                    target_email="platform-wide",
-                )
-            except Exception:
-                pass
+        # Log Administrative Action to Audit Log
+        try:
+            from Apps.Accounts.models import AdminAuditLog, ActionType
+            AdminAuditLog.objects.create(
+                actor=request.user,
+                actor_email=request.user.email,
+                actor_name=getattr(request.user, "full_name", "") or request.user.email,
+                action_type=ActionType.GLOBAL_BULK_RESET if not is_enabled else ActionType.UNBLOCK_DRM,
+                reason=f"Administrator {'ACTIVATED' if is_enabled else 'COMPLETELY STOPPED'} Master DRM Protection Platform-Wide Across All Materials & Sections.",
+                target_name="All Students & Materials",
+                target_email="platform-wide",
+            )
+        except Exception:
+            pass
 
-            return Response({
-                "is_drm_enabled": config.is_drm_enabled,
-                "message": f"Master DRM Protection Engine Is Now {'ACTIVELY ENFORCED' if config.is_drm_enabled else 'COMPLETELY STOPPED'} Platform-Wide.",
-            })
-        except Exception as e:
-            return Response({
-                "is_drm_enabled": True,
-                "message": f"Master DRM Engine Operational: {str(e)}",
-            })
+        return Response({
+            "is_drm_enabled": is_enabled,
+            "message": f"Master DRM Protection Engine Is Now {'ACTIVELY ENFORCED' if is_enabled else 'COMPLETELY STOPPED'} Platform-Wide.",
+        })
 
 class DrmSessionInitView(APIView):
     """
