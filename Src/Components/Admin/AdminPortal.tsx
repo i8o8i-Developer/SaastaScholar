@@ -57,6 +57,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/Hooks/UseAuth";
+import { isDrmGloballyDisabled, setDrmGloballyDisabled } from "@/Hooks/UseDrmProtection";
 import { DrmSecureReader } from "../Dashboard/DrmSecureReader";
 import {
   AcademicMaterial,
@@ -135,6 +136,7 @@ export function AdminPortal() {
   const [students, setStudents] = useState<StudentUser[]>([]);
   const [auditLogs, setAuditLogs] = useState<AdminAuditLog[]>([]);
   const [drmIncidents, setDrmIncidents] = useState<DrmSecurityIncident[]>([]);
+  const [isDrmDisabled, setIsDrmDisabled] = useState<boolean>(isDrmGloballyDisabled);
   const [studentSubTab, setStudentSubTab] = useState<"registry" | "audit" | "incidents">("registry");
   const [showSecurityModal, setShowSecurityModal] = useState<boolean>(false);
   const [selectedStudentForAction, setSelectedStudentForAction] = useState<StudentUser | null>(null);
@@ -2766,6 +2768,70 @@ export function AdminPortal() {
           {activeStation === "students" && (
             <div className="space-y-6">
               {renderCascadingContextBar({ showSection: true })}
+
+              {/* Platform-Wide Master DRM Protection Control Card */}
+              <div className={cn(
+                "rounded-3xl border p-5 sm:p-6 transition-all shadow-xs space-y-4",
+                isDrmDisabled
+                  ? "border-amber-500/50 bg-amber-500/5"
+                  : "border-emerald-500/40 bg-emerald-500/5"
+              )}>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-start sm:items-center gap-3">
+                    <div className={cn(
+                      "grid h-12 w-12 shrink-0 place-items-center rounded-2xl border",
+                      isDrmDisabled
+                        ? "bg-amber-500/10 border-amber-500/30 text-amber-500"
+                        : "bg-emerald-500/10 border-emerald-500/30 text-emerald-500"
+                    )}>
+                      <ShieldCheck className="h-6 w-6" />
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <h3 className="font-display font-bold text-base text-foreground">
+                          Platform-Wide Master DRM Document Protection Engine
+                        </h3>
+                        <span className={cn(
+                          "px-2.5 py-0.5 rounded-full text-[0.65rem] font-bold border",
+                          isDrmDisabled
+                            ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30"
+                            : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
+                        )}>
+                          {isDrmDisabled ? "DRM CURRENTLY STOPPED" : "DRM ACTIVELY ENFORCED"}
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                        {isDrmDisabled
+                          ? "All DRM document protections, screenshot blocker shields, blur overlays, and keyboard shortcut restrictions are completely STOPPED for all users."
+                          : "DRM document protections are actively securing PDFs, notes manuscripts, preventing screenshots, blocking PrintScreen, and sanitizing clipboards."}
+                      </p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const nextState = !isDrmDisabled;
+                      setIsDrmDisabled(nextState);
+                      setDrmGloballyDisabled(nextState);
+                      if (nextState) {
+                        toast.warning("Master DRM Protection Stopped Platform-Wide For All Users.");
+                      } else {
+                        toast.success("Master DRM Protection Actively Enforced Platform-Wide.");
+                      }
+                    }}
+                    className={cn(
+                      "h-10 px-5 rounded-2xl font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-xs active:scale-95 whitespace-nowrap",
+                      isDrmDisabled
+                        ? "bg-emerald-600 hover:bg-emerald-500 text-white"
+                        : "bg-amber-600 hover:bg-amber-500 text-white"
+                    )}
+                  >
+                    <Zap className="h-4 w-4" />
+                    <span>{isDrmDisabled ? "Activate Master DRM Platform-Wide" : "Completely Stop DRM Platform-Wide"}</span>
+                  </button>
+                </div>
+              </div>
 
               {/* Station 7 Navigation Sub-Tabs */}
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
