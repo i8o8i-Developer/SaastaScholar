@@ -140,6 +140,8 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
 
   const containerRef = useRef<HTMLDivElement>(null);
 
+  const isPdfDoc = payload.file_ext === "pdf" || Boolean(payload.file_url?.toLowerCase().endsWith(".pdf")) || Boolean(pageData.file_url?.toLowerCase().endsWith(".pdf"));
+
   // Load Session & Material Info
   useEffect(() => {
     async function loadDrmSession() {
@@ -369,8 +371,8 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
 
         {/* Right Tools (Mode Toggle, Zoom, Fullscreen) */}
         <div className="flex items-center gap-1 xs:gap-2 shrink-0">
-          {/* Document View Toggle */}
-          {(payload.file_url || pageData.file_url) && (
+          {/* Document View Toggle (Shown only for non-PDF dual-mode materials) */}
+          {!isPdfDoc && (payload.file_url || pageData.file_url) && (
             <div className="flex items-center gap-1 bg-surface/80 p-1 rounded-2xl border border-border/80 text-xs shadow-2xs">
               <button
                 type="button"
@@ -382,9 +384,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
-                {payload.file_ext === "pdf"
-                  ? "📄 PDF Embed"
-                  : payload.file_ext === "pptx" || payload.file_ext === "ppt"
+                {payload.file_ext === "pptx" || payload.file_ext === "ppt"
                   ? "📊 Slide Deck"
                   : payload.file_ext === "docx" || payload.file_ext === "doc"
                   ? "📄 Word Doc"
@@ -496,7 +496,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
           style={{ transform: `scale(${zoomLevel / 100})`, transformOrigin: "top center" }}
           className="relative z-10 w-full max-w-4xl rounded-2xl sm:rounded-3xl border border-border/80 bg-card text-foreground p-3 xs:p-5 sm:p-8 shadow-lg transition-transform duration-200 overflow-hidden select-none min-w-0"
         >
-          {readerViewMode === "document" && payload.file_ext === "pdf" && (payload.file_url || pageData.file_url) ? (
+          {isPdfDoc ? (
             <div className="space-y-3 sm:space-y-4 min-w-0">
               <div className="border-b border-border/60 pb-2 sm:pb-3 flex flex-wrap items-center justify-between gap-2">
                 <div className="min-w-0">
@@ -506,13 +506,6 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
                   <h2 className="text-base sm:text-xl font-bold mt-1 text-foreground truncate">{payload.title}</h2>
                   <p className="text-[0.65rem] sm:text-[0.7rem] text-muted-foreground truncate">{payload.file_name || "Official Courseware Document"}</p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setReaderViewMode("manuscript")}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold transition-all border border-primary/30 cursor-pointer shadow-2xs active:scale-95"
-                >
-                  <span>📝 View Clean Notes Manuscript</span>
-                </button>
               </div>
               <div className="relative w-full h-[60vh] xs:h-[68vh] sm:h-[74vh] rounded-xl sm:rounded-2xl overflow-hidden bg-background border border-border/80 shadow-inner select-none">
                 <iframe
