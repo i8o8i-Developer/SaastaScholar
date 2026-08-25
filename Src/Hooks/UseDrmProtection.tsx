@@ -223,7 +223,43 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       }
     };
 
-    // 5. Native Print Media Query Listener
+    // 5. Mobile Touch Long-Press & Multi-Finger Capture Shield
+    let touchTimer: NodeJS.Timeout | null = null;
+    const handleTouchStart = (e: TouchEvent) => {
+      if (touchTimer) clearTimeout(touchTimer);
+
+      // Check for 3+ finger swipe (common mobile screenshot gesture on Android & iOS)
+      if (e.touches && e.touches.length >= 3) {
+        e.preventDefault();
+        overwriteClipboard();
+        triggerBlackoutShield("MULTI_FINGER_MOBILE_CAPTURE", 3500);
+        toast.error(toTitleCase("Multi-Touch Screen Capture Intercepted."));
+        return;
+      }
+
+      // Suppress mobile long-press text selection / callout
+      touchTimer = setTimeout(() => {
+        overwriteClipboard();
+        try {
+          window.getSelection()?.removeAllRanges();
+        } catch {}
+      }, 400);
+    };
+
+    const handleTouchEnd = () => {
+      if (touchTimer) clearTimeout(touchTimer);
+    };
+
+    const handleTouchCancel = () => {
+      if (touchTimer) clearTimeout(touchTimer);
+    };
+
+    // 6. Native Print Media Query Listener & Mobile Page Hide
+    const handlePageHide = () => {
+      setIsScreenBlurred(true);
+      overwriteClipboard();
+    };
+
     const mediaQueryList = window.matchMedia("print");
     const handlePrintChange = (mql: MediaQueryListEvent | MediaQueryList) => {
       if (mql.matches) {
@@ -237,6 +273,10 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
     window.addEventListener("cut", handleCut, true);
     window.addEventListener("selectstart", handleSelectStart, true);
     window.addEventListener("dragstart", handleDragStart, true);
+    window.addEventListener("touchstart", handleTouchStart, { passive: false });
+    window.addEventListener("touchend", handleTouchEnd, { passive: true });
+    window.addEventListener("touchcancel", handleTouchCancel, { passive: true });
+    window.addEventListener("pagehide", handlePageHide);
     window.addEventListener("keydown", handleKeyTrackerDown, true);
     window.addEventListener("keyup", handleKeyTrackerUp, true);
     window.addEventListener("keydown", handleKeyDown, true);
@@ -252,11 +292,16 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
 
     return () => {
       if (alertTimerRef.current) clearTimeout(alertTimerRef.current);
+      if (touchTimer) clearTimeout(touchTimer);
       window.removeEventListener("contextmenu", handleContextMenu, true);
       window.removeEventListener("copy", handleCopy, true);
       window.removeEventListener("cut", handleCut, true);
       window.removeEventListener("selectstart", handleSelectStart, true);
       window.removeEventListener("dragstart", handleDragStart, true);
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchend", handleTouchEnd);
+      window.removeEventListener("touchcancel", handleTouchCancel);
+      window.removeEventListener("pagehide", handlePageHide);
       window.removeEventListener("keydown", handleKeyTrackerDown, true);
       window.removeEventListener("keyup", handleKeyTrackerUp, true);
       window.removeEventListener("keydown", handleKeyDown, true);

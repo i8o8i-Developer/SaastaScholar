@@ -51,6 +51,7 @@ import {
   ShieldAlert,
   AlertTriangle,
   X,
+  Menu,
   Zap,
   Eye,
 } from "lucide-react";
@@ -117,6 +118,7 @@ export function AdminPortal() {
   const [structureSubTab, setStructureSubTab] = useState<"departments" | "programs" | "sections" | "subjects">("departments");
   const [publisherType, setPublisherType] = useState<PublisherContentType>("NOTES");
   const [selectedTimetableDay, setSelectedTimetableDay] = useState<string>("Mon");
+  const [mobileNavOpen, setMobileNavOpen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
 
   // Core Data Stores
@@ -1265,8 +1267,101 @@ export function AdminPortal() {
 
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background text-foreground">
-      {/* ===================== Beautiful Admin Sidebar ===================== */}
-      <aside className="w-64 lg:w-72 flex flex-col justify-between border-r border-border/80 bg-card/85 p-5 backdrop-blur-xl shrink-0 shadow-sm">
+      {/* ===================== Mobile Drawer ===================== */}
+      {mobileNavOpen && (
+        <div className="fixed inset-0 z-50 flex lg:hidden bg-black/60 backdrop-blur-xs">
+          <div className="flex h-full w-[85vw] max-w-xs flex-col justify-between bg-card p-4 xs:p-5 shadow-2xl overflow-y-auto">
+            <div>
+              <div className="flex items-center justify-between border-b border-border pb-3">
+                <div className="flex items-center gap-2 min-w-0">
+                  <img
+                    src="/NIMSWallah.png"
+                    onError={(e) => {
+                      e.currentTarget.src = "/favicon.png";
+                    }}
+                    alt="NimsWallah Logo"
+                    className="h-7 w-7 object-contain shrink-0"
+                  />
+                  <span className="font-bold text-sm bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent truncate">
+                    NimsWallah Admin
+                  </span>
+                </div>
+                <button
+                  onClick={() => setMobileNavOpen(false)}
+                  className="rounded-xl p-1.5 hover:bg-surface text-muted-foreground hover:text-foreground cursor-pointer shrink-0"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Station Navigation List */}
+              <nav className="mt-4 space-y-1">
+                {[
+                  { id: "structure", label: "1. Academic Blueprint", icon: Building2, count: departments.length },
+                  { id: "publisher", label: "2. Publishing Studio", icon: Upload, count: materials.length + labs.length },
+                  { id: "timetable", label: "3. Timetable Grid", icon: Clock, count: timetableSlots.length },
+                  { id: "assignments", label: "4. Course Assignments", icon: FileText, count: assignments.length },
+                  { id: "notices", label: "5. Notice Dispatcher", icon: Megaphone, count: notices.length },
+                  { id: "milestones", label: "6. Exam Milestones", icon: Calendar, count: milestones.length },
+                  { id: "students", label: "7. Student Registry", icon: Users, count: students.length },
+                  { id: "badges", label: "8. Navigation Badges", icon: Sparkles, count: badges.filter((b) => b.is_active && b.badge_text).length },
+                  { id: "support", label: "9. Support Desk", icon: HelpCircle, count: tickets.length },
+                  { id: "forum", label: "10. Community Forum", icon: MessageSquare, count: posts.length },
+                ].map((station) => {
+                  const Icon = station.icon;
+                  const isActive = activeStation === station.id;
+                  return (
+                    <button
+                      key={station.id}
+                      onClick={() => {
+                        setActiveStation(station.id as AdminStation);
+                        setMobileNavOpen(false);
+                      }}
+                      className={cn(
+                        "flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold cursor-pointer transition-all",
+                        isActive
+                          ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-600/25"
+                          : "text-muted-foreground hover:bg-surface hover:text-foreground",
+                      )}
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <Icon className="h-4 w-4 shrink-0" />
+                        <span className="truncate">{station.label}</span>
+                      </div>
+                      <span
+                        className={cn(
+                          "rounded-full px-2 py-0.5 text-[0.65rem] font-mono font-bold shrink-0",
+                          isActive
+                            ? "bg-white/20 text-white"
+                            : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+                        )}
+                      >
+                        {station.count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </nav>
+            </div>
+
+            <div className="pt-3 border-t border-border space-y-2">
+              <button
+                onClick={() => {
+                  logout();
+                  window.location.href = "/login";
+                }}
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-rose-500/20 bg-rose-500/5 p-2.5 text-xs font-bold text-rose-500 hover:bg-rose-500/10 cursor-pointer"
+              >
+                <LogOut className="h-4 w-4" />
+                <span>Sign Out Of Workspace</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===================== Desktop Admin Sidebar ===================== */}
+      <aside className="hidden lg:flex w-64 lg:w-72 flex-col justify-between border-r border-border/80 bg-card/85 p-5 backdrop-blur-xl shrink-0 shadow-sm">
         <div>
           {/* Brand Logo & Title */}
           <div className="flex items-center gap-3.5 px-2 py-1.5">
@@ -1376,9 +1471,16 @@ export function AdminPortal() {
       {/* ===================== Main Workspace ===================== */}
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top Header */}
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-card/85 px-6 backdrop-blur-md">
-          <div className="flex items-center gap-3">
-            <span className="font-display text-base sm:text-lg font-bold text-foreground">
+        <header className="sticky top-0 z-30 flex h-14 sm:h-16 items-center justify-between border-b border-border bg-card/85 px-3 xs:px-4 sm:px-6 backdrop-blur-md shrink-0">
+          <div className="flex items-center gap-2 xs:gap-3 min-w-0">
+            <button
+              type="button"
+              onClick={() => setMobileNavOpen(true)}
+              className="grid h-8 w-8 xs:h-9 xs:w-9 place-items-center rounded-xl border border-border bg-surface text-foreground lg:hidden cursor-pointer shrink-0"
+            >
+              <Menu className="h-4 w-4 xs:h-5 xs:w-5" />
+            </button>
+            <span className="font-display text-xs xs:text-sm sm:text-lg font-bold text-foreground truncate">
               {activeStation === "structure" && "Station 1: Academic Blueprint & Infrastructure Matrix"}
               {activeStation === "publisher" && "Station 2: Unified Cascading Publishing Studio"}
               {activeStation === "timetable" && "Station 3: Section Timetable & Lecture Schedule Matrix"}
@@ -1392,31 +1494,31 @@ export function AdminPortal() {
             </span>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={loadAdminData}
-              className="inline-flex items-center gap-2 rounded-2xl border border-border bg-surface px-3.5 py-1.5 text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer transition-all shadow-2xs"
+              className="inline-flex items-center gap-1.5 xs:gap-2 rounded-xl xs:rounded-2xl border border-border bg-surface px-2.5 xs:px-3.5 py-1.5 text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer transition-all shadow-2xs shrink-0"
             >
               <RefreshCw className={cn("h-3.5 w-3.5", loading && "animate-spin")} />
-              <span>Refresh Data</span>
+              <span className="hidden xs:inline">Refresh Data</span>
             </button>
           </div>
         </header>
 
         {/* Station Body Canvas */}
-        <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6">
+        <div className="flex-1 overflow-y-auto p-3 xs:p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 min-w-0 overflow-x-hidden">
           {/* ========================================================================= */}
           {/* STATION 1: ACADEMIC BLUEPRINT */}
           {/* ========================================================================= */}
           {activeStation === "structure" && (
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6 min-w-0">
               {/* Sub-tabs for Structure */}
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
-                <div className="flex items-center gap-2 bg-surface p-1 rounded-2xl border border-border">
+              <div className="flex flex-wrap items-center justify-between gap-2.5 xs:gap-3 border-b border-border pb-3 sm:pb-4 min-w-0">
+                <div className="flex items-center gap-1.5 xs:gap-2 overflow-x-auto pb-1 max-w-full scrollbar-none bg-surface p-1 rounded-2xl border border-border min-w-0">
                   <button
                     onClick={() => setStructureSubTab("departments")}
                     className={cn(
-                      "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer",
+                      "px-2.5 xs:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 whitespace-nowrap",
                       structureSubTab === "departments"
                         ? "bg-primary text-primary-foreground shadow-xs"
                         : "text-muted-foreground hover:text-foreground",
@@ -1427,7 +1529,7 @@ export function AdminPortal() {
                   <button
                     onClick={() => setStructureSubTab("programs")}
                     className={cn(
-                      "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer",
+                      "px-2.5 xs:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 whitespace-nowrap",
                       structureSubTab === "programs"
                         ? "bg-primary text-primary-foreground shadow-xs"
                         : "text-muted-foreground hover:text-foreground",
@@ -1438,7 +1540,7 @@ export function AdminPortal() {
                   <button
                     onClick={() => setStructureSubTab("sections")}
                     className={cn(
-                      "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer",
+                      "px-2.5 xs:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 whitespace-nowrap",
                       structureSubTab === "sections"
                         ? "bg-primary text-primary-foreground shadow-xs"
                         : "text-muted-foreground hover:text-foreground",
@@ -1449,7 +1551,7 @@ export function AdminPortal() {
                   <button
                     onClick={() => setStructureSubTab("subjects")}
                     className={cn(
-                      "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer",
+                      "px-2.5 xs:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 whitespace-nowrap",
                       structureSubTab === "subjects"
                         ? "bg-primary text-primary-foreground shadow-xs"
                         : "text-muted-foreground hover:text-foreground",
