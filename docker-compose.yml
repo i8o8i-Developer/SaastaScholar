@@ -1,4 +1,19 @@
 services:
+  redis_cache:
+    image: redis:7-alpine
+    container_name: nimswallah-redis
+    restart: unless-stopped
+    command: redis-server --port 5666 --save "" --appendonly no --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "5666:5666"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "5666", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   postgres_db:
     image: postgres:16-alpine
     container_name: nimswallah-postgres
@@ -35,6 +50,8 @@ services:
     depends_on:
       postgres_db:
         condition: service_healthy
+      redis_cache:
+        condition: service_healthy
     ports:
       - "7865:7865"
     env_file:
@@ -48,6 +65,9 @@ services:
       POSTGRES_HOST: postgres_db
       POSTGRES_PORT: 4611
       DATABASE_URL: ${DATABASE_URL:-postgresql://${POSTGRES_USER:-nimswallah_admin}:${POSTGRES_PASSWORD:-NimswallahDB@Secured2026!}@postgres_db:4611/${POSTGRES_DB:-nimswallah_db}}
+      REDIS_HOST: redis_cache
+      REDIS_PORT: 5666
+      REDIS_URL: ${REDIS_URL:-redis://redis_cache:5666/1}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@nims.edu.in}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-Admin@123}
       ADMIN_NAME: ${ADMIN_NAME:-Institutional Administrator}
@@ -68,5 +88,7 @@ services:
 
 volumes:
   postgres_data:
+  redis_data:
   media_data:
   drm_vault_data:
+

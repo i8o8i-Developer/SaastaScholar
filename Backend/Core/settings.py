@@ -127,24 +127,45 @@ if REDIS_PASSWORD:
 else:
     REDIS_LOCATION = f"redis://{REDIS_HOST}:{REDIS_PORT}/1"
 
-CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": REDIS_LOCATION,
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-            "CONNECTION_POOL_KWARGS": {
-                "max_connections": 100,
-                "retry_on_timeout": True,
+try:
+    import django_redis
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": REDIS_LOCATION,
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                "CONNECTION_POOL_KWARGS": {
+                    "max_connections": 100,
+                    "retry_on_timeout": True,
+                },
+                "SOCKET_CONNECT_TIMEOUT": 2,
+                "SOCKET_TIMEOUT": 2,
+                "IGNORE_EXCEPTIONS": True, # Fail-safe fallback so API always succeeds
             },
-            "SOCKET_CONNECT_TIMEOUT": 2,
-            "SOCKET_TIMEOUT": 2,
-            "IGNORE_EXCEPTIONS": True, # Fail-safe fallback so API always succeeds
-        },
-        "KEY_PREFIX": "nimswallah",
-        "TIMEOUT": 600, # 10 Minutes Default Cache
+            "KEY_PREFIX": "nimswallah",
+            "TIMEOUT": 600, # 10 Minutes Default Cache
+        }
     }
-}
+except ImportError:
+    try:
+        import redis  # noqa: F401
+        CACHES = {
+            "default": {
+                "BACKEND": "django.core.cache.backends.redis.RedisCache",
+                "LOCATION": REDIS_LOCATION,
+                "KEY_PREFIX": "nimswallah",
+                "TIMEOUT": 600,
+            }
+        }
+    except ImportError:
+        CACHES = {
+            "default": {
+                "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+                "LOCATION": "nimswallah-locmem-fallback",
+                "TIMEOUT": 600,
+            }
+        }
 
 # Military-Grade Cryptographic Password Hashers (Argon2 + PBKDF2 SHA-256)
 PASSWORD_HASHERS = [

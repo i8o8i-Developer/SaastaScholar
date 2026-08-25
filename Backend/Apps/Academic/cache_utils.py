@@ -5,9 +5,6 @@ from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 
 def make_cache_key(prefix, *args, **kwargs):
-    """
-    Generates a deterministic Redis cache key from arguments and query parameters.
-    """
     raw_str = f"{prefix}:" + ":".join(str(a) for a in args)
     if kwargs:
         sorted_kw = sorted(kwargs.items())
@@ -16,10 +13,6 @@ def make_cache_key(prefix, *args, **kwargs):
     return f"{prefix}:{hashed}"
 
 def get_or_set_redis_cache(key, fetch_fn, timeout=600):
-    """
-    Attempts to retrieve data from Redis cache.
-    On cache miss, executes fetch_fn(), stores result in Redis, and returns it.
-    """
     try:
         cached_data = cache.get(key)
         if cached_data is not None:
@@ -37,9 +30,6 @@ def get_or_set_redis_cache(key, fetch_fn, timeout=600):
     return data
 
 def invalidate_redis_pattern(pattern_prefix):
-    """
-    Invalidates all Redis cache keys matching the given prefix pattern.
-    """
     try:
         if hasattr(cache, "delete_pattern"):
             cache.delete_pattern(f"*{pattern_prefix}*")
@@ -49,9 +39,6 @@ def invalidate_redis_pattern(pattern_prefix):
         pass
 
 def register_cache_signals():
-    """
-    Registers Django model signals to auto-invalidate Redis cache on data mutations.
-    """
     from .models import (
         Department,
         ProgramSpecialization,
