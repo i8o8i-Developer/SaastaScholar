@@ -2482,13 +2482,13 @@ export function AdminPortal() {
 
               {/* Day Selector & Action Bar */}
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
-                <div className="flex flex-wrap items-center gap-1.5 bg-surface p-1 rounded-2xl border border-border">
+                <div className="grid grid-cols-6 gap-1 bg-surface p-1 rounded-2xl border border-border w-full sm:w-auto">
                   {WEEKDAYS.map((d) => (
                     <button
                       key={d}
                       onClick={() => setSelectedTimetableDay(d)}
                       className={cn(
-                        "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer",
+                        "px-1.5 xs:px-2.5 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer text-center whitespace-nowrap",
                         selectedTimetableDay === d
                           ? "bg-primary text-primary-foreground shadow-xs"
                           : "text-muted-foreground hover:text-foreground",
@@ -2909,12 +2909,12 @@ export function AdminPortal() {
               </div>
 
               {/* Station 7 Navigation Sub-Tabs */}
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
-                <div className="flex items-center gap-2">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-border pb-4 min-w-0 max-w-full">
+                <div className="flex items-center gap-2 overflow-x-auto max-w-full scrollbar-none min-w-0 pb-1 shrink-0">
                   <button
                     onClick={() => setStudentSubTab("registry")}
                     className={cn(
-                      "inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-xs font-bold transition-all cursor-pointer",
+                      "inline-flex items-center gap-2 rounded-2xl px-3.5 sm:px-4 py-2 text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0",
                       studentSubTab === "registry"
                         ? "bg-primary text-primary-foreground shadow-sm"
                         : "border border-border bg-card text-muted-foreground hover:text-foreground"
@@ -2930,7 +2930,7 @@ export function AdminPortal() {
                   <button
                     onClick={() => setStudentSubTab("audit")}
                     className={cn(
-                      "inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-xs font-bold transition-all cursor-pointer",
+                      "inline-flex items-center gap-2 rounded-2xl px-3.5 sm:px-4 py-2 text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0",
                       studentSubTab === "audit"
                         ? "bg-primary text-primary-foreground shadow-sm"
                         : "border border-border bg-card text-muted-foreground hover:text-foreground"
@@ -2946,7 +2946,7 @@ export function AdminPortal() {
                   <button
                     onClick={() => setStudentSubTab("incidents")}
                     className={cn(
-                      "inline-flex items-center gap-2 rounded-2xl px-4 py-2 text-xs font-bold transition-all cursor-pointer",
+                      "inline-flex items-center gap-2 rounded-2xl px-3.5 sm:px-4 py-2 text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0",
                       studentSubTab === "incidents"
                         ? "bg-primary text-primary-foreground shadow-sm"
                         : "border border-border bg-card text-muted-foreground hover:text-foreground"
@@ -2960,7 +2960,7 @@ export function AdminPortal() {
                   </button>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 overflow-x-auto max-w-full scrollbar-none min-w-0 shrink-0">
                   <button
                     onClick={async () => {
                       const confirmed = confirm(
@@ -2978,7 +2978,7 @@ export function AdminPortal() {
                         toast.error(toTitleCase(err.message || "Failed To Execute Global Reset."));
                       }
                     }}
-                    className="inline-flex items-center gap-2 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 shadow-xs hover:bg-emerald-500/20 active:scale-95 transition-all cursor-pointer"
+                    className="inline-flex items-center gap-2 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 shadow-xs hover:bg-emerald-500/20 active:scale-95 transition-all cursor-pointer whitespace-nowrap shrink-0"
                   >
                     <Sparkles className="h-4 w-4" />
                     <span>Global Clean Slate (Reset Everyone)</span>
@@ -2986,7 +2986,7 @@ export function AdminPortal() {
 
                   <button
                     onClick={loadAdminData}
-                    className="inline-flex items-center gap-2 rounded-2xl border border-border bg-card px-3.5 py-2 text-xs font-bold text-foreground shadow-xs hover:bg-surface cursor-pointer"
+                    className="inline-flex items-center gap-2 rounded-2xl border border-border bg-card px-3.5 py-2 text-xs font-bold text-foreground shadow-xs hover:bg-surface cursor-pointer whitespace-nowrap shrink-0"
                   >
                     <RefreshCw className="h-4 w-4" />
                     <span>Refresh Registry</span>
@@ -3568,26 +3568,26 @@ export function AdminPortal() {
               </div>
 
               {/* Support Metric Counters */}
-              <div className="grid grid-cols-4 gap-3">
-                <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-2xs">
-                  <span className="text-[0.65rem] font-bold text-muted-foreground uppercase">Total Tickets</span>
-                  <div className="text-xl font-extrabold text-foreground mt-0.5">{tickets.length}</div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3.5">
+                <div className="rounded-2xl border border-border/80 bg-card p-3 sm:p-4 shadow-2xs">
+                  <span className="text-[0.62rem] sm:text-[0.65rem] font-bold text-muted-foreground uppercase truncate block">Total Tickets</span>
+                  <div className="text-lg sm:text-xl font-extrabold text-foreground mt-0.5">{tickets.length}</div>
                 </div>
-                <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-2xs">
-                  <span className="text-[0.65rem] font-bold text-muted-foreground uppercase">Open (Pending)</span>
-                  <div className="text-xl font-extrabold text-amber-600 dark:text-amber-400 mt-0.5">
+                <div className="rounded-2xl border border-border/80 bg-card p-3 sm:p-4 shadow-2xs">
+                  <span className="text-[0.62rem] sm:text-[0.65rem] font-bold text-muted-foreground uppercase truncate block">Open (Pending)</span>
+                  <div className="text-lg sm:text-xl font-extrabold text-amber-600 dark:text-amber-400 mt-0.5">
                     {tickets.filter((t) => t.status === "OPEN").length}
                   </div>
                 </div>
-                <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-2xs">
-                  <span className="text-[0.65rem] font-bold text-muted-foreground uppercase">In Progress</span>
-                  <div className="text-xl font-extrabold text-blue-600 dark:text-blue-400 mt-0.5">
+                <div className="rounded-2xl border border-border/80 bg-card p-3 sm:p-4 shadow-2xs">
+                  <span className="text-[0.62rem] sm:text-[0.65rem] font-bold text-muted-foreground uppercase truncate block">In Progress</span>
+                  <div className="text-lg sm:text-xl font-extrabold text-blue-600 dark:text-blue-400 mt-0.5">
                     {tickets.filter((t) => t.status === "IN_PROGRESS").length}
                   </div>
                 </div>
-                <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-2xs">
-                  <span className="text-[0.65rem] font-bold text-muted-foreground uppercase">Resolved</span>
-                  <div className="text-xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5">
+                <div className="rounded-2xl border border-border/80 bg-card p-3 sm:p-4 shadow-2xs">
+                  <span className="text-[0.62rem] sm:text-[0.65rem] font-bold text-muted-foreground uppercase truncate block">Resolved</span>
+                  <div className="text-lg sm:text-xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5">
                     {tickets.filter((t) => t.status === "RESOLVED").length}
                   </div>
                 </div>
