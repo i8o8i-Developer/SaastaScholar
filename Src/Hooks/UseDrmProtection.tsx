@@ -101,7 +101,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
         .catch(() => {});
     };
 
-    // Tracking Modifier Keys
+    // Tracking Modifier Keys & Instant Screenshot Combo Detection
     let isMetaPressed = false;
     let isShiftPressed = false;
     let isCtrlPressed = false;
@@ -110,9 +110,38 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       if (e.key === "Meta" || e.metaKey) isMetaPressed = true;
       if (e.key === "Shift" || e.shiftKey) isShiftPressed = true;
       if (e.key === "Control" || e.ctrlKey) isCtrlPressed = true;
+
+      const key = (e.key || "").toLowerCase();
+      const code = (e.code || "").toLowerCase();
+
+      // Instant PrintScreen Key Interception
+      if (e.key === "PrintScreen" || code === "printscreen" || key === "printscreen") {
+        e.preventDefault();
+        e.stopPropagation();
+        triggerBlackoutShield("SCREENSHOT_HOTKEY_DETECTED", 6000);
+        toast.error(toTitleCase("Screen Capture Intercepted. Blackout Shield Engaged."));
+        return;
+      }
+
+      // Instant Win+Shift or Ctrl+Shift Snipping Tool Auto Trigger
+      if ((isMetaPressed && isShiftPressed) || (isCtrlPressed && isShiftPressed) || (e.altKey && key === "printscreen")) {
+        triggerBlackoutShield("SNIPPING_TOOL_SHORTCUT", 6000);
+        toast.error(toTitleCase("Snipping Tool Combination Intercepted."));
+        return;
+      }
     };
 
     const handleKeyTrackerUp = (e: KeyboardEvent) => {
+      const key = (e.key || "").toLowerCase();
+      const code = (e.code || "").toLowerCase();
+
+      if (e.key === "PrintScreen" || code === "printscreen" || key === "printscreen") {
+        e.preventDefault();
+        e.stopPropagation();
+        triggerBlackoutShield("SCREENSHOT_HOTKEY_DETECTED", 6000);
+        return;
+      }
+
       if (e.key === "Meta") isMetaPressed = false;
       if (e.key === "Shift") isShiftPressed = false;
       if (e.key === "Control") isCtrlPressed = false;
@@ -122,7 +151,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
     const handleContextMenu = (e: MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      triggerBlackoutShield("CONTEXT_MENU_BLOCKED", 3000);
+      triggerBlackoutShield("CONTEXT_MENU_BLOCKED", 3500);
       toast.error(toTitleCase("Right-Click Actions Are Disabled On DRM Documents."));
       return false;
     };
@@ -132,7 +161,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       e.preventDefault();
       e.stopPropagation();
       overwriteClipboard();
-      triggerBlackoutShield("COPY_ATTEMPT_INTERCEPTED", 3500);
+      triggerBlackoutShield("COPY_ATTEMPT_INTERCEPTED", 4000);
       toast.error(toTitleCase("Text Selection And Copying Are Prohibited By DRM Policy."));
       return false;
     };
@@ -141,7 +170,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       e.preventDefault();
       e.stopPropagation();
       overwriteClipboard();
-      triggerBlackoutShield("CUT_ATTEMPT_INTERCEPTED", 3500);
+      triggerBlackoutShield("CUT_ATTEMPT_INTERCEPTED", 4000);
       toast.error(toTitleCase("Document Content Extraction Is Strictly Restricted."));
       return false;
     };
@@ -168,8 +197,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       if (e.key === "PrintScreen" || code === "printscreen" || key === "printscreen") {
         e.preventDefault();
         e.stopPropagation();
-        overwriteClipboard();
-        triggerBlackoutShield("SCREENSHOT_HOTKEY_DETECTED", 5000);
+        triggerBlackoutShield("SCREENSHOT_HOTKEY_DETECTED", 6000);
         toast.error(toTitleCase("Screen Capture Intercepted. Blackout Shield Engaged."));
         return;
       }
@@ -182,8 +210,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       ) {
         e.preventDefault();
         e.stopPropagation();
-        overwriteClipboard();
-        triggerBlackoutShield("SNIPPING_TOOL_SHORTCUT", 5000);
+        triggerBlackoutShield("SNIPPING_TOOL_SHORTCUT", 6000);
         toast.error(toTitleCase("Snipping Tool Shortcut Intercepted."));
         return;
       }
@@ -192,7 +219,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       if (isCtrlOrMeta && (key === "p" || code === "keyp")) {
         e.preventDefault();
         e.stopPropagation();
-        triggerBlackoutShield("PRINT_BLOCKED", 3500);
+        triggerBlackoutShield("PRINT_BLOCKED", 4000);
         toast.error(toTitleCase("Document Printing Is Blocked By DRM Policy."));
         return;
       }
@@ -201,7 +228,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       if (isCtrlOrMeta && (key === "s" || code === "keys")) {
         e.preventDefault();
         e.stopPropagation();
-        triggerBlackoutShield("SAVE_BLOCKED", 3000);
+        triggerBlackoutShield("SAVE_BLOCKED", 3500);
         toast.error(toTitleCase("Saving Protected Document Offline Is Prohibited."));
         return;
       }
@@ -217,7 +244,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
         e.preventDefault();
         e.stopPropagation();
         setIsDevtoolsOpen(true);
-        triggerBlackoutShield("DEVTOOLS_ATTEMPT", 3500);
+        triggerBlackoutShield("DEVTOOLS_ATTEMPT", 4000);
         toast.error(toTitleCase("Developer Inspection Tools Are Restricted."));
         return;
       }
@@ -226,8 +253,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       if (isCtrlOrMeta && ["a", "c", "x"].includes(key)) {
         e.preventDefault();
         e.stopPropagation();
-        overwriteClipboard();
-        triggerBlackoutShield("COPY_BLOCKED", 3000);
+        triggerBlackoutShield("COPY_BLOCKED", 3500);
         toast.error(toTitleCase("Text Selection And Copying Are Prohibited."));
         return;
       }
@@ -236,16 +262,16 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
     // 4. Window Focus Blur (iOS/Android Screenshot Button Combos & Snipping Tool Overlays)
     const handleBlur = () => {
       if (isIOS) {
-        triggerBlackoutShield("IOS_SCREENSHOT_DETECTED", 5000);
+        triggerBlackoutShield("IOS_SCREENSHOT_DETECTED", 6000);
         toast.error(toTitleCase("iOS Screen Capture Attempt Intercepted."));
       } else if (isAndroid) {
-        triggerBlackoutShield("MOBILE_HARDWARE_SCREENSHOT", 5000);
+        triggerBlackoutShield("MOBILE_HARDWARE_SCREENSHOT", 6000);
         toast.error(toTitleCase("Mobile Screen Capture Attempt Intercepted."));
-      } else if (isMetaPressed || isShiftPressed || isCtrlPressed) {
-        triggerBlackoutShield("SNIPPING_TOOL_OVERLAY_ACTIVE", 5000);
-        toast.error(toTitleCase("Screen Capture Utility Intercepted."));
       } else {
-        triggerBlackoutShield("WINDOW_FOCUS_LOST", 3000);
+        triggerBlackoutShield(
+          isMetaPressed || isShiftPressed || isCtrlPressed ? "SNIPPING_TOOL_OVERLAY_ACTIVE" : "WINDOW_FOCUS_LOST",
+          5000
+        );
       }
     };
 

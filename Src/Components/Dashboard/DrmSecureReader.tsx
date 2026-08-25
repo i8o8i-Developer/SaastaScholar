@@ -481,7 +481,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
               <div className="border-b border-border/60 pb-2 sm:pb-3 flex flex-wrap items-center justify-between gap-2">
                 <div className="min-w-0">
                   <span className="text-[0.6rem] sm:text-[0.65rem] uppercase tracking-wider font-bold text-rose-600 dark:text-rose-400 font-mono bg-rose-500/10 px-2 py-0.5 rounded-md border border-rose-500/20">
-                    {payload.subject_code} · PDF DOCUMENT (VIEW-ONLY)
+                    {payload.subject_code} · PDF DOCUMENT (VIEW-ONLY · PAGE {currentPage}/{payload.total_pages})
                   </span>
                   <h2 className="text-base sm:text-xl font-bold mt-1 text-foreground truncate">{payload.title}</h2>
                   <p className="text-[0.65rem] sm:text-[0.7rem] text-muted-foreground truncate">{payload.file_name || "Official Courseware Document"}</p>
@@ -489,23 +489,50 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
               </div>
               <div className="relative w-full h-[60vh] xs:h-[68vh] sm:h-[74vh] rounded-xl sm:rounded-2xl overflow-hidden bg-background border border-border/80 shadow-inner select-none">
                 <iframe
-                  src={`${pageData.file_url || payload.file_url}#toolbar=0&navpanes=0&scrollbar=0`}
+                  key={`pdf-page-${currentPage}-${pageData.file_url || payload.file_url}`}
+                  src={`${pageData.file_url || payload.file_url}#page=${currentPage}&toolbar=0&navpanes=0&scrollbar=0`}
                   className="w-full h-full border-0 rounded-xl sm:rounded-2xl pointer-events-auto select-none"
                   title="PDF Document Preview"
                 />
+                {/* Forensic DRM Watermark Overlay Directly Over PDF */}
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 z-20 flex flex-wrap items-center justify-around gap-6 sm:gap-10 p-4 opacity-25 dark:opacity-20 overflow-hidden select-none"
+                >
+                  {Array.from({ length: 16 }).map((_, i) => (
+                    <div key={i} className="rotate-[-28deg] text-center font-mono text-[0.65rem] xs:text-xs font-bold tracking-widest uppercase select-none text-emerald-800 dark:text-emerald-300">
+                      <p className="drop-shadow-xs">{user?.full_name || payload.watermark.student_name} · {user?.roll_number || payload.watermark.roll_number}</p>
+                      <p className="text-[0.55rem] xs:text-[0.65rem] opacity-80 font-semibold">NIMS DRM · {payload.watermark.ip_address} · {payload.watermark.session_hash}</p>
+                    </div>
+                  ))}
+                </div>
                 {/* Non-Intrusive DRM Gesture Shield Layer */}
                 <div
                   onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
                   onCopy={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                  className="absolute inset-0 pointer-events-none select-none z-10"
+                  className="absolute inset-0 pointer-events-none select-none z-30"
                 />
               </div>
             </div>
           ) : (
-            <div
-              dangerouslySetInnerHTML={{ __html: pageData.content_html }}
-              className="prose prose-sm max-w-none font-sans leading-relaxed select-none min-w-0 overflow-hidden break-words text-xs sm:text-sm"
-            />
+            <div className="relative">
+              <div
+                dangerouslySetInnerHTML={{ __html: pageData.content_html }}
+                className="prose prose-sm max-w-none font-sans leading-relaxed select-none min-w-0 overflow-hidden break-words text-xs sm:text-sm"
+              />
+              {/* Forensic Watermark Floating Over Manuscript */}
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-0 z-10 flex flex-wrap items-center justify-around gap-6 p-4 opacity-20 dark:opacity-15 overflow-hidden select-none"
+              >
+                {Array.from({ length: 12 }).map((_, i) => (
+                  <div key={i} className="rotate-[-26deg] text-center font-mono text-[0.65rem] font-bold tracking-widest uppercase select-none text-emerald-800 dark:text-emerald-300">
+                    <p>{user?.full_name || payload.watermark.student_name} · {user?.roll_number || payload.watermark.roll_number}</p>
+                    <p className="text-[0.55rem] opacity-75">NIMS DRM · {payload.watermark.ip_address}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
 
           {/* Page Footer Security Signature */}
