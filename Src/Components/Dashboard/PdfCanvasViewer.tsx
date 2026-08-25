@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import * as pdfjsLib from "pdfjs-dist";
-import { Loader2, AlertCircle, RefreshCw } from "lucide-react";
+import { Loader2, AlertCircle, RefreshCw, ZoomIn, ZoomOut, RotateCcw } from "lucide-react";
 
-// Configure PDF.js worker to use CDN matching installed version with fallback
+// Configure PDF.js worker
 if (typeof window !== "undefined") {
   try {
     pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
@@ -34,11 +34,13 @@ export function PdfCanvasViewer({
   isDrmDisabled = false,
 }: PdfCanvasViewerProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const renderTaskRef = useRef<any>(null);
 
   const [pdfDoc, setPdfDoc] = useState<any>(null);
-  const [pageAspectRatio, setPageAspectRatio] = useState<number>(0.707); // Default A4
   const [naturalWidth, setNaturalWidth] = useState<number>(800);
+  const [naturalHeight, setNaturalHeight] = useState<number>(1130);
+  const [pageAspectRatio, setPageAspectRatio] = useState<number>(0.707); // Default A4
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [rendering, setRendering] = useState<boolean>(false);
@@ -90,7 +92,7 @@ export function PdfCanvasViewer({
     };
   }, [fileUrl]);
 
-  // 2. Render Target Page to HTML5 Canvas With 100% Proportional Aspect Ratio
+  // 2. Render Target Page to HTML5 Canvas (High-DPI Retina Rendering)
   useEffect(() => {
     let isCancelled = false;
 
@@ -118,21 +120,24 @@ export function PdfCanvasViewer({
         const context = canvas.getContext("2d", { alpha: false });
         if (!context) return;
 
-        // Extract native PDF page dimensions
+        // Extract native PDF dimensions
         const baseViewport = page.getViewport({ scale: 1.0 });
         const ratio = baseViewport.width / baseViewport.height;
         setPageAspectRatio(ratio);
         setNaturalWidth(baseViewport.width);
+        setNaturalHeight(baseViewport.height);
 
-        // Render at crisp high resolution (2x native scale)
-        const renderScale = 2.0;
+        // High resolution rasterization scale:
+        // Always render at high DPI (2.5x base scale) so zoomed in text remains ultra sharp
+        const dpr = typeof window !== "undefined" ? Math.max(window.devicePixelRatio || 1, 1.5) : 2;
+        const renderScale = Math.max(2.0, (zoomLevel / 100) * 1.8) * dpr;
         const viewport = page.getViewport({ scale: renderScale });
 
-        // Set internal canvas pixel buffer dimensions
+        // Set internal canvas pixel buffer size
         canvas.width = Math.floor(viewport.width);
         canvas.height = Math.floor(viewport.height);
 
-        // Reset inline styles so CSS width/height never squeeze the canvas
+        // Styling: Full width of proportional wrapper with natural aspect ratio
         canvas.style.width = "100%";
         canvas.style.height = "auto";
         canvas.style.aspectRatio = `${ratio}`;
@@ -169,7 +174,7 @@ export function PdfCanvasViewer({
         } catch {}
       }
     };
-  }, [pdfDoc, currentPage]);
+  }, [pdfDoc, currentPage, zoomLevel]);
 
   if (loading) {
     return (
@@ -195,23 +200,33 @@ export function PdfCanvasViewer({
     );
   }
 
+  // Calculate dynamic wrapper width based on zoom level:
+  // Base 100% fits container; zoomLevel > 100% expands container width for full pan/zoom
+  const zoomFactor = zoomLevel / 100;
+  const computedWidth = `${Math.max(zoomLevel, 100)}%`;
+
   return (
-    <div className="relative w-full flex flex-col items-center justify-center overflow-x-auto min-h-[50vh] sm:min-h-[70vh] bg-surface/30 rounded-xl sm:rounded-2xl p-2 sm:p-4 select-none">
+    <div
+      ref={containerRef}
+      className="relative w-full flex flex-col items-center overflow-x-auto overflow-y-visible min-h-[50vh] sm:min-h-[70vh] bg-surface/30 rounded-xl sm:rounded-2xl p-1 xs:p-2 sm:p-4 select-none scrollbar-thin"
+      style={{ touchAction: zoomLevel > 100 ? "pan-x pan-y" : "pan-y" }}
+    >
       {/* Active Rendering Indicator */}
       {rendering && (
-        <div className="absolute top-4 right-4 z-40 flex items-center gap-1.5 px-3 py-1 rounded-full bg-card/90 border border-border/80 shadow-md backdrop-blur-xs text-[0.65rem] font-bold text-muted-foreground font-mono">
+        <div className="absolute top-3 right-3 z-40 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-card/95 border border-border/80 shadow-md backdrop-blur-xs text-[0.65rem] font-bold text-muted-foreground font-mono">
           <RefreshCw className="h-3 w-3 animate-spin text-primary" />
-          <span>Rendering High-DPI...</span>
+          <span>High-DPI Sharp</span>
         </div>
       )}
 
-      {/* Primary HTML5 PDF Canvas Container With Proportional Dimensions */}
+      {/* Primary HTML5 PDF Canvas Container With Dynamic Zoom Scale */}
       <div
         style={{
-          width: "100%",
-          maxWidth: `${Math.min(naturalWidth * (zoomLevel / 100) * 1.15, 1100)}px`,
+          width: computedWidth,
+          maxWidth: zoomLevel <= 100 ? `${naturalWidth}px` : "none",
+          transformOrigin: "top center",
         }}
-        className="relative shadow-2xl rounded-xl sm:rounded-2xl overflow-hidden border border-border/80 bg-white mx-auto"
+        className="relative shadow-2xl rounded-xl sm:rounded-2xl overflow-hidden border border-border/80 bg-white mx-auto transition-[width] duration-150 shrink-0"
       >
         <canvas
           ref={canvasRef}
@@ -241,7 +256,7 @@ export function PdfCanvasViewer({
           </div>
         )}
 
-        {/* Interaction Guard Layer */}
+        {/* Non-Intrusive Interaction Guard Layer */}
         <div
           onContextMenu={(e) => e.preventDefault()}
           className="absolute inset-0 z-30 pointer-events-auto select-none"

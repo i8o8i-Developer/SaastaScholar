@@ -406,20 +406,31 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
             </div>
           )}
 
-          {/* Zoom Controls */}
-          <div className="hidden sm:flex items-center gap-1 bg-surface/80 p-1 rounded-2xl border border-border/80 text-xs shadow-2xs">
+          {/* Zoom Controls (Visible On All Screen Sizes) */}
+          <div className="flex items-center gap-0.5 xs:gap-1 bg-surface/90 p-1 rounded-xl xs:rounded-2xl border border-border/80 text-xs shadow-2xs">
             <button
-              onClick={() => setZoomLevel((z) => Math.max(z - 15, 75))}
-              className="grid h-6 w-6 place-items-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-card active:scale-90 transition-all cursor-pointer"
-              title="Zoom Out"
+              type="button"
+              onClick={() => setZoomLevel((z) => Math.max(z - 25, 60))}
+              disabled={zoomLevel <= 60}
+              className="grid h-6 w-6 xs:h-7 xs:w-7 place-items-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-card active:scale-90 disabled:opacity-40 transition-all cursor-pointer"
+              title="Zoom Out (-25%)"
             >
               <ZoomOut className="h-3.5 w-3.5" />
             </button>
-            <span className="font-mono text-[0.7rem] px-1.5 font-bold select-none">{zoomLevel}%</span>
             <button
-              onClick={() => setZoomLevel((z) => Math.min(z + 15, 150))}
-              className="grid h-6 w-6 place-items-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-card active:scale-90 transition-all cursor-pointer"
-              title="Zoom In"
+              type="button"
+              onClick={() => setZoomLevel(100)}
+              className="font-mono text-[0.65rem] xs:text-[0.7rem] px-1 xs:px-1.5 font-bold hover:text-primary transition-colors cursor-pointer select-none"
+              title="Click To Reset 100% Zoom"
+            >
+              {zoomLevel}%
+            </button>
+            <button
+              type="button"
+              onClick={() => setZoomLevel((z) => Math.min(z + 25, 250))}
+              disabled={zoomLevel >= 250}
+              className="grid h-6 w-6 xs:h-7 xs:w-7 place-items-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-card active:scale-90 disabled:opacity-40 transition-all cursor-pointer"
+              title="Zoom In (+25%)"
             >
               <ZoomIn className="h-3.5 w-3.5" />
             </button>
