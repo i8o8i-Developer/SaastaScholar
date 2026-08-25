@@ -138,16 +138,16 @@ export function StudentProfile() {
       />
 
       {/* ================= Header Banner ================= */}
-      <div className="relative overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-r from-emerald-500/10 via-surface to-teal-500/10 p-6 sm:p-8 backdrop-blur-md shadow-xs">
-        <div className="flex flex-wrap items-center justify-between gap-6">
-          <div className="flex items-center gap-5 min-w-0">
+      <div className="relative overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-r from-emerald-500/10 via-surface to-teal-500/10 p-5 sm:p-8 backdrop-blur-md shadow-xs">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 sm:gap-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5 min-w-0">
             {/* Clickable Profile Avatar with Real Upload */}
             <div
-              className="relative group cursor-pointer"
+              className="relative group cursor-pointer shrink-0"
               onClick={() => fileInputRef.current?.click()}
               title="Click to upload profile photo"
             >
-              <div className="grid h-20 w-20 place-items-center rounded-3xl text-white font-bold text-2xl shadow-lg transition-transform group-hover:scale-105 bg-gradient-to-tr from-emerald-600 to-teal-500 overflow-hidden">
+              <div className="grid h-18 w-18 sm:h-20 sm:w-20 place-items-center rounded-3xl text-white font-bold text-2xl shadow-lg transition-transform group-hover:scale-105 bg-gradient-to-tr from-emerald-600 to-teal-500 overflow-hidden border border-border/60">
                 {uploadingAvatar ? (
                   <Loader2 className="h-8 w-8 animate-spin text-white" />
                 ) : user?.avatar_url ? (
@@ -160,7 +160,7 @@ export function StudentProfile() {
                     className="h-full w-full object-cover"
                   />
                 ) : null}
-                {!uploadingAvatar && (
+                {!uploadingAvatar && !user?.avatar_url && (
                   <span className="font-bold">{(user?.full_name || "A").charAt(0).toUpperCase()}</span>
                 )}
               </div>
@@ -172,30 +172,30 @@ export function StudentProfile() {
               </span>
             </div>
 
-            <div className="min-w-0">
+            <div className="min-w-0 space-y-1">
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground truncate">
+                <h1 className="font-display text-lg sm:text-2xl font-bold text-foreground">
                   {user?.full_name || "Student Scholar"}
                 </h1>
-                <span className="rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 px-3 py-0.5 text-xs font-bold uppercase tracking-wider border border-emerald-500/20">
+                <span className="rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 px-2.5 py-0.5 text-[0.65rem] sm:text-xs font-bold uppercase tracking-wider border border-emerald-500/20 whitespace-nowrap shrink-0">
                   {user?.access_tier?.replace("_", " ") || "SEMESTER TOPPER"}
                 </span>
               </div>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-1 truncate">
+              <p className="text-xs sm:text-sm text-muted-foreground truncate">
                 {user?.email} · Student ID: {user?.roll_number || "ADMIN01"}
               </p>
-              <p className="text-xs text-foreground/80 mt-1 max-w-xl font-medium line-clamp-1">
+              <p className="text-xs text-foreground/80 font-medium line-clamp-2 leading-relaxed">
                 {bio}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={uploadingAvatar}
-              className="inline-flex items-center gap-2 rounded-2xl border border-border bg-card px-4 py-2 text-xs font-bold text-foreground hover:bg-surface hover:border-primary/50 active:scale-95 transition-all cursor-pointer shadow-2xs"
+              className="inline-flex items-center gap-2 rounded-2xl border border-border bg-card px-3.5 sm:px-4 py-2 text-xs font-bold text-foreground hover:bg-surface hover:border-primary/50 active:scale-95 transition-all cursor-pointer shadow-2xs"
             >
               {uploadingAvatar ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4 text-primary" />}
               <span>{uploadingAvatar ? "Uploading..." : "Change Avatar"}</span>
@@ -204,7 +204,7 @@ export function StudentProfile() {
             <button
               type="button"
               onClick={logout}
-              className="inline-flex items-center gap-2 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-2 text-xs font-bold text-rose-500 hover:bg-rose-500/20 active:scale-95 transition-all cursor-pointer shadow-2xs"
+              className="inline-flex items-center gap-2 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-3.5 sm:px-4 py-2 text-xs font-bold text-rose-500 hover:bg-rose-500/20 active:scale-95 transition-all cursor-pointer shadow-2xs"
             >
               <LogOut className="h-4 w-4" />
               <span>Sign Out</span>
@@ -216,7 +216,7 @@ export function StudentProfile() {
       {/* ================= Symmetrical 2-Column Grid ================= */}
       <div className="grid gap-6 lg:grid-cols-12 min-w-0 items-stretch">
         {/* Left Column: Institutional Record Card (6 cols) */}
-        <div className="lg:col-span-6 rounded-3xl border border-border/80 bg-card p-6 shadow-xs flex flex-col justify-between space-y-5">
+        <div className="lg:col-span-6 rounded-3xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs flex flex-col justify-between space-y-5">
           <div className="space-y-4">
             <div className="flex items-center justify-between border-b border-border/80 pb-3">
               <div className="flex items-center gap-2">
@@ -231,37 +231,37 @@ export function StudentProfile() {
             </div>
 
             <div className="space-y-2.5 text-xs">
-              <div className="flex items-center justify-between p-3 rounded-2xl bg-surface/60 border border-border/60">
-                <span className="text-muted-foreground font-medium">University Campus</span>
-                <span className="font-bold text-foreground">{user?.university || "NIMS University, Rajasthan"}</span>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 p-3 rounded-2xl bg-surface/60 border border-border/60">
+                <span className="text-muted-foreground font-medium shrink-0">University Campus</span>
+                <span className="font-bold text-foreground sm:text-right">{user?.university || "NIMS University, Rajasthan"}</span>
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-2xl bg-surface/60 border border-border/60">
-                <span className="text-muted-foreground font-medium">Department</span>
-                <span className="font-bold text-foreground text-right max-w-[240px] truncate">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 p-3 rounded-2xl bg-surface/60 border border-border/60">
+                <span className="text-muted-foreground font-medium shrink-0">Department</span>
+                <span className="font-bold text-foreground sm:text-right">
                   {user?.department || "Department Of Computer Science & Engineering"}
                 </span>
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-2xl bg-surface/60 border border-border/60">
-                <span className="text-muted-foreground font-medium">Degree Program</span>
-                <span className="font-bold text-foreground">{user?.program || "B.Tech AI & ML"}</span>
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 p-3 rounded-2xl bg-surface/60 border border-border/60">
+                <span className="text-muted-foreground font-medium shrink-0">Degree Program</span>
+                <span className="font-bold text-foreground sm:text-right">{user?.program || "B.Tech AI & ML"}</span>
               </div>
 
               <div className="flex items-center justify-between p-3 rounded-2xl bg-surface/60 border border-border/60">
-                <span className="text-muted-foreground font-medium">Semester &amp; Section</span>
+                <span className="text-muted-foreground font-medium shrink-0">Semester &amp; Section</span>
                 <span className="font-bold text-foreground">
                   Semester {user?.semester || 1} · Section {user?.section || "A"}
                 </span>
               </div>
 
               <div className="flex items-center justify-between p-3 rounded-2xl bg-surface/60 border border-border/60">
-                <span className="text-muted-foreground font-medium">Student ID</span>
+                <span className="text-muted-foreground font-medium shrink-0">Student ID</span>
                 <span className="font-mono font-bold text-foreground">{user?.roll_number || "ADMIN01"}</span>
               </div>
 
               <div className="flex items-center justify-between p-3 rounded-2xl bg-surface/60 border border-border/60">
-                <span className="text-muted-foreground font-medium">Official Enrollment ID</span>
+                <span className="text-muted-foreground font-medium shrink-0">Official Enrollment ID</span>
                 <span className="font-mono font-bold text-foreground">{user?.enrollment_no || "NIMS2026-CS-8942"}</span>
               </div>
             </div>

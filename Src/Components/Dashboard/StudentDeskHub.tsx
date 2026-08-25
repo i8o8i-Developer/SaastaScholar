@@ -176,34 +176,34 @@ export function StudentDeskHub() {
       </div>
 
       {/* Metrics Cards */}
-      <div className="grid grid-cols-3 gap-3 sm:gap-4">
-        <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-2xs flex items-center justify-between">
-          <div>
-            <span className="text-[0.65rem] font-bold text-muted-foreground uppercase tracking-wider block">Total Raised</span>
-            <span className="text-xl font-extrabold text-foreground">{stats.total}</span>
+      <div className="grid grid-cols-3 gap-2 sm:gap-4">
+        <div className="rounded-2xl border border-border/80 bg-card p-2.5 sm:p-4 shadow-2xs flex items-center justify-between gap-2 min-w-0">
+          <div className="min-w-0">
+            <span className="text-[0.58rem] sm:text-[0.68rem] font-bold text-muted-foreground uppercase tracking-wider block truncate">Total Raised</span>
+            <span className="text-base sm:text-xl font-extrabold text-foreground">{stats.total}</span>
           </div>
-          <div className="grid h-8 w-8 place-items-center rounded-xl bg-primary/10 text-primary">
-            <MessageSquare className="h-4 w-4" />
-          </div>
-        </div>
-
-        <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-2xs flex items-center justify-between">
-          <div>
-            <span className="text-[0.65rem] font-bold text-muted-foreground uppercase tracking-wider block">In Progress / Open</span>
-            <span className="text-xl font-extrabold text-amber-600 dark:text-amber-400">{stats.open}</span>
-          </div>
-          <div className="grid h-8 w-8 place-items-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
-            <Clock className="h-4 w-4" />
+          <div className="grid h-7 w-7 sm:h-8 sm:w-8 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+            <MessageSquare className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
           </div>
         </div>
 
-        <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-2xs flex items-center justify-between">
-          <div>
-            <span className="text-[0.65rem] font-bold text-muted-foreground uppercase tracking-wider block">Resolved</span>
-            <span className="text-xl font-extrabold text-emerald-600 dark:text-emerald-400">{stats.resolved}</span>
+        <div className="rounded-2xl border border-border/80 bg-card p-2.5 sm:p-4 shadow-2xs flex items-center justify-between gap-2 min-w-0">
+          <div className="min-w-0">
+            <span className="text-[0.58rem] sm:text-[0.68rem] font-bold text-muted-foreground uppercase tracking-wider block truncate">In Progress</span>
+            <span className="text-base sm:text-xl font-extrabold text-amber-600 dark:text-amber-400">{stats.open}</span>
           </div>
-          <div className="grid h-8 w-8 place-items-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-            <CheckCircle2 className="h-4 w-4" />
+          <div className="grid h-7 w-7 sm:h-8 sm:w-8 shrink-0 place-items-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
+            <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-border/80 bg-card p-2.5 sm:p-4 shadow-2xs flex items-center justify-between gap-2 min-w-0">
+          <div className="min-w-0">
+            <span className="text-[0.58rem] sm:text-[0.68rem] font-bold text-muted-foreground uppercase tracking-wider block truncate">Resolved</span>
+            <span className="text-base sm:text-xl font-extrabold text-emerald-600 dark:text-emerald-400">{stats.resolved}</span>
+          </div>
+          <div className="grid h-7 w-7 sm:h-8 sm:w-8 shrink-0 place-items-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+            <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
           </div>
         </div>
       </div>
@@ -301,13 +301,13 @@ export function StudentDeskHub() {
 
       {/* Filter Tabs */}
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
+        <div className="flex items-center gap-1.5 overflow-x-auto max-w-full pb-1 scrollbar-none min-w-0">
           {["ALL", "OPEN", "IN_PROGRESS", "RESOLVED"].map((status) => (
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
               className={cn(
-                "rounded-2xl px-3.5 py-1.5 text-xs font-bold transition-all cursor-pointer",
+                "rounded-2xl px-3.5 py-1.5 text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0",
                 statusFilter === status
                   ? "bg-primary text-primary-foreground shadow-xs"
                   : "border border-border/80 bg-card text-muted-foreground hover:bg-surface hover:text-foreground"

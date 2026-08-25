@@ -375,7 +375,7 @@ export function CommunityForumHub() {
       {/* Reddit/Slack Navigation Channels & Filters */}
       <div className="space-y-3">
         {/* Category Channel Bar */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-thin">
+        <div className="flex items-center gap-1.5 overflow-x-auto max-w-full pb-1 scrollbar-none min-w-0">
           {CATEGORIES.map((cat) => {
             const Icon = cat.icon;
             const isActive = selectedCategory === cat.id;
@@ -384,7 +384,7 @@ export function CommunityForumHub() {
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
                 className={cn(
-                  "inline-flex items-center gap-1.5 whitespace-nowrap rounded-2xl px-3.5 py-2 text-xs font-bold transition-all cursor-pointer",
+                  "inline-flex items-center gap-1.5 whitespace-nowrap rounded-2xl px-3.5 py-2 text-xs font-bold transition-all cursor-pointer shrink-0 shadow-2xs",
                   isActive
                     ? "bg-primary text-primary-foreground shadow-xs"
                     : "border border-border/80 bg-card text-muted-foreground hover:bg-surface hover:text-foreground"

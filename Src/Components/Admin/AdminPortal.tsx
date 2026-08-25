@@ -1509,16 +1509,66 @@ export function AdminPortal() {
               <Menu className="h-4 w-4 xs:h-5 xs:w-5" />
             </button>
             <span className="font-display text-xs xs:text-sm sm:text-lg font-bold text-foreground truncate">
-              {activeStation === "structure" && "Station 1: Academic Blueprint & Infrastructure Matrix"}
-              {activeStation === "publisher" && "Station 2: Unified Cascading Publishing Studio"}
-              {activeStation === "timetable" && "Station 3: Section Timetable & Lecture Schedule Matrix"}
-              {activeStation === "assignments" && "Station 4: Academic Assignments & Submission Rubrics"}
-              {activeStation === "notices" && "Station 5: Official Circular Dispatcher"}
-              {activeStation === "milestones" && "Station 6: Examination Milestones Countdown"}
-              {activeStation === "students" && "Station 7: Active Student Registry & User Base"}
-              {activeStation === "badges" && "Station 8: Sidebar Dynamic Badges Matrix"}
-              {activeStation === "support" && "Station 9: Student Support Desk & Query Resolution"}
-              {activeStation === "forum" && "Station 10: Community Forum Moderation Hub"}
+              {activeStation === "structure" && (
+                <>
+                  <span className="sm:hidden">Station 1: Academic Matrix</span>
+                  <span className="hidden sm:inline">Station 1: Academic Blueprint &amp; Infrastructure Matrix</span>
+                </>
+              )}
+              {activeStation === "publisher" && (
+                <>
+                  <span className="sm:hidden">Station 2: Publishing Studio</span>
+                  <span className="hidden sm:inline">Station 2: Unified Cascading Publishing Studio</span>
+                </>
+              )}
+              {activeStation === "timetable" && (
+                <>
+                  <span className="sm:hidden">Station 3: Section Timetable</span>
+                  <span className="hidden sm:inline">Station 3: Section Timetable &amp; Lecture Schedule Matrix</span>
+                </>
+              )}
+              {activeStation === "assignments" && (
+                <>
+                  <span className="sm:hidden">Station 4: Academic Rubrics</span>
+                  <span className="hidden sm:inline">Station 4: Academic Assignments &amp; Submission Rubrics</span>
+                </>
+              )}
+              {activeStation === "notices" && (
+                <>
+                  <span className="sm:hidden">Station 5: Circulars Dispatch</span>
+                  <span className="hidden sm:inline">Station 5: Official Circular Dispatcher</span>
+                </>
+              )}
+              {activeStation === "milestones" && (
+                <>
+                  <span className="sm:hidden">Station 6: Exam Countdown</span>
+                  <span className="hidden sm:inline">Station 6: Examination Milestones Countdown</span>
+                </>
+              )}
+              {activeStation === "students" && (
+                <>
+                  <span className="sm:hidden">Station 7: Scholar Registry</span>
+                  <span className="hidden sm:inline">Station 7: Active Student Registry &amp; User Base</span>
+                </>
+              )}
+              {activeStation === "badges" && (
+                <>
+                  <span className="sm:hidden">Station 8: Sidebar Badges</span>
+                  <span className="hidden sm:inline">Station 8: Sidebar Dynamic Badges Matrix</span>
+                </>
+              )}
+              {activeStation === "support" && (
+                <>
+                  <span className="sm:hidden">Station 9: Support Desk</span>
+                  <span className="hidden sm:inline">Station 9: Student Support Desk &amp; Query Resolution</span>
+                </>
+              )}
+              {activeStation === "forum" && (
+                <>
+                  <span className="sm:hidden">Station 10: Forum Hub</span>
+                  <span className="hidden sm:inline">Station 10: Community Forum Moderation Hub</span>
+                </>
+              )}
             </span>
           </div>
 
@@ -2002,7 +2052,7 @@ export function AdminPortal() {
 
               {/* Publisher Mode Switcher & Add Button */}
               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
-                <div className="flex items-center gap-2 bg-surface p-1 rounded-2xl border border-border">
+                <div className="flex items-center gap-1.5 xs:gap-2 bg-surface p-1 rounded-2xl border border-border overflow-x-auto max-w-full scrollbar-none min-w-0">
                   <button
                     onClick={() => {
                       setPublisherType("NOTES");
@@ -2014,7 +2064,7 @@ export function AdminPortal() {
                       setActivePageIndex(0);
                     }}
                     className={cn(
-                      "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer",
+                      "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0",
                       publisherType === "NOTES"
                         ? "bg-primary text-primary-foreground shadow-xs"
                         : "text-muted-foreground hover:text-foreground",
@@ -2033,7 +2083,7 @@ export function AdminPortal() {
                       setActivePageIndex(0);
                     }}
                     className={cn(
-                      "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer",
+                      "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0",
                       publisherType === "SOLVED_PYQ"
                         ? "bg-primary text-primary-foreground shadow-xs"
                         : "text-muted-foreground hover:text-foreground",
@@ -2044,7 +2094,7 @@ export function AdminPortal() {
                   <button
                     onClick={() => setPublisherType("LAB_MANUAL")}
                     className={cn(
-                      "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer",
+                      "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0",
                       publisherType === "LAB_MANUAL"
                         ? "bg-primary text-primary-foreground shadow-xs"
                         : "text-muted-foreground hover:text-foreground",
@@ -2063,7 +2113,7 @@ export function AdminPortal() {
                       setActivePageIndex(0);
                     }}
                     className={cn(
-                      "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer",
+                      "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0",
                       publisherType === "FACULTY"
                         ? "bg-primary text-primary-foreground shadow-xs"
                         : "text-muted-foreground hover:text-foreground",
@@ -2800,13 +2850,13 @@ export function AdminPortal() {
                     )}>
                       <ShieldCheck className="h-6 w-6" />
                     </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="font-display font-bold text-base text-foreground">
+                    <div className="space-y-1.5">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="font-display font-bold text-sm sm:text-base text-foreground leading-snug">
                           Platform-Wide Master DRM Document Protection Engine
                         </h3>
                         <span className={cn(
-                          "px-2.5 py-0.5 rounded-full text-[0.65rem] font-bold border",
+                          "inline-flex items-center whitespace-nowrap shrink-0 px-2.5 py-0.5 rounded-full text-[0.65rem] font-bold border shadow-2xs",
                           isDrmDisabled
                             ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30"
                             : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/30"
@@ -2814,7 +2864,7 @@ export function AdminPortal() {
                           {isDrmDisabled ? "DRM CURRENTLY STOPPED" : "DRM ACTIVELY ENFORCED"}
                         </span>
                       </div>
-                      <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
+                      <p className="text-xs text-muted-foreground leading-relaxed">
                         {isDrmDisabled
                           ? "All DRM Document Protections, Screenshot Blocker Shields, Blur Overlays, and Keyboard Shortcut Restrictions Are Completely STOPPED For All Users."
                           : "DRM Document Protections Are Actively Securing PDFs, Notes Manuscripts, Preventing Screenshots, Blocking PrintScreen, And Sanitizing Clipboards."}
