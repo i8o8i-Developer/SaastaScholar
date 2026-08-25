@@ -189,6 +189,7 @@ class DrmPageView(APIView):
 class DrmSecurityReportView(APIView):
     """
     Receives security telemetry from frontend DRM hooks & updates violations counter.
+    Automatically enforces disciplinary warning and temporary cooldown upon repeated violations.
     """
     permission_classes = [permissions.IsAuthenticated]
 
@@ -209,12 +210,22 @@ class DrmSecurityReportView(APIView):
             details=details,
         )
 
-        # Increment DRM violation counter
-        if event_type in ["DEVTOOLS_DETECTED", "SCREEN_CAPTURE_ATTEMPT", "RAPID_PRINT_ATTEMPT"]:
-            user.drm_violations_count += 1
-            user.save(update_fields=["drm_violations_count"])
+        # Increment DRM violation counter for all security trigger types
+        user.drm_violations_count = (user.drm_violations_count or 0) + 1
+        
+        # Enforce progressive disciplinary policy upon repeated violations (>= 5 triggers)
+        if user.drm_violations_count >= 5 and not user.is_drm_blocked:
+            user.cooldown_until = timezone.now() + timedelta(minutes=15)
+            user.security_warning_note = f"Multiple Unauthorized Screen Capture Or Extraction Triggers ({user.drm_violations_count} Detected). Account Under Active 15-Minute Security Review."
 
-        return Response({"status": "logged", "violations_count": user.drm_violations_count, "timestamp": timezone.now()})
+        user.save(update_fields=["drm_violations_count", "cooldown_until", "security_warning_note"])
+
+        return Response({
+            "status": "logged",
+            "violations_count": user.drm_violations_count,
+            "cooldown_active": bool(user.cooldown_until and user.cooldown_until > timezone.now()),
+            "timestamp": timezone.now(),
+        })
 
 class AdminDrmIncidentListView(generics.ListAPIView):
     queryset = DrmSecurityIncident.objects.select_related("user", "material").all()

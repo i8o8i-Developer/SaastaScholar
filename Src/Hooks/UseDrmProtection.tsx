@@ -49,8 +49,8 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
         setIsSecurityAlertActive(false);
       }, durationMs);
 
-      // Telemetry log to backend
-      apiFetch("/drm/security-report/", {
+      // Telemetry log to backend with full forensic context
+      apiFetch<{ status: string; violations_count?: number; cooldown_active?: boolean }>("/drm/security-report/", {
         method: "POST",
         body: JSON.stringify({
           material_id: materialId,
@@ -59,10 +59,20 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
             timestamp: new Date().toISOString(),
             screen_width: window.innerWidth,
             screen_height: window.innerHeight,
+            screen_resolution: `${window.screen?.width || 0}x${window.screen?.height || 0}`,
             user_agent: navigator.userAgent,
+            is_mobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent),
+            max_touch_points: navigator.maxTouchPoints || 0,
+            document_visibility: document.visibilityState,
           },
         }),
-      }).catch(() => {});
+      })
+        .then((res) => {
+          if (res?.cooldown_active) {
+            toast.error("Account Placed In Disciplinary Cooldown Due To Repeated Triggers.");
+          }
+        })
+        .catch(() => {});
     };
 
     // 
@@ -228,7 +238,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
     const handleTouchStart = (e: TouchEvent) => {
       if (touchTimer) clearTimeout(touchTimer);
 
-      // Check for 3+ finger swipe (common mobile screenshot gesture on Android & iOS)
+      // 
       if (e.touches && e.touches.length >= 3) {
         e.preventDefault();
         overwriteClipboard();
@@ -236,8 +246,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
         toast.error(toTitleCase("Multi-Touch Screen Capture Intercepted."));
         return;
       }
-
-      // Suppress mobile long-press text selection / callout
+      
       touchTimer = setTimeout(() => {
         overwriteClipboard();
         try {
