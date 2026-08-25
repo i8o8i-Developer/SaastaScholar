@@ -469,8 +469,9 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
 
       {/* Main Secure Canvas Reading Zone with Dynamic Watermark */}
       <div
+        style={{ WebkitOverflowScrolling: "touch" }}
         className={cn(
-          "relative flex-1 overflow-y-auto p-2 xs:p-4 sm:p-8 flex justify-center items-start transition-all duration-75 min-w-0 w-full",
+          "relative flex-1 overflow-y-auto overscroll-contain touch-pan-y p-2 xs:p-4 sm:p-8 flex justify-center items-start transition-all duration-75 min-w-0 w-full",
           !isDrmDisabled ? "drm-unrestricted-content" : "drm-protected-content",
           isScreenBlurred && !isDrmDisabled ? "flex" : isScreenBlurred ? "hidden opacity-0 pointer-events-none select-none invisible" : "flex"
         )}
@@ -517,10 +518,14 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
                 <iframe
                   key={`pdf-page-${currentPage}-${pageData.file_url || payload.file_url}`}
                   src={(() => {
-                    const pdfRaw = pageData.file_url || payload.file_url;
+                    let pdfRaw = pageData.file_url || payload.file_url;
                     if (!pdfRaw) return "";
+                    //
+                    if (pdfRaw.startsWith("/")) {
+                      pdfRaw = `${window.location.origin}${pdfRaw}`;
+                    }
                     const isMobile = typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-                    if (isMobile && pdfRaw.startsWith("http")) {
+                    if (isMobile) {
                       return `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(pdfRaw)}`;
                     }
                     return `${pdfRaw}#page=${currentPage}&toolbar=0&navpanes=0&scrollbar=0`;

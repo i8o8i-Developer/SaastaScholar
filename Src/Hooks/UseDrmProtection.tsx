@@ -308,8 +308,9 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       }
     };
 
-    // 4. Window Focus Blur (Engages Visual Blackout Shield Locally On App Switch / Screen Loss)
+    // 4. Window Focus Blur (Desktop Only - Avoids Mobile Address Bar False Positives)
     const handleBlur = () => {
+      if (isIOS || isAndroid) return;
       setIsScreenBlurred(true);
       overwriteClipboard();
       if (isMetaPressed || isShiftPressed || isCtrlPressed) {
@@ -324,8 +325,9 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       }
     };
 
-    // 5. Visibility Change (Seamless Obfuscation On Tab Minimize / Phone Screen Lock)
+    // 5. Visibility Change (Tab Switch - Desktop Only)
     const handleVisibilityChange = () => {
+      if (isIOS || isAndroid) return;
       if (document.hidden) {
         setIsScreenBlurred(true);
         overwriteClipboard();
@@ -337,27 +339,18 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       }
     };
 
-    // 6. Mobile Touch & 3+ Finger Gesture Detection
+    // 6. Mobile Touch & 3+ Finger Gesture Detection (Passive & Fluid iOS Scrolling)
     let touchTimer: NodeJS.Timeout | null = null;
     const handleTouchStart = (e: TouchEvent) => {
       if (touchTimer) clearTimeout(touchTimer);
 
       // Check for 3+ finger swipe (mobile capture gesture)
       if (e.touches && e.touches.length >= 3) {
-        e.preventDefault();
         overwriteClipboard();
         triggerBlackoutShield("MULTI_FINGER_MOBILE_CAPTURE", 3500);
         toast.error(toTitleCase("Multi-Touch Capture Intercepted."));
         return;
       }
-
-      // Suppress mobile long-press text selection / callout
-      touchTimer = setTimeout(() => {
-        overwriteClipboard();
-        try {
-          window.getSelection()?.removeAllRanges();
-        } catch {}
-      }, 350);
     };
 
     const handleTouchEnd = () => {
@@ -366,12 +359,6 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
 
     const handleTouchCancel = () => {
       if (touchTimer) clearTimeout(touchTimer);
-    };
-
-    // 7. Mobile Page Hide Listener
-    const handlePageHide = () => {
-      setIsScreenBlurred(true);
-      overwriteClipboard();
     };
 
     const mediaQueryList = window.matchMedia("print");
@@ -387,10 +374,9 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
     window.addEventListener("cut", handleCut, true);
     window.addEventListener("selectstart", handleSelectStart, true);
     window.addEventListener("dragstart", handleDragStart, true);
-    window.addEventListener("touchstart", handleTouchStart, { passive: false });
+    window.addEventListener("touchstart", handleTouchStart, { passive: true });
     window.addEventListener("touchend", handleTouchEnd, { passive: true });
     window.addEventListener("touchcancel", handleTouchCancel, { passive: true });
-    window.addEventListener("pagehide", handlePageHide);
     window.addEventListener("keydown", handleKeyTrackerDown, true);
     window.addEventListener("keyup", handleKeyTrackerUp, true);
     window.addEventListener("keydown", handleKeyDown, true);
@@ -415,7 +401,6 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       window.removeEventListener("touchstart", handleTouchStart);
       window.removeEventListener("touchend", handleTouchEnd);
       window.removeEventListener("touchcancel", handleTouchCancel);
-      window.removeEventListener("pagehide", handlePageHide);
       window.removeEventListener("keydown", handleKeyTrackerDown, true);
       window.removeEventListener("keyup", handleKeyTrackerUp, true);
       window.removeEventListener("keydown", handleKeyDown, true);

@@ -1736,10 +1736,7 @@ export function AdminPortal() {
                       >
                         <div className="space-y-3.5">
                           <div className="flex items-center justify-between border-b border-border/60 pb-3">
-                            <div className="flex items-center gap-3">
-                              <div className="grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-tr from-emerald-600/15 via-teal-500/10 to-cyan-500/15 border border-emerald-500/25 text-emerald-600 dark:text-emerald-400 font-bold text-xs shadow-2xs">
-                                <span>{dept.code?.slice(0, 2) || "DP"}</span>
-                              </div>
+                            <div className="flex items-center gap-2">
                               <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 text-xs font-bold font-mono text-emerald-600 dark:text-emerald-400">
                                 {dept.code}
                               </span>
