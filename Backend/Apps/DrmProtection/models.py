@@ -43,8 +43,11 @@ class GlobalDrmConfig(models.Model):
 
     @classmethod
     def get_config(cls):
-        config, _ = cls.objects.get_or_create(id=1, defaults={"is_drm_enabled": True})
-        return config
+        try:
+            config, _ = cls.objects.get_or_create(id=1, defaults={"is_drm_enabled": True})
+            return config
+        except Exception:
+            return cls(id=1, is_drm_enabled=True)
 
     def __str__(self):
         return f"Global DRM Engine: {'ACTIVE' if self.is_drm_enabled else 'STOPPED'}"
