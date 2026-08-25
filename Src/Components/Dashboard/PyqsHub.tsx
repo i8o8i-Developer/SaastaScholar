@@ -124,9 +124,9 @@ export function PyqsHub({ onOpenReader }: PyqsHubProps) {
       </div>
 
       {/* Year Filter Pills */}
-      <div className="flex items-center gap-2 text-xs">
+      <div className="flex flex-wrap items-center gap-2 text-xs">
         <span className="text-muted-foreground font-bold text-[0.7rem] uppercase tracking-wider">Exam Year:</span>
-        {["ALL", "2024", "2023", "2022", "2021", "2020"].map((yr) => (
+        {["ALL", "2026-2027", "2025-2026", "2024", "2023", "2022"].map((yr) => (
           <button
             key={yr}
             onClick={() => setSelectedYear(yr)}
@@ -137,7 +137,7 @@ export function PyqsHub({ onOpenReader }: PyqsHubProps) {
                 : "text-muted-foreground hover:text-foreground",
             )}
           >
-            {yr === "ALL" ? "All Years" : `Year ${yr}`}
+            {yr === "ALL" ? "All Years" : yr}
           </button>
         ))}
       </div>

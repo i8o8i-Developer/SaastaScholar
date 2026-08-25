@@ -194,7 +194,7 @@ export function AdminPortal() {
   // Form State Containers
   const [newDept, setNewDept] = useState({ name: "", code: "", description: "", head_of_department: "" });
   const [newProgram, setNewProgram] = useState({ department: "", name: "", code: "", degree_level: "Undergraduate (B.Tech)", duration_years: 4, total_semesters: 8 });
-  const [newSection, setNewSection] = useState({ program: "", semester: 1, section: "A", academic_year: "2025-2026", max_capacity: 60 });
+  const [newSection, setNewSection] = useState({ program: "", semester: 1, section: "A", academic_year: "2026-2027", max_capacity: 60 });
   const [newSubject, setNewSubject] = useState<{
     programs: string[];
     semester: number;
@@ -230,7 +230,7 @@ export function AdminPortal() {
     title: "",
     material_type: "NOTES",
     unit_number: 1,
-    academic_year: "2024",
+    academic_year: "2026-2027",
     summary: "",
     page_count: 1,
     is_topper_verified: true,
@@ -563,7 +563,7 @@ export function AdminPortal() {
       program: sec.program || selectedProgramId || "",
       semester: sec.semester || 1,
       section: sec.section || sec.section_name || "A",
-      academic_year: sec.academic_year || "2025-2026",
+      academic_year: sec.academic_year || "2026-2027",
       max_capacity: sec.max_capacity || 60,
     });
     setShowSectionModal(true);
@@ -602,7 +602,7 @@ export function AdminPortal() {
       title: mat.title,
       material_type: mat.material_type || publisherType || "NOTES",
       unit_number: mat.unit_number || 1,
-      academic_year: mat.academic_year || "2024",
+      academic_year: mat.academic_year || "2026-2027",
       summary: mat.summary || "",
       page_count: mat.page_count || 1,
       is_topper_verified: mat.is_topper_verified ?? true,
@@ -779,7 +779,7 @@ export function AdminPortal() {
       }
       setShowSectionModal(false);
       setEditingSectionId(null);
-      setNewSection({ program: selectedProgramId || "", semester: selectedSemester || 1, section: "B", academic_year: "2025-2026", max_capacity: 60 });
+      setNewSection({ program: selectedProgramId || "", semester: selectedSemester || 1, section: "B", academic_year: "2026-2027", max_capacity: 60 });
       loadAdminData();
     } catch (err: any) {
       toast.error(err.message || "Failed To Save Section.");
@@ -854,7 +854,7 @@ export function AdminPortal() {
       formData.append("title", newMaterial.title.trim() || (targetMatType === "SOLVED_PYQ" ? "University Solved PYQ" : "Unit Notes"));
       formData.append("material_type", targetMatType);
       formData.append("unit_number", String(newMaterial.unit_number || 1));
-      formData.append("academic_year", newMaterial.academic_year || "2024");
+      formData.append("academic_year", newMaterial.academic_year || "2026-2027");
       formData.append("summary", newMaterial.summary || "");
       formData.append("is_topper_verified", String(newMaterial.is_topper_verified));
       
@@ -907,7 +907,7 @@ export function AdminPortal() {
         title: "",
         material_type: publisherType,
         unit_number: 1,
-        academic_year: "2024",
+        academic_year: "2026-2027",
         summary: "",
         page_count: 1,
         is_topper_verified: true,
@@ -1739,7 +1739,7 @@ export function AdminPortal() {
                         <div className="space-y-2 pt-2 border-t border-border/60">
                           <div className="flex items-center justify-between text-xs font-mono">
                             <span className="text-muted-foreground text-[0.68rem]">Batch / Academic Year</span>
-                            <span className="font-bold text-foreground text-[0.7rem]">{sec.academic_year || "2025-2026"}</span>
+                            <span className="font-bold text-foreground text-[0.7rem]">{sec.academic_year || "2026-2027"}</span>
                           </div>
                           <div className="flex items-center justify-between rounded-xl bg-surface/80 px-2.5 py-1.5 text-xs font-mono">
                             <span className="text-muted-foreground text-[0.68rem]">Capacity Limit</span>
@@ -2068,7 +2068,7 @@ export function AdminPortal() {
                           <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs text-muted-foreground">
                             <span className="font-mono text-[0.7rem]">{mat.page_count} Pages · {mat.is_topper_verified ? "Topper Verified" : "Standard"}</span>
                             <div className="flex items-center gap-3">
-                              <span className="font-mono text-[0.68rem]">{mat.academic_year}</span>
+                              <span className="font-mono text-[0.68rem]">{mat.academic_year || "2026-2027"}</span>
                               <button
                                 onClick={() => setPreviewMaterialId(mat.id)}
                                 className="font-bold text-primary hover:underline text-xs cursor-pointer inline-flex items-center gap-1"
@@ -3900,8 +3900,8 @@ export function AdminPortal() {
                     type="text"
                     value={newSection.academic_year}
                     onChange={(e) => setNewSection({ ...newSection, academic_year: e.target.value })}
-                    placeholder="2026"
-                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
+                    placeholder="2026-2027"
+                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-mono font-bold focus:border-primary focus:outline-none"
                   />
                 </div>
                 <div>
@@ -4218,31 +4218,30 @@ export function AdminPortal() {
                     ))}
                   </select>
                 </div>
-                {publisherType === "NOTES" ? (
-                  <div>
-                    <label className="block font-bold mb-1">Unit Number (1–5)</label>
-                    <select
-                      value={newMaterial.unit_number}
-                      onChange={(e) => setNewMaterial({ ...newMaterial, unit_number: Number(e.target.value) })}
-                      className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
-                    >
-                      {[1, 2, 3, 4, 5].map((u) => (
-                        <option key={u} value={u}>Unit {u}</option>
-                      ))}
-                    </select>
-                  </div>
-                ) : (
-                  <div>
-                    <label className="block font-bold mb-1">Exam Year</label>
-                    <input
-                      type="text"
-                      value={newMaterial.academic_year}
-                      onChange={(e) => setNewMaterial({ ...newMaterial, academic_year: e.target.value })}
-                      placeholder="2024"
-                      className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
-                    />
-                  </div>
-                )}
+                <div>
+                  <label className="block font-bold mb-1">
+                    {publisherType === "NOTES" ? "Curriculum Unit (1–5)" : "Paper Unit / Module"}
+                  </label>
+                  <select
+                    value={newMaterial.unit_number}
+                    onChange={(e) => setNewMaterial({ ...newMaterial, unit_number: Number(e.target.value) })}
+                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none font-semibold text-foreground"
+                  >
+                    {[1, 2, 3, 4, 5].map((u) => (
+                      <option key={u} value={u}>Unit {u}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block font-bold mb-1">Academic Session / Exam Year</label>
+                  <input
+                    type="text"
+                    value={newMaterial.academic_year}
+                    onChange={(e) => setNewMaterial({ ...newMaterial, academic_year: e.target.value })}
+                    placeholder="2026-2027"
+                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-mono font-bold text-primary focus:border-primary focus:outline-none"
+                  />
+                </div>
               </div>
 
               <div>
