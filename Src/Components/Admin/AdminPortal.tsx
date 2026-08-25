@@ -411,6 +411,13 @@ export function AdminPortal() {
       return;
     }
 
+    if (securityActionForm.action_type === "HARD_DELETE_USER") {
+      const confirmed = confirm(
+        `⚠️ CRITICAL HARD DELETE CONFIRMATION:\n\nAre you absolutely sure you want to permanently delete student account "${selectedStudentForAction.full_name || selectedStudentForAction.email}"?\n\nAll credentials, assignments, and DRM status will be permanently purged and lost forever.`
+      );
+      if (!confirmed) return;
+    }
+
     try {
       const res = await studentSecurityApi.performSecurityAction(selectedStudentForAction.id, {
         action_type: securityActionForm.action_type,
@@ -420,6 +427,11 @@ export function AdminPortal() {
         access_tier: securityActionForm.access_tier,
       });
       toast.success(toTitleCase(res.message || "Security Action Executed & Logged."));
+
+      if (securityActionForm.action_type === "HARD_DELETE_USER") {
+        setStudents((prev) => prev.filter((s) => s.id !== selectedStudentForAction.id));
+      }
+
       setShowSecurityModal(false);
       setSelectedStudentForAction(null);
       setSecurityActionForm({
@@ -2912,23 +2924,42 @@ export function AdminPortal() {
                                   )}
                                 </td>
                                 <td className="p-4 text-right">
-                                  <button
-                                    onClick={() => {
-                                      setSelectedStudentForAction(st);
-                                      setSecurityActionForm({
-                                        action_type: st.is_drm_blocked ? "UNBLOCK_DRM" : "BLOCK_DRM",
-                                        reason: "",
-                                        cooldown_hours: 24,
-                                        warning_message: "",
-                                        access_tier: st.access_tier || "SEMESTER_TOPPER",
-                                      });
-                                      setShowSecurityModal(true);
-                                    }}
-                                    className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary hover:bg-primary hover:text-primary-foreground transition-all cursor-pointer"
-                                  >
-                                    <Shield className="h-3.5 w-3.5" />
-                                    <span>Security Controls</span>
-                                  </button>
+                                  <div className="flex items-center justify-end gap-2">
+                                    <button
+                                      onClick={() => {
+                                        setSelectedStudentForAction(st);
+                                        setSecurityActionForm({
+                                          action_type: st.is_drm_blocked ? "UNBLOCK_DRM" : "BLOCK_DRM",
+                                          reason: "",
+                                          cooldown_hours: 24,
+                                          warning_message: "",
+                                          access_tier: st.access_tier || "SEMESTER_TOPPER",
+                                        });
+                                        setShowSecurityModal(true);
+                                      }}
+                                      className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 px-3 py-1.5 text-xs font-bold text-primary hover:bg-primary hover:text-primary-foreground transition-all cursor-pointer"
+                                    >
+                                      <Shield className="h-3.5 w-3.5" />
+                                      <span>Security Controls</span>
+                                    </button>
+                                    <button
+                                      onClick={() => {
+                                        setSelectedStudentForAction(st);
+                                        setSecurityActionForm({
+                                          action_type: "HARD_DELETE_USER",
+                                          reason: "Permanent Administrative Hard Delete",
+                                          cooldown_hours: 24,
+                                          warning_message: "",
+                                          access_tier: st.access_tier || "SEMESTER_TOPPER",
+                                        });
+                                        setShowSecurityModal(true);
+                                      }}
+                                      title="Permanent Hard Delete Account"
+                                      className="inline-flex items-center gap-1 rounded-xl bg-rose-500/10 p-1.5 text-xs font-bold text-rose-500 hover:bg-rose-500 hover:text-white transition-all cursor-pointer shadow-2xs"
+                                    >
+                                      <Trash2 className="h-3.5 w-3.5" />
+                                    </button>
+                                  </div>
                                 </td>
                               </tr>
                             );
@@ -5337,8 +5368,22 @@ export function AdminPortal() {
                   <option value="REVOKE_SESSIONS">🔄 Revoke All Active Browser Sessions</option>
                   <option value="RESET_VIOLATIONS">0️⃣ Reset Violations Counter to Zero</option>
                   <option value="CHANGE_TIER">👑 Change Scholar Access Tier</option>
+                  <option value="HARD_DELETE_USER" className="text-rose-600 font-bold">🗑️ Permanent Hard Delete Account (Purge All Records &amp; DRM)</option>
                 </select>
               </div>
+
+              {/* Critical Alert Box for Hard Delete */}
+              {securityActionForm.action_type === "HARD_DELETE_USER" && (
+                <div className="rounded-2xl border border-rose-500/50 bg-rose-500/10 p-3.5 space-y-1.5 text-rose-600 dark:text-rose-400">
+                  <div className="flex items-center gap-2 font-bold text-xs">
+                    <AlertCircle className="h-4 w-4 shrink-0 text-rose-500" />
+                    <span>Irrevocable Permanent Hard Delete</span>
+                  </div>
+                  <p className="text-[0.7rem] text-zinc-300 leading-relaxed">
+                    This will permanently delete the student account from the database. All user profile records, DRM access permissions, session histories, and disciplinary records will be lost forever.
+                  </p>
+                </div>
+              )}
 
               {/* Conditional Field: Cooldown Hours */}
               {securityActionForm.action_type === "SET_COOLDOWN" && (
@@ -5403,7 +5448,11 @@ export function AdminPortal() {
                   rows={3}
                   value={securityActionForm.reason}
                   onChange={(e) => setSecurityActionForm({ ...securityActionForm, reason: e.target.value })}
-                  placeholder="Explain Why This Security Action Or Lock Is Being Enforced..."
+                  placeholder={
+                    securityActionForm.action_type === "HARD_DELETE_USER"
+                      ? "Explain Why This User Account Is Being Permanently Purged From Database..."
+                      : "Explain Why This Security Action Or Lock Is Being Enforced..."
+                  }
                   required
                   className="w-full rounded-2xl border border-border bg-background p-3 focus:border-primary focus:outline-none leading-relaxed"
                 />
@@ -5412,9 +5461,16 @@ export function AdminPortal() {
               <button
                 type="button"
                 onClick={handleExecuteSecurityAction}
-                className="h-11 w-full rounded-2xl bg-primary font-bold text-primary-foreground shadow-md hover:bg-primary-deep transition-all cursor-pointer"
+                className={cn(
+                  "h-11 w-full rounded-2xl font-bold text-white shadow-md transition-all cursor-pointer",
+                  securityActionForm.action_type === "HARD_DELETE_USER"
+                    ? "bg-rose-600 hover:bg-rose-700"
+                    : "bg-primary text-primary-foreground hover:bg-primary-deep"
+                )}
               >
-                Confirm &amp; Execute Security Action
+                {securityActionForm.action_type === "HARD_DELETE_USER"
+                  ? "Permanently Hard Delete User Account"
+                  : "Confirm & Execute Security Action"}
               </button>
             </div>
           </div>

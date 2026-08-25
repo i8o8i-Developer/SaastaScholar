@@ -239,10 +239,29 @@ class AdminStudentsListView(generics.ListAPIView):
     permission_classes = [permissions.IsAdminUser]
     pagination_class = None
 
-class AdminStudentDetailView(generics.RetrieveUpdateAPIView):
+class AdminStudentDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = StudentUser.objects.all()
     serializer_class = StudentUserSerializer
     permission_classes = [permissions.IsAdminUser]
+
+    def perform_destroy(self, instance):
+        from Apps.Accounts.models import AdminAuditLog, ActionType
+        AdminAuditLog.objects.create(
+            actor=self.request.user,
+            target_user=None,
+            target_email=instance.email,
+            target_name=instance.full_name or instance.username,
+            action_type=ActionType.HARD_DELETE_USER,
+            reason="Permanent User Account Hard Delete Executed By Administrator.",
+            metadata={
+                "deleted_user_id": str(instance.id),
+                "roll_number": instance.roll_number,
+                "email": instance.email,
+                "drm_status_lost": True,
+            },
+            ip_address=self.request.META.get("REMOTE_ADDR", "127.0.0.1"),
+        )
+        instance.delete()
 
 DEFAULT_BADGES = [
     {"id": "notes", "label": "Handwritten Notes", "badge_text": "Topper", "badge_variant": "emerald", "is_active": True, "display_order": 1},

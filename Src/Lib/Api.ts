@@ -681,6 +681,8 @@ export const studentSecurityApi = {
       `/accounts/admin/users/${userId}/security-action/`,
       { method: "POST", body: JSON.stringify(data) }
     ),
+  hardDeleteStudent: (userId: string) =>
+    apiFetch<{ message: string; deleted_id: string }>(`/academic/admin/students/${userId}/`, { method: "DELETE" }),
   getAuditLogs: async (params?: { action?: string; target_id?: string; search?: string }): Promise<AdminAuditLog[]> => {
     const query = new URLSearchParams();
     if (params?.action) query.set("action", params.action);

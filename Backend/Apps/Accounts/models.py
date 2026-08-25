@@ -82,6 +82,7 @@ class ActionType(models.TextChoices):
     REVOKE_SESSIONS = "REVOKE_SESSIONS", "Revoke All Security Sessions"
     RESET_VIOLATIONS = "RESET_VIOLATIONS", "Reset Violations Counter"
     CHANGE_TIER = "CHANGE_TIER", "Change Access Tier"
+    HARD_DELETE_USER = "HARD_DELETE_USER", "Hard Delete User Account"
 
 class AdminAuditLog(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

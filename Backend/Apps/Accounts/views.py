@@ -284,6 +284,35 @@ class AdminStudentSecurityActionView(APIView):
                 meta_info["new_tier"] = access_tier
             else:
                 return Response({"error": "Invalid Access Tier Selected."}, status=status.HTTP_400_BAD_REQUEST)
+
+        elif action_type == ActionType.HARD_DELETE_USER or action_type == "HARD_DELETE_USER":
+            target_email = target_user.email
+            target_name = target_user.full_name or target_user.username
+            target_id_str = str(target_user.id)
+            meta_info["status"] = "Student Account And All Associated DRM Records Permanently Deleted"
+            meta_info["deleted_email"] = target_email
+            meta_info["deleted_user_id"] = target_id_str
+
+            client_ip = get_client_ip(request)
+            AdminAuditLog.objects.create(
+                actor=request.user,
+                target_user=None,
+                target_email=target_email,
+                target_name=target_name,
+                action_type=ActionType.HARD_DELETE_USER,
+                reason=reason or "Permanent Account Hard Delete Executed By Administrator.",
+                metadata=meta_info,
+                ip_address=client_ip,
+            )
+
+            # Permanent Hard Delete Purge
+            target_user.delete()
+
+            return Response({
+                "message": f"Student Account '{target_name}' ({target_email}) And All Associated DRM Records Have Been Permanently Hard Deleted.",
+                "deleted_id": target_id_str,
+                "metadata": meta_info,
+            })
         else:
             return Response({"error": f"Unknown Security Action Type '{action_type}'."}, status=status.HTTP_400_BAD_REQUEST)
 
