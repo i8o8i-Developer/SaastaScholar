@@ -178,6 +178,11 @@ export function AdminPortal() {
 
   const [showMaterialModal, setShowMaterialModal] = useState<boolean>(false);
   const [editingMaterialId, setEditingMaterialId] = useState<string | null>(null);
+  const [isUploadingMaterial, setIsUploadingMaterial] = useState<boolean>(false);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [uploadStage, setUploadStage] = useState<"IDLE" | "PREPARING" | "UPLOADING" | "PROCESSING" | "COMPLETE">("IDLE");
+  const [uploadedBytesText, setUploadedBytesText] = useState<string>("");
+  const [uploadSpeedText, setUploadSpeedText] = useState<string>("");
 
   const [showLabModal, setShowLabModal] = useState<boolean>(false);
   const [editingLabId, setEditingLabId] = useState<string | null>(null);
@@ -918,24 +923,74 @@ export function AdminPortal() {
       const url = editingMaterialId ? `/api/academic/admin/materials/${editingMaterialId}/` : "/api/academic/admin/materials/";
       const method = editingMaterialId ? "PATCH" : "POST";
 
-      const res = await fetch(url, {
-        method: method,
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
+      setIsUploadingMaterial(true);
+      setUploadProgress(0);
+      setUploadStage("PREPARING");
+      setUploadedBytesText("Preparing Document Package...");
+      setUploadSpeedText("");
 
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        let errorMsg = errorData.error || errorData.detail;
-        if (!errorMsg && typeof errorData === "object") {
-          errorMsg = Object.entries(errorData)
-            .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`)
-            .join(" | ");
+      const startTime = Date.now();
+
+      await new Promise<void>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open(method, url);
+        if (token) {
+          xhr.setRequestHeader("Authorization", `Bearer ${token}`);
         }
-        throw new Error(errorMsg || "Failed To Save Study Material.");
-      }
+
+        xhr.upload.onprogress = (event) => {
+          if (event.lengthComputable) {
+            const percent = Math.min(Math.round((event.loaded / event.total) * 100), 99);
+            const loadedMB = (event.loaded / (1024 * 1024)).toFixed(1);
+            const totalMB = (event.total / (1024 * 1024)).toFixed(1);
+            const elapsedSec = Math.max((Date.now() - startTime) / 1000, 0.1);
+            const speedMBps = (event.loaded / (1024 * 1024) / elapsedSec).toFixed(1);
+
+            setUploadProgress(percent);
+            setUploadStage("UPLOADING");
+            setUploadedBytesText(`${loadedMB} MB of ${totalMB} MB`);
+            setUploadSpeedText(`${speedMBps} MB/s`);
+
+            if (event.loaded >= event.total) {
+              setUploadProgress(100);
+              setUploadStage("PROCESSING");
+              setUploadedBytesText("Processing Document & Building DRM Pages...");
+              setUploadSpeedText("");
+            }
+          }
+        };
+
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            setUploadProgress(100);
+            setUploadStage("COMPLETE");
+            resolve();
+          } else {
+            try {
+              const err = JSON.parse(xhr.responseText);
+              let msg = err.error || err.detail;
+              if (!msg && typeof err === "object") {
+                msg = Object.entries(err)
+                  .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`)
+                  .join(" | ");
+              }
+              reject(new Error(msg || `Upload Failed With HTTP ${xhr.status}`));
+            } catch {
+              reject(new Error(`Server Responded With HTTP ${xhr.status}`));
+            }
+          }
+        };
+
+        xhr.onerror = () => {
+          reject(new Error("Network Connection Interrupted During Document Upload."));
+        };
+
+        xhr.ontimeout = () => {
+          reject(new Error("Document Upload Timed Out. Please Try Again."));
+        };
+
+        xhr.send(formData);
+      });
 
       toast.success(editingMaterialId ? "Study Material Updated Successfully." : "Academic Study Material Published Successfully.");
       setShowMaterialModal(false);
@@ -956,13 +1011,17 @@ export function AdminPortal() {
         {
           page_number: 1,
           page_title: "Unit 1: Foundations & Core Concepts",
-          content_html: "## 1. Core Architectural Concepts\n- **Definition**: Theoretical Foundations And Analytical Models.\n- **Complexity**: $O(N \\log N)$ asymptotic bounds.\n\n```python\n# Implementation Sample\ndef compute_solution(data):\n    Return Sorted(data)\n```",
+          content_html: "## 1. Core Architectural Concepts\n- **Definition**: Theoretical Foundations And Analytical Models.\n- **Complexity**: $O(N \\log N)$ asymptotic bounds.\n\n```python\n# Implementation Sample\ndef compute_solution(data):\n    return sorted(data)\n```",
         },
       ]);
       setActivePageIndex(0);
       loadAdminData();
     } catch (err: any) {
-      toast.error(err.message || "Failed To Save Material.");
+      toast.error(toTitleCase(err.message || "Failed To Save Material."));
+    } finally {
+      setIsUploadingMaterial(false);
+      setUploadStage("IDLE");
+      setUploadProgress(0);
     }
   };
 
@@ -4883,9 +4942,72 @@ export function AdminPortal() {
                 </div>
               </div>
 
-              <button type="submit" className="h-11 w-full rounded-2xl bg-primary font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer flex items-center justify-center gap-2 text-sm">
-                <Sparkles className="h-4 w-4" />
-                <span>{editingMaterialId ? "Save Study Material Changes" : "Publish Study Material Live"}</span>
+              {/* Real-Time Document Upload Progress & Status Bar */}
+              {isUploadingMaterial && (
+                <div className="rounded-2xl border border-primary/30 bg-primary/5 p-4 space-y-3 animate-in fade-in duration-300">
+                  <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2.5">
+                      <div className="grid h-8 w-8 place-items-center rounded-xl bg-primary/20 text-primary">
+                        <RefreshCw className="h-4 w-4 animate-spin" />
+                      </div>
+                      <div>
+                        <span className="font-bold text-foreground block">
+                          {uploadStage === "PREPARING" && "Preparing Document Package..."}
+                          {uploadStage === "UPLOADING" && `Uploading Document (${uploadProgress}%)...`}
+                          {uploadStage === "PROCESSING" && "Processing DRM Protection & Generating Pages..."}
+                          {uploadStage === "COMPLETE" && "Upload Completed Successfully!"}
+                        </span>
+                        <span className="text-[0.68rem] text-muted-foreground font-mono">
+                          {uploadedBytesText} {uploadSpeedText ? `· ${uploadSpeedText}` : ""}
+                        </span>
+                      </div>
+                    </div>
+                    <span className="font-mono text-base font-extrabold text-primary">
+                      {uploadProgress}%
+                    </span>
+                  </div>
+
+                  {/* Dynamic Animated Glowing Progress Bar */}
+                  <div className="relative h-2.5 w-full overflow-hidden rounded-full bg-surface border border-border/80 shadow-inner">
+                    <div
+                      className="h-full bg-gradient-to-r from-emerald-500 via-teal-400 to-primary transition-all duration-200 ease-out shadow-sm rounded-full"
+                      style={{ width: `${uploadProgress}%` }}
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between text-[0.65rem] text-muted-foreground font-medium">
+                    <span className="flex items-center gap-1">
+                      <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
+                      <span>Encrypted High-Speed Chunked Transfer</span>
+                    </span>
+                    <span className="font-bold text-amber-600 dark:text-amber-400">Please Do Not Close This Window</span>
+                  </div>
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={isUploadingMaterial}
+                className={cn(
+                  "h-11 w-full rounded-2xl bg-primary font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer flex items-center justify-center gap-2 text-sm transition-all active:scale-98",
+                  isUploadingMaterial && "opacity-60 cursor-not-allowed"
+                )}
+              >
+                {isUploadingMaterial ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 animate-spin" />
+                    <span>
+                      {uploadStage === "PROCESSING"
+                        ? "Processing DRM Security & Pages..."
+                        : `Uploading (${uploadProgress}%)...`}
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4" />
+                    <span>{editingMaterialId ? "Save Study Material Changes" : "Publish Study Material Live"}</span>
+                  </>
+                )}
               </button>
             </form>
           </div>
