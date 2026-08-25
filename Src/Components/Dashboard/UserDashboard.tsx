@@ -5,6 +5,7 @@ import { DashboardLayout } from "./DashboardLayout";
 import { DashboardOverview } from "./DashboardOverview";
 import { NotesHub } from "./NotesHub";
 import { PyqsHub } from "./PyqsHub";
+import { SyllabusHub } from "./SyllabusHub";
 import { FacultyHub } from "./FacultyHub";
 import { LabsHub } from "./LabsHub";
 import { AssignmentsTracker } from "./AssignmentsTracker";
@@ -69,6 +70,9 @@ export function UserDashboard() {
           )}
           {activeTab === "pyqs" && (
             <PyqsHub onOpenReader={handleOpenReader} />
+          )}
+          {activeTab === "syllabus" && (
+            <SyllabusHub onOpenReader={handleOpenReader} />
           )}
           {activeTab === "faculty" && (
             <FacultyHub onOpenReader={handleOpenReader} />

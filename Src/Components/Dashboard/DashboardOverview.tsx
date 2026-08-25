@@ -21,6 +21,7 @@ import {
   Layers,
   LineChart,
   PieChart,
+  ScrollText,
   ShieldCheck,
   Sparkles,
   Target,
@@ -98,6 +99,7 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
   // Dynamic counts
   const notesCount = materials.filter((m) => m.material_type === "NOTES").length;
   const pyqsCount = materials.filter((m) => m.material_type === "SOLVED_PYQ").length;
+  const syllabusCount = materials.filter((m) => m.material_type === "SYLLABUS").length;
   const labsCount = summary?.metrics?.lab_manuals_count || materials.filter((m) => m.material_type === "LAB_MANUAL").length;
   const pendingAssignmentsCount = assignments.filter((a) => a.status === "PENDING" || a.status === "IN_PROGRESS").length;
 
@@ -254,8 +256,8 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
         </div>
       )}
 
-      {/* ================= 3. Four Dynamic Resource Cards ================= */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      {/* ================= 3. Five Dynamic Resource Cards ================= */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {/* Card 1: Handwritten Notes */}
         <button
           onClick={() => onNavigateTab("notes")}
@@ -306,7 +308,32 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
           </div>
         </button>
 
-        {/* Card 3: Lab Manuals */}
+        {/* Card 3: Official Syllabus */}
+        <button
+          onClick={() => onNavigateTab("syllabus")}
+          className="rounded-3xl border border-border/80 bg-card p-5 text-left shadow-xs hover:border-teal-500/50 hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between space-y-4"
+        >
+          <div>
+            <div className="flex items-center justify-between border-b border-border/60 pb-3">
+              <span className="text-[0.65rem] font-bold uppercase text-muted-foreground tracking-wider">Official Syllabus</span>
+              <div className="grid h-8 w-8 place-items-center rounded-xl bg-teal-500/10 text-teal-600">
+                <ScrollText className="h-4 w-4" />
+              </div>
+            </div>
+            <div className="mt-3">
+              <span className="font-display text-2xl sm:text-3xl font-bold text-foreground font-mono">
+                {syllabusCount} <span className="text-xs text-muted-foreground font-normal">Guides</span>
+              </span>
+              <p className="text-xs text-muted-foreground mt-1">Curriculum &amp; Exam Objectives</p>
+            </div>
+          </div>
+          <div className="flex items-center text-xs font-bold text-teal-600 group-hover:translate-x-1 transition-transform">
+            <span>View Syllabus</span>
+            <ChevronRight className="h-4 w-4 ml-1" />
+          </div>
+        </button>
+
+        {/* Card 4: Lab Manuals */}
         <button
           onClick={() => onNavigateTab("labs")}
           className="rounded-3xl border border-border/80 bg-card p-5 text-left shadow-xs hover:border-purple-500/50 hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between space-y-4"
@@ -331,7 +358,7 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
           </div>
         </button>
 
-        {/* Card 4: Assignments */}
+        {/* Card 5: Assignments */}
         <button
           onClick={() => onNavigateTab("assignments")}
           className="rounded-3xl border border-border/80 bg-card p-5 text-left shadow-xs hover:border-amber-500/50 hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between space-y-4"

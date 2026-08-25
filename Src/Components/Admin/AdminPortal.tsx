@@ -33,6 +33,7 @@ import {
   Pencil,
   Plus,
   RefreshCw,
+  ScrollText,
   Search,
   Send,
   Shield,
@@ -101,6 +102,7 @@ type AdminStation =
 type PublisherContentType =
   | "NOTES"
   | "SOLVED_PYQ"
+  | "SYLLABUS"
   | "LAB_MANUAL"
   | "FORMULA_SHEET"
   | "FACULTY";
@@ -2156,6 +2158,25 @@ export function AdminPortal() {
                     📊 Solved PYQs ({filteredMaterials.filter((m) => m.material_type === "SOLVED_PYQ").length})
                   </button>
                   <button
+                    onClick={() => {
+                      setPublisherType("SYLLABUS");
+                      setMaterialPages([{
+                        page_number: 1,
+                        page_title: "Module 1: Curriculum Breakdown & Objectives",
+                        content_html: "## Module 1: Course Overview\n- **Course Objectives**: Theoretical foundation and learning outcomes.\n- **Prescribed Textbooks**: Official reference manuals and guides.",
+                      }]);
+                      setActivePageIndex(0);
+                    }}
+                    className={cn(
+                      "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0",
+                      publisherType === "SYLLABUS"
+                        ? "bg-primary text-primary-foreground shadow-xs"
+                        : "text-muted-foreground hover:text-foreground",
+                    )}
+                  >
+                    📜 Official Syllabus ({filteredMaterials.filter((m) => m.material_type === "SYLLABUS").length})
+                  </button>
+                  <button
                     onClick={() => setPublisherType("LAB_MANUAL")}
                     className={cn(
                       "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0",
@@ -2210,6 +2231,18 @@ export function AdminPortal() {
                     >
                       <Plus className="h-4 w-4" />
                       <span>Publish Solved PYQ</span>
+                    </button>
+                  )}
+                  {publisherType === "SYLLABUS" && (
+                    <button
+                      onClick={() => {
+                        setNewMaterial({ ...newMaterial, material_type: "SYLLABUS", subject: selectedSubjectId || (subjects[0]?.id || "") });
+                        setShowMaterialModal(true);
+                      }}
+                      className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer"
+                    >
+                      <Plus className="h-4 w-4" />
+                      <span>Publish Official Syllabus</span>
                     </button>
                   )}
                   {publisherType === "LAB_MANUAL" && (
@@ -2416,6 +2449,84 @@ export function AdminPortal() {
                   )}
                 </div>
               )}
+
+              {/* Official Syllabus List */}
+              {publisherType === "SYLLABUS" && (
+                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                  {filteredMaterials.filter((m) => m.material_type === "SYLLABUS").length === 0 ? (
+                    <div className="col-span-full rounded-3xl border border-dashed border-border bg-card/60 p-12 text-center space-y-3">
+                      <ScrollText className="h-10 w-10 mx-auto text-muted-foreground/40" />
+                      <h3 className="font-display font-bold text-base text-foreground">No Official Syllabus Published For This Filter</h3>
+                      <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                        Click "Publish Official Syllabus" Above To Upload Course Curriculum Breakdown &amp; Objectives.
+                      </p>
+                    </div>
+                  ) : (
+                    filteredMaterials
+                      .filter((m) => m.material_type === "SYLLABUS")
+                      .map((mat) => (
+                        <div key={mat.id} className="rounded-3xl border border-border/80 bg-gradient-to-b from-card via-card to-surface/30 p-5 sm:p-6 shadow-xs flex flex-col justify-between space-y-4 hover:border-primary/50 hover:shadow-lg transition-all">
+                          <div className="space-y-3">
+                            <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-3">
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="rounded-xl bg-teal-500/10 border border-teal-500/20 px-2.5 py-1 text-xs font-bold font-mono text-teal-700 dark:text-teal-300 whitespace-nowrap">
+                                  {mat.subject_code} {mat.unit_number ? `· Unit ${mat.unit_number}` : "· Full Syllabus"}
+                                </span>
+                                {mat.file ? (
+                                  <span className="rounded-xl bg-rose-500/10 border border-rose-500/20 px-2.5 py-1 text-[0.68rem] font-bold font-mono text-rose-600 dark:text-rose-400 whitespace-nowrap inline-flex items-center gap-1">
+                                    <FileText className="h-3 w-3" />
+                                    {mat.file.endsWith(".pdf") ? "PDF Doc" : "Doc File"}
+                                  </span>
+                                ) : (
+                                  <span className="rounded-xl bg-teal-500/10 border border-teal-500/20 px-2.5 py-1 text-[0.68rem] font-bold font-mono text-teal-600 dark:text-teal-400 whitespace-nowrap inline-flex items-center gap-1">
+                                    <ScrollText className="h-3 w-3" />
+                                    Studio Syllabus
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex items-center gap-1 shrink-0">
+                                <button
+                                  onClick={() => handleEditMaterial(mat)}
+                                  className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
+                                  title="Edit Syllabus"
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                </button>
+                                <button
+                                  onClick={() => setPreviewMaterialId(mat.id)}
+                                  className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
+                                  title="Preview in DRM Secure Reader"
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteItem("/academic/admin/materials/", mat.id, mat.title, loadAdminData)}
+                                  className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer"
+                                  title="Delete Syllabus"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              </div>
+                            </div>
+                            <h3 className="font-display text-base font-bold text-foreground leading-snug">{mat.title}</h3>
+                            <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed min-h-[32px]">{mat.summary || "Official university curriculum breakdown & module reference."}</p>
+                          </div>
+                          <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs text-muted-foreground">
+                            <span className="font-mono text-[0.7rem]">{mat.page_count} Pages · Official Syllabus</span>
+                            <button
+                              onClick={() => setPreviewMaterialId(mat.id)}
+                              className="font-bold text-primary hover:underline text-xs cursor-pointer inline-flex items-center gap-1"
+                            >
+                              <span>Preview</span>
+                              <Eye className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                  )}
+                </div>
+              )}
+
               {/* Faculty Materials List */}
               {publisherType === "FACULTY" && (
                 <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -4521,7 +4632,7 @@ export function AdminPortal() {
                 <h3 className="font-display font-bold text-lg text-foreground">
                   {editingMaterialId
                     ? "Edit Academic Study Material"
-                    : `Publish ${publisherType === "NOTES" ? "Unit Handwritten Notes" : publisherType === "FACULTY" ? "Faculty Material" : "Solved University PYQ"}`}
+                    : `Publish ${publisherType === "NOTES" ? "Unit Handwritten Notes" : publisherType === "SYLLABUS" ? "Official Syllabus Breakdown" : publisherType === "FACULTY" ? "Faculty Material" : "Solved University PYQ"}`}
                 </h3>
                 <p className="text-xs text-muted-foreground">
                   Compose page-by-page DRM manuscripts or upload full PDF/PPT courseware documents.
@@ -4587,7 +4698,7 @@ export function AdminPortal() {
                 </div>
                 <div>
                   <label className="block font-bold mb-1">
-                    {publisherType === "NOTES" ? "Curriculum Unit (1–5)" : "Paper Unit / Module"}
+                    {publisherType === "NOTES" ? "Curriculum Unit (1–5)" : publisherType === "SYLLABUS" ? "Curriculum Unit / Module" : "Paper Unit / Module"}
                   </label>
                   <select
                     value={newMaterial.unit_number}
