@@ -170,117 +170,181 @@ def extract_and_populate_pages(material):
 
         # 1. PDF Handler
         if file_name.endswith(".pdf"):
+            extracted_pages = []
             try:
-                import pypdf
-                reader = pypdf.PdfReader(file_path)
-                total_pages = len(reader.pages)
-                for idx, page in enumerate(reader.pages, start=1):
-                    raw_text = page.extract_text() or ""
-                    if not raw_text.strip():
-                        raw_text = f"## Page {idx}: Visual Vector Manuscript\n\n- High-Yield Visual Diagram & Faculty Reference\n- Digital Copyright Protected by NimsWallah DRM Pipeline"
-                    
-                    formatted_html = parse_markdown_to_html(
-                        raw_text=raw_text,
-                        subject_code=subject_code,
-                        unit_number=unit_num,
-                        page_number=idx,
-                        total_pages=total_pages,
-                        title=f"{material.title} (Page {idx})",
-                    )
-                    MaterialPage.objects.create(
-                        material=material,
-                        page_number=idx,
-                        page_title=f"Page {idx}: {material.title}",
-                        content_html=formatted_html,
-                    )
-                if total_pages > 0:
+                # Engine A: pypdf
+                try:
+                    import pypdf
+                    reader = pypdf.PdfReader(file_path)
+                    for idx, page in enumerate(reader.pages, start=1):
+                        txt = (page.extract_text() or "").strip()
+                        extracted_pages.append((idx, txt))
+                except Exception:
+                    pass
+
+                # Engine B: PyPDF2 fallback
+                if not extracted_pages:
+                    try:
+                        import PyPDF2
+                        reader = PyPDF2.PdfReader(file_path)
+                        for idx, page in enumerate(reader.pages, start=1):
+                            txt = (page.extract_text() or "").strip()
+                            extracted_pages.append((idx, txt))
+                    except Exception:
+                        pass
+
+                # Engine C: fitz (PyMuPDF) fallback
+                if not extracted_pages:
+                    try:
+                        import fitz
+                        doc = fitz.open(file_path)
+                        for idx, page in enumerate(doc, start=1):
+                            txt = page.get_text().strip()
+                            extracted_pages.append((idx, txt))
+                    except Exception:
+                        pass
+
+                total_pages = len(extracted_pages) if extracted_pages else 1
+
+                if extracted_pages:
+                    for idx, raw_text in extracted_pages:
+                        if not raw_text:
+                            raw_text = f"## Page {idx}: {material.title}\n\n- Key Examination Concepts & Derivations\n- Verified Faculty Courseware Manuscript"
+
+                        formatted_html = parse_markdown_to_html(
+                            raw_text=raw_text,
+                            subject_code=subject_code,
+                            unit_number=unit_num,
+                            page_number=idx,
+                            total_pages=total_pages,
+                            title=f"{material.title} (Page {idx})",
+                        )
+                        MaterialPage.objects.create(
+                            material=material,
+                            page_number=idx,
+                            page_title=f"Page {idx}: {material.title}",
+                            content_html=formatted_html,
+                        )
                     material.page_count = total_pages
                     material.save(update_fields=["page_count"])
-                return
+                    return
             except Exception as e:
                 print("PDF Extraction Error:", e)
 
         # 2. PPTX / PPT Presentation Handler
         elif file_name.endswith((".pptx", ".ppt")):
+            extracted_slides = []
             try:
-                import pptx
-                prs = pptx.Presentation(file_path)
-                total_slides = len(prs.slides)
-                for idx, slide in enumerate(prs.slides, start=1):
-                    slide_title = f"Slide {idx}"
-                    if slide.shapes.title and slide.shapes.title.text.strip():
-                        slide_title = slide.shapes.title.text.strip()
-                    
-                    bullet_points = []
-                    for shape in slide.shapes:
-                        if shape.has_text_frame:
-                            for paragraph in shape.text_frame.paragraphs:
-                                txt = paragraph.text.strip()
-                                if txt and txt != slide_title:
-                                    bullet_points.append(f"- {txt}")
-                        elif shape.has_table:
-                            for row in shape.table.rows:
-                                row_txt = " | ".join(cell.text.strip() for cell in row.cells if cell.text.strip())
-                                if row_txt:
-                                    bullet_points.append(f"- **Table Row**: {row_txt}")
+                try:
+                    import pptx
+                    prs = pptx.Presentation(file_path)
+                    for idx, slide in enumerate(prs.slides, start=1):
+                        slide_title = f"Slide {idx}"
+                        if slide.shapes.title and slide.shapes.title.text.strip():
+                            slide_title = slide.shapes.title.text.strip()
+                        
+                        bullet_points = []
+                        for shape in slide.shapes:
+                            if shape.has_text_frame:
+                                for paragraph in shape.text_frame.paragraphs:
+                                    txt = paragraph.text.strip()
+                                    if txt and txt != slide_title:
+                                        bullet_points.append(f"- {txt}")
+                            elif shape.has_table:
+                                for row in shape.table.rows:
+                                    row_txt = " | ".join(cell.text.strip() for cell in row.cells if cell.text.strip())
+                                    if row_txt:
+                                        bullet_points.append(f"- **Table Row**: {row_txt}")
 
-                    if not bullet_points:
-                        bullet_points = ["- High-Yield Presentation Slide Graphic & Key Concepts", "- Faculty Verified Lecture Reference Deck"]
+                        if not bullet_points:
+                            bullet_points = ["- High-Yield Lecture Slide Reference & Visual Graphics"]
 
-                    raw_md = f"## {slide_title}\n\n" + "\n".join(bullet_points)
-                    formatted_html = parse_markdown_to_html(
-                        raw_text=raw_md,
-                        subject_code=subject_code,
-                        unit_number=unit_num,
-                        page_number=idx,
-                        total_pages=total_slides,
-                        title=f"{material.title} - Slide {idx}",
-                    )
-                    MaterialPage.objects.create(
-                        material=material,
-                        page_number=idx,
-                        page_title=f"Slide {idx}: {slide_title}",
-                        content_html=formatted_html,
-                    )
-                if total_slides > 0:
+                        raw_md = f"## {slide_title}\n\n" + "\n".join(bullet_points)
+                        extracted_slides.append((idx, slide_title, raw_md))
+                except Exception:
+                    pass
+
+                # Pure Python ZIP/XML Fallback for PPTX
+                if not extracted_slides and file_name.endswith(".pptx"):
+                    import zipfile
+                    import xml.etree.ElementTree as ET
+                    with zipfile.ZipFile(file_path, 'r') as z:
+                        slide_files = sorted([f for f in z.namelist() if f.startswith("ppt/slides/slide") and f.endswith(".xml")])
+                        for idx, sfile in enumerate(slide_files, start=1):
+                            tree = ET.fromstring(z.read(sfile))
+                            texts = [elem.text.strip() for elem in tree.iter() if elem.text and elem.text.strip()]
+                            slide_title = texts[0] if texts else f"Slide {idx}"
+                            bullets = [f"- {t}" for t in texts[1:]] if len(texts) > 1 else ["- High-Yield Slide Content"]
+                            raw_md = f"## {slide_title}\n\n" + "\n".join(bullets)
+                            extracted_slides.append((idx, slide_title, raw_md))
+
+                if extracted_slides:
+                    total_slides = len(extracted_slides)
+                    for idx, slide_title, raw_md in extracted_slides:
+                        formatted_html = parse_markdown_to_html(
+                            raw_text=raw_md,
+                            subject_code=subject_code,
+                            unit_number=unit_num,
+                            page_number=idx,
+                            total_pages=total_slides,
+                            title=f"{material.title} - Slide {idx}",
+                        )
+                        MaterialPage.objects.create(
+                            material=material,
+                            page_number=idx,
+                            page_title=f"Slide {idx}: {slide_title}",
+                            content_html=formatted_html,
+                        )
                     material.page_count = total_slides
                     material.save(update_fields=["page_count"])
-                return
+                    return
             except Exception as e:
                 print("PPTX Extraction Error:", e)
 
         # 3. DOCX Word Handler
         elif file_name.endswith((".docx", ".doc")):
+            extracted_text = ""
             try:
-                import docx
-                doc = docx.Document(file_path)
-                paras = [p.text.strip() for p in doc.paragraphs if p.text.strip()]
-                
-                # Also extract table text
-                for table in doc.tables:
-                    for row in table.rows:
-                        row_cells = [c.text.strip() for c in row.cells if c.text.strip()]
-                        if row_cells:
-                            paras.append(f"- **Data Row**: {' | '.join(row_cells)}")
+                try:
+                    import docx
+                    doc = docx.Document(file_path)
+                    paras = [p.text.strip() for p in doc.paragraphs if p.text.strip()]
+                    for table in doc.tables:
+                        for row in table.rows:
+                            row_cells = [c.text.strip() for c in row.cells if c.text.strip()]
+                            if row_cells:
+                                paras.append(f"- **Data Row**: {' | '.join(row_cells)}")
+                    extracted_text = "\n\n".join(paras)
+                except Exception:
+                    pass
 
-                raw_md = "\n\n".join(paras) if paras else (material.summary or "Verified Academic Document.")
-                formatted_html = parse_markdown_to_html(
-                    raw_text=raw_md,
-                    subject_code=subject_code,
-                    unit_number=unit_num,
-                    page_number=1,
-                    total_pages=1,
-                    title=material.title,
-                )
-                MaterialPage.objects.create(
-                    material=material,
-                    page_number=1,
-                    page_title=f"Page 1: {material.title}",
-                    content_html=formatted_html,
-                )
-                material.page_count = 1
-                material.save(update_fields=["page_count"])
-                return
+                # Pure Python ZIP/XML Fallback for DOCX
+                if not extracted_text and file_name.endswith(".docx"):
+                    import zipfile
+                    import xml.etree.ElementTree as ET
+                    with zipfile.ZipFile(file_path, 'r') as z:
+                        tree = ET.fromstring(z.read("word/document.xml"))
+                        texts = [elem.text.strip() for elem in tree.iter() if elem.text and elem.text.strip()]
+                        extracted_text = "\n\n".join(texts)
+
+                if extracted_text:
+                    formatted_html = parse_markdown_to_html(
+                        raw_text=extracted_text,
+                        subject_code=subject_code,
+                        unit_number=unit_num,
+                        page_number=1,
+                        total_pages=1,
+                        title=material.title,
+                    )
+                    MaterialPage.objects.create(
+                        material=material,
+                        page_number=1,
+                        page_title=f"Page 1: {material.title}",
+                        content_html=formatted_html,
+                    )
+                    material.page_count = 1
+                    material.save(update_fields=["page_count"])
+                    return
             except Exception as e:
                 print("DOCX Extraction Error:", e)
 
@@ -310,9 +374,10 @@ def extract_and_populate_pages(material):
             except Exception as e:
                 print("TXT/MD Extraction Error:", e)
 
-        # Fallback default
+        # Fallback default (Ensures Clean Notes Manuscript is NEVER empty)
+        fallback_md = f"## {material.title}\n\n- **Subject**: {subject_code}\n- **Curriculum Unit**: Unit {unit_num}\n- **Summary & Key Derivations**:\n{material.summary or 'Verified high-yield lecture manuscript and examination reference.'}\n\n*Review all concepts and practice solved problems thoroughly.*"
         formatted_html = parse_markdown_to_html(
-            raw_text=material.summary or "Verified Courseware Document.",
+            raw_text=fallback_md,
             subject_code=subject_code,
             unit_number=unit_num,
             page_number=1,
@@ -325,5 +390,7 @@ def extract_and_populate_pages(material):
             page_title=f"Page 1: {material.title}",
             content_html=formatted_html,
         )
+        material.page_count = 1
+        material.save(update_fields=["page_count"])
     except Exception as e:
-        print("General Document Extraction Error :", e)
+        print("General Document Extraction Error:", e)

@@ -520,13 +520,8 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
                   src={(() => {
                     let pdfRaw = pageData.file_url || payload.file_url;
                     if (!pdfRaw) return "";
-                    //
                     if (pdfRaw.startsWith("/")) {
                       pdfRaw = `${window.location.origin}${pdfRaw}`;
-                    }
-                    const isMobile = typeof navigator !== "undefined" && /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
-                    if (isMobile) {
-                      return `https://docs.google.com/gview?embedded=true&url=${encodeURIComponent(pdfRaw)}`;
                     }
                     return `${pdfRaw}#page=${currentPage}&toolbar=0&navpanes=0&scrollbar=0`;
                   })()}

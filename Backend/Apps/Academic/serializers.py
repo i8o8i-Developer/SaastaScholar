@@ -306,7 +306,24 @@ class AcademicMaterialSerializer(serializers.ModelSerializer):
 
         material = super().create(validated_data)
 
-        if pages_list:
+    def create(self, validated_data):
+        pages_input = validated_data.pop("pages_input", None)
+        material = super().create(validated_data)
+        
+        pages_list = None
+        if pages_input:
+            if isinstance(pages_input, str):
+                try:
+                    pages_list = json.loads(pages_input)
+                except Exception:
+                    pages_list = []
+            elif isinstance(pages_input, list):
+                pages_list = pages_input
+
+        if material.file:
+            from Apps.Academic.document_processor import extract_and_populate_pages
+            extract_and_populate_pages(material)
+        elif pages_list:
             for p in pages_list:
                 p_num = p.get("page_number") or 1
                 p_title = p.get("page_title") or f"Page {p_num}"
@@ -317,18 +334,16 @@ class AcademicMaterialSerializer(serializers.ModelSerializer):
                     page_title=p_title,
                     content_html=p_content,
                 )
-        elif material.file:
-            from Apps.Academic.document_processor import extract_and_populate_pages
-            extract_and_populate_pages(material)
         return material
 
     def update(self, instance, validated_data):
         pages_input = validated_data.pop("pages_input", None)
         material = super().update(instance, validated_data)
+
         if material.file and not pages_input:
             from Apps.Academic.document_processor import extract_and_populate_pages
             extract_and_populate_pages(material)
-        return material
+            return material
 
         pages_list = None
         if pages_input is not None:
@@ -340,7 +355,7 @@ class AcademicMaterialSerializer(serializers.ModelSerializer):
             elif isinstance(pages_input, list):
                 pages_list = pages_input
 
-        if pages_list is not None:
+        if pages_list is not None and len(pages_list) > 0:
             MaterialPage.objects.filter(material=material).delete()
             for p in pages_list:
                 p_num = p.get("page_number") or 1
@@ -354,6 +369,9 @@ class AcademicMaterialSerializer(serializers.ModelSerializer):
                 )
             material.page_count = len(pages_list) or 1
             material.save(update_fields=["page_count"])
+        elif material.file:
+            from Apps.Academic.document_processor import extract_and_populate_pages
+            extract_and_populate_pages(material)
 
         return material
 
