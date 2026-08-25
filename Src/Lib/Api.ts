@@ -111,6 +111,7 @@ export interface Subject {
   program_codes?: string[];
   name: string;
   code: string;
+  short_name?: string;
   semester: number;
   credits: number;
   syllabus_summary?: string;

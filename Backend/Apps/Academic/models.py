@@ -63,6 +63,7 @@ class Subject(models.Model):
     programs = models.ManyToManyField(ProgramSpecialization, blank=True, related_name="subjects")
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=50, unique=True)
+    short_name = models.CharField(max_length=50, blank=True, default="")
     semester = models.PositiveSmallIntegerField(default=1, db_index=True)
     credits = models.PositiveSmallIntegerField(default=4)
     faculty_name = models.CharField(max_length=255, blank=True)

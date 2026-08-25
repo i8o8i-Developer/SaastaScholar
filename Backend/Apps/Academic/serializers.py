@@ -138,6 +138,7 @@ class SubjectSerializer(serializers.ModelSerializer):
             "program_codes",
             "name",
             "code",
+            "short_name",
             "semester",
             "credits",
             "faculty_name",

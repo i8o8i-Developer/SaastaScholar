@@ -200,6 +200,8 @@ export function AdminPortal() {
     semester: number;
     name: string;
     code: string;
+    short_name: string;
+    faculty_name: string;
     credits: number;
     syllabus_summary: string;
   }>({
@@ -207,6 +209,8 @@ export function AdminPortal() {
     semester: 1,
     name: "",
     code: "",
+    short_name: "",
+    faculty_name: "",
     credits: 4,
     syllabus_summary: "",
   });
@@ -583,6 +587,8 @@ export function AdminPortal() {
       semester: sub.semester || 1,
       name: sub.name,
       code: sub.code,
+      short_name: sub.short_name || "",
+      faculty_name: sub.faculty_name || "",
       credits: sub.credits || 4,
       syllabus_summary: sub.syllabus_summary || "",
     });
@@ -792,6 +798,8 @@ export function AdminPortal() {
       const payload = {
         name: newSubject.name.trim(),
         code: newSubject.code.trim().toUpperCase(),
+        short_name: (newSubject.short_name || "").trim().toUpperCase(),
+        faculty_name: (newSubject.faculty_name || "").trim(),
         semester: Number(newSubject.semester) || 1,
         credits: Number(newSubject.credits) || 4,
         programs: newSubject.programs,
@@ -819,6 +827,8 @@ export function AdminPortal() {
         semester: selectedSemester || 1,
         name: "",
         code: "",
+        short_name: "",
+        faculty_name: "",
         credits: 4,
         syllabus_summary: "",
       });
@@ -1492,6 +1502,8 @@ export function AdminPortal() {
                           semester: selectedSemester || 1,
                           name: "",
                           code: "",
+                          short_name: "",
+                          faculty_name: "",
                           credits: 4,
                           syllabus_summary: "",
                         });
@@ -1755,46 +1767,66 @@ export function AdminPortal() {
                     subjects.map((sub) => (
                       <div
                         key={sub.id}
-                        className="group relative rounded-3xl border border-border/80 bg-gradient-to-b from-card via-card to-surface/40 p-5 shadow-xs hover:shadow-md hover:border-emerald-500/50 transition-all flex flex-col justify-between space-y-4"
+                        className="group relative rounded-3xl border border-border/80 bg-gradient-to-b from-card via-card to-surface/40 p-5.5 shadow-xs hover:shadow-lg hover:border-primary/50 transition-all duration-200 flex flex-col justify-between space-y-4"
                       >
-                        <div className="space-y-3">
+                        <div className="space-y-3.5">
+                          {/* Card Header: Subject Code & Short Name Badges + Actions */}
                           <div className="flex items-center justify-between border-b border-border/60 pb-3">
-                            <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 text-xs font-bold font-mono text-emerald-600 dark:text-emerald-400">
-                              {sub.code}
-                            </span>
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              <span className="rounded-xl bg-primary/10 border border-primary/20 px-2.5 py-1 text-xs font-bold font-mono text-primary shadow-2xs">
+                                {sub.code}
+                              </span>
+                              {sub.short_name && (
+                                <span className="rounded-xl bg-violet-500/10 border border-violet-500/20 px-2.5 py-1 text-xs font-bold font-mono text-violet-600 dark:text-violet-400">
+                                  {sub.short_name}
+                                </span>
+                              )}
+                            </div>
                             <div className="flex items-center gap-1">
                               <button
                                 onClick={() => handleEditSubject(sub)}
-                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
+                                className="rounded-xl p-2 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
                                 title="Edit Course Subject"
                               >
                                 <Pencil className="h-4 w-4" />
                               </button>
                               <button
                                 onClick={() => handleDeleteItem("/academic/admin/subjects/", sub.id, sub.name, loadAdminData)}
-                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer transition-colors"
+                                className="rounded-xl p-2 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer transition-colors"
                                 title="Delete Subject"
                               >
                                 <Trash2 className="h-4 w-4" />
                               </button>
                             </div>
                           </div>
-                          <div>
+
+                          {/* Subject Name & Faculty */}
+                          <div className="space-y-2">
                             <h3 className="font-display text-base font-bold text-foreground leading-snug group-hover:text-primary transition-colors">
                               {sub.name}
                             </h3>
-                            <div className="mt-1.5 flex flex-wrap items-center gap-1">
+
+                            {/* Faculty Instructor Tag */}
+                            {sub.faculty_name && (
+                              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-surface border border-border text-xs font-semibold text-foreground/90">
+                                <GraduationCap className="h-3.5 w-3.5 text-primary shrink-0" />
+                                <span className="truncate">{sub.faculty_name}</span>
+                              </div>
+                            )}
+
+                            {/* Linked Degree Programs Badges */}
+                            <div className="flex flex-wrap items-center gap-1.5 pt-1">
                               {sub.program_codes && sub.program_codes.length > 0 ? (
                                 sub.program_codes.map((code, cIdx) => (
                                   <span
                                     key={cIdx}
-                                    className="rounded-md bg-surface border border-border px-1.5 py-0.5 text-[0.65rem] font-mono font-bold text-muted-foreground"
+                                    className="rounded-lg bg-surface/80 border border-border/80 px-2 py-0.5 text-[0.68rem] font-mono font-bold text-muted-foreground"
                                   >
                                     {code}
                                   </span>
                                 ))
                               ) : sub.program_name ? (
-                                <span className="rounded-md bg-surface border border-border px-1.5 py-0.5 text-[0.65rem] font-semibold text-muted-foreground">
+                                <span className="rounded-lg bg-surface/80 border border-border/80 px-2 py-0.5 text-[0.68rem] font-semibold text-muted-foreground">
                                   {sub.program_name}
                                 </span>
                               ) : (
@@ -1805,9 +1837,23 @@ export function AdminPortal() {
                             </div>
                           </div>
                         </div>
+
+                        {/* Card Footer: Semester, Credits, & Content Stats */}
                         <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs font-mono">
-                          <span className="text-muted-foreground">Semester {sub.semester}</span>
-                          <span className="font-bold text-primary">{sub.credits} Credits</span>
+                          <span className="rounded-lg bg-surface px-2 py-0.5 text-[0.7rem] font-bold text-muted-foreground">
+                            Semester {sub.semester}
+                          </span>
+                          <div className="flex items-center gap-2">
+                            {Number(sub.materials_count) > 0 && (
+                              <span className="text-[0.68rem] text-muted-foreground">
+                                {sub.materials_count} Notes
+                              </span>
+                            )}
+                            <span className="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-2 py-0.5 font-bold text-primary text-[0.72rem]">
+                              <Sparkles className="h-3 w-3" />
+                              {sub.credits} Credits
+                            </span>
+                          </div>
                         </div>
                       </div>
                     ))
@@ -4019,49 +4065,80 @@ export function AdminPortal() {
                   type="text"
                   value={newSubject.name}
                   onChange={(e) => setNewSubject({ ...newSubject, name: e.target.value })}
-                  placeholder="Artificial Intelligence & Neural Networks"
+                  placeholder="Programming For Problem Solving With C"
                   required
-                  className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
+                  className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none font-semibold text-foreground"
                 />
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block font-bold mb-1">Subject Code</label>
                   <input
                     type="text"
                     value={newSubject.code}
                     onChange={(e) => setNewSubject({ ...newSubject, code: e.target.value.toUpperCase() })}
-                    placeholder="CS501"
+                    placeholder="CSM101B"
                     required
-                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-mono font-bold focus:border-primary focus:outline-none"
+                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-mono font-bold focus:border-primary focus:outline-none text-foreground"
                   />
                 </div>
                 <div>
-                  <label className="block font-bold mb-1">Semester</label>
-                  <select
-                    value={newSubject.semester}
-                    onChange={(e) => setNewSubject({ ...newSubject, semester: Number(e.target.value) })}
-                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
-                  >
-                    {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
-                      <option key={s} value={s}>Semester {s}</option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block font-bold mb-1">Credits</label>
+                  <label className="block font-bold mb-1">Short Name / Abbreviation</label>
                   <input
-                    type="number"
-                    value={newSubject.credits}
-                    onChange={(e) => setNewSubject({ ...newSubject, credits: Number(e.target.value) })}
-                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
+                    type="text"
+                    value={newSubject.short_name}
+                    onChange={(e) => setNewSubject({ ...newSubject, short_name: e.target.value.toUpperCase() })}
+                    placeholder="PSC"
+                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-mono font-bold text-violet-600 dark:text-violet-400 focus:border-primary focus:outline-none"
                   />
                 </div>
               </div>
 
-              <button type="submit" className="h-11 w-full rounded-2xl bg-primary font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer">
-                {editingSubjectId ? "Save Subject Changes" : "Register Subject"}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold mb-1">Faculty Instructor Name</label>
+                  <div className="relative">
+                    <input
+                      type="text"
+                      value={newSubject.faculty_name}
+                      onChange={(e) => setNewSubject({ ...newSubject, faculty_name: e.target.value })}
+                      placeholder="Dr. Satyanand Gora"
+                      className="h-10 w-full rounded-2xl border border-border bg-background pl-9 pr-3 focus:border-primary focus:outline-none text-foreground font-medium"
+                    />
+                    <GraduationCap className="h-4 w-4 text-muted-foreground absolute left-3 top-3" />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block font-bold mb-1">Semester</label>
+                    <select
+                      value={newSubject.semester}
+                      onChange={(e) => setNewSubject({ ...newSubject, semester: Number(e.target.value) })}
+                      className="h-10 w-full rounded-2xl border border-border bg-background px-2.5 focus:border-primary focus:outline-none font-semibold text-foreground"
+                    >
+                      {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
+                        <option key={s} value={s}>Semester {s}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block font-bold mb-1">Credits</label>
+                    <input
+                      type="number"
+                      value={newSubject.credits}
+                      onChange={(e) => setNewSubject({ ...newSubject, credits: Number(e.target.value) })}
+                      min={1}
+                      max={12}
+                      className="h-10 w-full rounded-2xl border border-border bg-background px-2.5 font-bold focus:border-primary focus:outline-none text-foreground"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <button type="submit" className="h-11 w-full rounded-2xl bg-primary font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer flex items-center justify-center gap-2">
+                <Sparkles className="h-4 w-4" />
+                <span>{editingSubjectId ? "Save Subject Changes" : "Register Subject"}</span>
               </button>
             </form>
           </div>
