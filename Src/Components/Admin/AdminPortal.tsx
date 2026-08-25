@@ -2802,8 +2802,8 @@ export function AdminPortal() {
                       </div>
                       <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
                         {isDrmDisabled
-                          ? "All DRM document protections, screenshot blocker shields, blur overlays, and keyboard shortcut restrictions are completely STOPPED for all users."
-                          : "DRM document protections are actively securing PDFs, notes manuscripts, preventing screenshots, blocking PrintScreen, and sanitizing clipboards."}
+                          ? "All DRM Document Protections, Screenshot Blocker Shields, Blur Overlays, and Keyboard Shortcut Restrictions Are Completely STOPPED For All Users."
+                          : "DRM Document Protections Are Actively Securing PDFs, Notes Manuscripts, Preventing Screenshots, Blocking PrintScreen, And Sanitizing Clipboards."}
                       </p>
                     </div>
                   </div>
@@ -2889,7 +2889,7 @@ export function AdminPortal() {
                   <button
                     onClick={async () => {
                       const confirmed = confirm(
-                        "✨ GLOBAL CLEAN SLATE CONFIRMATION:\n\nAre you sure you want to reset and clear all DRM locks, login suspensions, cooldown periods, warning banners, and security violation counters for EVERY registered student across the entire platform?"
+                        "✨ GLOBAL CLEAN SLATE CONFIRMATION:\n\nAre You Sure You Want To Reset And Clear All DRM Locks, Login Suspensions, Cooldown Periods, Warning Banners, And Security Violation Counters For EVERY Registered Student Across The Entire Platform?"
                       );
                       if (!confirmed) return;
 
