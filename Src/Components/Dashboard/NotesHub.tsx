@@ -148,7 +148,7 @@ export function NotesHub({ onOpenReader }: NotesHubProps) {
                 : "border border-border bg-card text-muted-foreground hover:text-foreground",
             )}
           >
-            {sub.code}: {sub.name.split(" ")[0]}
+            {sub.code}: {sub.name}
           </button>
         ))}
       </div>
