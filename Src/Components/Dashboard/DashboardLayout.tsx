@@ -103,23 +103,33 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
     loadBadges();
   }, []);
 
-  // Fetch Live Notices As Real Notifications
+  // Fetch Live Notices As Real Notifications With LocalStorage Persistence
   useEffect(() => {
     async function loadLiveNotices() {
       try {
         const res = await apiFetch<DepartmentNotice[]>("/academic/notices/");
         const items = Array.isArray(res) ? res : ((res as any)?.results || []);
-        const formatted: NotificationItem[] = items.map((n: DepartmentNotice) => {
-          const dateStr = n.published_at ? new Date(n.published_at).toLocaleDateString("en-IN", { month: "short", day: "numeric" }) : "Recent";
-          return {
-            id: n.id,
-            title: n.title,
-            content: n.content,
-            category: n.category || "Official Notice",
-            time: dateStr,
-            is_read: false,
-          };
-        });
+        
+        let readIds: string[] = [];
+        let clearedIds: string[] = [];
+        try {
+          readIds = JSON.parse(localStorage.getItem("nimswallah_read_notices") || "[]");
+          clearedIds = JSON.parse(localStorage.getItem("nimswallah_cleared_notices") || "[]");
+        } catch {}
+
+        const formatted: NotificationItem[] = items
+          .filter((n: DepartmentNotice) => !clearedIds.includes(n.id))
+          .map((n: DepartmentNotice) => {
+            const dateStr = n.published_at ? new Date(n.published_at).toLocaleDateString("en-IN", { month: "short", day: "numeric" }) : "Recent";
+            return {
+              id: n.id,
+              title: n.title,
+              content: n.content,
+              category: n.category || "Official Notice",
+              time: dateStr,
+              is_read: readIds.includes(n.id),
+            };
+          });
         setNotifications(formatted);
       } catch (err) {
         setNotifications([]);
@@ -163,19 +173,45 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
   };
 
   const handleMarkAllNotificationsRead = () => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
+    setNotifications((prev) => {
+      const updated = prev.map((n) => ({ ...n, is_read: true }));
+      try {
+        const allIds = updated.map((n) => n.id);
+        const existing: string[] = JSON.parse(localStorage.getItem("nimswallah_read_notices") || "[]");
+        const merged = Array.from(new Set([...existing, ...allIds]));
+        localStorage.setItem("nimswallah_read_notices", JSON.stringify(merged));
+      } catch {}
+      return updated;
+    });
     toast.success("All Notifications Marked As Read.");
   };
 
   const handleClearAllNotifications = () => {
+    try {
+      const allIds = notifications.map((n) => n.id);
+      const existing: string[] = JSON.parse(localStorage.getItem("nimswallah_cleared_notices") || "[]");
+      const merged = Array.from(new Set([...existing, ...allIds]));
+      localStorage.setItem("nimswallah_cleared_notices", JSON.stringify(merged));
+    } catch {}
     setNotifications([]);
     toast.success("Notification Inbox Cleared.");
   };
 
   const handleToggleNotificationRead = (id: string) => {
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, is_read: !n.is_read } : n)),
-    );
+    setNotifications((prev) => {
+      const updated = prev.map((n) => (n.id === id ? { ...n, is_read: !n.is_read } : n));
+      try {
+        const item = updated.find((n) => n.id === id);
+        let existing: string[] = JSON.parse(localStorage.getItem("nimswallah_read_notices") || "[]");
+        if (item?.is_read) {
+          existing = Array.from(new Set([...existing, id]));
+        } else {
+          existing = existing.filter((x) => x !== id);
+        }
+        localStorage.setItem("nimswallah_read_notices", JSON.stringify(existing));
+      } catch {}
+      return updated;
+    });
   };
 
   return (

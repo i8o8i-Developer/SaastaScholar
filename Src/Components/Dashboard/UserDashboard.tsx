@@ -42,22 +42,23 @@ export function UserDashboard() {
   };
 
   return (
-    <DashboardLayout
-      activeTab={activeTab}
-      onSelectTab={(tab) => {
-        setActiveTab(tab);
-        setReadingMaterialId(null);
-      }}
-      onOpenReader={handleOpenReader}
-    >
-      {readingMaterialId ? (
+    <>
+      {readingMaterialId && (
         <DrmSecureReader
           materialId={readingMaterialId}
           onClose={handleCloseReader}
         />
-      ) : (
-        <>
-          {activeTab === "overview" && (
+      )}
+
+      <DashboardLayout
+        activeTab={activeTab}
+        onSelectTab={(tab) => {
+          setActiveTab(tab);
+          setReadingMaterialId(null);
+        }}
+        onOpenReader={handleOpenReader}
+      >
+        {activeTab === "overview" && (
             <DashboardOverview
               onNavigateTab={(tab) => setActiveTab(tab)}
               onOpenReader={handleOpenReader}
@@ -93,8 +94,7 @@ export function UserDashboard() {
           {activeTab === "community-forum" && (
             <CommunityForumHub />
           )}
-        </>
-      )}
-    </DashboardLayout>
+      </DashboardLayout>
+    </>
   );
 }

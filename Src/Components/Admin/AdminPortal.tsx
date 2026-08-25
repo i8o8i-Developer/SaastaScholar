@@ -5801,11 +5801,7 @@ export function AdminPortal() {
 
       {/* Modal: Full DRM Document & Material Live Preview */}
       {previewMaterialId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-in fade-in duration-100">
-          <div className="w-full max-w-6xl">
-            <DrmSecureReader materialId={previewMaterialId} onClose={() => setPreviewMaterialId(null)} />
-          </div>
-        </div>
+        <DrmSecureReader materialId={previewMaterialId} onClose={() => setPreviewMaterialId(null)} />
       )}
     </div>
   );

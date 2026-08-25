@@ -23,6 +23,7 @@ import { useAuth } from "@/Hooks/UseAuth";
 import { useDrmProtection } from "@/Hooks/UseDrmProtection";
 import { cn } from "@/Lib/Utils";
 import { toast } from "sonner";
+import { PdfCanvasViewer } from "./PdfCanvasViewer";
 
 interface DrmSecureReaderProps {
   materialId: string;
@@ -207,8 +208,8 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
     <div
       ref={containerRef}
       className={cn(
-        "relative flex h-screen w-full flex-col bg-background text-foreground select-none overflow-hidden min-w-0",
-        isFullscreen ? "fixed inset-0 z-50" : ""
+        "fixed inset-0 z-[100] flex flex-col bg-background text-foreground select-none overflow-hidden min-w-0",
+        isFullscreen ? "fixed inset-0 z-[100]" : ""
       )}
     >
       {/* ================= ACCOUNT SECURITY LOCKDOWN OVERLAY ================= */}
@@ -507,43 +508,18 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
                   <p className="text-[0.65rem] sm:text-[0.7rem] text-muted-foreground truncate">{payload.file_name || "Official Courseware Document"}</p>
                 </div>
               </div>
-              <div className="relative w-full h-[60vh] xs:h-[68vh] sm:h-[74vh] rounded-xl sm:rounded-2xl overflow-hidden bg-background border border-border/80 shadow-inner select-none">
-                <iframe
-                  key={`pdf-page-${currentPage}-${pageData.file_url || payload.file_url}`}
-                  src={(() => {
-                    let pdfRaw = pageData.file_url || payload.file_url;
-                    if (!pdfRaw) return "";
-                    if (pdfRaw.startsWith("/")) {
-                      pdfRaw = `${window.location.origin}${pdfRaw}`;
-                    }
-                    return `${pdfRaw}#page=${currentPage}&toolbar=0&navpanes=0&scrollbar=0`;
-                  })()}
-                  className="w-full h-full border-0 rounded-xl sm:rounded-2xl pointer-events-auto select-none"
-                  title="PDF Document Preview"
-                />
-                {/* Forensic DRM Watermark Overlay Directly Over PDF (Visible Only When DRM Is Active) */}
-                {!isDrmDisabled && (
-                  <div
-                    aria-hidden
-                    className="pointer-events-none absolute inset-0 z-20 flex flex-wrap items-center justify-around gap-6 sm:gap-10 p-4 opacity-25 dark:opacity-20 overflow-hidden select-none"
-                  >
-                    {Array.from({ length: 16 }).map((_, i) => (
-                      <div key={i} className="rotate-[-28deg] text-center font-mono text-[0.65rem] xs:text-xs font-bold tracking-widest uppercase select-none text-emerald-800 dark:text-emerald-300">
-                        <p className="drop-shadow-xs">{user?.full_name || payload.watermark.student_name} · {user?.roll_number || payload.watermark.roll_number}</p>
-                        <p className="text-[0.55rem] xs:text-[0.65rem] opacity-80 font-semibold">NIMS DRM · {payload.watermark.ip_address} · {payload.watermark.session_hash}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {/* Non-Intrusive DRM Gesture Shield Layer (Active Only When DRM Is Active) */}
-                {!isDrmDisabled && (
-                  <div
-                    onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                    onCopy={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                    className="absolute inset-0 pointer-events-none select-none z-30"
-                  />
-                )}
-              </div>
+              <PdfCanvasViewer
+                fileUrl={pageData.file_url || payload.file_url || ""}
+                currentPage={currentPage}
+                zoomLevel={zoomLevel}
+                watermark={payload.watermark}
+                isDrmDisabled={isDrmDisabled}
+                onTotalPagesDetected={(p) => {
+                  if (p && p !== payload.total_pages) {
+                    setPayload((prev) => ({ ...prev, total_pages: p }));
+                  }
+                }}
+              />
             </div>
           ) : (
             <div className="relative">
