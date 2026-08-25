@@ -783,7 +783,7 @@ export function AdminPortal() {
   const handleSaveSubject = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newSubject.programs || newSubject.programs.length === 0) {
-      toast.error("Please Select At Least One Parent Degree program / specialization.");
+      toast.error("Please Select At Least One Parent Degree Program / Specialization.");
       return;
     }
     try {
@@ -824,7 +824,7 @@ export function AdminPortal() {
       });
       loadAdminData();
     } catch (err: any) {
-      toast.error(err.message || "Failed To Save Subject.");
+      toast.error(toTitleCase(err.message || "Failed To Save Subject."));
     }
   };
 
@@ -3887,7 +3887,7 @@ export function AdminPortal() {
                   {editingSubjectId ? "Edit Course Subject" : "Register Course Subject"}
                 </h3>
                 <p className="text-xs text-muted-foreground">
-                  Associate this subject with one or multiple degree specializations.
+                  Associate This Subject With One Or Multiple Degree Specializations.
                 </p>
               </div>
               <button
@@ -3987,7 +3987,7 @@ export function AdminPortal() {
                           <input
                             type="checkbox"
                             checked={isSelected}
-                            onChange={() => {}} // handled by container click
+                            onChange={() => {}} // 
                             className="h-4 w-4 rounded accent-primary cursor-pointer shrink-0"
                           />
                           <div className="truncate text-left">
