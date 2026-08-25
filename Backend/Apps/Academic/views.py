@@ -52,16 +52,19 @@ class SubjectListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        qs = Subject.objects.annotate(
+        qs = Subject.objects.prefetch_related("programs").annotate(
             materials_count=Count("materials", distinct=True),
             experiments_count=Count("experiments", distinct=True),
         )
         semester = self.request.query_params.get("semester")
         department = self.request.query_params.get("department")
+        program = self.request.query_params.get("program")
         if semester:
             qs = qs.filter(semester=semester)
         if department:
             qs = qs.filter(department__code=department)
+        if program:
+            qs = qs.filter(Q(programs__id=program) | Q(programs__code=program) | Q(programs__isnull=True)).distinct()
         return qs
 
 class AcademicMaterialListView(generics.ListAPIView):
@@ -194,13 +197,13 @@ class AdminNoticeDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAdminUser]
 
 class AdminSubjectListCreateView(generics.ListCreateAPIView):
-    queryset = Subject.objects.select_related("department").all()
+    queryset = Subject.objects.select_related("department").prefetch_related("programs").all()
     serializer_class = SubjectSerializer
     permission_classes = [permissions.IsAdminUser]
     pagination_class = None
 
 class AdminSubjectDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Subject.objects.all()
+    queryset = Subject.objects.select_related("department").prefetch_related("programs").all()
     serializer_class = SubjectSerializer
     permission_classes = [permissions.IsAdminUser]
 

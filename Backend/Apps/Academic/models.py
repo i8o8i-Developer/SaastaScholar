@@ -60,6 +60,7 @@ class SectionBatch(models.Model):
 class Subject(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     department = models.ForeignKey(Department, on_delete=models.CASCADE, related_name="subjects")
+    programs = models.ManyToManyField(ProgramSpecialization, blank=True, related_name="subjects")
     name = models.CharField(max_length=255)
     code = models.CharField(max_length=50, unique=True)
     semester = models.PositiveSmallIntegerField(default=1, db_index=True)

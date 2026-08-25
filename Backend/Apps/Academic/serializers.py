@@ -115,6 +115,14 @@ class SubjectSerializer(serializers.ModelSerializer):
     materials_count = serializers.IntegerField(read_only=True, default=0)
     experiments_count = serializers.IntegerField(read_only=True, default=0)
     program = serializers.UUIDField(write_only=True, required=False)
+    programs = serializers.PrimaryKeyRelatedField(
+        queryset=ProgramSpecialization.objects.all(),
+        many=True,
+        required=False
+    )
+    program_ids = serializers.SerializerMethodField()
+    program_names = serializers.SerializerMethodField()
+    program_codes = serializers.SerializerMethodField()
 
     class Meta:
         model = Subject
@@ -124,6 +132,10 @@ class SubjectSerializer(serializers.ModelSerializer):
             "department_name",
             "department_code",
             "program",
+            "programs",
+            "program_ids",
+            "program_names",
+            "program_codes",
             "name",
             "code",
             "semester",
@@ -138,27 +150,54 @@ class SubjectSerializer(serializers.ModelSerializer):
             "department": {"required": False},
         }
 
+    def get_program_ids(self, obj):
+        return [str(p.id) for p in obj.programs.all()]
+
+    def get_program_names(self, obj):
+        return [p.name for p in obj.programs.all()]
+
+    def get_program_codes(self, obj):
+        return [p.code for p in obj.programs.all()]
+
     def to_internal_value(self, data):
         data = data.copy() if hasattr(data, "copy") else dict(data)
-        if "program" in data and not data.get("department"):
+        
+        prog_ids = []
+        if "programs" in data and isinstance(data["programs"], list):
+            prog_ids = [pid for pid in data["programs"] if pid]
+        elif "program" in data and data["program"]:
+            prog_ids = [data["program"]]
+
+        if prog_ids and not data.get("department"):
             try:
-                prog = ProgramSpecialization.objects.get(id=data["program"])
-                data["department"] = prog.department.id
+                first_prog = ProgramSpecialization.objects.filter(id__in=prog_ids).first()
+                if first_prog:
+                    data["department"] = first_prog.department.id
             except Exception:
                 pass
+
         if not data.get("department"):
             first_dept = Department.objects.first()
             if first_dept:
                 data["department"] = first_dept.id
+
         return super().to_internal_value(data)
 
     def create(self, validated_data):
+        programs = validated_data.pop("programs", [])
         validated_data.pop("program", None)
-        return super().create(validated_data)
+        subject = super().create(validated_data)
+        if programs:
+            subject.programs.set(programs)
+        return subject
 
     def update(self, instance, validated_data):
+        programs = validated_data.pop("programs", None)
         validated_data.pop("program", None)
-        return super().update(instance, validated_data)
+        subject = super().update(instance, validated_data)
+        if programs is not None:
+            subject.programs.set(programs)
+        return subject
 
 import json
 

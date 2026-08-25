@@ -195,7 +195,21 @@ export function AdminPortal() {
   const [newDept, setNewDept] = useState({ name: "", code: "", description: "", head_of_department: "" });
   const [newProgram, setNewProgram] = useState({ department: "", name: "", code: "", degree_level: "Undergraduate (B.Tech)", duration_years: 4, total_semesters: 8 });
   const [newSection, setNewSection] = useState({ program: "", semester: 1, section: "A", academic_year: "2025-2026", max_capacity: 60 });
-  const [newSubject, setNewSubject] = useState({ program: "", semester: 1, name: "", code: "", credits: 4, syllabus_summary: "" });
+  const [newSubject, setNewSubject] = useState<{
+    programs: string[];
+    semester: number;
+    name: string;
+    code: string;
+    credits: number;
+    syllabus_summary: string;
+  }>({
+    programs: [],
+    semester: 1,
+    name: "",
+    code: "",
+    credits: 4,
+    syllabus_summary: "",
+  });
   
   const [materialUploadMode, setMaterialUploadMode] = useState<"STUDIO" | "FILE">("STUDIO");
   const [materialPages, setMaterialPages] = useState<Array<{ page_number: number; page_title: string; content_html: string }>>([
@@ -432,12 +446,16 @@ export function AdminPortal() {
       return false;
     }
     if (selectedProgramId) {
-      const progObj = programs.find((p) => p.id === selectedProgramId);
-      if (sub.program && sub.program !== selectedProgramId) {
-        return false;
-      }
-      if (!sub.program && sub.department && progObj?.department && sub.department !== progObj.department) {
-        return false;
+      const subProgIds = sub.program_ids || (Array.isArray(sub.programs) ? sub.programs : (sub.program ? [sub.program] : []));
+      if (subProgIds.length > 0) {
+        if (!subProgIds.includes(selectedProgramId)) {
+          return false;
+        }
+      } else {
+        const progObj = programs.find((p) => p.id === selectedProgramId);
+        if (sub.department && progObj?.department && sub.department !== progObj.department) {
+          return false;
+        }
       }
     }
     if (selectedSemester && sub.semester && sub.semester !== selectedSemester) {
@@ -549,8 +567,19 @@ export function AdminPortal() {
 
   const handleEditSubject = (sub: Subject) => {
     setEditingSubjectId(sub.id);
+    const progList: string[] = [];
+    if (Array.isArray(sub.program_ids) && sub.program_ids.length > 0) {
+      progList.push(...sub.program_ids);
+    } else if (Array.isArray(sub.programs) && sub.programs.length > 0) {
+      progList.push(...sub.programs);
+    } else if (sub.program) {
+      progList.push(sub.program);
+    } else if (selectedProgramId) {
+      progList.push(selectedProgramId);
+    }
+
     setNewSubject({
-      program: sub.program || selectedProgramId || "",
+      programs: progList,
       semester: sub.semester || 1,
       name: sub.name,
       code: sub.code,
@@ -753,14 +782,20 @@ export function AdminPortal() {
 
   const handleSaveSubject = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!newSubject.programs || newSubject.programs.length === 0) {
+      toast.error("Please Select At Least One Parent Degree program / specialization.");
+      return;
+    }
     try {
-      const targetProg = programs.find((p) => p.id === newSubject.program) || programs[0];
+      const firstProgId = newSubject.programs[0];
+      const targetProg = programs.find((p) => p.id === firstProgId) || programs[0];
       const payload = {
         name: newSubject.name.trim(),
         code: newSubject.code.trim().toUpperCase(),
         semester: Number(newSubject.semester) || 1,
         credits: Number(newSubject.credits) || 4,
-        program: targetProg?.id || newSubject.program || "",
+        programs: newSubject.programs,
+        program: firstProgId,
         department: targetProg?.department || selectedDeptId || (departments[0]?.id || ""),
         syllabus_summary: newSubject.syllabus_summary || "",
       };
@@ -779,7 +814,14 @@ export function AdminPortal() {
       }
       setShowSubjectModal(false);
       setEditingSubjectId(null);
-      setNewSubject({ program: selectedProgramId || "", semester: selectedSemester || 1, name: "", code: "", credits: 4, syllabus_summary: "" });
+      setNewSubject({
+        programs: selectedProgramId ? [selectedProgramId] : (programs[0]?.id ? [programs[0].id] : []),
+        semester: selectedSemester || 1,
+        name: "",
+        code: "",
+        credits: 4,
+        syllabus_summary: "",
+      });
       loadAdminData();
     } catch (err: any) {
       toast.error(err.message || "Failed To Save Subject.");
@@ -1444,7 +1486,15 @@ export function AdminPortal() {
                   {structureSubTab === "subjects" && (
                     <button
                       onClick={() => {
-                        setNewSubject({ ...newSubject, program: selectedProgramId || (programs[0]?.id || ""), semester: selectedSemester || 1 });
+                        setEditingSubjectId(null);
+                        setNewSubject({
+                          programs: selectedProgramId ? [selectedProgramId] : (programs[0]?.id ? [programs[0].id] : []),
+                          semester: selectedSemester || 1,
+                          name: "",
+                          code: "",
+                          credits: 4,
+                          syllabus_summary: "",
+                        });
                         setShowSubjectModal(true);
                       }}
                       className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer"
@@ -1733,7 +1783,26 @@ export function AdminPortal() {
                             <h3 className="font-display text-base font-bold text-foreground leading-snug group-hover:text-primary transition-colors">
                               {sub.name}
                             </h3>
-                            <p className="mt-1 text-xs text-muted-foreground font-semibold">{sub.department_name || sub.program_name || "Course Subject"}</p>
+                            <div className="mt-1.5 flex flex-wrap items-center gap-1">
+                              {sub.program_codes && sub.program_codes.length > 0 ? (
+                                sub.program_codes.map((code, cIdx) => (
+                                  <span
+                                    key={cIdx}
+                                    className="rounded-md bg-surface border border-border px-1.5 py-0.5 text-[0.65rem] font-mono font-bold text-muted-foreground"
+                                  >
+                                    {code}
+                                  </span>
+                                ))
+                              ) : sub.program_name ? (
+                                <span className="rounded-md bg-surface border border-border px-1.5 py-0.5 text-[0.65rem] font-semibold text-muted-foreground">
+                                  {sub.program_name}
+                                </span>
+                              ) : (
+                                <span className="text-xs text-muted-foreground font-semibold">
+                                  {sub.department_name || "All Specializations"}
+                                </span>
+                              )}
+                            </div>
                           </div>
                         </div>
                         <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs font-mono">
@@ -3808,13 +3877,19 @@ export function AdminPortal() {
       )}
 
       {/* Modal: Register / Edit Subject */}
+      {/* Modal: Register / Edit Subject */}
       {showSubjectModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="w-full max-w-lg rounded-3xl border border-border bg-card p-6 shadow-2xl space-y-4">
+          <div className="w-full max-w-lg rounded-3xl border border-border bg-card p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-border pb-3">
-              <h3 className="font-display font-bold text-lg text-foreground">
-                {editingSubjectId ? "Edit Course Subject" : "Register Course Subject"}
-              </h3>
+              <div>
+                <h3 className="font-display font-bold text-lg text-foreground">
+                  {editingSubjectId ? "Edit Course Subject" : "Register Course Subject"}
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  Associate this subject with one or multiple degree specializations.
+                </p>
+              </div>
               <button
                 onClick={() => {
                   setShowSubjectModal(false);
@@ -3826,20 +3901,118 @@ export function AdminPortal() {
               </button>
             </div>
             <form onSubmit={handleSaveSubject} className="space-y-3.5 text-xs">
-              <div>
-                <label className="block font-bold mb-1">Parent Program</label>
-                <select
-                  value={newSubject.program}
-                  onChange={(e) => setNewSubject({ ...newSubject, program: e.target.value })}
-                  required
-                  className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
-                >
-                  <option value="">Select Specialization...</option>
-                  {programs.map((p) => (
-                    <option key={p.id} value={p.id}>{p.name} ({p.code})</option>
-                  ))}
-                </select>
+              {/* Multi-Select Parent Programs */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="block font-bold">
+                    Parent Programs / Specializations
+                    <span className="ml-1.5 text-xs text-primary font-mono">
+                      ({newSubject.programs.length} selected)
+                    </span>
+                  </label>
+                  <div className="flex items-center gap-2 text-[0.7rem]">
+                    <button
+                      type="button"
+                      onClick={() => setNewSubject({ ...newSubject, programs: programs.map((p) => p.id) })}
+                      className="text-primary hover:underline font-bold cursor-pointer"
+                    >
+                      Select All ({programs.length})
+                    </button>
+                    <span className="text-muted-foreground">·</span>
+                    <button
+                      type="button"
+                      onClick={() => setNewSubject({ ...newSubject, programs: [] })}
+                      className="text-muted-foreground hover:text-foreground font-semibold cursor-pointer"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+
+                {/* Selected Programs Badges Preview */}
+                {newSubject.programs.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 p-2 rounded-2xl bg-surface/60 border border-border/80">
+                    {newSubject.programs.map((pid) => {
+                      const prog = programs.find((p) => p.id === pid);
+                      if (!prog) return null;
+                      return (
+                        <span
+                          key={pid}
+                          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-primary/10 border border-primary/20 text-primary font-bold text-xs shadow-2xs"
+                        >
+                          <span className="font-mono">{prog.code}</span>
+                          <span className="text-[0.7rem] text-muted-foreground font-normal max-w-[130px] truncate">
+                            {prog.name}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setNewSubject({
+                                ...newSubject,
+                                programs: newSubject.programs.filter((id) => id !== pid),
+                              })
+                            }
+                            className="hover:text-rose-500 cursor-pointer p-0.5 rounded ml-0.5"
+                            title="Remove Program"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </span>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Program Selection Checkbox List */}
+                <div className="max-h-44 overflow-y-auto space-y-1.5 p-1.5 rounded-2xl border border-border bg-background scrollbar-thin">
+                  {programs.map((p) => {
+                    const isSelected = newSubject.programs.includes(p.id);
+                    return (
+                      <div
+                        key={p.id}
+                        onClick={() => {
+                          const updated = isSelected
+                            ? newSubject.programs.filter((id) => id !== p.id)
+                            : [...newSubject.programs, p.id];
+                          setNewSubject({ ...newSubject, programs: updated });
+                        }}
+                        className={cn(
+                          "flex items-center justify-between p-2 rounded-xl border transition-all cursor-pointer select-none",
+                          isSelected
+                            ? "border-primary bg-primary/10 text-foreground font-bold shadow-2xs"
+                            : "border-border/60 bg-surface/30 hover:bg-surface text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        <div className="flex items-center gap-2 truncate">
+                          <input
+                            type="checkbox"
+                            checked={isSelected}
+                            onChange={() => {}} // handled by container click
+                            className="h-4 w-4 rounded accent-primary cursor-pointer shrink-0"
+                          />
+                          <div className="truncate text-left">
+                            <p className="text-xs truncate">{p.name}</p>
+                            <p className="text-[0.65rem] text-muted-foreground font-mono">
+                              {p.code} · {p.degree_level}
+                            </p>
+                          </div>
+                        </div>
+                        <span
+                          className={cn(
+                            "px-2 py-0.5 rounded-md text-[0.65rem] font-mono shrink-0 ml-2 font-bold",
+                            isSelected
+                              ? "bg-primary text-primary-foreground"
+                              : "bg-surface border border-border text-muted-foreground"
+                          )}
+                        >
+                          {p.code}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
+
               <div>
                 <label className="block font-bold mb-1">Subject Full Name</label>
                 <input
@@ -3851,6 +4024,7 @@ export function AdminPortal() {
                   className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
                 />
               </div>
+
               <div className="grid grid-cols-3 gap-3">
                 <div>
                   <label className="block font-bold mb-1">Subject Code</label>
@@ -3885,6 +4059,7 @@ export function AdminPortal() {
                   />
                 </div>
               </div>
+
               <button type="submit" className="h-11 w-full rounded-2xl bg-primary font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer">
                 {editingSubjectId ? "Save Subject Changes" : "Register Subject"}
               </button>

@@ -105,6 +105,10 @@ export interface Subject {
   department_name?: string;
   program?: string;
   program_name?: string;
+  programs?: string[];
+  program_ids?: string[];
+  program_names?: string[];
+  program_codes?: string[];
   name: string;
   code: string;
   semester: number;
