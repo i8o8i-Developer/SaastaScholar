@@ -138,18 +138,18 @@ export function StudentProfile() {
       />
 
       {/* ================= Header Banner ================= */}
-      <div className="relative overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-r from-emerald-500/10 via-surface to-teal-500/10 p-5 sm:p-8 backdrop-blur-md shadow-xs">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 sm:gap-6">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-5 min-w-0">
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-r from-emerald-500/10 via-surface to-teal-500/10 p-4 sm:p-7 backdrop-blur-md shadow-xs min-w-0">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 min-w-0">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3.5 sm:gap-5 min-w-0 flex-1">
             {/* Clickable Profile Avatar with Real Upload */}
             <div
-              className="relative group cursor-pointer shrink-0"
+              className="relative group cursor-pointer shrink-0 self-start sm:self-center"
               onClick={() => fileInputRef.current?.click()}
               title="Click to upload profile photo"
             >
-              <div className="grid h-18 w-18 sm:h-20 sm:w-20 place-items-center rounded-3xl text-white font-bold text-2xl shadow-lg transition-transform group-hover:scale-105 bg-gradient-to-tr from-emerald-600 to-teal-500 overflow-hidden border border-border/60">
+              <div className="grid h-16 w-16 sm:h-20 sm:w-20 place-items-center rounded-2xl sm:rounded-3xl text-white font-bold text-xl sm:text-2xl shadow-lg transition-transform group-hover:scale-105 bg-gradient-to-tr from-emerald-600 to-teal-500 overflow-hidden border border-border/60">
                 {uploadingAvatar ? (
-                  <Loader2 className="h-8 w-8 animate-spin text-white" />
+                  <Loader2 className="h-7 w-7 animate-spin text-white" />
                 ) : user?.avatar_url ? (
                   <img
                     src={user.avatar_url}
@@ -164,49 +164,49 @@ export function StudentProfile() {
                   <span className="font-bold">{(user?.full_name || "A").charAt(0).toUpperCase()}</span>
                 )}
               </div>
-              <div className="absolute inset-0 grid place-items-center rounded-3xl bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                <Camera className="h-6 w-6" />
+              <div className="absolute inset-0 grid place-items-center rounded-2xl sm:rounded-3xl bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                <Camera className="h-5 w-5 sm:h-6 sm:w-6" />
               </div>
-              <span className="absolute -bottom-1 -right-1 grid h-6 w-6 place-items-center rounded-full bg-primary text-primary-foreground border-2 border-card text-[0.65rem] shadow-xs">
-                <Upload className="h-3 w-3" />
+              <span className="absolute -bottom-1 -right-1 grid h-5 w-5 sm:h-6 sm:w-6 place-items-center rounded-full bg-primary text-primary-foreground border-2 border-card text-[0.6rem] shadow-xs">
+                <Upload className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
               </span>
             </div>
 
-            <div className="min-w-0 space-y-1">
+            <div className="min-w-0 space-y-1 w-full flex-1">
               <div className="flex flex-wrap items-center gap-2">
-                <h1 className="font-display text-lg sm:text-2xl font-bold text-foreground">
+                <h1 className="font-display text-base sm:text-2xl font-bold text-foreground break-words">
                   {user?.full_name || "Student Scholar"}
                 </h1>
-                <span className="rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 px-2.5 py-0.5 text-[0.65rem] sm:text-xs font-bold uppercase tracking-wider border border-emerald-500/20 whitespace-nowrap shrink-0">
+                <span className="rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 px-2.5 py-0.5 text-[0.62rem] sm:text-xs font-bold uppercase tracking-wider border border-emerald-500/20 whitespace-nowrap shrink-0">
                   {user?.access_tier?.replace("_", " ") || "SEMESTER TOPPER"}
                 </span>
               </div>
-              <p className="text-xs sm:text-sm text-muted-foreground truncate">
-                {user?.email} · Student ID: {user?.roll_number || "ADMIN01"}
+              <p className="text-[0.72rem] sm:text-xs md:text-sm text-muted-foreground break-all sm:break-normal">
+                {user?.email} · <span className="font-mono font-bold text-foreground">ID: {user?.roll_number || "ADMIN01"}</span>
               </p>
-              <p className="text-xs text-foreground/80 font-medium line-clamp-2 leading-relaxed">
+              <p className="text-[0.72rem] sm:text-xs text-foreground/85 font-medium leading-relaxed break-words">
                 {bio}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
+          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-3 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-border/60">
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
               disabled={uploadingAvatar}
-              className="inline-flex items-center gap-2 rounded-2xl border border-border bg-card px-3.5 sm:px-4 py-2 text-xs font-bold text-foreground hover:bg-surface hover:border-primary/50 active:scale-95 transition-all cursor-pointer shadow-2xs"
+              className="inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl sm:rounded-2xl border border-border bg-card px-3 sm:px-4 py-2 text-xs font-bold text-foreground hover:bg-surface hover:border-primary/50 active:scale-95 transition-all cursor-pointer shadow-2xs truncate"
             >
-              {uploadingAvatar ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4 text-primary" />}
+              {uploadingAvatar ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4 text-primary shrink-0" />}
               <span>{uploadingAvatar ? "Uploading..." : "Change Avatar"}</span>
             </button>
 
             <button
               type="button"
               onClick={logout}
-              className="inline-flex items-center gap-2 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-3.5 sm:px-4 py-2 text-xs font-bold text-rose-500 hover:bg-rose-500/20 active:scale-95 transition-all cursor-pointer shadow-2xs"
+              className="inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl sm:rounded-2xl border border-rose-500/30 bg-rose-500/10 px-3 sm:px-4 py-2 text-xs font-bold text-rose-500 hover:bg-rose-500/20 active:scale-95 transition-all cursor-pointer shadow-2xs truncate"
             >
-              <LogOut className="h-4 w-4" />
+              <LogOut className="h-4 w-4 shrink-0" />
               <span>Sign Out</span>
             </button>
           </div>

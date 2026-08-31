@@ -75,6 +75,7 @@ const NAV_ITEMS = [
 export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader }: DashboardLayoutProps) {
   const { user, logout } = useAuth();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [notificationsOpen, setNotificationsOpen] = useState(false);
@@ -219,61 +220,104 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
   return (
     <div className="flex h-screen w-full overflow-hidden bg-background text-foreground">
       {/* ===================== Desktop Sidebar ===================== */}
-      <aside className="hidden lg:flex w-64 xl:w-72 flex-col justify-between border-r border-border/80 bg-card/75 p-5 backdrop-blur-md shrink-0">
+      <aside
+        className={cn(
+          "hidden lg:flex flex-col justify-between border-r border-border/80 bg-card/75 backdrop-blur-md shrink-0 transition-all duration-300",
+          sidebarCollapsed ? "w-20 p-3" : "w-64 xl:w-72 p-5"
+        )}
+      >
         <div>
-          {/* Brand Header */}
-          <div className="flex items-center gap-3 px-2 py-1">
-            <img
-              src="/NIMSWallah.png"
-              onError={(e) => {
-                e.currentTarget.src = "/favicon.png";
-              }}
-              alt="Logo"
-              className="h-8 w-8 object-contain"
-            />
-            <div>
-              <h2 className="font-display text-lg font-bold tracking-tight bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
-                NimsWallah
-              </h2>
-              <p className="text-[0.65rem] font-bold text-muted-foreground uppercase tracking-widest">
-                Academic Command Engine
-              </p>
+          {/* Brand Header with Collapse / Expand Trigger */}
+          <div className={cn("flex items-center gap-3 py-1", sidebarCollapsed ? "justify-center px-0" : "justify-between px-2")}>
+            <div className="flex items-center gap-3 min-w-0">
+              <img
+                src="/NIMSWallah.png"
+                onError={(e) => {
+                  e.currentTarget.src = "/favicon.png";
+                }}
+                alt="Logo"
+                className="h-8 w-8 object-contain shrink-0"
+              />
+              {!sidebarCollapsed && (
+                <div className="min-w-0">
+                  <h2 className="font-display text-lg font-bold tracking-tight bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent truncate">
+                    NimsWallah
+                  </h2>
+                  <p className="text-[0.65rem] font-bold text-muted-foreground uppercase tracking-widest truncate">
+                    Academic Engine
+                  </p>
+                </div>
+              )}
             </div>
+
+            <button
+              type="button"
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              className="grid h-8 w-8 place-items-center rounded-xl border border-border bg-surface text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors cursor-pointer shrink-0"
+              title={sidebarCollapsed ? "Expand Sidebar (Open)" : "Collapse Sidebar (Close)"}
+            >
+              <Menu className="h-4 w-4" />
+            </button>
           </div>
 
           {/* Student Profile Quick Strip */}
-          <div
-            onClick={() => onSelectTab("profile")}
-            className="mt-6 flex items-center gap-3 rounded-2xl border border-border/80 bg-surface/70 p-3 shadow-2xs hover:border-primary/50 transition-all cursor-pointer group"
-          >
-            <div className="relative">
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-bold text-sm shadow-xs overflow-hidden">
-                {user?.avatar_url ? (
-                  <img
-                    src={user.avatar_url}
-                    alt=""
-                    onError={(e) => {
-                      e.currentTarget.style.display = "none";
-                    }}
-                    className="h-full w-full object-cover"
-                  />
-                ) : null}
-                <span className="font-bold">{user?.full_name?.charAt(0) || "S"}</span>
+          {!sidebarCollapsed ? (
+            <div
+              onClick={() => onSelectTab("profile")}
+              className="mt-6 flex items-center gap-3 rounded-2xl border border-border/80 bg-surface/70 p-3 shadow-2xs hover:border-primary/50 transition-all cursor-pointer group"
+            >
+              <div className="relative shrink-0">
+                <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-bold text-sm shadow-xs overflow-hidden">
+                  {user?.avatar_url ? (
+                    <img
+                      src={user.avatar_url}
+                      alt=""
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                      }}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : null}
+                  <span className="font-bold">{user?.full_name?.charAt(0) || "S"}</span>
+                </div>
+                <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card bg-emerald-500" />
               </div>
-              <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card bg-emerald-500" />
-            </div>
 
-            <div className="min-w-0 flex-1">
-              <h4 className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">
-                {user?.full_name || "Scholar Portal"}
-              </h4>
-              <p className="text-[0.65rem] text-muted-foreground font-mono truncate">
-                {(user as any)?.program_code || "B.Tech"} · Sem {user?.semester || 1}
-              </p>
-            </div>
+              <div className="min-w-0 flex-1">
+                <h4 className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">
+                  {user?.full_name || "Scholar Portal"}
+                </h4>
+                <p className="text-[0.65rem] text-muted-foreground font-mono truncate">
+                  {(user as any)?.program_code || "B.Tech"} · Sem {user?.semester || 1}
+                </p>
+              </div>
 
-            <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-transform" />
-          </div>
+              <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-transform shrink-0" />
+            </div>
+          ) : (
+            <div
+              onClick={() => onSelectTab("profile")}
+              className="mt-4 flex justify-center cursor-pointer group"
+              title={`${user?.full_name || "Scholar"} - Academic Profile`}
+            >
+              <div className="relative">
+                <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-bold text-sm shadow-xs overflow-hidden group-hover:scale-105 transition-transform">
+                  {user?.avatar_url ? (
+                    <img
+                      src={user.avatar_url}
+                      alt=""
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                      }}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : null}
+                  <span className="font-bold">{user?.full_name?.charAt(0) || "S"}</span>
+                </div>
+                <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card bg-emerald-500" />
+              </div>
+            </div>
+          )}
 
           {/* Navigation Links List */}
           <nav className="mt-6 space-y-1.5">
@@ -290,21 +334,23 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
                   key={item.id}
                   type="button"
                   onClick={() => handleNavClick(item.id)}
+                  title={sidebarCollapsed ? item.label : undefined}
                   className={cn(
-                    "flex w-full items-center justify-between rounded-2xl px-3.5 py-2.5 text-xs font-semibold cursor-pointer transition-all active:scale-[0.98]",
+                    "flex w-full items-center rounded-2xl text-xs font-semibold cursor-pointer transition-all active:scale-[0.98]",
+                    sidebarCollapsed ? "justify-center p-2.5" : "justify-between px-3.5 py-2.5",
                     isActive
                       ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-600/25"
                       : "text-muted-foreground hover:bg-surface hover:text-foreground",
                   )}
                 >
-                  <div className="flex items-center gap-3">
-                    <Icon className="h-4 w-4" />
-                    <span>{item.label}</span>
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Icon className="h-4 w-4 shrink-0" />
+                    {!sidebarCollapsed && <span className="truncate">{item.label}</span>}
                   </div>
-                  {hasBadge && (
+                  {!sidebarCollapsed && hasBadge && (
                     <span
                       className={cn(
-                        "rounded-full px-2 py-0.5 text-[0.6rem] font-bold tracking-wide transition-all",
+                        "rounded-full px-2 py-0.5 text-[0.6rem] font-bold tracking-wide transition-all whitespace-nowrap shrink-0 leading-none min-w-fit inline-block",
                         isActive
                           ? "bg-white/20 text-white"
                           : variant === "amber"
@@ -331,12 +377,13 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
 
         {/* Sidebar Footer */}
         <div className="space-y-3 pt-4 border-t border-border/80">
-          <div className="flex items-center justify-between px-2 text-xs">
-            <span className="text-[0.7rem] text-muted-foreground font-semibold">Theme Mode</span>
+          <div className={cn("flex items-center text-xs", sidebarCollapsed ? "justify-center" : "justify-between px-2")}>
+            {!sidebarCollapsed && <span className="text-[0.7rem] text-muted-foreground font-semibold">Theme Mode</span>}
             <button
               type="button"
               onClick={toggleTheme}
-              className="grid h-8 w-8 place-items-center rounded-xl border border-border bg-surface text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              className="grid h-8 w-8 place-items-center rounded-xl border border-border bg-surface text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
+              title={isDark ? "Light Mode" : "Dark Mode"}
             >
               {isDark ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-slate-700" />}
             </button>
@@ -345,10 +392,14 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
           <button
             type="button"
             onClick={logout}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-rose-500/20 bg-rose-500/5 p-2.5 text-xs font-bold text-rose-500 hover:bg-rose-500/10 cursor-pointer transition-all active:scale-95"
+            title="Sign Out Of Workspace"
+            className={cn(
+              "flex items-center justify-center gap-2 rounded-2xl border border-rose-500/20 bg-rose-500/5 text-xs font-bold text-rose-500 hover:bg-rose-500/10 cursor-pointer transition-all active:scale-95",
+              sidebarCollapsed ? "p-2.5 w-full" : "p-2.5 w-full"
+            )}
           >
-            <LogOut className="h-4 w-4" />
-            <span>Sign Out Of Workspace</span>
+            <LogOut className="h-4 w-4 shrink-0" />
+            {!sidebarCollapsed && <span className="truncate">Sign Out</span>}
           </button>
         </div>
       </aside>
@@ -448,12 +499,24 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
         {/* Top Header */}
         <header className="sticky top-0 z-30 flex h-14 sm:h-16 items-center justify-between border-b border-border/80 bg-card/85 px-2 xs:px-4 sm:px-8 backdrop-blur-md shrink-0">
           <div className="flex items-center gap-2 xs:gap-3 min-w-0">
+            {/* Mobile Drawer Trigger */}
             <button
               type="button"
               onClick={() => setMobileOpen(true)}
               className="grid h-8 w-8 xs:h-9 xs:w-9 place-items-center rounded-xl border border-border bg-surface text-foreground lg:hidden cursor-pointer shrink-0"
+              title="Open Navigation"
             >
               <Menu className="h-4 w-4 xs:h-5 xs:w-5" />
+            </button>
+
+            {/* Desktop Sidebar Toggle Trigger */}
+            <button
+              type="button"
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              className="hidden lg:grid h-9 w-9 place-items-center rounded-xl border border-border bg-surface text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors cursor-pointer shrink-0"
+              title={sidebarCollapsed ? "Open / Expand Sidebar" : "Close / Collapse Sidebar"}
+            >
+              <Menu className="h-4 w-4" />
             </button>
 
             {/* Program & Semester Badge */}
