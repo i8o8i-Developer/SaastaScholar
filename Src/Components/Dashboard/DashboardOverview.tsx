@@ -173,10 +173,11 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
         </div>
       )}
 
+      {/* DRM Cooldown Banner */}
       {isCooldownActive && (
-        <div className="rounded-3xl border border-amber-500/40 bg-amber-500/10 p-5 shadow-sm flex items-center gap-4">
-          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-amber-500/20 text-amber-600 dark:text-amber-400">
-            <Timer className="h-5 w-5" />
+        <div className="relative overflow-hidden rounded-3xl border border-amber-500/30 bg-amber-500/10 p-4 sm:p-5 backdrop-blur-md shadow-xs flex items-center gap-3.5">
+          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400">
+            <Timer className="h-4 w-4" />
           </div>
           <div className="space-y-0.5">
             <h4 className="font-display font-bold text-sm text-amber-600 dark:text-amber-400">
@@ -220,8 +221,86 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
         </div>
       </div>
 
-      {/* ================= 2. Today's Upcoming Lecture Card ================= */}
-      {summary?.next_lecture ? (
+      {/* ================= 2. Today's Lecture Schedule & Real-Time Clock Banner ================= */}
+      {summary?.next_lecture?.day_status === "DAY_ENDED" ? (
+        <div className="rounded-3xl border border-border/80 bg-gradient-to-r from-emerald-500/5 via-card to-cyan-500/5 p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-start gap-4">
+            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+              <CheckCircle2 className="h-5 w-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-[0.65rem] uppercase font-bold text-emerald-600 dark:text-emerald-400 tracking-wider">
+                  College Academic Day Has Ended For Today
+                </span>
+                <span className="inline-flex items-center rounded-full bg-emerald-500/15 px-2 py-0.2 text-[0.6rem] font-bold text-emerald-600 dark:text-emerald-400">
+                  Classes Concluded
+                </span>
+              </div>
+              <h3 className="font-display font-bold text-base text-foreground mt-0.5">
+                All Scheduled Lectures For Today Are Complete
+              </h3>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Rest Up, Revise Notes, Or Prepare For Upcoming Sessions. Schedule Will Automatically Roll Over At Midnight.
+              </p>
+            </div>
+          </div>
+          {summary.next_lecture.day === "Tomorrow" ? (
+            <div className="flex flex-wrap items-center gap-2.5 text-xs">
+              <span className="rounded-xl bg-surface border border-border/80 px-3 py-1.5 font-bold text-foreground">
+                🗓️ Tomorrow : {summary.next_lecture.title}
+              </span>
+              <span className="rounded-xl bg-primary/10 px-3 py-1.5 font-bold font-mono text-primary">
+                ⏰ {summary.next_lecture.time}
+              </span>
+            </div>
+          ) : (
+            <button
+              onClick={() => onNavigateTab("timetable")}
+              className="inline-flex items-center gap-2 rounded-2xl border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-bold text-primary hover:bg-primary/20 transition-all cursor-pointer whitespace-nowrap"
+            >
+              <span>View Full Weekly Timetable</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </button>
+          )}
+        </div>
+      ) : summary?.next_lecture?.day_status === "NO_CLASSES_TODAY" ? (
+        <div className="rounded-3xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-start gap-4">
+            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400">
+              <Calendar className="h-5 w-5" />
+            </div>
+            <div>
+              <span className="text-[0.65rem] uppercase font-bold text-amber-600 dark:text-amber-400 tracking-wider">
+                No Classroom Lectures Scheduled For Today
+              </span>
+              <h3 className="font-display font-bold text-base text-foreground mt-0.5">
+                Academic Self-Study &amp; Revision Day
+              </h3>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Utilize This Time To Review Unit Notes, Solved PYQs, Or Complete Laboratory Assignments.
+              </p>
+            </div>
+          </div>
+          {summary.next_lecture.day === "Tomorrow" ? (
+            <div className="flex flex-wrap items-center gap-2.5 text-xs">
+              <span className="rounded-xl bg-surface border border-border/80 px-3 py-1.5 font-bold text-foreground">
+                🗓️ Tomorrow : {summary.next_lecture.title}
+              </span>
+              <span className="rounded-xl bg-primary/10 px-3 py-1.5 font-bold font-mono text-primary">
+                ⏰ {summary.next_lecture.time}
+              </span>
+            </div>
+          ) : (
+            <button
+              onClick={() => onNavigateTab("timetable")}
+              className="font-bold text-xs text-primary hover:underline cursor-pointer"
+            >
+              View Weekly Timetable →
+            </button>
+          )}
+        </div>
+      ) : summary?.next_lecture ? (
         <div className="rounded-3xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-start gap-4">
             <div className={cn(
@@ -246,7 +325,7 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
                 </span>
                 {summary.next_lecture.is_ongoing && (
                   <span className="inline-flex items-center rounded-full bg-rose-500/20 px-2 py-0.2 text-[0.6rem] font-extrabold text-rose-600 dark:text-rose-400 animate-pulse">
-                    Live
+                    Live Now
                   </span>
                 )}
               </div>

@@ -166,10 +166,12 @@ class DashboardSummaryView(APIView):
                 user_slots = section_slots
 
         today_slots = user_slots.filter(day_of_week=today_code).order_by("start_time")
+        today_has_slots = today_slots.exists()
         next_slot = None
         is_ongoing = False
-        lecture_day_label = "Today"
+        day_status = "UPCOMING_TODAY"  # "LIVE_IN_SESSION", "UPCOMING_TODAY", "DAY_ENDED", "NO_CLASSES_TODAY"
 
+        # 1. Check if any slot is ongoing or upcoming today
         for slot in today_slots:
             end_val = slot.end_time.strip() if slot.end_time else ""
             start_val = slot.start_time.strip() if slot.start_time else ""
@@ -177,36 +179,56 @@ class DashboardSummaryView(APIView):
                 next_slot = slot
                 if start_val and start_val <= current_time_str <= end_val:
                     is_ongoing = True
+                    day_status = "LIVE_IN_SESSION"
+                else:
+                    day_status = "UPCOMING_TODAY"
                 break
 
-        if not next_slot:
-            for offset in range(1, 7):
-                next_weekday = (current_weekday_num + offset) % 7
-                next_day_code = day_map.get(next_weekday)
-                future_slot = user_slots.filter(day_of_week=next_day_code).order_by("start_time").first()
-                if future_slot:
-                    next_slot = future_slot
-                    lecture_day_label = "Tomorrow" if offset == 1 else f"On {day_names.get(next_weekday, next_day_code)}"
-                    break
+        # 2. Check tomorrow's first lecture
+        tomorrow_weekday = (current_weekday_num + 1) % 7
+        tomorrow_code = day_map.get(tomorrow_weekday)
+        tomorrow_slot = user_slots.filter(day_of_week=tomorrow_code).order_by("start_time").first()
 
+        # If all today's slots ended or no slots today:
         if not next_slot:
-            next_slot = user_slots.order_by("day_of_week", "start_time").first() or TimetableSlot.objects.first()
-            if next_slot:
-                lecture_day_label = f"On {next_slot.get_day_of_week_display() if hasattr(next_slot, 'get_day_of_week_display') else next_slot.day_of_week}"
+            if today_has_slots:
+                day_status = "DAY_ENDED"
+            else:
+                day_status = "NO_CLASSES_TODAY"
+            
+            # Next lecture will be tomorrow's (or next day max)
+            if tomorrow_slot:
+                next_slot = tomorrow_slot
+                lecture_day_label = "Tomorrow"
+            else:
+                day_after_weekday = (current_weekday_num + 2) % 7
+                day_after_code = day_map.get(day_after_weekday)
+                day_after_slot = user_slots.filter(day_of_week=day_after_code).order_by("start_time").first()
+                if day_after_slot:
+                    next_slot = day_after_slot
+                    lecture_day_label = f"On {day_names.get(day_after_weekday)}"
+                else:
+                    next_slot = None
+                    lecture_day_label = ""
+        else:
+            lecture_day_label = "Today"
 
         next_lecture_data = None
-        if next_slot:
+        if next_slot or day_status in ["DAY_ENDED", "NO_CLASSES_TODAY"]:
             next_lecture_data = {
-                "title": next_slot.title,
-                "time": f"{next_slot.start_time} - {next_slot.end_time}",
-                "start_time": next_slot.start_time,
-                "end_time": next_slot.end_time,
-                "room": next_slot.room_number or "LT-01",
-                "faculty": next_slot.faculty_name or "Faculty Department",
-                "topic": next_slot.meta_info or f"{next_slot.event_type} Session",
+                "title": next_slot.title if next_slot else "Academic Self-Study Block",
+                "time": f"{next_slot.start_time} - {next_slot.end_time}" if next_slot else "Flexible",
+                "start_time": next_slot.start_time if next_slot else "",
+                "end_time": next_slot.end_time if next_slot else "",
+                "room": (next_slot.room_number or "LT-01") if next_slot else "Campus Library",
+                "faculty": (next_slot.faculty_name or "Faculty Department") if next_slot else "Academic Advisor",
+                "topic": (next_slot.meta_info or f"{next_slot.event_type} Session") if next_slot else "Self Revision & Notes Prep",
                 "day": lecture_day_label,
-                "day_code": next_slot.day_of_week,
+                "day_code": next_slot.day_of_week if next_slot else today_code,
                 "is_ongoing": is_ongoing,
+                "day_status": day_status,
+                "today_name": day_names.get(current_weekday_num, "Today"),
+                "current_ist_time": current_time_str,
             }
 
         # Auto-recover false-positive automated focus blocks

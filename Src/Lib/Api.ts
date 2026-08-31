@@ -284,6 +284,9 @@ export interface DashboardSummary {
     day?: string;
     day_code?: string;
     is_ongoing?: boolean;
+    day_status?: "LIVE_IN_SESSION" | "UPCOMING_TODAY" | "DAY_ENDED" | "NO_CLASSES_TODAY";
+    today_name?: string;
+    current_ist_time?: string;
   };
   recent_materials: AcademicMaterial[];
   notices: Array<{
