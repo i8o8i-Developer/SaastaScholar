@@ -7249,7 +7249,7 @@ export function AdminPortal() {
                     {newBanner.message.trim().length > 0 ? (
                       <MarkdownContent content={newBanner.message} />
                     ) : (
-                      <p className="text-xs text-muted-foreground italic">No message typed yet.</p>
+                      <p className="text-xs text-muted-foreground italic">No Message Typed Yet.</p>
                     )}
                   </div>
                 )}
