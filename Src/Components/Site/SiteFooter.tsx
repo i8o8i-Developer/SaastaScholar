@@ -492,13 +492,13 @@ export function SiteFooter() {
         </div>
 
         {/* ===================== Bottom Copyright & Back-to-Top ===================== */}
-        <div className="mt-8 sm:mt-10 flex flex-col gap-4 border-t border-border/80 pt-6 lg:flex-row lg:items-center lg:justify-between min-w-0">
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:gap-3 text-xs text-muted-foreground min-w-0">
+        <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-border/80 pt-6 min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 text-xs text-muted-foreground min-w-0 text-center sm:text-left">
             <p className="break-words">
               © {new Date().getFullYear()} NimsWallah. Crafted For University Excellence.
             </p>
             <span className="hidden text-muted-foreground/40 sm:inline">•</span>
-            <p className="inline-flex items-center gap-1">
+            <p className="inline-flex items-center justify-center gap-1">
               <span>Made With</span>
               <Heart className="h-3 w-3 fill-rose-500 text-rose-500 shrink-0 animate-pulse" />
               <span className="font-semibold bg-gradient-to-r from-rose-500 via-amber-500 to-emerald-500 bg-clip-text text-transparent">
@@ -507,42 +507,14 @@ export function SiteFooter() {
             </p>
           </div>
 
-          <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-3 min-w-0">
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-              <button
-                type="button"
-                onClick={() => setActiveModal("Privacy Policy")}
-                className="transition-colors hover:text-emerald-500 whitespace-nowrap cursor-pointer font-medium"
-              >
-                Privacy Policy
-              </button>
-              <span>•</span>
-              <button
-                type="button"
-                onClick={() => setActiveModal("Terms Of Service")}
-                className="transition-colors hover:text-cyan-500 whitespace-nowrap cursor-pointer font-medium"
-              >
-                Terms Of Service
-              </button>
-              <span>•</span>
-              <button
-                type="button"
-                onClick={() => setActiveModal("Security Policy")}
-                className="transition-colors hover:text-purple-500 whitespace-nowrap cursor-pointer font-medium"
-              >
-                Security Policy
-              </button>
-            </div>
-
-            <button
-              type="button"
-              onClick={scrollToTop}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-card/90 px-3 py-1 text-xs font-bold text-foreground shadow-2xs transition-all duration-200 hover:border-transparent hover:bg-gradient-to-r hover:from-emerald-500/20 hover:via-cyan-500/20 hover:to-purple-500/20 hover:scale-105 cursor-pointer shrink-0"
-            >
-              <span>Back To Top</span>
-              <span className="text-emerald-500">↑</span>
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={scrollToTop}
+            className="inline-flex items-center gap-1.5 rounded-full border border-border/80 bg-card/90 px-3.5 py-1.5 text-xs font-bold text-foreground shadow-2xs transition-all duration-200 hover:border-transparent hover:bg-gradient-to-r hover:from-emerald-500/20 hover:via-cyan-500/20 hover:to-purple-500/20 hover:scale-105 cursor-pointer shrink-0"
+          >
+            <span>Back To Top</span>
+            <span className="text-emerald-500 font-bold">↑</span>
+          </button>
         </div>
       </div>
 
