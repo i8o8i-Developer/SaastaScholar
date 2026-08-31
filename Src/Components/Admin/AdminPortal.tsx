@@ -1536,8 +1536,8 @@ export function AdminPortal() {
         )}
       >
         <div>
-          {/* Brand Logo & Title + Desktop Collapse Button */}
-          <div className={cn("flex items-center justify-between", sidebarCollapsed ? "px-1 justify-center" : "px-2 py-1.5")}>
+          {/* Brand Logo & Title */}
+          <div className={cn("flex items-center", sidebarCollapsed ? "px-1 justify-center" : "px-2 py-1.5")}>
             <div className="flex items-center gap-3 min-w-0">
               <div className="relative shrink-0">
                 <img
@@ -1561,18 +1561,6 @@ export function AdminPortal() {
                 </div>
               )}
             </div>
-
-            <button
-              type="button"
-              onClick={toggleSidebarCollapsed}
-              className={cn(
-                "hidden lg:grid h-7 w-7 place-items-center rounded-lg text-muted-foreground hover:bg-surface hover:text-foreground cursor-pointer transition-colors shrink-0",
-                sidebarCollapsed && "mt-2"
-              )}
-              title={sidebarCollapsed ? "Expand Sidebar (Desktop)" : "Collapse Sidebar (Desktop)"}
-            >
-              <Menu className="h-4 w-4" />
-            </button>
           </div>
 
           {/* Admin Controller Quick Card */}
@@ -1935,55 +1923,102 @@ export function AdminPortal() {
               {/* Interactive Charts Canvas Section */}
               <div className="grid gap-4 sm:gap-6 lg:grid-cols-12 min-w-0">
                 {/* Chart 1: Courseware Distribution Bar Chart (7 Cols) */}
-                <div className="lg:col-span-7 rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-4 sm:p-6 shadow-xs space-y-3 sm:space-y-4 min-w-0">
-                  <div className="flex items-center justify-between border-b border-border/60 pb-2.5 sm:pb-3 gap-2">
+                <div className="lg:col-span-7 rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-4 sm:p-6 shadow-xs space-y-4 min-w-0">
+                  <div className="flex items-center justify-between border-b border-border/60 pb-3 gap-2">
                     <div className="space-y-0.5 min-w-0">
                       <h3 className="font-display font-bold text-xs sm:text-base text-foreground flex items-center gap-1.5 sm:gap-2 truncate">
-                        <FileText className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-primary shrink-0" />
+                        <FileText className="h-4 w-4 text-emerald-500 shrink-0" />
                         <span className="truncate">Courseware Distribution</span>
                       </h3>
                       <p className="text-[0.68rem] sm:text-xs text-muted-foreground truncate">
                         Live Breakdown Of Uploaded Study Assets By Format
                       </p>
                     </div>
-                    <span className="rounded-full bg-surface border border-border px-2 sm:px-2.5 py-0.5 sm:py-1 text-[0.65rem] sm:text-xs font-mono font-bold text-muted-foreground shrink-0 whitespace-nowrap">
-                      {materials.length + labs.length} Total
+                    <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 text-[0.65rem] sm:text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 shrink-0 whitespace-nowrap">
+                      {materials.length + labs.length} Published
                     </span>
                   </div>
 
-                  <div className="h-56 sm:h-72 w-full pt-1 sm:pt-2">
+                  <div className="h-60 sm:h-72 w-full pt-2">
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart
                         data={[
-                          { name: "Notes", count: materials.filter((m) => m.material_type === "NOTES").length, fill: "#10b981" },
-                          { name: "PYQs", count: materials.filter((m) => m.material_type === "SOLVED_PYQ").length, fill: "#8b5cf6" },
-                          { name: "Syllabus", count: materials.filter((m) => m.material_type === "SYLLABUS").length, fill: "#06b6d4" },
-                          { name: "Labs", count: labs.length, fill: "#f59e0b" },
-                          { name: "Faculty", count: materials.filter((m) => m.material_type === "FACULTY").length, fill: "#ec4899" },
+                          { name: "Notes", count: materials.filter((m) => m.material_type === "NOTES").length, grad: "url(#barGradEmerald)", color: "#10b981" },
+                          { name: "PYQs", count: materials.filter((m) => m.material_type === "SOLVED_PYQ").length, grad: "url(#barGradPurple)", color: "#8b5cf6" },
+                          { name: "Syllabus", count: materials.filter((m) => m.material_type === "SYLLABUS").length, grad: "url(#barGradCyan)", color: "#06b6d4" },
+                          { name: "Labs", count: labs.length, grad: "url(#barGradAmber)", color: "#f59e0b" },
+                          { name: "Faculty", count: materials.filter((m) => m.material_type === "FACULTY").length, grad: "url(#barGradRose)", color: "#ec4899" },
                         ]}
-                        margin={{ top: 10, right: 10, left: -25, bottom: 0 }}
+                        margin={{ top: 20, right: 10, left: -25, bottom: 0 }}
+                        barSize={32}
                       >
-                        <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
-                        <XAxis dataKey="name" tick={{ fontSize: 10, fill: "var(--color-muted-foreground, #888)" }} tickLine={false} />
-                        <YAxis tick={{ fontSize: 10, fill: "var(--color-muted-foreground, #888)" }} allowDecimals={false} />
-                        <Tooltip
-                          contentStyle={{
-                            backgroundColor: "var(--color-card, #18181b)",
-                            borderColor: "var(--color-border, #3f3f46)",
-                            borderRadius: "0.75rem",
-                            fontSize: "0.7rem",
-                            fontWeight: "bold",
-                            boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
-                          }}
-                          formatter={(value: any) => [`${value} Manuscripts`, "Published"]}
+                        <defs>
+                          <linearGradient id="barGradEmerald" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#10b981" stopOpacity={1} />
+                            <stop offset="100%" stopColor="#059669" stopOpacity={0.7} />
+                          </linearGradient>
+                          <linearGradient id="barGradPurple" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#8b5cf6" stopOpacity={1} />
+                            <stop offset="100%" stopColor="#6d28d9" stopOpacity={0.7} />
+                          </linearGradient>
+                          <linearGradient id="barGradCyan" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#06b6d4" stopOpacity={1} />
+                            <stop offset="100%" stopColor="#0891b2" stopOpacity={0.7} />
+                          </linearGradient>
+                          <linearGradient id="barGradAmber" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#f59e0b" stopOpacity={1} />
+                            <stop offset="100%" stopColor="#d97706" stopOpacity={0.7} />
+                          </linearGradient>
+                          <linearGradient id="barGradRose" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor="#ec4899" stopOpacity={1} />
+                            <stop offset="100%" stopColor="#db2777" stopOpacity={0.7} />
+                          </linearGradient>
+                        </defs>
+
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.12} stroke="currentColor" />
+                        <XAxis
+                          dataKey="name"
+                          tick={{ fontSize: 11, fontWeight: 600, fill: "var(--color-muted-foreground, #888)" }}
+                          tickLine={false}
+                          axisLine={{ stroke: "var(--color-border, #3f3f46)", opacity: 0.4 }}
                         />
-                        <Bar dataKey="count" radius={[6, 6, 0, 0]}>
+                        <YAxis
+                          tick={{ fontSize: 10, fill: "var(--color-muted-foreground, #888)" }}
+                          allowDecimals={false}
+                          tickLine={false}
+                          axisLine={false}
+                        />
+                        <Tooltip
+                          cursor={{ fill: "var(--color-surface, rgba(255,255,255,0.03))", radius: 8 }}
+                          content={({ active, payload }: any) => {
+                            if (active && payload && payload.length > 0 && payload[0]?.payload) {
+                              const data = payload[0].payload;
+                              return (
+                                <div className="rounded-2xl border border-border/80 bg-card/95 p-3 shadow-xl backdrop-blur-md">
+                                  <div className="flex items-center gap-2">
+                                    <span className="h-3 w-3 rounded-full" style={{ backgroundColor: data.color }} />
+                                    <span className="text-xs font-bold text-foreground">{data.name}</span>
+                                  </div>
+                                  <div className="mt-1 text-sm font-extrabold font-mono" style={{ color: data.color }}>
+                                    {data.count} <span className="text-xs font-normal text-muted-foreground font-sans">Published</span>
+                                  </div>
+                                </div>
+                              );
+                            }
+                            return null;
+                          }}
+                        />
+                        <Bar
+                          dataKey="count"
+                          radius={[10, 10, 3, 3]}
+                          background={{ fill: "var(--color-surface, rgba(120, 120, 128, 0.05))", radius: 10 }}
+                        >
                           {[
-                            { fill: "#10b981" },
-                            { fill: "#8b5cf6" },
-                            { fill: "#06b6d4" },
-                            { fill: "#f59e0b" },
-                            { fill: "#ec4899" },
+                            { fill: "url(#barGradEmerald)" },
+                            { fill: "url(#barGradPurple)" },
+                            { fill: "url(#barGradCyan)" },
+                            { fill: "url(#barGradAmber)" },
+                            { fill: "url(#barGradRose)" },
                           ].map((entry, index) => (
                             <Cell key={`cell-${index}`} fill={entry.fill} />
                           ))}
@@ -1994,11 +2029,11 @@ export function AdminPortal() {
                 </div>
 
                 {/* Chart 2: Degree Specialization Distribution Donut (5 Cols) */}
-                <div className="lg:col-span-5 rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-4 sm:p-6 shadow-xs space-y-3 sm:space-y-4 flex flex-col justify-between min-w-0">
-                  <div className="flex items-center justify-between border-b border-border/60 pb-2.5 sm:pb-3">
+                <div className="lg:col-span-5 rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-4 sm:p-6 shadow-xs space-y-4 flex flex-col justify-between min-w-0">
+                  <div className="flex items-center justify-between border-b border-border/60 pb-3">
                     <div className="space-y-0.5 min-w-0">
                       <h3 className="font-display font-bold text-xs sm:text-base text-foreground flex items-center gap-1.5 sm:gap-2 truncate">
-                        <GraduationCap className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-500 shrink-0" />
+                        <GraduationCap className="h-4 w-4 text-cyan-500 shrink-0" />
                         <span className="truncate">Specializations Breakdown</span>
                       </h3>
                       <p className="text-[0.68rem] sm:text-xs text-muted-foreground truncate">
@@ -2007,55 +2042,107 @@ export function AdminPortal() {
                     </div>
                   </div>
 
-                  <div className="h-48 sm:h-64 w-full flex items-center justify-center">
+                  {/* Donut Chart with Center Metric */}
+                  <div className="relative h-52 sm:h-64 w-full flex items-center justify-center">
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
+                        <defs>
+                          <linearGradient id="pieGrad0" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stopColor="#10b981" />
+                            <stop offset="100%" stopColor="#059669" />
+                          </linearGradient>
+                          <linearGradient id="pieGrad1" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stopColor="#06b6d4" />
+                            <stop offset="100%" stopColor="#0284c7" />
+                          </linearGradient>
+                          <linearGradient id="pieGrad2" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stopColor="#8b5cf6" />
+                            <stop offset="100%" stopColor="#6d28d9" />
+                          </linearGradient>
+                          <linearGradient id="pieGrad3" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stopColor="#f59e0b" />
+                            <stop offset="100%" stopColor="#d97706" />
+                          </linearGradient>
+                          <linearGradient id="pieGrad4" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0%" stopColor="#ec4899" />
+                            <stop offset="100%" stopColor="#db2777" />
+                          </linearGradient>
+                        </defs>
+
                         <Pie
                           data={
                             programs.length > 0
                               ? programs.map((p, idx) => {
-                                  const colors = ["#10b981", "#06b6d4", "#8b5cf6", "#f59e0b", "#ec4899", "#3b82f6"];
+                                  const fills = ["url(#pieGrad0)", "url(#pieGrad1)", "url(#pieGrad2)", "url(#pieGrad3)", "url(#pieGrad4)"];
+                                  const rawColors = ["#10b981", "#06b6d4", "#8b5cf6", "#f59e0b", "#ec4899"];
                                   return {
                                     name: p.code || p.name,
                                     fullName: p.name,
                                     value: subjects.filter((s) => s.program_codes?.includes(p.code) || s.department === p.department).length || 1,
-                                    color: colors[idx % colors.length],
+                                    fill: fills[idx % fills.length],
+                                    color: rawColors[idx % rawColors.length],
                                   };
                                 })
-                              : [{ name: "AI & ML", value: 1, color: "#10b981" }]
+                              : [{ name: "AI & ML", fullName: "Artificial Intelligence", value: 1, fill: "url(#pieGrad0)", color: "#10b981" }]
                           }
-                          innerRadius={45}
-                          outerRadius={72}
+                          innerRadius={50}
+                          outerRadius={78}
                           paddingAngle={4}
                           dataKey="value"
+                          stroke="var(--color-card, #18181b)"
+                          strokeWidth={3}
                         >
-                          {(programs.length > 0 ? programs : [{ name: "AI & ML" }]).map((entry: any, index: number) => {
-                            const colors = ["#10b981", "#06b6d4", "#8b5cf6", "#f59e0b", "#ec4899", "#3b82f6"];
-                            return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
+                          {(programs.length > 0 ? programs : [{ name: "AI & ML" }]).map((_, index: number) => {
+                            const fills = ["url(#pieGrad0)", "url(#pieGrad1)", "url(#pieGrad2)", "url(#pieGrad3)", "url(#pieGrad4)"];
+                            return <Cell key={`cell-${index}`} fill={fills[index % fills.length]} />;
                           })}
                         </Pie>
                         <Tooltip
-                          contentStyle={{
-                            backgroundColor: "var(--color-card, #18181b)",
-                            borderColor: "var(--color-border, #3f3f46)",
-                            borderRadius: "0.75rem",
-                            fontSize: "0.7rem",
-                            fontWeight: "bold",
+                          content={({ active, payload }: any) => {
+                            if (active && payload && payload.length > 0 && payload[0]?.payload) {
+                              const data = payload[0].payload;
+                              return (
+                                <div className="rounded-2xl border border-border/80 bg-card/95 p-3 shadow-xl backdrop-blur-md">
+                                  <div className="flex items-center gap-2">
+                                    <span className="h-3 w-3 rounded-full" style={{ backgroundColor: data.color }} />
+                                    <span className="text-xs font-bold text-foreground">{data.fullName || data.name}</span>
+                                  </div>
+                                  <div className="mt-1 text-sm font-extrabold font-mono" style={{ color: data.color }}>
+                                    {data.value} <span className="text-xs font-normal text-muted-foreground font-sans">Course Modules</span>
+                                  </div>
+                                </div>
+                              );
+                            }
+                            return null;
                           }}
-                          formatter={(value: any) => [`${value} Modules`, "Course Load"]}
                         />
                       </PieChart>
                     </ResponsiveContainer>
+
+                    {/* Central Metric in Donut Hole */}
+                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                      <span className="font-display font-extrabold text-xl sm:text-2xl text-foreground">
+                        {subjects.length || programs.length || 1}
+                      </span>
+                      <span className="text-[0.6rem] font-bold text-muted-foreground uppercase tracking-wider">
+                        Modules
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Program Legend Tags */}
-                  <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 pt-2 border-t border-border/60">
+                  {/* Program Legend Chips */}
+                  <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 pt-3 border-t border-border/60">
                     {programs.map((p, idx) => {
-                      const colors = ["bg-emerald-500", "bg-cyan-500", "bg-purple-500", "bg-amber-500", "bg-pink-500", "bg-blue-500"];
+                      const colors = ["bg-emerald-500", "bg-cyan-500", "bg-purple-500", "bg-amber-500", "bg-pink-500"];
+                      const modCount = subjects.filter((s) => s.program_codes?.includes(p.code) || s.department === p.department).length || 0;
                       return (
-                        <div key={p.id} className="flex items-center gap-1 text-[0.68rem] sm:text-xs font-mono">
+                        <div
+                          key={p.id}
+                          className="flex items-center gap-1.5 px-2 py-1 rounded-xl bg-surface/70 border border-border/60 text-[0.68rem] sm:text-xs font-mono shadow-2xs"
+                        >
                           <span className={cn("h-2 w-2 rounded-full shrink-0", colors[idx % colors.length])} />
-                          <span className="font-semibold text-foreground truncate">{p.code || p.name}</span>
+                          <span className="font-bold text-foreground truncate">{p.code || p.name}</span>
+                          <span className="text-muted-foreground text-[0.62rem]">({modCount})</span>
                         </div>
                       );
                     })}
