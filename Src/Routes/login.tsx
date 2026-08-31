@@ -535,19 +535,19 @@ export function Login() {
                 </form>
               </div>
 
-              {/* Right Column: Symmetrical Features & Protection Overview (5 cols) */}
+              {/* Right Column: Grounded Offerings, Transparent Pricing Tiers & Protection (5 cols) */}
               <div className="lg:col-span-5 min-w-0 flex flex-col justify-between space-y-4">
-                {/* 1. Academic / Admin Command Center Card */}
-                <div className="rounded-3xl border border-border/80 bg-surface/80 p-5 sm:p-6 min-w-0 space-y-4 shadow-xs flex-1 flex flex-col justify-between">
+                {/* 1. Academic Command Center — What We Serve Card */}
+                <div className="rounded-3xl border border-border/80 bg-surface/80 p-5 sm:p-6 min-w-0 space-y-4 shadow-xs">
                   <div>
                     <div className="flex items-center justify-between border-b border-border/80 pb-3">
                       <span className="font-bold text-sm text-foreground">
-                        {authMode === "admin" ? "Institutional Control Center" : "Academic Command Center"}
+                        {authMode === "admin" ? "Institutional Control Center" : "What We Serve (NIMS Ecosystem)"}
                       </span>
                       <Sparkles className="h-4 w-4 text-primary" />
                     </div>
 
-                    <div className="space-y-3.5 text-xs mt-4">
+                    <div className="space-y-3 text-xs mt-3.5">
                       {authMode === "admin" ? (
                         <>
                           <div className="flex items-start gap-2.5 text-muted-foreground">
@@ -577,29 +577,33 @@ export function Login() {
                         </>
                       ) : (
                         <>
-                          <div className="flex items-start gap-2.5 text-muted-foreground">
+                          <div className="flex items-start gap-2.5">
                             <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
-                            <span className="leading-snug text-foreground/90 font-medium">
-                              Verified Handwritten Notes &amp; Master Formula Sheets
-                            </span>
+                            <div className="leading-snug">
+                              <span className="font-bold text-foreground block">5-Unit Handwritten &amp; Typed Topper Notes</span>
+                              <span className="text-[0.7rem] text-muted-foreground">Formula sheets, derivations &amp; diagrams aligned to NIMS syllabus.</span>
+                            </div>
                           </div>
-                          <div className="flex items-start gap-2.5 text-muted-foreground">
+                          <div className="flex items-start gap-2.5">
                             <FileCheck2 className="h-4 w-4 text-cyan-500 shrink-0 mt-0.5" />
-                            <span className="leading-snug text-foreground/90 font-medium">
-                              2020–2025 Solved University Examination Papers
-                            </span>
+                            <div className="leading-snug">
+                              <span className="font-bold text-foreground block">2020–2025 Solved University PYQs</span>
+                              <span className="text-[0.7rem] text-muted-foreground">Step-by-step solved mid-sem and end-sem papers with marking schemes.</span>
+                            </div>
                           </div>
-                          <div className="flex items-start gap-2.5 text-muted-foreground">
+                          <div className="flex items-start gap-2.5">
                             <FlaskConical className="h-4 w-4 text-purple-500 shrink-0 mt-0.5" />
-                            <span className="leading-snug text-foreground/90 font-medium">
-                              Verified Lab Manuals &amp; 50+ Viva Voce Question Bank
-                            </span>
+                            <div className="leading-snug">
+                              <span className="font-bold text-foreground block">Lab Manuals &amp; 50+ Viva Voce Banks</span>
+                              <span className="text-[0.7rem] text-muted-foreground">Ready-to-run Python, C++, Java, DBMS code and viva question banks.</span>
+                            </div>
                           </div>
-                          <div className="flex items-start gap-2.5 text-muted-foreground">
+                          <div className="flex items-start gap-2.5">
                             <Zap className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
-                            <span className="leading-snug text-foreground/90 font-medium">
-                              AI Assignment Outlines &amp; IEEE Citation Engine
-                            </span>
+                            <div className="leading-snug">
+                              <span className="font-bold text-foreground block">Real-Time Timetable &amp; Circulars</span>
+                              <span className="text-[0.7rem] text-muted-foreground">Verified department notices, hall tickets, and daily class countdowns.</span>
+                            </div>
                           </div>
                         </>
                       )}
@@ -607,16 +611,69 @@ export function Login() {
                   </div>
                 </div>
 
-                {/* 2. Protected DRM Platform Card */}
-                <div className="rounded-3xl border border-emerald-500/30 bg-emerald-500/10 p-5 text-xs text-emerald-800 dark:text-emerald-300 space-y-2 shadow-xs">
-                  <div className="flex items-center gap-2 font-bold text-sm">
-                    <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
-                    <span>{authMode === "admin" ? "Administrative Security Matrix" : "Protected DRM Platform"}</span>
+                {/* 2. Transparent Student Pricing Tiers Card (Only in student login/register modes) */}
+                {authMode !== "admin" && (
+                  <div className="rounded-3xl border border-primary/30 bg-card p-4 sm:p-5 space-y-3 shadow-xs">
+                    <div className="flex items-center justify-between border-b border-border/80 pb-2.5">
+                      <span className="font-bold text-xs sm:text-sm text-foreground flex items-center gap-1.5">
+                        <Award className="h-4 w-4 text-primary" />
+                        <span>Student Access &amp; Pricing Tiers</span>
+                      </span>
+                      <span className="text-[0.65rem] font-bold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                        Pocket Friendly
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2 text-center">
+                      {/* Free Tier */}
+                      <div className="rounded-2xl border border-border/80 bg-surface/60 p-2.5 flex flex-col justify-between">
+                        <div>
+                          <span className="block text-[0.65rem] font-bold text-muted-foreground uppercase">Free Starter</span>
+                          <span className="text-sm font-extrabold text-foreground mt-0.5 block">₹0</span>
+                        </div>
+                        <span className="text-[0.62rem] text-muted-foreground leading-tight mt-1.5 block">
+                          Unit 1 Notes &amp; Timetable
+                        </span>
+                      </div>
+
+                      {/* Semester Topper */}
+                      <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-2.5 flex flex-col justify-between relative shadow-xs">
+                        <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[0.55rem] font-bold bg-emerald-600 text-white px-1.5 py-0.2 rounded-full uppercase">
+                          Popular
+                        </span>
+                        <div>
+                          <span className="block text-[0.65rem] font-bold text-emerald-700 dark:text-emerald-300 uppercase">Topper</span>
+                          <span className="text-sm font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5 block">₹499<span className="text-[0.6rem] font-normal text-muted-foreground">/sem</span></span>
+                        </div>
+                        <span className="text-[0.62rem] text-emerald-800 dark:text-emerald-200 leading-tight mt-1.5 block">
+                          All 5 Units + Solved PYQs
+                        </span>
+                      </div>
+
+                      {/* VIP Scholar */}
+                      <div className="rounded-2xl border border-border/80 bg-surface/60 p-2.5 flex flex-col justify-between">
+                        <div>
+                          <span className="block text-[0.65rem] font-bold text-muted-foreground uppercase">VIP Access</span>
+                          <span className="text-sm font-extrabold text-foreground mt-0.5 block">₹899<span className="text-[0.6rem] font-normal text-muted-foreground">/sem</span></span>
+                        </div>
+                        <span className="text-[0.62rem] text-muted-foreground leading-tight mt-1.5 block">
+                          Offline PDFs + 1-on-1 Help
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
+                )}
+
+                {/* 3. Protected DRM Platform Card */}
+                <div className="rounded-3xl border border-emerald-500/30 bg-emerald-500/10 p-4 sm:p-4.5 text-xs text-emerald-800 dark:text-emerald-300 space-y-1.5 shadow-xs">
+                  <div className="flex items-center gap-2 font-bold text-xs sm:text-sm">
+                    <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
+                    <span>{authMode === "admin" ? "Administrative Security Matrix" : "Forensic DRM Protected Reader"}</span>
+                  </div>
+                  <p className="text-[0.72rem] text-muted-foreground leading-relaxed">
                     {authMode === "admin"
                       ? "Administrative Actions, Curriculum Publications, And Student Telemetry Are Protected With JWT Bearer Tokens And Encrypted Role Permissions."
-                      : "All Study Notes And Solved Papers Are Rendered In Real-Time With Your Dynamic Institutional Forensic Watermark. Strictly View-Only."}
+                      : "All Study Notes And Solved Papers Are Rendered In Real-Time With Your Dynamic Institutional Forensic Watermark For Clean, High-Speed Learning."}
                   </p>
                 </div>
               </div>
