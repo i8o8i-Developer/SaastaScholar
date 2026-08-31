@@ -373,9 +373,6 @@ class SiteBannerListView(generics.ListAPIView):
     pagination_class = None
 
     def get_queryset(self):
-        if not SiteBanner.objects.exists():
-            for b in DEFAULT_BANNERS:
-                SiteBanner.objects.create(**b)
         target = self.request.query_params.get("target")
         qs = SiteBanner.objects.filter(is_active=True)
         if target:
@@ -389,9 +386,6 @@ class AdminSiteBannerListCreateView(generics.ListCreateAPIView):
     pagination_class = None
 
     def get_queryset(self):
-        if not SiteBanner.objects.exists():
-            for b in DEFAULT_BANNERS:
-                SiteBanner.objects.create(**b)
         return SiteBanner.objects.all().order_by("-priority", "-created_at")
 
 

@@ -1395,6 +1395,9 @@ export function AdminPortal() {
     try {
       await apiFetch(`${endpoint}${id}/`, { method: "DELETE" });
       toast.success(`"${name}" Deleted Successfully.`);
+      if (endpoint.includes("banners")) {
+        setBanners((prev) => prev.filter((b) => b.id !== id));
+      }
       callback();
     } catch (err: any) {
       toast.error(err.message || `Failed To Delete "${name}".`);
@@ -4621,7 +4624,7 @@ export function AdminPortal() {
                     Station 8: Announcement &amp; Promotional Broadcast Banners
                   </h3>
                   <p className="text-xs text-muted-foreground mt-0.5">
-                    Deploy Glowing M ulti-color announcement strips, hackathon promos, and urgent alerts across student dashboards &amp; public site.
+                    Deploy Glowing Multi-Color Announcement Strips, Hackathon Promos, and Urgent Alerts across Student Dashboards &amp; Public Site.
                   </p>
                 </div>
 
@@ -4668,7 +4671,7 @@ export function AdminPortal() {
                     <BroadcastBanner target="ALL" />
                   ) : (
                     <div className="text-center py-6 text-xs text-muted-foreground italic">
-                      No active banners broadcasting right now. Click "Deploy New Banner" or activate an existing banner below.
+                      No Active Banners Broadcasting Right Now. Click "Deploy New Banner" Or Activate An Existing Banner Below.
                     </div>
                   )}
                 </div>
@@ -4679,7 +4682,7 @@ export function AdminPortal() {
                 <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-xs">
                   <span className="block text-[0.65rem] font-bold uppercase text-muted-foreground">Total Banners</span>
                   <span className="font-mono text-xl sm:text-2xl font-bold text-foreground mt-0.5 block">{banners.length}</span>
-                  <span className="text-[0.65rem] text-muted-foreground">All time configured</span>
+                  <span className="text-[0.65rem] text-muted-foreground">All Time Configured</span>
                 </div>
 
                 <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4 shadow-xs">
@@ -4687,10 +4690,10 @@ export function AdminPortal() {
                   <span className="font-mono text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 block">
                     {banners.filter((b) => b.is_active).length}
                   </span>
-                  <span className="text-[0.65rem] text-emerald-700/80 dark:text-emerald-300/80">Broadcasting live</span>
+                  <span className="text-[0.65rem] text-emerald-700/80 dark:text-emerald-300/80">Broadcasting Live</span>
                 </div>
 
-                <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-xs">
+                <div className="rounded-2xl border border-border/80 bg-card p-4   shadow-xs">
                   <span className="block text-[0.65rem] font-bold uppercase text-muted-foreground">Dashboard Targets</span>
                   <span className="font-mono text-xl sm:text-2xl font-bold text-foreground mt-0.5 block">
                     {banners.filter((b) => b.target === "ALL" || b.target === "DASHBOARD").length}
@@ -4703,7 +4706,7 @@ export function AdminPortal() {
                   <span className="font-mono text-xl sm:text-2xl font-bold text-foreground mt-0.5 block">
                     {banners.filter((b) => b.target === "ALL" || b.target === "WEBSITE").length}
                   </span>
-                  <span className="text-[0.65rem] text-muted-foreground">Public Website strips</span>
+                  <span className="text-[0.65rem] text-muted-foreground">Public Website Strips</span>
                 </div>
               </div>
 
@@ -4719,7 +4722,7 @@ export function AdminPortal() {
                     <Radio className="h-10 w-10 mx-auto text-muted-foreground/40" />
                     <h4 className="font-display font-bold text-base text-foreground">No Broadcast Banners Created Yet</h4>
                     <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                      Create your first promotional or announcement banner to broadcast hackathons, exam countdowns, or alerts.
+                      Create Your First Promotional Or Announcement Banner To Broadcast Hackathons, Exam Countdowns, Or Alerts.
                     </p>
                   </div>
                 ) : (
@@ -7235,7 +7238,7 @@ export function AdminPortal() {
                     <textarea
                       value={newBanner.message}
                       onChange={(e) => setNewBanner({ ...newBanner, message: e.target.value })}
-                      placeholder="Internal registrations are open for all engineering branches. Form teams and submit your proposal before 15th September!"
+                      placeholder="Internal Registrations Are Open For All Engineering Branches. Form Teams And Submit Your Proposal Before 15th September!"
                       rows={3}
                       required
                       className="w-full rounded-2xl border border-border bg-background p-3.5 font-mono text-xs focus:border-primary focus:outline-none leading-relaxed"

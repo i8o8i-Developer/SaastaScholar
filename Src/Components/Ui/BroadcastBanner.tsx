@@ -110,21 +110,7 @@ export function BroadcastBanner({ target = "ALL", className, compact = false }: 
         const list = Array.isArray(res) ? res : ((res as any)?.results || []);
         setBanners(list);
       } catch (err) {
-        setBanners([
-          {
-            id: "default-sih-banner",
-            title: "Smart India Hackathon (SIH) 2026",
-            message: "Internal Registrations Are Open For All Engineering Branches. Form Teams And Register Today!",
-            tag: "SIH 2026",
-            variant: "emerald",
-            target: "ALL",
-            link_url: "https://www.sih.gov.in/",
-            link_text: "Register Team",
-            is_active: true,
-            is_dismissible: true,
-            priority: 10,
-          },
-        ]);
+        setBanners([]);
       } finally {
         setLoading(false);
       }
