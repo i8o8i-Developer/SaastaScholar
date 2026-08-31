@@ -55,11 +55,14 @@ import {
   AlertTriangle,
   X,
   Menu,
+  Sun,
+  Moon,
   Zap,
   Eye,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/Hooks/UseAuth";
+import { useTheme } from "@/Hooks/UseTheme";
 import { isDrmGloballyDisabled, setDrmGloballyDisabled } from "@/Hooks/UseDrmProtection";
 import { DrmSecureReader } from "../Dashboard/DrmSecureReader";
 import {
@@ -138,6 +141,7 @@ const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export function AdminPortal() {
   const { user, logout, isAuthenticated, isLoading } = useAuth();
+  const { theme, isDark, toggleTheme } = useTheme();
   const [activeStation, setActiveStation] = useState<AdminStation>("overview");
   const [structureSubTab, setStructureSubTab] = useState<"departments" | "programs" | "sections" | "subjects">("departments");
   const [publisherType, setPublisherType] = useState<PublisherContentType>("NOTES");
@@ -1755,6 +1759,20 @@ export function AdminPortal() {
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
+            {/* Theme Toggle Button */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="inline-flex items-center justify-center h-8 w-8 xs:h-9 xs:w-9 rounded-xl xs:rounded-2xl border border-border bg-surface text-foreground hover:bg-card cursor-pointer transition-all shadow-2xs shrink-0"
+              title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            >
+              {isDark ? (
+                <Sun className="h-4 w-4 text-amber-400 hover:rotate-45 transition-transform" />
+              ) : (
+                <Moon className="h-4 w-4 text-slate-700 hover:-rotate-12 transition-transform" />
+              )}
+            </button>
+
             <button
               onClick={loadAdminData}
               className="inline-flex items-center gap-1.5 xs:gap-2 rounded-xl xs:rounded-2xl border border-border bg-surface px-2.5 xs:px-3.5 py-1.5 text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer transition-all shadow-2xs shrink-0"
@@ -2157,9 +2175,57 @@ export function AdminPortal() {
           {/* ========================================================================= */}
           {activeStation === "structure" && (
             <div className="space-y-4 sm:space-y-6 min-w-0">
+              {/* Executive Blueprint Header Summary Card */}
+              <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-br from-emerald-500/10 via-card to-teal-500/5 p-4 sm:p-6 shadow-xs">
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 text-xs font-bold font-mono text-emerald-600 dark:text-emerald-400">
+                        Curriculum Architecture
+                      </span>
+                      <span className="text-xs text-muted-foreground font-mono">Live Hierarchy</span>
+                    </div>
+                    <h2 className="font-display text-lg sm:text-2xl font-extrabold text-foreground tracking-tight">
+                      Academic Blueprint &amp; Infrastructure Matrix
+                    </h2>
+                    <p className="text-xs text-muted-foreground max-w-xl">
+                      Manage Institutional Departments, Degree Specializations, Student Cohort Sections, And Core Syllabus Modules.
+                    </p>
+                  </div>
+
+                  {/* 4-Metric Live Grid */}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 shrink-0">
+                    <div className="rounded-2xl border border-border/70 bg-surface/80 p-2.5 sm:p-3 text-center min-w-[85px]">
+                      <span className="text-[0.62rem] uppercase font-bold text-muted-foreground block">Depts</span>
+                      <span className="font-display font-extrabold text-base sm:text-lg text-emerald-600 dark:text-emerald-400 font-mono">
+                        {departments.length}
+                      </span>
+                    </div>
+                    <div className="rounded-2xl border border-border/70 bg-surface/80 p-2.5 sm:p-3 text-center min-w-[85px]">
+                      <span className="text-[0.62rem] uppercase font-bold text-muted-foreground block">Programs</span>
+                      <span className="font-display font-extrabold text-base sm:text-lg text-cyan-600 dark:text-cyan-400 font-mono">
+                        {programs.length}
+                      </span>
+                    </div>
+                    <div className="rounded-2xl border border-border/70 bg-surface/80 p-2.5 sm:p-3 text-center min-w-[85px]">
+                      <span className="text-[0.62rem] uppercase font-bold text-muted-foreground block">Sections</span>
+                      <span className="font-display font-extrabold text-base sm:text-lg text-purple-600 dark:text-purple-400 font-mono">
+                        {sections.length}
+                      </span>
+                    </div>
+                    <div className="rounded-2xl border border-border/70 bg-surface/80 p-2.5 sm:p-3 text-center min-w-[85px]">
+                      <span className="text-[0.62rem] uppercase font-bold text-muted-foreground block">Modules</span>
+                      <span className="font-display font-extrabold text-base sm:text-lg text-amber-600 dark:text-amber-400 font-mono">
+                        {subjects.length}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {/* Executive Sub-Station Segmented Bar */}
-              <div className="flex flex-col gap-3 border-b border-border pb-4 w-full">
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 p-1.5 rounded-2xl sm:rounded-3xl bg-surface/80 border border-border/80 shadow-2xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-4 w-full">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 p-1.5 rounded-2xl sm:rounded-3xl bg-surface/80 border border-border/80 shadow-2xs flex-1">
                   <button
                     type="button"
                     onClick={() => setStructureSubTab("departments")}
@@ -2242,11 +2308,11 @@ export function AdminPortal() {
                 </div>
 
                 {/* Prominent Action Button */}
-                <div className="flex justify-end">
+                <div className="flex justify-end shrink-0">
                   {structureSubTab === "departments" && (
                     <button
                       onClick={() => setShowDeptModal(true)}
-                      className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-xs font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer w-full sm:w-auto"
+                      className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2.5 text-xs font-bold text-white shadow-md hover:opacity-95 cursor-pointer w-full sm:w-auto transition-all"
                     >
                       <Plus className="h-4 w-4" />
                       <span>Create Department</span>
@@ -2258,7 +2324,7 @@ export function AdminPortal() {
                         setNewProgram({ ...newProgram, department: selectedDeptId || (departments[0]?.id || "") });
                         setShowProgramModal(true);
                       }}
-                      className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-xs font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer w-full sm:w-auto"
+                      className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2.5 text-xs font-bold text-white shadow-md hover:opacity-95 cursor-pointer w-full sm:w-auto transition-all"
                     >
                       <Plus className="h-4 w-4" />
                       <span>Add Specialization Program</span>
@@ -2270,7 +2336,7 @@ export function AdminPortal() {
                         setNewSection({ ...newSection, program: selectedProgramId || (programs[0]?.id || ""), semester: selectedSemester || 1 });
                         setShowSectionModal(true);
                       }}
-                      className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-xs font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer w-full sm:w-auto"
+                      className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2.5 text-xs font-bold text-white shadow-md hover:opacity-95 cursor-pointer w-full sm:w-auto transition-all"
                     >
                       <Plus className="h-4 w-4" />
                       <span>Add Section Cohort</span>
@@ -2292,7 +2358,7 @@ export function AdminPortal() {
                         });
                         setShowSubjectModal(true);
                       }}
-                      className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-xs font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer w-full sm:w-auto"
+                      className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2.5 text-xs font-bold text-white shadow-md hover:opacity-95 cursor-pointer w-full sm:w-auto transition-all"
                     >
                       <Plus className="h-4 w-4" />
                       <span>Register Subject</span>
@@ -2324,66 +2390,99 @@ export function AdminPortal() {
                       </button>
                     </div>
                   ) : (
-                    departments.map((dept) => (
-                      <div
-                        key={dept.id}
-                        className="group relative rounded-3xl border border-border/80 bg-gradient-to-b from-card via-card to-surface/40 p-5 shadow-xs hover:shadow-md hover:border-primary/50 transition-all flex flex-col justify-between space-y-4"
-                      >
-                        <div className="space-y-3.5">
-                          <div className="flex items-center justify-between border-b border-border/60 pb-3">
-                            <div className="flex items-center gap-2">
-                              <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 text-xs font-bold font-mono text-emerald-600 dark:text-emerald-400">
-                                {dept.code}
-                              </span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <button
-                                onClick={() => handleEditDept(dept)}
-                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
-                                title="Edit Department"
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteItem("/academic/admin/departments/", dept.id, dept.name, loadAdminData)}
-                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer transition-colors"
-                                title="Delete Department"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </button>
-                            </div>
-                          </div>
+                    departments.map((dept) => {
+                      const deptPrograms = programs.filter((p) => p.department === dept.id);
+                      const deptSubjects = subjects.filter((s) => s.department === dept.id || deptPrograms.some(dp => s.program_codes?.includes(dp.code)));
 
-                          <div>
-                            <h3 className="font-display text-base font-bold text-foreground leading-snug group-hover:text-primary transition-colors">
-                              {dept.name}
-                            </h3>
-                            <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                              {dept.description || "Active Academic Department."}
-                            </p>
-                          </div>
-
-                          {dept.head_of_department && (
-                            <div className="flex items-center gap-2.5 rounded-2xl border border-border/60 bg-surface/70 p-2.5 text-xs">
-                              <div className="grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-emerald-500/10 text-emerald-600">
-                                <Award className="h-3.5 w-3.5" />
-                              </div>
-                              <div className="min-w-0 flex-1">
-                                <span className="text-muted-foreground block text-[0.62rem] uppercase font-bold tracking-wider">
-                                  Head Of Department / Dean
+                      return (
+                        <div
+                          key={dept.id}
+                          className="group relative rounded-3xl border border-border/80 bg-gradient-to-b from-card via-card to-surface/40 p-5 shadow-xs hover:shadow-lg hover:border-emerald-500/50 transition-all flex flex-col justify-between space-y-4 min-w-0"
+                        >
+                          <div className="space-y-3.5 min-w-0">
+                            {/* Department Header Badge & Actions */}
+                            <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                              <div className="flex items-center gap-2">
+                                <div className="grid h-8 w-8 place-items-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-mono font-bold text-xs shadow-xs">
+                                  <Building2 className="h-4 w-4" />
+                                </div>
+                                <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 text-xs font-bold font-mono text-emerald-600 dark:text-emerald-400">
+                                  {dept.code}
                                 </span>
-                                <span className="font-bold text-foreground truncate block">{dept.head_of_department}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={() => handleEditDept(dept)}
+                                  className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
+                                  title="Edit Department"
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteItem("/academic/admin/departments/", dept.id, dept.name, loadAdminData)}
+                                  className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer transition-colors"
+                                  title="Delete Department"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
                               </div>
                             </div>
-                          )}
-                        </div>
 
-                        <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs text-muted-foreground font-mono">
-                          <span>Programs: {programs.filter((p) => p.department === dept.id).length}</span>
-                          <span className="font-bold text-primary">Subjects: {subjects.filter((s) => s.department === dept.id).length}</span>
+                            {/* Department Name & Description */}
+                            <div className="min-w-0">
+                              <h3 className="font-display text-base font-bold text-foreground leading-snug group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors truncate">
+                                {dept.name}
+                              </h3>
+                              <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                                {dept.description || "Active Academic Department."}
+                              </p>
+                            </div>
+
+                            {/* Dean / HOD Card */}
+                            {dept.head_of_department && (
+                              <div className="flex items-center gap-2.5 rounded-2xl border border-border/60 bg-surface/70 p-2.5 text-xs">
+                                <div className="grid h-7 w-7 shrink-0 place-items-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                                  <Award className="h-3.5 w-3.5" />
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <span className="text-muted-foreground block text-[0.62rem] uppercase font-bold tracking-wider">
+                                    Head Of Department / Dean
+                                  </span>
+                                  <span className="font-bold text-foreground truncate block">{dept.head_of_department}</span>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Configured Specializations List */}
+                            <div className="space-y-1.5 pt-1">
+                              <span className="text-[0.65rem] font-bold text-muted-foreground uppercase tracking-wider block">
+                                Linked Degree Specializations ({deptPrograms.length})
+                              </span>
+                              <div className="flex flex-wrap items-center gap-1.5">
+                                {deptPrograms.length > 0 ? (
+                                  deptPrograms.map((p) => (
+                                    <span
+                                      key={p.id}
+                                      className="rounded-lg bg-surface border border-border/70 px-2 py-0.5 text-[0.68rem] font-mono font-medium text-foreground truncate max-w-full"
+                                    >
+                                      {p.code || p.name}
+                                    </span>
+                                  ))
+                                ) : (
+                                  <span className="text-xs text-muted-foreground italic">No Specializations Configured Yet.</span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Footer Stats */}
+                          <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs text-muted-foreground font-mono">
+                            <span className="font-semibold">{deptPrograms.length} Programs</span>
+                            <span className="font-bold text-emerald-600 dark:text-emerald-400">{deptSubjects.length} Modules</span>
+                          </div>
                         </div>
-                      </div>
-                    ))
+                      );
+                    })
                   )}
                 </div>
               )}

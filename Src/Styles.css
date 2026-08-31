@@ -216,6 +216,13 @@
   background-size: 48px 48px;
 }
 
+.dark .grid-lines,
+.dark [class*="grid-lines"],
+.dark [class*="bg-grid"],
+.dark .bg-grid-pattern {
+  background-image: none !important;
+}
+
 /* Reliable Scroll Reveal & Parallax Micro-Animations */
 .reveal {
   opacity: 0;

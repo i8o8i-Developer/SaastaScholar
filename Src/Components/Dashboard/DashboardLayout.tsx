@@ -37,6 +37,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useAuth } from "@/Hooks/UseAuth";
+import { useTheme } from "@/Hooks/UseTheme";
 import { cn } from "@/Lib/Utils";
 import { toast } from "sonner";
 import { apiFetch, DepartmentNotice, SidebarBadgeConfig } from "@/Lib/Api";
@@ -74,6 +75,7 @@ const NAV_ITEMS = [
 
 export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader }: DashboardLayoutProps) {
   const { user, logout } = useAuth();
+  const { theme, isDark, toggleTheme } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
@@ -82,7 +84,6 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [badgeConfigs, setBadgeConfigs] = useState<Record<string, { text: string; active: boolean; variant: string }>>({});
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
-  const [isDark, setIsDark] = useState(() => document.documentElement.classList.contains("dark"));
 
   // Fetch Dynamic Navigation Badges
   useEffect(() => {
@@ -160,15 +161,6 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  const toggleTheme = () => {
-    if (isDark) {
-      document.documentElement.classList.remove("dark");
-      setIsDark(false);
-    } else {
-      document.documentElement.classList.add("dark");
-      setIsDark(true);
-    }
-  };
 
   const handleNavClick = (tabId: string) => {
     onSelectTab(tabId);
@@ -543,6 +535,20 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
               <kbd className="hidden lg:inline-flex items-center rounded border border-border bg-card px-1.5 py-0.5 text-[0.6rem] font-mono text-muted-foreground">
                 ⌘K
               </kbd>
+            </button>
+
+            {/* Theme Switcher Button */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="grid h-8 w-8 xs:h-9 xs:w-9 place-items-center rounded-xl border border-border bg-surface text-foreground hover:bg-card cursor-pointer transition-all shadow-2xs shrink-0"
+              title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            >
+              {isDark ? (
+                <Sun className="h-4 w-4 text-amber-400 hover:rotate-45 transition-transform" />
+              ) : (
+                <Moon className="h-4 w-4 text-slate-700 hover:-rotate-12 transition-transform" />
+              )}
             </button>
 
             {/* Notifications Popover */}

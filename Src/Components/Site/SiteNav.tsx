@@ -1,6 +1,7 @@
-import { Menu, X } from "lucide-react";
+import { Menu, Moon, Sun, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
+import { useTheme } from "@/Hooks/UseTheme";
 import { cn } from "@/Lib/Utils";
 import { Cta } from "./Primitives";
 
@@ -15,6 +16,7 @@ const NAV_ITEMS = [
 ];
 
 export function SiteNav() {
+  const { isDark, toggleTheme } = useTheme();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -71,7 +73,21 @@ export function SiteNav() {
           </ul>
         </nav>
 
-        <div className="hidden items-center gap-2 lg:flex">
+        <div className="hidden items-center gap-2.5 lg:flex">
+          {/* Theme Toggle Button */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="grid h-9 w-9 place-items-center rounded-xl border border-border bg-surface text-foreground hover:bg-card cursor-pointer transition-all shadow-2xs"
+            title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+          >
+            {isDark ? (
+              <Sun className="h-4 w-4 text-amber-400 hover:rotate-45 transition-transform" />
+            ) : (
+              <Moon className="h-4 w-4 text-slate-700 hover:-rotate-12 transition-transform" />
+            )}
+          </button>
+
           <Cta href="/login" variant="ghost" size="sm">
             Log In
           </Cta>
@@ -80,15 +96,25 @@ export function SiteNav() {
           </Cta>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setOpen((v) => !v)}
-          aria-expanded={open}
-          aria-label={open ? "Close menu" : "Open menu"}
-          className="grid h-10 w-10 place-items-center rounded-md border border-border text-foreground lg:hidden"
-        >
-          {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-        </button>
+        <div className="flex items-center gap-2 lg:hidden">
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="grid h-9 w-9 place-items-center rounded-xl border border-border bg-surface text-foreground"
+            title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+          >
+            {isDark ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-slate-700" />}
+          </button>
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-label={open ? "Close menu" : "Open menu"}
+            className="grid h-9 w-9 place-items-center rounded-xl border border-border text-foreground"
+          >
+            {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+          </button>
+        </div>
       </div>
 
       {open ? (
