@@ -92,9 +92,10 @@ const VARIANT_STYLES: Record<
 export function BroadcastBanner({ target = "ALL", className, compact = false }: BroadcastBannerProps) {
   const [banners, setBanners] = useState<SiteBanner[]>([]);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const storageKey = `nimswallah_dismissed_${(target || "all").toLowerCase()}_banners`;
   const [dismissedIds, setDismissedIds] = useState<string[]>(() => {
     try {
-      const stored = localStorage.getItem("nimswallah_dismissed_banners");
+      const stored = sessionStorage.getItem(storageKey);
       return stored ? JSON.parse(stored) : [];
     } catch {
       return [];
@@ -103,19 +104,29 @@ export function BroadcastBanner({ target = "ALL", className, compact = false }: 
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    let isMounted = true;
     async function loadBanners() {
       try {
-        const query = target ? `?target=${target}` : "";
+        const query = target && target !== "ALL" ? `?target=${target}` : "";
         const res = await apiFetch<SiteBanner[]>(`/academic/banners/${query}`);
         const list = Array.isArray(res) ? res : ((res as any)?.results || []);
-        setBanners(list);
+        if (isMounted) {
+          setBanners(list);
+        }
       } catch (err) {
-        setBanners([]);
+        if (isMounted) {
+          setBanners([]);
+        }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     }
     loadBanners();
+    return () => {
+      isMounted = false;
+    };
   }, [target]);
 
   const activeBanners = banners.filter((b) => b.is_active && !dismissedIds.includes(b.id));
@@ -134,7 +145,7 @@ export function BroadcastBanner({ target = "ALL", className, compact = false }: 
     const updated = [...dismissedIds, id];
     setDismissedIds(updated);
     try {
-      localStorage.setItem("nimswallah_dismissed_banners", JSON.stringify(updated));
+      sessionStorage.setItem(storageKey, JSON.stringify(updated));
     } catch (e) {
       console.error(e);
     }

@@ -375,8 +375,8 @@ class SiteBannerListView(generics.ListAPIView):
     def get_queryset(self):
         target = self.request.query_params.get("target")
         qs = SiteBanner.objects.filter(is_active=True)
-        if target:
-            qs = qs.filter(Q(target=target) | Q(target="ALL"))
+        if target and target.upper() != "ALL":
+            qs = qs.filter(Q(target__iexact=target) | Q(target__iexact="ALL") | Q(target="") | Q(target__isnull=True))
         return qs.order_by("-priority", "-created_at")
 
 
