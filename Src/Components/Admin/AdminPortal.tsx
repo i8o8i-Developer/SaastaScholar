@@ -8,6 +8,7 @@ import {
   Building2,
   Calendar,
   CheckCircle2,
+  ChevronDown,
   ChevronRight,
   Clock,
   Code2,
@@ -2682,29 +2683,53 @@ export function AdminPortal() {
           )}
 
           {/* ========================================================================= */}
-          {/* STATION 3: TIMETABLE GRID */}
+          {/* STATION 3: TIMETABLE GRID & TIMELINE */}
           {/* ========================================================================= */}
           {activeStation === "timetable" && (
             <div className="space-y-6">
               {renderCascadingContextBar({ showSection: true })}
 
-              {/* Day Selector & Action Bar */}
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
-                <div className="grid grid-cols-6 gap-1 bg-surface p-1 rounded-2xl border border-border w-full sm:w-auto">
-                  {WEEKDAYS.map((d) => (
-                    <button
-                      key={d}
-                      onClick={() => setSelectedTimetableDay(d)}
-                      className={cn(
-                        "px-1.5 xs:px-2.5 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer text-center whitespace-nowrap",
-                        selectedTimetableDay === d
-                          ? "bg-primary text-primary-foreground shadow-xs"
-                          : "text-muted-foreground hover:text-foreground",
-                      )}
+              {/* Day Selector (Dropdown + 6-Day Grid) & Action Bar */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
+                  {/* Dropdown Day Selector */}
+                  <div className="relative w-full sm:w-48">
+                    <select
+                      value={selectedTimetableDay}
+                      onChange={(e) => setSelectedTimetableDay(e.target.value)}
+                      className="h-10 w-full appearance-none rounded-2xl border border-border/80 bg-card px-3.5 pr-10 text-xs font-bold text-foreground focus:border-primary focus:outline-none shadow-2xs cursor-pointer"
                     >
-                      {d}
-                    </button>
-                  ))}
+                      {WEEKDAYS.map((d) => (
+                        <option key={d} value={d}>
+                          {d === "Mon" && "Monday (Mon)"}
+                          {d === "Tue" && "Tuesday (Tue)"}
+                          {d === "Wed" && "Wednesday (Wed)"}
+                          {d === "Thu" && "Thursday (Thu)"}
+                          {d === "Fri" && "Friday (Fri)"}
+                          {d === "Sat" && "Saturday (Sat)"}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  </div>
+
+                  {/* 6-Day Button Matrix */}
+                  <div className="grid grid-cols-6 gap-1 bg-surface p-1 rounded-2xl border border-border w-full sm:w-auto">
+                    {WEEKDAYS.map((d) => (
+                      <button
+                        key={d}
+                        onClick={() => setSelectedTimetableDay(d)}
+                        className={cn(
+                          "px-1.5 xs:px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer text-center whitespace-nowrap",
+                          selectedTimetableDay === d
+                            ? "bg-primary text-primary-foreground shadow-xs"
+                            : "text-muted-foreground hover:text-foreground",
+                        )}
+                      >
+                        {d}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 <button
@@ -2718,59 +2743,94 @@ export function AdminPortal() {
                     });
                     setShowTimetableModal(true);
                   }}
-                  className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-xs font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer shrink-0"
                 >
                   <Plus className="h-4 w-4" />
                   <span>Add Timetable Slot</span>
                 </button>
               </div>
 
-              {/* Slots List */}
+              {/* Slots Timeline List */}
               {filteredTimetableSlots.length === 0 ? (
                 <div className="rounded-3xl border border-dashed border-border bg-card/60 p-12 text-center space-y-3">
                   <Clock className="h-10 w-10 mx-auto text-muted-foreground/40" />
-                  <h3 className="font-display font-bold text-base text-foreground">No Timetable Slots For This Filter</h3>
+                  <h3 className="font-display font-bold text-base text-foreground">No Timetable Slots For {selectedTimetableDay}</h3>
                   <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                    Add Weekly Timetable Periods For Semesters And Sections.
+                    Add Weekly Timetable Periods For Semesters And Sections On {selectedTimetableDay}.
                   </p>
                 </div>
               ) : (
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {filteredTimetableSlots.map((slot) => (
-                    <div key={slot.id} className="rounded-3xl border border-border/80 bg-card p-5 shadow-xs space-y-3 hover:border-primary/50 transition-all">
-                      <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
-                        <span className="rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-bold text-emerald-600 font-mono">
-                          {slot.day_of_week} · {slot.start_time} - {slot.end_time}
-                        </span>
-                        <div className="flex items-center gap-1">
-                          <button
-                            onClick={() => handleEditTimetable(slot)}
-                            className="rounded-xl p-1 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
-                            title="Edit Timetable Slot"
-                          >
-                            <Pencil className="h-3.5 w-3.5" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteItem("/planner/admin/timetable/", slot.id, slot.title, loadAdminData)}
-                            className="rounded-xl p-1 text-muted-foreground hover:text-rose-500 cursor-pointer"
-                            title="Delete Timetable Slot"
-                          >
-                            <Trash2 className="h-3.5 w-3.5" />
-                          </button>
+                /* Connected Vertical Timeline View */
+                <div className="relative pl-4 sm:pl-6 border-l-2 border-dashed border-border/80 space-y-4 ml-2 sm:ml-3">
+                  {filteredTimetableSlots.map((slot) => {
+                    const isLab = (slot.event_type || "").toLowerCase().includes("lab") || (slot.title || "").toLowerCase().includes("lab");
+
+                    return (
+                      <div key={slot.id} className="relative group">
+                        {/* Timeline Node Bullet */}
+                        <div className={cn(
+                          "absolute -left-[23px] sm:-left-[31px] top-5 h-3.5 w-3.5 sm:h-4 sm:w-4 rounded-full border-2 bg-background flex items-center justify-center shadow-xs z-10",
+                          isLab ? "border-cyan-500" : "border-emerald-500"
+                        )}>
+                          <div className={cn("h-1.5 w-1.5 rounded-full", isLab ? "bg-cyan-500" : "bg-emerald-500")} />
+                        </div>
+
+                        {/* Timeline Card */}
+                        <div className={cn(
+                          "rounded-2xl sm:rounded-3xl border bg-card p-4 sm:p-5 shadow-xs space-y-3 transition-all hover:shadow-md",
+                          isLab ? "border-cyan-500/30 hover:border-cyan-500/60" : "border-emerald-500/30 hover:border-emerald-500/60"
+                        )}>
+                          <div className="flex items-center justify-between border-b border-border/60 pb-2.5 gap-2">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className={cn(
+                                "rounded-full px-2.5 py-0.5 text-xs font-bold font-mono border",
+                                isLab
+                                  ? "bg-cyan-500/10 border-cyan-500/30 text-cyan-700 dark:text-cyan-300"
+                                  : "bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300"
+                              )}>
+                                {slot.day_of_week} · {slot.start_time} - {slot.end_time}
+                              </span>
+                              <span className="rounded-xl bg-surface border border-border/70 px-2 py-0.5 text-[0.65rem] font-bold text-muted-foreground">
+                                {slot.event_type || "Lecture"}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={() => handleEditTimetable(slot)}
+                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
+                                title="Edit Timetable Slot"
+                              >
+                                <Pencil className="h-3.5 w-3.5" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteItem("/planner/admin/timetable/", slot.id, slot.title, loadAdminData)}
+                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer"
+                                title="Delete Timetable Slot"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
+                          </div>
+
+                          <h4 className="font-bold text-sm sm:text-base text-foreground leading-snug">{slot.title}</h4>
+
+                          <div className="flex items-center justify-between text-xs text-muted-foreground pt-1">
+                            <span className="font-semibold text-primary">Sem {slot.semester} · Sec {slot.section}</span>
+                            <span className="font-mono bg-surface px-2.5 py-1 rounded-xl border border-border/60 font-bold text-foreground">
+                              {slot.room_number || "LT-01"}
+                            </span>
+                          </div>
+
+                          {slot.faculty_name && (
+                            <p className="text-[0.72rem] text-muted-foreground pt-2 border-t border-border/60">
+                              Faculty Instructor: <strong className="text-foreground">{slot.faculty_name}</strong>
+                            </p>
+                          )}
                         </div>
                       </div>
-                      <h4 className="font-bold text-sm text-foreground">{slot.title}</h4>
-                      <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span>Sem {slot.semester} · Sec {slot.section}</span>
-                        <span className="font-mono">{slot.room_number || "LT-01"}</span>
-                      </div>
-                      {slot.faculty_name && (
-                        <p className="text-[0.7rem] text-muted-foreground pt-1 border-t border-border/60">
-                          Faculty: <strong className="text-foreground">{slot.faculty_name}</strong>
-                        </p>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
