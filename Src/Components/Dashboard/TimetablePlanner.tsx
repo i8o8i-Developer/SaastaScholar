@@ -338,7 +338,7 @@ export function TimetablePlanner() {
                               Academic Session Insights
                             </span>
                             <p className="text-muted-foreground leading-relaxed text-[0.75rem]">
-                              {slot.meta_info || "Standard university curriculum session. Recommended to review Topper Notes & Solved PYQs prior to lecture."}
+                              {slot.meta_info || "Standard university curriculum session. Recommended To Review Topper Notes & Solved PYQs Prior To Lecture."}
                             </p>
                           </div>
 

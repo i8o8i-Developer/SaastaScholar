@@ -1699,12 +1699,28 @@ export function AdminPortal() {
           {activeStation === "structure" && (
             <div className="space-y-4 sm:space-y-6 min-w-0">
               {/* Sub-tabs for Structure */}
-              <div className="flex flex-wrap items-center justify-between gap-2.5 xs:gap-3 border-b border-border pb-3 sm:pb-4 min-w-0">
-                <div className="flex items-center gap-1.5 xs:gap-2 overflow-x-auto pb-1 max-w-full scrollbar-none bg-surface p-1 rounded-2xl border border-border min-w-0">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-3 sm:pb-4 min-w-0">
+                {/* Mobile Dropdown (No Scroll) */}
+                <div className="sm:hidden w-full relative">
+                  <select
+                    value={structureSubTab}
+                    onChange={(e) => setStructureSubTab(e.target.value as any)}
+                    className="h-11 w-full appearance-none rounded-2xl border border-border/80 bg-card px-3.5 pr-10 text-xs font-bold text-foreground focus:border-primary focus:outline-none shadow-2xs cursor-pointer"
+                  >
+                    <option value="departments">1. Departments ({departments.length})</option>
+                    <option value="programs">2. Specializations ({programs.length})</option>
+                    <option value="sections">3. Cohort Sections ({sections.length})</option>
+                    <option value="subjects">4. Course Modules ({subjects.length})</option>
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                </div>
+
+                {/* Tablet & Desktop Segmented Grid */}
+                <div className="hidden sm:grid sm:grid-cols-4 gap-1 bg-surface p-1 rounded-2xl border border-border w-full sm:w-auto">
                   <button
                     onClick={() => setStructureSubTab("departments")}
                     className={cn(
-                      "px-2.5 xs:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 whitespace-nowrap",
+                      "px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer text-center whitespace-nowrap",
                       structureSubTab === "departments"
                         ? "bg-primary text-primary-foreground shadow-xs"
                         : "text-muted-foreground hover:text-foreground",
@@ -1715,7 +1731,7 @@ export function AdminPortal() {
                   <button
                     onClick={() => setStructureSubTab("programs")}
                     className={cn(
-                      "px-2.5 xs:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 whitespace-nowrap",
+                      "px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer text-center whitespace-nowrap",
                       structureSubTab === "programs"
                         ? "bg-primary text-primary-foreground shadow-xs"
                         : "text-muted-foreground hover:text-foreground",
@@ -1726,7 +1742,7 @@ export function AdminPortal() {
                   <button
                     onClick={() => setStructureSubTab("sections")}
                     className={cn(
-                      "px-2.5 xs:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 whitespace-nowrap",
+                      "px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer text-center whitespace-nowrap",
                       structureSubTab === "sections"
                         ? "bg-primary text-primary-foreground shadow-xs"
                         : "text-muted-foreground hover:text-foreground",
@@ -1737,7 +1753,7 @@ export function AdminPortal() {
                   <button
                     onClick={() => setStructureSubTab("subjects")}
                     className={cn(
-                      "px-2.5 xs:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 whitespace-nowrap",
+                      "px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer text-center whitespace-nowrap",
                       structureSubTab === "subjects"
                         ? "bg-primary text-primary-foreground shadow-xs"
                         : "text-muted-foreground hover:text-foreground",
@@ -2156,8 +2172,54 @@ export function AdminPortal() {
               {renderCascadingContextBar({ showSubject: true })}
 
               {/* Publisher Mode Switcher & Add Button */}
-              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
-                <div className="flex items-center gap-1.5 xs:gap-2 bg-surface p-1 rounded-2xl border border-border overflow-x-auto max-w-full scrollbar-none min-w-0">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-4 w-full">
+                {/* Mobile Dropdown (No Scroll) */}
+                <div className="sm:hidden w-full relative">
+                  <select
+                    value={publisherType}
+                    onChange={(e) => {
+                      const val = e.target.value as any;
+                      setPublisherType(val);
+                      if (val === "NOTES") {
+                        setMaterialPages([{
+                          page_number: 1,
+                          page_title: "Unit 1: Foundations & Core Concepts",
+                          content_html: "## 1. Core Architectural Concepts\n- **Definition**: Theoretical foundations and analytical models.\n- **Complexity**: $O(N \\log N)$ asymptotic bounds.\n\n```python\n# Implementation Sample\ndef compute_solution(data):\n    return sorted(data)\n```",
+                        }]);
+                      } else if (val === "SOLVED_PYQ") {
+                        setMaterialPages([{
+                          page_number: 1,
+                          page_title: "Question 1",
+                          content_html: "## Question 1\nDefine the principles of...\n\n### Answer\nThe principles are as follows:\n- Point 1\n- Point 2\n\n```python\n# Code snippet if necessary\n```",
+                        }]);
+                      } else if (val === "SYLLABUS") {
+                        setMaterialPages([{
+                          page_number: 1,
+                          page_title: "Module 1: Curriculum Breakdown & Objectives",
+                          content_html: "## Module 1: Course Overview\n- **Course Objectives**: Theoretical foundation and learning outcomes.\n- **Prescribed Textbooks**: Official reference manuals and guides.",
+                        }]);
+                      } else if (val === "FACULTY") {
+                        setMaterialPages([{
+                          page_number: 1,
+                          page_title: "Faculty Handout",
+                          content_html: "## Faculty Materials\nUpload Your Document Below.",
+                        }]);
+                      }
+                      setActivePageIndex(0);
+                    }}
+                    className="h-11 w-full appearance-none rounded-2xl border border-border/80 bg-card px-3.5 pr-10 text-xs font-bold text-foreground focus:border-primary focus:outline-none shadow-2xs cursor-pointer"
+                  >
+                    <option value="NOTES">📄 Handwritten Notes ({filteredMaterials.filter((m) => m.material_type === "NOTES").length})</option>
+                    <option value="SOLVED_PYQ">📊 Solved PYQs ({filteredMaterials.filter((m) => m.material_type === "SOLVED_PYQ").length})</option>
+                    <option value="SYLLABUS">📜 Official Syllabus ({filteredMaterials.filter((m) => m.material_type === "SYLLABUS").length})</option>
+                    <option value="LAB_MANUAL">🧪 Practical Labs &amp; Viva ({labs.length})</option>
+                    <option value="FACULTY">🧑‍🏫 Faculty Materials ({filteredMaterials.filter((m) => m.material_type === "FACULTY").length})</option>
+                  </select>
+                  <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                </div>
+
+                {/* Tablet & Desktop Segmented Bar */}
+                <div className="hidden sm:flex flex-wrap items-center gap-1.5 bg-surface p-1 rounded-2xl border border-border">
                   <button
                     onClick={() => {
                       setPublisherType("NOTES");
@@ -2169,7 +2231,7 @@ export function AdminPortal() {
                       setActivePageIndex(0);
                     }}
                     className={cn(
-                      "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0",
+                      "px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0",
                       publisherType === "NOTES"
                         ? "bg-primary text-primary-foreground shadow-xs"
                         : "text-muted-foreground hover:text-foreground",
@@ -2188,7 +2250,7 @@ export function AdminPortal() {
                       setActivePageIndex(0);
                     }}
                     className={cn(
-                      "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0",
+                      "px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0",
                       publisherType === "SOLVED_PYQ"
                         ? "bg-primary text-primary-foreground shadow-xs"
                         : "text-muted-foreground hover:text-foreground",
@@ -2207,7 +2269,7 @@ export function AdminPortal() {
                       setActivePageIndex(0);
                     }}
                     className={cn(
-                      "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0",
+                      "px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0",
                       publisherType === "SYLLABUS"
                         ? "bg-primary text-primary-foreground shadow-xs"
                         : "text-muted-foreground hover:text-foreground",
@@ -2218,7 +2280,7 @@ export function AdminPortal() {
                   <button
                     onClick={() => setPublisherType("LAB_MANUAL")}
                     className={cn(
-                      "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0",
+                      "px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0",
                       publisherType === "LAB_MANUAL"
                         ? "bg-primary text-primary-foreground shadow-xs"
                         : "text-muted-foreground hover:text-foreground",
@@ -2237,7 +2299,7 @@ export function AdminPortal() {
                       setActivePageIndex(0);
                     }}
                     className={cn(
-                      "px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0",
+                      "px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0",
                       publisherType === "FACULTY"
                         ? "bg-primary text-primary-foreground shadow-xs"
                         : "text-muted-foreground hover:text-foreground",

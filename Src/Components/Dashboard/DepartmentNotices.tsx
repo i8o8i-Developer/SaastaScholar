@@ -4,6 +4,7 @@ import {
   Bell,
   Calendar,
   CheckCircle2,
+  ChevronDown,
   Download,
   ExternalLink,
   FileCheck2,
@@ -97,8 +98,23 @@ export function DepartmentNotices() {
           />
         </div>
 
-        {/* Category Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none text-xs">
+        {/* Category Selector (Mobile Dropdown + Desktop Wrapping Pills) */}
+        <div className="sm:hidden relative w-full">
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="h-11 w-full appearance-none rounded-2xl border border-border/80 bg-card px-3.5 pr-10 text-xs font-bold text-foreground focus:border-primary focus:outline-none shadow-2xs cursor-pointer"
+          >
+            <option value="ALL">All Circulars</option>
+            <option value="EXAMINATION">Examinations</option>
+            <option value="LAB_NOTICES">Lab Notices</option>
+            <option value="ACADEMIC">Academic</option>
+            <option value="CIRCULAR">General Circulars</option>
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        </div>
+
+        <div className="hidden sm:flex flex-wrap items-center gap-2 text-xs">
           {[
             { id: "ALL", label: "All Circulars" },
             { id: "EXAMINATION", label: "Examinations" },

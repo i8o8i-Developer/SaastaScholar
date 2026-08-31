@@ -71,40 +71,65 @@ export function LabsHub() {
         </p>
       </div>
 
-      {/* Experiments Navigation Selector */}
-      <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-none">
-        {experiments.map((exp) => {
-          const isSelected = selectedExp?.id === exp.id;
-          return (
-            <button
-              key={exp.id}
-              type="button"
-              onClick={() => {
+      {/* Experiments Navigation Selector (Mobile Dropdown + Desktop Grid) */}
+      <div className="space-y-3">
+        {/* Mobile Dropdown (No Scroll) */}
+        <div className="sm:hidden relative w-full">
+          <select
+            value={selectedExp?.id || ""}
+            onChange={(e) => {
+              const exp = experiments.find((x) => x.id === e.target.value);
+              if (exp) {
                 setSelectedExp(exp);
                 setRevealedViva({});
-              }}
-              className={cn(
-                "flex items-center gap-3 rounded-2xl border px-4 py-3 text-xs font-semibold transition-all cursor-pointer shrink-0 shadow-2xs text-left",
-                isSelected
-                  ? "border-purple-500 bg-surface text-foreground font-bold shadow-xs ring-1 ring-purple-500/30"
-                  : "border-border bg-card text-muted-foreground hover:text-foreground",
-              )}
-            >
-              <div
+              }
+            }}
+            className="h-11 w-full appearance-none rounded-2xl border border-border/80 bg-card px-3.5 pr-10 text-xs font-bold text-foreground focus:border-primary focus:outline-none shadow-2xs cursor-pointer"
+          >
+            {experiments.map((exp) => (
+              <option key={exp.id} value={exp.id}>
+                Lab {exp.experiment_number}: {exp.title} ({exp.subject_code})
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        </div>
+
+        {/* Desktop Responsive Grid */}
+        <div className="hidden sm:grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {experiments.map((exp) => {
+            const isSelected = selectedExp?.id === exp.id;
+            return (
+              <button
+                key={exp.id}
+                type="button"
+                onClick={() => {
+                  setSelectedExp(exp);
+                  setRevealedViva({});
+                }}
                 className={cn(
-                  "grid h-8 w-8 shrink-0 place-items-center rounded-xl font-bold text-xs",
-                  isSelected ? "bg-purple-600 text-white shadow-xs" : "bg-surface text-muted-foreground",
+                  "flex items-center gap-3 rounded-2xl border px-4 py-3 text-xs font-semibold transition-all cursor-pointer shadow-2xs text-left",
+                  isSelected
+                    ? "border-purple-500 bg-surface text-foreground font-bold shadow-xs ring-1 ring-purple-500/30"
+                    : "border-border bg-card text-muted-foreground hover:text-foreground hover:border-primary/40",
                 )}
               >
-                {exp.experiment_number}
-              </div>
-              <div className="min-w-0 max-w-[220px]">
-                <p className="truncate text-foreground font-bold">{exp.title}</p>
-                <p className="text-[0.65rem] text-muted-foreground">{exp.subject_code} · Verified Record</p>
-              </div>
-            </button>
-          );
-        })}
+                <div
+                  className={cn(
+                    "grid h-8 w-8 shrink-0 place-items-center rounded-xl font-bold text-xs",
+                    isSelected ? "bg-purple-600 text-white shadow-xs" : "bg-surface text-muted-foreground",
+                  )}
+                >
+                  {exp.experiment_number}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-foreground font-bold">{exp.title}</p>
+                  <p className="text-[0.65rem] text-muted-foreground font-mono">{exp.subject_code} · Verified Record</p>
+                </div>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* Selected Experiment View */}
