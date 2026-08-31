@@ -467,16 +467,19 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
             </div>
           </div>
 
-          {/* Quick Header Tools (Search Trigger, Notifications, User) */}
+          {/* Quick Header Tools (Global Search, Notifications, User) */}
           <div className="flex items-center gap-1.5 xs:gap-2.5">
-            {/* Search Trigger Button */}
+            {/* Global Search Command Trigger Button */}
             <button
               type="button"
-              onClick={() => onSelectTab("notes")}
-              className="flex items-center gap-1.5 xs:gap-2 rounded-xl xs:rounded-2xl border border-border bg-surface px-2 xs:px-3 py-1.5 text-xs text-muted-foreground hover:border-primary/50 hover:text-foreground transition-all cursor-pointer shadow-2xs"
+              onClick={() => setSearchModalOpen(true)}
+              className="flex items-center gap-1.5 xs:gap-2 rounded-xl xs:rounded-2xl border border-border/80 bg-surface/80 px-2.5 xs:px-3.5 py-1.5 text-xs text-muted-foreground hover:border-primary/50 hover:text-foreground transition-all cursor-pointer shadow-2xs group"
             >
-              <Search className="h-3.5 w-3.5 text-primary shrink-0" />
+              <Search className="h-3.5 w-3.5 text-primary shrink-0 group-hover:scale-110 transition-transform" />
               <span className="hidden md:inline font-medium">Search Courseware...</span>
+              <kbd className="hidden lg:inline-flex items-center rounded border border-border bg-card px-1.5 py-0.5 text-[0.6rem] font-mono text-muted-foreground">
+                ⌘K
+              </kbd>
             </button>
 
             {/* Notifications Popover */}
@@ -661,6 +664,99 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
           {children}
         </main>
       </div>
+
+      {/* ===================== Global Search Command Palette (Modal) ===================== */}
+      {searchModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-start justify-center p-3 sm:p-6 pt-16 sm:pt-24 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-2xl rounded-3xl border border-border/80 bg-card p-4 sm:p-6 shadow-2xl space-y-4 animate-in zoom-in-95 duration-200"
+          >
+            {/* Search Input Bar */}
+            <div className="relative flex items-center border-b border-border/80 pb-3">
+              <Search className="h-5 w-5 text-primary shrink-0 mr-3" />
+              <input
+                type="text"
+                autoFocus
+                placeholder="Search Handwritten Notes, PYQs, Syllabus, Faculty Materials..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-transparent text-sm sm:text-base font-semibold text-foreground placeholder:text-muted-foreground/60 focus:outline-none"
+              />
+              <button
+                type="button"
+                onClick={() => setSearchModalOpen(false)}
+                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface hover:text-foreground transition-colors cursor-pointer shrink-0"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            {/* Quick Navigation Results List */}
+            <div className="space-y-1.5 max-h-[360px] overflow-y-auto pr-1">
+              <span className="text-[0.65rem] font-bold text-muted-foreground uppercase tracking-wider px-2 block mb-2">
+                Courseware Hubs &amp; Tools
+              </span>
+              {[
+                { title: "Handwritten Notes & Derivations", tab: "notes", category: "Academic Courseware", icon: BookOpen, desc: "Unit-wise topper notes, formulas, and diagrams" },
+                { title: "Solved PYQs & Model Answer Keys", tab: "pyqs", category: "Exam Archive", icon: FileCheck2, desc: "Solved previous year exam questions 2020-2027" },
+                { title: "Official Institutional Syllabus", tab: "syllabus", category: "Curriculum", icon: ScrollText, desc: "Unit learning objectives and course outlines" },
+                { title: "Faculty Materials & Handouts", tab: "faculty", category: "Faculty Resources", icon: LibraryBig, desc: "Professor slides, presentations, and handouts" },
+                { title: "Lab Manuals & Practical Viva", tab: "labs", category: "Practical Labs", icon: FlaskConical, desc: "Lab experiments, procedures, and viva Q&A" },
+                { title: "Assignment Tracker & Deadlines", tab: "assignments", category: "Tasks & Deadlines", icon: Code2, desc: "Pending assignments and AI code analysis" },
+                { title: "Timetable & Daily Study Planner", tab: "planner", category: "Daily Schedule", icon: Calendar, desc: "Lecture schedules, venues, and revision matrix" },
+                { title: "Department Notices & Circulars", tab: "notices", category: "Bulletins", icon: Bell, desc: "Exam circulars, holidays, and official updates" },
+                { title: "Community Discussions Forum", tab: "community-forum", category: "Peer Discussions", icon: MessageSquare, desc: "Ask doubts and share solutions with students" },
+                { title: "Student Support & Query Desk", tab: "student-desk", category: "Help & Grievance", icon: LifeBuoy, desc: "Submit tickets and resolve academic inquiries" },
+              ]
+                .filter((item) => {
+                  if (!searchQuery.trim()) return true;
+                  const q = searchQuery.toLowerCase();
+                  return (
+                    item.title.toLowerCase().includes(q) ||
+                    item.category.toLowerCase().includes(q) ||
+                    item.desc.toLowerCase().includes(q)
+                  );
+                })
+                .map((item) => {
+                  const Icon = item.icon;
+                  return (
+                    <button
+                      key={item.tab}
+                      type="button"
+                      onClick={() => {
+                        onSelectTab(item.tab);
+                        setSearchModalOpen(false);
+                      }}
+                      className="flex w-full items-center justify-between gap-3 rounded-2xl p-3 text-left transition-all hover:bg-surface hover:border-primary/40 border border-transparent cursor-pointer group"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                          <Icon className="h-4 w-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <h4 className="font-bold text-xs sm:text-sm text-foreground truncate group-hover:text-primary transition-colors">
+                            {item.title}
+                          </h4>
+                          <p className="text-[0.7rem] text-muted-foreground truncate">{item.desc}</p>
+                        </div>
+                      </div>
+                      <span className="rounded-lg bg-surface px-2 py-0.5 text-[0.6rem] font-bold text-muted-foreground font-mono shrink-0">
+                        {item.category}
+                      </span>
+                    </button>
+                  );
+                })}
+            </div>
+
+            {/* Footer Shortcut Info */}
+            <div className="flex items-center justify-between pt-2 border-t border-border/60 text-[0.65rem] text-muted-foreground">
+              <span>Press <kbd className="font-mono bg-surface px-1.5 py-0.5 rounded border border-border">ESC</kbd> to close</span>
+              <span>Global Courseware Search Engine</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

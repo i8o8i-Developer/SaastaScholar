@@ -373,9 +373,9 @@ export function CommunityForumHub() {
       )}
 
       {/* Reddit/Slack Navigation Channels & Filters */}
-      <div className="space-y-3">
-        {/* Category Channel Bar */}
-        <div className="flex items-center gap-1.5 overflow-x-auto max-w-full pb-1 scrollbar-none min-w-0">
+      <div className="space-y-3 min-w-0">
+        {/* Category Channel Bar (Responsive Wrapping Grid) */}
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 min-w-0">
           {CATEGORIES.map((cat) => {
             const Icon = cat.icon;
             const isActive = selectedCategory === cat.id;
@@ -384,13 +384,13 @@ export function CommunityForumHub() {
                 key={cat.id}
                 onClick={() => setSelectedCategory(cat.id)}
                 className={cn(
-                  "inline-flex items-center gap-1.5 whitespace-nowrap rounded-2xl px-3.5 py-2 text-xs font-bold transition-all cursor-pointer shrink-0 shadow-2xs",
+                  "inline-flex items-center gap-1.5 rounded-xl sm:rounded-2xl px-2.5 sm:px-3.5 py-1.5 sm:py-2 text-[0.7rem] sm:text-xs font-bold transition-all cursor-pointer shadow-2xs select-none",
                   isActive
-                    ? "bg-primary text-primary-foreground shadow-xs"
+                    ? "bg-primary text-primary-foreground shadow-xs scale-[1.02]"
                     : "border border-border/80 bg-card text-muted-foreground hover:bg-surface hover:text-foreground"
                 )}
               >
-                <Icon className="h-3.5 w-3.5" />
+                <Icon className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
                 <span>{cat.label}</span>
               </button>
             );
@@ -398,48 +398,48 @@ export function CommunityForumHub() {
         </div>
 
         {/* Search & Sort Controls */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
-          <div className="relative w-full sm:max-w-md">
-            <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 min-w-0">
+          <div className="relative flex-1 min-w-0">
+            <Search className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               type="text"
               placeholder="Search Discussions, Authors, Topics..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-10 w-full rounded-2xl border border-border bg-card pr-4 pl-9 text-xs text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none"
+              className="h-10 w-full rounded-2xl border border-border/80 bg-card pr-4 pl-10 text-xs text-foreground placeholder:text-muted-foreground/60 focus:border-primary focus:outline-none shadow-2xs"
             />
           </div>
 
-          <div className="flex items-center gap-1.5 w-full sm:w-auto justify-end">
-            <span className="text-[0.65rem] font-bold text-muted-foreground uppercase mr-1">Sort:</span>
+          <div className="flex items-center gap-1 p-1 rounded-2xl bg-surface/80 border border-border/70 shrink-0 self-start sm:self-auto min-w-0">
+            <span className="text-[0.62rem] font-bold text-muted-foreground uppercase px-1.5 hidden sm:inline">Sort:</span>
             <button
               onClick={() => setSortBy("NEWEST")}
               className={cn(
-                "inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-xs font-bold transition-all cursor-pointer",
-                sortBy === "NEWEST" ? "bg-secondary text-foreground border border-border" : "text-muted-foreground hover:text-foreground"
+                "inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-[0.7rem] sm:text-xs font-bold transition-all cursor-pointer",
+                sortBy === "NEWEST" ? "bg-card text-foreground border border-border/80 shadow-2xs font-extrabold" : "text-muted-foreground hover:text-foreground"
               )}
             >
-              <Clock className="h-3.5 w-3.5" />
+              <Clock className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
               <span>Latest</span>
             </button>
             <button
               onClick={() => setSortBy("HOT")}
               className={cn(
-                "inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-xs font-bold transition-all cursor-pointer",
-                sortBy === "HOT" ? "bg-secondary text-foreground border border-border" : "text-muted-foreground hover:text-foreground"
+                "inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-[0.7rem] sm:text-xs font-bold transition-all cursor-pointer",
+                sortBy === "HOT" ? "bg-card text-foreground border border-border/80 shadow-2xs font-extrabold" : "text-muted-foreground hover:text-foreground"
               )}
             >
-              <Flame className="h-3.5 w-3.5 text-amber-500" />
+              <Flame className="h-3.5 w-3.5 text-amber-500 shrink-0" />
               <span>Trending</span>
             </button>
             <button
               onClick={() => setSortBy("COMMENTS")}
               className={cn(
-                "inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-xs font-bold transition-all cursor-pointer",
-                sortBy === "COMMENTS" ? "bg-secondary text-foreground border border-border" : "text-muted-foreground hover:text-foreground"
+                "inline-flex items-center gap-1 rounded-xl px-2.5 py-1.5 text-[0.7rem] sm:text-xs font-bold transition-all cursor-pointer",
+                sortBy === "COMMENTS" ? "bg-card text-foreground border border-border/80 shadow-2xs font-extrabold" : "text-muted-foreground hover:text-foreground"
               )}
             >
-              <MessageCircle className="h-3.5 w-3.5" />
+              <MessageCircle className="h-3.5 w-3.5 text-cyan-500 shrink-0" />
               <span>Discussed</span>
             </button>
           </div>

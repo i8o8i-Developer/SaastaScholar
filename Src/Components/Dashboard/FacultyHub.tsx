@@ -69,18 +69,6 @@ export function FacultyHub({ onOpenReader }: FacultyHubProps) {
               Direct Access To PPT Presentations, PDF Courseware, And Classroom Handouts Uploaded By University Faculty.
             </p>
           </div>
-
-          {/* Search Input */}
-          <div className="relative w-full lg:w-80 shrink-0">
-            <Search className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search Faculty Materials..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-10 sm:h-11 w-full rounded-2xl border border-border/80 bg-background/90 pr-3 pl-10 text-xs placeholder:text-muted-foreground/70 focus:border-blue-500 focus:outline-none shadow-xs transition-all"
-            />
-          </div>
         </div>
       </div>
 

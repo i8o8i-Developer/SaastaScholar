@@ -147,19 +147,19 @@ export function StudentDeskHub() {
   }, [tickets]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 max-w-7xl mx-auto min-w-0">
       {/* Header Banner */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-3xl border border-border/80 bg-gradient-to-br from-card via-card to-primary/5 p-6 shadow-xs">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2.5">
-            <div className="grid h-10 w-10 place-items-center rounded-2xl bg-primary/10 text-primary shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4 rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-br from-card via-card to-primary/5 p-4 sm:p-6 shadow-xs min-w-0">
+        <div className="space-y-1 min-w-0">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="grid h-9 w-9 sm:h-10 sm:w-10 place-items-center rounded-2xl bg-primary/10 text-primary shadow-xs shrink-0">
               <LifeBuoy className="h-5 w-5" />
             </div>
-            <div>
-              <h2 className="font-display text-2xl font-bold tracking-tight text-foreground">
-                Student Support & Query Resolution Desk
+            <div className="min-w-0">
+              <h2 className="font-display text-lg sm:text-2xl font-bold tracking-tight text-foreground truncate sm:whitespace-normal">
+                Student Support &amp; Desk
               </h2>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-[0.7rem] sm:text-xs text-muted-foreground line-clamp-2 sm:line-clamp-1">
                 Direct Official Communication Channel With University Department Administration
               </p>
             </div>
@@ -168,60 +168,60 @@ export function StudentDeskHub() {
 
         <button
           onClick={() => setShowForm(!showForm)}
-          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-2.5 text-xs font-bold text-white shadow-md shadow-emerald-600/25 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+          className="inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 sm:px-5 py-2 sm:py-2.5 text-xs font-bold text-white shadow-md shadow-emerald-600/25 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer shrink-0"
         >
           <Plus className="h-4 w-4" />
           <span>{showForm ? "Cancel Ticket" : "Raise Support Ticket"}</span>
         </button>
       </div>
 
-      {/* Metrics Cards */}
-      <div className="grid grid-cols-3 gap-2 sm:gap-4">
-        <div className="rounded-2xl border border-border/80 bg-card p-2.5 sm:p-4 shadow-2xs flex items-center justify-between gap-2 min-w-0">
+      {/* Metrics Cards - Symmetrical & Zero-Truncation */}
+      <div className="grid grid-cols-3 gap-2 sm:gap-4 min-w-0">
+        <div className="rounded-xl sm:rounded-2xl border border-border/80 bg-card p-2.5 sm:p-4 shadow-2xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 min-w-0">
           <div className="min-w-0">
-            <span className="text-[0.58rem] sm:text-[0.68rem] font-bold text-muted-foreground uppercase tracking-wider block truncate">Total Raised</span>
-            <span className="text-base sm:text-xl font-extrabold text-foreground">{stats.total}</span>
+            <span className="text-[0.62rem] sm:text-[0.7rem] font-bold text-muted-foreground uppercase tracking-wider block truncate">Total</span>
+            <span className="text-sm sm:text-xl font-extrabold text-foreground">{stats.total}</span>
           </div>
-          <div className="grid h-7 w-7 sm:h-8 sm:w-8 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-            <MessageSquare className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+          <div className="grid h-6 w-6 sm:h-8 sm:w-8 shrink-0 place-items-center rounded-lg sm:rounded-xl bg-primary/10 text-primary self-end sm:self-center">
+            <MessageSquare className="h-3 w-3 sm:h-4 sm:w-4" />
           </div>
         </div>
 
-        <div className="rounded-2xl border border-border/80 bg-card p-2.5 sm:p-4 shadow-2xs flex items-center justify-between gap-2 min-w-0">
+        <div className="rounded-xl sm:rounded-2xl border border-border/80 bg-card p-2.5 sm:p-4 shadow-2xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 min-w-0">
           <div className="min-w-0">
-            <span className="text-[0.58rem] sm:text-[0.68rem] font-bold text-muted-foreground uppercase tracking-wider block truncate">In Progress</span>
-            <span className="text-base sm:text-xl font-extrabold text-amber-600 dark:text-amber-400">{stats.open}</span>
+            <span className="text-[0.62rem] sm:text-[0.7rem] font-bold text-muted-foreground uppercase tracking-wider block truncate">In Progress</span>
+            <span className="text-sm sm:text-xl font-extrabold text-amber-600 dark:text-amber-400">{stats.open}</span>
           </div>
-          <div className="grid h-7 w-7 sm:h-8 sm:w-8 shrink-0 place-items-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400">
-            <Clock className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+          <div className="grid h-6 w-6 sm:h-8 sm:w-8 shrink-0 place-items-center rounded-lg sm:rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 self-end sm:self-center">
+            <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
           </div>
         </div>
 
-        <div className="rounded-2xl border border-border/80 bg-card p-2.5 sm:p-4 shadow-2xs flex items-center justify-between gap-2 min-w-0">
+        <div className="rounded-xl sm:rounded-2xl border border-border/80 bg-card p-2.5 sm:p-4 shadow-2xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2 min-w-0">
           <div className="min-w-0">
-            <span className="text-[0.58rem] sm:text-[0.68rem] font-bold text-muted-foreground uppercase tracking-wider block truncate">Resolved</span>
-            <span className="text-base sm:text-xl font-extrabold text-emerald-600 dark:text-emerald-400">{stats.resolved}</span>
+            <span className="text-[0.62rem] sm:text-[0.7rem] font-bold text-muted-foreground uppercase tracking-wider block truncate">Resolved</span>
+            <span className="text-sm sm:text-xl font-extrabold text-emerald-600 dark:text-emerald-400">{stats.resolved}</span>
           </div>
-          <div className="grid h-7 w-7 sm:h-8 sm:w-8 shrink-0 place-items-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-            <CheckCircle2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+          <div className="grid h-6 w-6 sm:h-8 sm:w-8 shrink-0 place-items-center rounded-lg sm:rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 self-end sm:self-center">
+            <CheckCircle2 className="h-3 w-3 sm:h-4 sm:w-4" />
           </div>
         </div>
       </div>
 
       {/* New Ticket Form */}
       {showForm && (
-        <div className="rounded-3xl border border-primary/30 bg-card p-6 shadow-lg space-y-4 animate-in fade-in slide-in-from-top-4 duration-300">
+        <div className="rounded-2xl sm:rounded-3xl border border-primary/30 bg-card p-4 sm:p-6 shadow-lg space-y-4 animate-in fade-in slide-in-from-top-4 duration-300 min-w-0">
           <div className="flex items-center justify-between border-b border-border/60 pb-3">
             <h3 className="font-display text-sm font-bold text-foreground flex items-center gap-2">
-              <HelpCircle className="h-4 w-4 text-primary" />
-              Submit A Query Or Grievance To Administration
+              <HelpCircle className="h-4 w-4 text-primary shrink-0" />
+              <span>Submit Query To Administration</span>
             </h3>
-            <span className="text-[0.65rem] text-muted-foreground uppercase font-bold tracking-wider">
-              Student: {user?.full_name || user?.email} ({user?.roll_number || "Enrolled"})
+            <span className="text-[0.62rem] sm:text-[0.65rem] text-muted-foreground uppercase font-bold tracking-wider truncate max-w-[150px] sm:max-w-none">
+              {user?.full_name || user?.email}
             </span>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4 text-xs">
+          <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 text-xs">
             <div className="grid gap-3 sm:grid-cols-3">
               <div className="sm:col-span-1 space-y-1">
                 <label className="block font-bold text-muted-foreground">Department Category *</label>
@@ -300,38 +300,41 @@ export function StudentDeskHub() {
       )}
 
       {/* Filter Tabs */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-1.5 overflow-x-auto max-w-full pb-1 scrollbar-none min-w-0">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 min-w-0">
+        <div className="grid grid-cols-4 gap-1 p-1 rounded-2xl bg-surface/80 border border-border/70 min-w-0">
           {["ALL", "OPEN", "IN_PROGRESS", "RESOLVED"].map((status) => (
             <button
               key={status}
               onClick={() => setStatusFilter(status)}
               className={cn(
-                "rounded-2xl px-3.5 py-1.5 text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0",
+                "rounded-xl py-1.5 px-1 text-[0.65rem] sm:text-xs font-bold text-center transition-all cursor-pointer truncate select-none",
                 statusFilter === status
-                  ? "bg-primary text-primary-foreground shadow-xs"
-                  : "border border-border/80 bg-card text-muted-foreground hover:bg-surface hover:text-foreground"
+                  ? "bg-primary text-primary-foreground shadow-xs scale-[1.02]"
+                  : "text-muted-foreground hover:text-foreground"
               )}
             >
-              {status === "ALL" && "All Statuses"}
-              {status === "OPEN" && "Open Queries"}
+              {status === "ALL" && "All"}
+              {status === "OPEN" && "Open"}
               {status === "IN_PROGRESS" && "In Progress"}
               {status === "RESOLVED" && "Resolved"}
             </button>
           ))}
         </div>
 
-        <select
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-          className="h-9 rounded-2xl border border-border/80 bg-card px-3 text-xs font-bold text-foreground focus:border-primary focus:outline-none"
-        >
-          {CATEGORIES.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.label}
-            </option>
-          ))}
-        </select>
+        <div className="relative w-full sm:w-56">
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="h-10 w-full appearance-none rounded-2xl border border-border/80 bg-card px-3.5 pr-10 text-xs font-bold text-foreground focus:border-primary focus:outline-none shadow-2xs cursor-pointer"
+          >
+            {CATEGORIES.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.label}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        </div>
       </div>
 
       {/* Tickets List with Interactive Follow-up Conversations */}

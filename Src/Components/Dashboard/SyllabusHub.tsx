@@ -106,18 +106,6 @@ export function SyllabusHub({ onOpenReader }: SyllabusHubProps) {
               Official University Course Outlines, Unit-Wise Learning Objectives, Prescribed Textbooks, And Examination Weightage Distributions.
             </p>
           </div>
-
-          {/* Search Bar */}
-          <div className="relative w-full lg:w-80 shrink-0 min-w-0">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search Syllabus By Keyword..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="h-10 sm:h-11 w-full rounded-2xl border border-border/80 bg-background/90 pr-3 pl-10 text-xs placeholder:text-muted-foreground/70 focus:border-teal-500 focus:outline-none shadow-xs transition-all"
-            />
-          </div>
         </div>
       </div>
 
