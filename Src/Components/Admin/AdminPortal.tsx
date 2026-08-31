@@ -143,6 +143,18 @@ export function AdminPortal() {
   const [publisherType, setPublisherType] = useState<PublisherContentType>("NOTES");
   const [selectedTimetableDay, setSelectedTimetableDay] = useState<string>("Mon");
   const [mobileNavOpen, setMobileNavOpen] = useState<boolean>(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() => {
+    return localStorage.getItem("admin_sidebar_collapsed") === "true";
+  });
+
+  const toggleSidebarCollapsed = () => {
+    setSidebarCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem("admin_sidebar_collapsed", String(next));
+      return next;
+    });
+  };
+
   const [loading, setLoading] = useState<boolean>(true);
 
   // Core Data Stores
@@ -1517,53 +1529,81 @@ export function AdminPortal() {
       )}
 
       {/* ===================== Desktop Admin Sidebar ===================== */}
-      <aside className="hidden lg:flex w-64 lg:w-72 flex-col justify-between border-r border-border/80 bg-card/85 p-5 backdrop-blur-xl shrink-0 shadow-sm">
+      <aside
+        className={cn(
+          "hidden lg:flex flex-col justify-between border-r border-border/80 bg-card/85 p-3.5 backdrop-blur-xl shrink-0 shadow-sm transition-all duration-300",
+          sidebarCollapsed ? "w-20" : "w-64 lg:w-72"
+        )}
+      >
         <div>
-          {/* Brand Logo & Title */}
-          <div className="flex items-center gap-3.5 px-2 py-1.5">
-            <div className="relative">
-              <img
-                src="/NIMSWallah.png"
-                onError={(e) => {
-                  e.currentTarget.src = "/favicon.png";
-                }}
-                alt="NimsWallah Logo"
-                className="h-9 w-9 object-contain drop-shadow-md"
-              />
-              <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card bg-emerald-500 shadow-xs" />
+          {/* Brand Logo & Title + Desktop Collapse Button */}
+          <div className={cn("flex items-center justify-between", sidebarCollapsed ? "px-1 justify-center" : "px-2 py-1.5")}>
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="relative shrink-0">
+                <img
+                  src="/NIMSWallah.png"
+                  onError={(e) => {
+                    e.currentTarget.src = "/favicon.png";
+                  }}
+                  alt="NimsWallah Logo"
+                  className="h-9 w-9 object-contain drop-shadow-md"
+                />
+                <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card bg-emerald-500 shadow-xs" />
+              </div>
+              {!sidebarCollapsed && (
+                <div className="min-w-0">
+                  <h2 className="font-display text-base font-bold tracking-tight bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent truncate">
+                    NimsWallah
+                  </h2>
+                  <p className="text-[0.62rem] font-bold text-muted-foreground uppercase tracking-widest truncate">
+                    Academic Command
+                  </p>
+                </div>
+              )}
             </div>
-            <div>
-              <h2 className="font-display text-base font-bold tracking-tight bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent">
-                NimsWallah
-              </h2>
-              <p className="text-[0.62rem] font-bold text-muted-foreground uppercase tracking-widest">
-                Academic Command Engine
-              </p>
-            </div>
+
+            <button
+              type="button"
+              onClick={toggleSidebarCollapsed}
+              className={cn(
+                "hidden lg:grid h-7 w-7 place-items-center rounded-lg text-muted-foreground hover:bg-surface hover:text-foreground cursor-pointer transition-colors shrink-0",
+                sidebarCollapsed && "mt-2"
+              )}
+              title={sidebarCollapsed ? "Expand Sidebar (Desktop)" : "Collapse Sidebar (Desktop)"}
+            >
+              <Menu className="h-4 w-4" />
+            </button>
           </div>
 
           {/* Admin Controller Quick Card */}
-          <div className="mt-5 rounded-2xl border border-emerald-500/20 bg-gradient-to-tr from-emerald-500/5 via-surface/80 to-teal-500/5 p-3 shadow-2xs">
-            <div className="flex items-center gap-3">
-              <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-bold text-xs shadow-xs">
+          <div
+            className={cn(
+              "mt-4 rounded-2xl border border-emerald-500/20 bg-gradient-to-tr from-emerald-500/5 via-surface/80 to-teal-500/5 shadow-2xs transition-all",
+              sidebarCollapsed ? "p-2 text-center" : "p-3"
+            )}
+          >
+            <div className={cn("flex items-center", sidebarCollapsed ? "justify-center" : "gap-3")}>
+              <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-bold text-xs shadow-xs shrink-0">
                 <span>AD</span>
               </div>
-              <div className="min-w-0 flex-1">
-                <h4 className="text-xs font-bold text-foreground truncate">
-                  {user?.full_name || "Academic Controller"}
-                </h4>
-                <div className="flex items-center gap-1.5 mt-0.5">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[0.6rem] font-bold text-emerald-600 dark:text-emerald-400">
-                    <ShieldCheck className="h-3 w-3" />
-                    <span>Master Administrator</span>
-                  </span>
+              {!sidebarCollapsed && (
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-xs font-bold text-foreground truncate">
+                    {user?.full_name || "Academic Controller"}
+                  </h4>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[0.6rem] font-bold text-emerald-600 dark:text-emerald-400">
+                      <ShieldCheck className="h-3 w-3" />
+                      <span>Master Admin</span>
+                    </span>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </div>
 
           {/* Station Navigation List */}
-          <nav className="mt-5 space-y-1">
+          <nav className="mt-4 space-y-1">
             {[
               { id: "overview", label: "0. Executive Overview", icon: LayoutDashboard, count: "Live" },
               { id: "structure", label: "1. Academic Blueprint", icon: Building2, count: departments.length },
@@ -1583,27 +1623,31 @@ export function AdminPortal() {
                 <button
                   key={station.id}
                   onClick={() => setActiveStation(station.id as AdminStation)}
+                  title={sidebarCollapsed ? `${station.label} (${station.count})` : undefined}
                   className={cn(
-                    "flex w-full items-center justify-between rounded-2xl px-3.5 py-2.5 text-xs font-semibold cursor-pointer transition-all active:scale-[0.98]",
+                    "flex w-full items-center rounded-2xl cursor-pointer transition-all active:scale-[0.98]",
+                    sidebarCollapsed ? "justify-center p-2.5" : "justify-between px-3.5 py-2.5 text-xs font-semibold",
                     isActive
                       ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-600/25"
                       : "text-muted-foreground hover:bg-surface hover:text-foreground",
                   )}
                 >
                   <div className="flex items-center gap-2.5">
-                    <Icon className="h-4 w-4" />
-                    <span>{station.label}</span>
+                    <Icon className="h-4 w-4 shrink-0" />
+                    {!sidebarCollapsed && <span className="truncate">{station.label}</span>}
                   </div>
-                  <span
-                    className={cn(
-                      "rounded-full px-2 py-0.5 text-[0.65rem] font-mono font-bold",
-                      isActive
-                        ? "bg-white/20 text-white"
-                        : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-                    )}
-                  >
-                    {station.count}
-                  </span>
+                  {!sidebarCollapsed && (
+                    <span
+                      className={cn(
+                        "rounded-full px-2 py-0.5 text-[0.65rem] font-mono font-bold shrink-0",
+                        isActive
+                          ? "bg-white/20 text-white"
+                          : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+                      )}
+                    >
+                      {station.count}
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -1611,16 +1655,20 @@ export function AdminPortal() {
         </div>
 
         {/* Bottom Actions */}
-        <div className="space-y-2 border-t border-border/80 pt-4">
+        <div className="space-y-2 border-t border-border/80 pt-3">
           <button
             onClick={() => {
               logout();
               window.location.href = "/login";
             }}
-            className="flex w-full items-center justify-center gap-2 rounded-2xl border border-rose-500/20 bg-rose-500/5 p-2.5 text-xs font-bold text-rose-500 hover:bg-rose-500/10 cursor-pointer transition-all active:scale-95 shadow-2xs"
+            title={sidebarCollapsed ? "Sign Out Of Workspace" : undefined}
+            className={cn(
+              "flex w-full items-center justify-center rounded-2xl border border-rose-500/20 bg-rose-500/5 text-xs font-bold text-rose-500 hover:bg-rose-500/10 cursor-pointer transition-all active:scale-95 shadow-2xs",
+              sidebarCollapsed ? "p-2.5" : "gap-2 p-2.5"
+            )}
           >
-            <LogOut className="h-4 w-4" />
-            <span>Sign Out Of Workspace</span>
+            <LogOut className="h-4 w-4 shrink-0" />
+            {!sidebarCollapsed && <span>Sign Out Of Workspace</span>}
           </button>
         </div>
       </aside>
@@ -1630,12 +1678,23 @@ export function AdminPortal() {
         {/* Top Header */}
         <header className="sticky top-0 z-30 flex h-14 sm:h-16 items-center justify-between border-b border-border bg-card/85 px-3 xs:px-4 sm:px-6 backdrop-blur-md shrink-0">
           <div className="flex items-center gap-2 xs:gap-3 min-w-0">
+            {/* Mobile Menu Button */}
             <button
               type="button"
               onClick={() => setMobileNavOpen(true)}
               className="grid h-8 w-8 xs:h-9 xs:w-9 place-items-center rounded-xl border border-border bg-surface text-foreground lg:hidden cursor-pointer shrink-0"
             >
               <Menu className="h-4 w-4 xs:h-5 xs:w-5" />
+            </button>
+
+            {/* Desktop Sidebar Toggle Button */}
+            <button
+              type="button"
+              onClick={toggleSidebarCollapsed}
+              className="hidden lg:grid h-9 w-9 place-items-center rounded-xl border border-border bg-surface text-foreground hover:bg-card cursor-pointer transition-colors shrink-0"
+              title={sidebarCollapsed ? "Expand Sidebar (Desktop)" : "Collapse Sidebar (Desktop)"}
+            >
+              <Menu className="h-4 w-4" />
             </button>
             <span className="font-display text-xs xs:text-sm sm:text-lg font-bold text-foreground truncate">
               {activeStation === "overview" && (
@@ -2573,7 +2632,7 @@ export function AdminPortal() {
 
               {/* Publisher Mode Switcher & Add Button */}
               <div className="flex flex-col gap-3 border-b border-border pb-4 w-full">
-                <div className="grid grid-cols-2 xs:grid-cols-3 lg:grid-cols-5 gap-2 p-1.5 rounded-2xl sm:rounded-3xl bg-surface/80 border border-border/80 shadow-2xs">
+                <div className="flex flex-wrap items-center gap-1.5 p-1.5 rounded-2xl sm:rounded-3xl bg-surface/80 border border-border/80 shadow-2xs w-full">
                   <button
                     type="button"
                     onClick={() => {
@@ -2586,14 +2645,14 @@ export function AdminPortal() {
                       setActivePageIndex(0);
                     }}
                     className={cn(
-                      "flex items-center justify-center gap-1.5 rounded-xl sm:rounded-2xl px-2.5 py-2.5 text-xs font-bold transition-all cursor-pointer",
+                      "flex-1 min-w-[105px] flex items-center justify-center gap-1.5 rounded-xl sm:rounded-2xl px-2.5 py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer",
                       publisherType === "NOTES"
                         ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20"
                         : "text-muted-foreground hover:bg-card/70 hover:text-foreground",
                     )}
                   >
                     <FileText className="h-3.5 w-3.5 shrink-0" />
-                    <span className="truncate">Notes</span>
+                    <span className="whitespace-nowrap">Notes</span>
                     <span className={cn(
                       "rounded-full px-1.5 py-0.2 text-[0.62rem] font-mono font-bold shrink-0",
                       publisherType === "NOTES" ? "bg-white/25 text-white" : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
@@ -2614,14 +2673,14 @@ export function AdminPortal() {
                       setActivePageIndex(0);
                     }}
                     className={cn(
-                      "flex items-center justify-center gap-1.5 rounded-xl sm:rounded-2xl px-2.5 py-2.5 text-xs font-bold transition-all cursor-pointer",
+                      "flex-1 min-w-[105px] flex items-center justify-center gap-1.5 rounded-xl sm:rounded-2xl px-2.5 py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer",
                       publisherType === "SOLVED_PYQ"
                         ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20"
                         : "text-muted-foreground hover:bg-card/70 hover:text-foreground",
                     )}
                   >
                     <Award className="h-3.5 w-3.5 shrink-0" />
-                    <span className="truncate">PYQs</span>
+                    <span className="whitespace-nowrap">PYQs</span>
                     <span className={cn(
                       "rounded-full px-1.5 py-0.2 text-[0.62rem] font-mono font-bold shrink-0",
                       publisherType === "SOLVED_PYQ" ? "bg-white/25 text-white" : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
@@ -2642,14 +2701,14 @@ export function AdminPortal() {
                       setActivePageIndex(0);
                     }}
                     className={cn(
-                      "flex items-center justify-center gap-1.5 rounded-xl sm:rounded-2xl px-2.5 py-2.5 text-xs font-bold transition-all cursor-pointer",
+                      "flex-1 min-w-[105px] flex items-center justify-center gap-1.5 rounded-xl sm:rounded-2xl px-2.5 py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer",
                       publisherType === "SYLLABUS"
                         ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20"
                         : "text-muted-foreground hover:bg-card/70 hover:text-foreground",
                     )}
                   >
                     <ScrollText className="h-3.5 w-3.5 shrink-0" />
-                    <span className="truncate">Syllabus</span>
+                    <span className="whitespace-nowrap">Syllabus</span>
                     <span className={cn(
                       "rounded-full px-1.5 py-0.2 text-[0.62rem] font-mono font-bold shrink-0",
                       publisherType === "SYLLABUS" ? "bg-white/25 text-white" : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
@@ -2662,14 +2721,14 @@ export function AdminPortal() {
                     type="button"
                     onClick={() => setPublisherType("LAB_MANUAL")}
                     className={cn(
-                      "flex items-center justify-center gap-1.5 rounded-xl sm:rounded-2xl px-2.5 py-2.5 text-xs font-bold transition-all cursor-pointer",
+                      "flex-1 min-w-[105px] flex items-center justify-center gap-1.5 rounded-xl sm:rounded-2xl px-2.5 py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer",
                       publisherType === "LAB_MANUAL"
                         ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20"
                         : "text-muted-foreground hover:bg-card/70 hover:text-foreground",
                     )}
                   >
                     <FlaskConical className="h-3.5 w-3.5 shrink-0" />
-                    <span className="truncate">Labs &amp; Viva</span>
+                    <span className="whitespace-nowrap">Labs &amp; Viva</span>
                     <span className={cn(
                       "rounded-full px-1.5 py-0.2 text-[0.62rem] font-mono font-bold shrink-0",
                       publisherType === "LAB_MANUAL" ? "bg-white/25 text-white" : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
@@ -2690,14 +2749,14 @@ export function AdminPortal() {
                       setActivePageIndex(0);
                     }}
                     className={cn(
-                      "flex items-center justify-center gap-1.5 rounded-xl sm:rounded-2xl px-2.5 py-2.5 text-xs font-bold transition-all cursor-pointer col-span-2 xs:col-span-1",
+                      "flex-1 min-w-[105px] flex items-center justify-center gap-1.5 rounded-xl sm:rounded-2xl px-2.5 py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer",
                       publisherType === "FACULTY"
                         ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20"
                         : "text-muted-foreground hover:bg-card/70 hover:text-foreground",
                     )}
                   >
                     <User className="h-3.5 w-3.5 shrink-0" />
-                    <span className="truncate">Faculty</span>
+                    <span className="whitespace-nowrap">Faculty</span>
                     <span className={cn(
                       "rounded-full px-1.5 py-0.2 text-[0.62rem] font-mono font-bold shrink-0",
                       publisherType === "FACULTY" ? "bg-white/25 text-white" : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
