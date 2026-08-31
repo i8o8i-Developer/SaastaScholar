@@ -19,6 +19,8 @@ interface BroadcastBannerProps {
   target?: "ALL" | "DASHBOARD" | "WEBSITE";
   className?: string;
   compact?: boolean;
+  previewBanners?: SiteBanner[];
+  ignoreDismissed?: boolean;
 }
 
 const VARIANT_STYLES: Record<
@@ -89,11 +91,18 @@ const VARIANT_STYLES: Record<
   },
 };
 
-export function BroadcastBanner({ target = "ALL", className, compact = false }: BroadcastBannerProps) {
-  const [banners, setBanners] = useState<SiteBanner[]>([]);
+export function BroadcastBanner({
+  target = "ALL",
+  className,
+  compact = false,
+  previewBanners,
+  ignoreDismissed = false,
+}: BroadcastBannerProps) {
+  const [banners, setBanners] = useState<SiteBanner[]>(() => previewBanners || []);
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const storageKey = `nimswallah_dismissed_${(target || "all").toLowerCase()}_banners`;
   const [dismissedIds, setDismissedIds] = useState<string[]>(() => {
+    if (ignoreDismissed) return [];
     try {
       const stored = sessionStorage.getItem(storageKey);
       return stored ? JSON.parse(stored) : [];
@@ -101,9 +110,14 @@ export function BroadcastBanner({ target = "ALL", className, compact = false }: 
       return [];
     }
   });
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(!previewBanners);
 
   useEffect(() => {
+    if (previewBanners) {
+      setBanners(previewBanners);
+      setLoading(false);
+      return;
+    }
     let isMounted = true;
     async function loadBanners() {
       try {
@@ -127,9 +141,11 @@ export function BroadcastBanner({ target = "ALL", className, compact = false }: 
     return () => {
       isMounted = false;
     };
-  }, [target]);
+  }, [target, previewBanners]);
 
-  const activeBanners = banners.filter((b) => b.is_active && !dismissedIds.includes(b.id));
+  const activeBanners = previewBanners
+    ? banners.filter((b) => b.is_active)
+    : banners.filter((b) => b.is_active && (ignoreDismissed || !dismissedIds.includes(b.id)));
 
   if (loading || activeBanners.length === 0) {
     return null;

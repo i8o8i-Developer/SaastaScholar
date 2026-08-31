@@ -267,6 +267,8 @@ export function AdminPortal() {
   const [noticePreviewTab, setNoticePreviewTab] = useState<"write" | "preview">("write");
 
   const [previewMaterialId, setPreviewMaterialId] = useState<string | null>(null);
+  const [viewingNotice, setViewingNotice] = useState<DepartmentNotice | null>(null);
+  const [viewingBanner, setViewingBanner] = useState<SiteBanner | null>(null);
 
   // Form State Containers
   const [newDept, setNewDept] = useState({ name: "", code: "", description: "", head_of_department: "" });
@@ -1570,18 +1572,18 @@ export function AdminPortal() {
               {/* Station Navigation List */}
               <nav className="mt-4 space-y-1">
                 {[
-                  { id: "overview", label: "0. Executive Overview", icon: LayoutDashboard, count: "Live" },
-                  { id: "structure", label: "1. Academic Blueprint", icon: Building2, count: departments.length },
-                  { id: "publisher", label: "2. Publishing Studio", icon: Upload, count: materials.length + labs.length },
-                  { id: "timetable", label: "3. Timetable Grid", icon: Clock, count: timetableSlots.length },
-                  { id: "assignments", label: "4. Course Assignments", icon: FileText, count: assignments.length },
-                  { id: "notices", label: "5. Notice Dispatcher", icon: Megaphone, count: notices.length },
-                  { id: "milestones", label: "6. Exam Milestones", icon: Calendar, count: milestones.length },
-                  { id: "students", label: "7. Student Registry", icon: Users, count: students.length },
-                  { id: "banners", label: "8. Broadcast Banners", icon: Radio, count: banners.filter((b) => b.is_active).length },
-                  { id: "badges", label: "9. Navigation Badges", icon: Sparkles, count: badges.filter((b) => b.is_active && b.badge_text).length },
-                  { id: "support", label: "10. Support Desk", icon: HelpCircle, count: tickets.length },
-                  { id: "forum", label: "11. Community Forum", icon: MessageSquare, count: posts.length },
+                  { id: "overview", label: "Executive Overview", icon: LayoutDashboard, count: "Live" },
+                  { id: "structure", label: "Academic Blueprint", icon: Building2, count: departments.length },
+                  { id: "publisher", label: "Publishing Studio", icon: Upload, count: materials.length + labs.length },
+                  { id: "timetable", label: "Timetable Grid", icon: Clock, count: timetableSlots.length },
+                  { id: "assignments", label: "Course Assignments", icon: FileText, count: assignments.length },
+                  { id: "notices", label: "Notice Dispatcher", icon: Megaphone, count: notices.length },
+                  { id: "milestones", label: "Exam Milestones", icon: Calendar, count: milestones.length },
+                  { id: "students", label: "Student Registry", icon: Users, count: students.length },
+                  { id: "banners", label: "Broadcast Banners", icon: Radio, count: banners.filter((b) => b.is_active).length },
+                  { id: "badges", label: "Navigation Badges", icon: Sparkles, count: badges.filter((b) => b.is_active && b.badge_text).length },
+                  { id: "support", label: "Support Desk", icon: HelpCircle, count: tickets.length },
+                  { id: "forum", label: "Community Forum", icon: MessageSquare, count: posts.length },
                 ].map((station) => {
                   const Icon = station.icon;
                   const isActive = activeStation === station.id;
@@ -1700,18 +1702,18 @@ export function AdminPortal() {
           {/* Station Navigation List */}
           <nav className="mt-4 space-y-1">
             {[
-              { id: "overview", label: "0. Executive Overview", icon: LayoutDashboard, count: "Live" },
-              { id: "structure", label: "1. Academic Blueprint", icon: Building2, count: departments.length },
-              { id: "publisher", label: "2. Publishing Studio", icon: Upload, count: materials.length + labs.length },
-              { id: "timetable", label: "3. Timetable Grid", icon: Clock, count: timetableSlots.length },
-              { id: "assignments", label: "4. Course Assignments", icon: FileText, count: assignments.length },
-              { id: "notices", label: "5. Notice Dispatcher", icon: Megaphone, count: notices.length },
-              { id: "milestones", label: "6. Exam Milestones", icon: Calendar, count: milestones.length },
-              { id: "students", label: "7. Student Registry", icon: Users, count: students.length },
-              { id: "banners", label: "8. Broadcast Banners", icon: Radio, count: banners.filter((b) => b.is_active).length },
-              { id: "badges", label: "9. Navigation Badges", icon: Sparkles, count: badges.filter((b) => b.is_active && b.badge_text).length },
-              { id: "support", label: "10. Support Desk", icon: HelpCircle, count: tickets.length },
-              { id: "forum", label: "11. Community Forum", icon: MessageSquare, count: posts.length },
+              { id: "overview", label: "Executive Overview", icon: LayoutDashboard, count: "Live" },
+              { id: "structure", label: "Academic Blueprint", icon: Building2, count: departments.length },
+              { id: "publisher", label: "Publishing Studio", icon: Upload, count: materials.length + labs.length },
+              { id: "timetable", label: "Timetable Grid", icon: Clock, count: timetableSlots.length },
+              { id: "assignments", label: "Course Assignments", icon: FileText, count: assignments.length },
+              { id: "notices", label: "Notice Dispatcher", icon: Megaphone, count: notices.length },
+              { id: "milestones", label: "Exam Milestones", icon: Calendar, count: milestones.length },
+              { id: "students", label: "Student Registry", icon: Users, count: students.length },
+              { id: "banners", label: "Broadcast Banners", icon: Radio, count: banners.filter((b) => b.is_active).length },
+              { id: "badges", label: "Navigation Badges", icon: Sparkles, count: badges.filter((b) => b.is_active && b.badge_text).length },
+              { id: "support", label: "Support Desk", icon: HelpCircle, count: tickets.length },
+              { id: "forum", label: "Community Forum", icon: MessageSquare, count: posts.length },
             ].map((station) => {
               const Icon = station.icon;
               const isActive = activeStation === station.id;
@@ -1795,74 +1797,74 @@ export function AdminPortal() {
             <span className="font-display text-xs xs:text-sm sm:text-lg font-bold text-foreground truncate">
               {activeStation === "overview" && (
                 <>
-                  <span className="sm:hidden">Executive Command</span>
-                  <span className="hidden sm:inline">Station 0: Executive Overview &amp; Academic Intelligence Command</span>
+                  <span className="sm:hidden">Executive Overview</span>
+                  <span className="hidden sm:inline">Executive Overview &amp; Academic Intelligence Command</span>
                 </>
               )}
               {activeStation === "structure" && (
                 <>
-                  <span className="sm:hidden">Station 1: Academic Matrix</span>
-                  <span className="hidden sm:inline">Station 1: Academic Blueprint &amp; Infrastructure Matrix</span>
+                  <span className="sm:hidden">Academic Blueprint</span>
+                  <span className="hidden sm:inline">Academic Blueprint &amp; Infrastructure Matrix</span>
                 </>
               )}
               {activeStation === "publisher" && (
                 <>
-                  <span className="sm:hidden">Station 2: Publishing Studio</span>
-                  <span className="hidden sm:inline">Station 2: Unified Cascading Publishing Studio</span>
+                  <span className="sm:hidden">Publishing Studio</span>
+                  <span className="hidden sm:inline">Unified Cascading Publishing Studio</span>
                 </>
               )}
               {activeStation === "timetable" && (
                 <>
-                  <span className="sm:hidden">Station 3: Section Timetable</span>
-                  <span className="hidden sm:inline">Station 3: Section Timetable &amp; Lecture Schedule Matrix</span>
+                  <span className="sm:hidden">Timetable Grid</span>
+                  <span className="hidden sm:inline">Section Timetable &amp; Lecture Schedule Matrix</span>
                 </>
               )}
               {activeStation === "assignments" && (
                 <>
-                  <span className="sm:hidden">Station 4: Academic Rubrics</span>
-                  <span className="hidden sm:inline">Station 4: Academic Assignments &amp; Submission Rubrics</span>
+                  <span className="sm:hidden">Course Assignments</span>
+                  <span className="hidden sm:inline">Academic Assignments &amp; Submission Rubrics</span>
                 </>
               )}
               {activeStation === "notices" && (
                 <>
-                  <span className="sm:hidden">Station 5: Circulars Dispatch</span>
-                  <span className="hidden sm:inline">Station 5: Official Circular Dispatcher</span>
+                  <span className="sm:hidden">Notice Dispatcher</span>
+                  <span className="hidden sm:inline">Official Circular Dispatcher</span>
                 </>
               )}
               {activeStation === "milestones" && (
                 <>
-                  <span className="sm:hidden">Station 6: Exam Countdown</span>
-                  <span className="hidden sm:inline">Station 6: Examination Milestones Countdown</span>
+                  <span className="sm:hidden">Exam Milestones</span>
+                  <span className="hidden sm:inline">Examination Milestones Countdown</span>
                 </>
               )}
               {activeStation === "students" && (
                 <>
-                  <span className="sm:hidden">Station 7: Scholar Registry</span>
-                  <span className="hidden sm:inline">Station 7: Active Student Registry &amp; User Base</span>
+                  <span className="sm:hidden">Student Registry</span>
+                  <span className="hidden sm:inline">Active Student Registry &amp; User Base</span>
                 </>
               )}
               {activeStation === "banners" && (
                 <>
-                  <span className="sm:hidden">Station 8: Broadcast Banners</span>
-                  <span className="hidden sm:inline">Station 8: Announcement &amp; Promotional Broadcast Banners</span>
+                  <span className="sm:hidden">Broadcast Banners</span>
+                  <span className="hidden sm:inline">Announcement &amp; Promotional Broadcast Banners</span>
                 </>
               )}
               {activeStation === "badges" && (
                 <>
-                  <span className="sm:hidden">Station 9: Sidebar Badges</span>
-                  <span className="hidden sm:inline">Station 9: Sidebar Dynamic Badges Matrix</span>
+                  <span className="sm:hidden">Navigation Badges</span>
+                  <span className="hidden sm:inline">Sidebar Dynamic Badges Matrix</span>
                 </>
               )}
               {activeStation === "support" && (
                 <>
-                  <span className="sm:hidden">Station 10: Support Desk</span>
-                  <span className="hidden sm:inline">Station 10: Student Support Desk &amp; Query Resolution</span>
+                  <span className="sm:hidden">Support Desk</span>
+                  <span className="hidden sm:inline">Student Support Desk &amp; Query Resolution</span>
                 </>
               )}
               {activeStation === "forum" && (
                 <>
-                  <span className="sm:hidden">Station 11: Forum Hub</span>
-                  <span className="hidden sm:inline">Station 11: Community Forum Moderation Hub</span>
+                  <span className="sm:hidden">Community Forum</span>
+                  <span className="hidden sm:inline">Community Forum Moderation Hub</span>
                 </>
               )}
             </span>
@@ -3701,6 +3703,13 @@ export function AdminPortal() {
                           </span>
                           <div className="flex items-center gap-1">
                             <button
+                              onClick={() => setViewingNotice(n)}
+                              className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
+                              title="View Full Circular"
+                            >
+                              <Eye className="h-4 w-4" />
+                            </button>
+                            <button
                               onClick={() => handleEditNotice(n)}
                               className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
                               title="Edit Notice"
@@ -3717,9 +3726,17 @@ export function AdminPortal() {
                           </div>
                         </div>
                         <h3 className="mt-3 font-display text-base font-bold text-foreground leading-snug">{n.title}</h3>
-                        <div className="mt-2 text-xs text-foreground/85 line-clamp-4 leading-relaxed">
+                        <div className="mt-2 text-xs text-foreground/85 line-clamp-3 leading-relaxed relative">
                           <MarkdownContent content={n.content} />
                         </div>
+                        <button
+                          type="button"
+                          onClick={() => setViewingNotice(n)}
+                          className="mt-2 font-bold text-primary hover:underline text-xs cursor-pointer inline-flex items-center gap-1"
+                        >
+                          <Eye className="h-3.5 w-3.5" />
+                          <span>Read Full Circular...</span>
+                        </button>
                       </div>
                       <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs text-muted-foreground">
                         <span>Target: {n.is_broadcast_all ? "All Students" : `Sem ${n.target_semester}`}</span>
@@ -4621,7 +4638,7 @@ export function AdminPortal() {
                     <span>Real-Time Broadcast Network</span>
                   </div>
                   <h3 className="font-display font-bold text-base sm:text-lg text-foreground">
-                    Station 8: Announcement &amp; Promotional Broadcast Banners
+                    Announcement &amp; Promotional Broadcast Banners
                   </h3>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     Deploy Glowing Multi-Color Announcement Strips, Hackathon Promos, and Urgent Alerts across Student Dashboards &amp; Public Site.
@@ -4668,7 +4685,11 @@ export function AdminPortal() {
                 </div>
                 <div className="rounded-3xl border border-border/80 bg-card/60 p-4 sm:p-5 shadow-xs">
                   {banners.filter((b) => b.is_active).length > 0 ? (
-                    <BroadcastBanner target="ALL" />
+                    <BroadcastBanner
+                      target="ALL"
+                      previewBanners={banners.filter((b) => b.is_active)}
+                      ignoreDismissed={true}
+                    />
                   ) : (
                     <div className="text-center py-6 text-xs text-muted-foreground italic">
                       No Active Banners Broadcasting Right Now. Click "Deploy New Banner" Or Activate An Existing Banner Below.
@@ -4693,7 +4714,7 @@ export function AdminPortal() {
                   <span className="text-[0.65rem] text-emerald-700/80 dark:text-emerald-300/80">Broadcasting Live</span>
                 </div>
 
-                <div className="rounded-2xl border border-border/80 bg-card p-4   shadow-xs">
+                <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-xs">
                   <span className="block text-[0.65rem] font-bold uppercase text-muted-foreground">Dashboard Targets</span>
                   <span className="font-mono text-xl sm:text-2xl font-bold text-foreground mt-0.5 block">
                     {banners.filter((b) => b.target === "ALL" || b.target === "DASHBOARD").length}
@@ -4762,6 +4783,13 @@ export function AdminPortal() {
 
                             <div className="flex items-center gap-1">
                               <button
+                                onClick={() => setViewingBanner(b)}
+                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
+                                title="View Banner Card"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </button>
+                              <button
                                 onClick={() => handleEditBanner(b)}
                                 className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
                                 title="Edit Banner"
@@ -4784,6 +4812,14 @@ export function AdminPortal() {
                             <div className="mt-1.5 text-xs text-foreground/80 line-clamp-3 leading-relaxed">
                               <MarkdownContent content={b.message} />
                             </div>
+                            <button
+                              type="button"
+                              onClick={() => setViewingBanner(b)}
+                              className="mt-1 font-bold text-primary hover:underline text-xs cursor-pointer inline-flex items-center gap-1"
+                            >
+                              <Eye className="h-3 w-3" />
+                              <span>View Live Card...</span>
+                            </button>
                           </div>
 
                           {/* Link Preview if exists */}
@@ -4832,7 +4868,7 @@ export function AdminPortal() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <h3 className="font-display text-lg font-bold text-foreground">
-                    Station 9: Student Support Desk & Grievance Manager ({tickets.length})
+                    Student Support Desk &amp; Grievance Manager ({tickets.length})
                   </h3>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     Review Inquiries, Send Official Resolutions, And Chat Live On Ticket Threads
@@ -5049,7 +5085,7 @@ export function AdminPortal() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
                   <h3 className="font-display text-lg font-bold text-foreground">
-                    Station 10: Community Forum Moderation & Channel Studio ({posts.length})
+                    Community Forum Moderation &amp; Channel Studio ({posts.length})
                   </h3>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     Pin Important Announcements, Lock Spam Threads, Delete Inappropriate Posts & Comments
@@ -7461,6 +7497,129 @@ export function AdminPortal() {
       {/* Modal: Full DRM Document & Material Live Preview */}
       {previewMaterialId && (
         <DrmSecureReader materialId={previewMaterialId} onClose={() => setPreviewMaterialId(null)} />
+      )}
+
+      {/* Modal: Full Official Circular Viewer */}
+      {viewingNotice && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-2xl rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-border/80 pb-4">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                  {viewingNotice.category}
+                </span>
+                <span className="rounded-full bg-surface border border-border px-2.5 py-0.5 text-xs font-mono font-bold text-muted-foreground">
+                  {viewingNotice.priority} Priority
+                </span>
+                <span className="rounded-full bg-surface border border-border px-2.5 py-0.5 text-xs font-mono text-muted-foreground">
+                  Target: {viewingNotice.is_broadcast_all ? "All Students" : `Semester ${viewingNotice.target_semester}`}
+                </span>
+              </div>
+              <button
+                onClick={() => setViewingNotice(null)}
+                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              <h3 className="font-display font-bold text-lg sm:text-xl text-foreground leading-snug">
+                {viewingNotice.title}
+              </h3>
+              <div className="rounded-2xl border border-border/80 bg-surface/50 p-5 text-sm text-foreground/90 leading-relaxed font-sans">
+                <MarkdownContent content={viewingNotice.content} />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between border-t border-border/80 pt-4 text-xs">
+              <span className="text-muted-foreground font-mono text-[0.7rem]">
+                Published: {new Date(viewingNotice.published_at || viewingNotice.created_at || Date.now()).toLocaleString()}
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    handleEditNotice(viewingNotice);
+                    setViewingNotice(null);
+                  }}
+                  className="rounded-xl border border-border bg-surface px-4 py-2 font-bold text-foreground hover:bg-card cursor-pointer inline-flex items-center gap-1.5"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                  <span>Edit Circular</span>
+                </button>
+                <button
+                  onClick={() => setViewingNotice(null)}
+                  className="rounded-xl bg-primary px-5 py-2 font-bold text-primary-foreground shadow-xs hover:bg-primary-deep cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Live Banner Card Viewer */}
+      {viewingBanner && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-2xl rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-border/80 pb-4">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                  {viewingBanner.tag || "Announcement"}
+                </span>
+                <span className="rounded-full bg-surface border border-border px-2.5 py-0.5 text-xs font-mono font-bold text-muted-foreground">
+                  Channel: {viewingBanner.target}
+                </span>
+                <span className="rounded-full bg-surface border border-border px-2.5 py-0.5 text-xs font-mono text-muted-foreground">
+                  Priority: {viewingBanner.priority}
+                </span>
+              </div>
+              <button
+                onClick={() => setViewingBanner(null)}
+                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Live Render in Modal */}
+            <div className="space-y-3">
+              <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider block font-mono">
+                Live Broadcast Card Preview
+              </span>
+              <BroadcastBanner
+                target="ALL"
+                previewBanners={[viewingBanner]}
+                ignoreDismissed={true}
+              />
+            </div>
+
+            <div className="flex items-center justify-between border-t border-border/80 pt-4 text-xs">
+              <span className="text-muted-foreground font-mono text-[0.7rem]">
+                Status: {viewingBanner.is_active ? "Active & Broadcasting" : "Deactivated"}
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    handleEditBanner(viewingBanner);
+                    setViewingBanner(null);
+                  }}
+                  className="rounded-xl border border-border bg-surface px-4 py-2 font-bold text-foreground hover:bg-card cursor-pointer inline-flex items-center gap-1.5"
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                  <span>Edit Banner</span>
+                </button>
+                <button
+                  onClick={() => setViewingBanner(null)}
+                  className="rounded-xl bg-primary px-5 py-2 font-bold text-primary-foreground shadow-xs hover:bg-primary-deep cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
