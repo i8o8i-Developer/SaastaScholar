@@ -59,12 +59,20 @@ import {
   Moon,
   Zap,
   Eye,
+  Bold,
+  Italic,
+  Link,
+  Image as ImageIcon,
+  List,
+  ListOrdered,
+  Quote,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/Hooks/UseAuth";
 import { useTheme } from "@/Hooks/UseTheme";
 import { isDrmGloballyDisabled, setDrmGloballyDisabled } from "@/Hooks/UseDrmProtection";
 import { DrmSecureReader } from "../Dashboard/DrmSecureReader";
+import { MarkdownContent } from "../Ui/MarkdownContent";
 import {
   AcademicMaterial,
   AdminAuditLog,
@@ -236,6 +244,7 @@ export function AdminPortal() {
 
   const [showNoticeModal, setShowNoticeModal] = useState<boolean>(false);
   const [editingNoticeId, setEditingNoticeId] = useState<string | null>(null);
+  const [noticePreviewTab, setNoticePreviewTab] = useState<"write" | "preview">("write");
 
   const [previewMaterialId, setPreviewMaterialId] = useState<string | null>(null);
 
@@ -3606,8 +3615,10 @@ export function AdminPortal() {
                             </button>
                           </div>
                         </div>
-                        <h3 className="mt-3 font-display text-base font-bold text-foreground">{n.title}</h3>
-                        <p className="mt-1 text-xs text-muted-foreground line-clamp-3 leading-relaxed">{n.content}</p>
+                        <h3 className="mt-3 font-display text-base font-bold text-foreground leading-snug">{n.title}</h3>
+                        <div className="mt-2 text-xs text-foreground/85 line-clamp-4 leading-relaxed">
+                          <MarkdownContent content={n.content} />
+                        </div>
                       </div>
                       <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs text-muted-foreground">
                         <span>Target: {n.is_broadcast_all ? "All Students" : `Sem ${n.target_semester}`}</span>
@@ -6337,53 +6348,63 @@ export function AdminPortal() {
 
       {/* Modal: Broadcast / Edit Notice */}
       {showNoticeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="w-full max-w-lg rounded-3xl border border-border bg-card p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b border-border pb-3">
-              <h3 className="font-display font-bold text-lg text-foreground">
-                {editingNoticeId ? "Edit Department Notice / Circular" : "Broadcast Official Notice"}
-              </h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-2xl rounded-3xl border border-border bg-card p-5 sm:p-7 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-border/80 pb-3.5">
+              <div>
+                <h3 className="font-display font-bold text-base sm:text-lg text-foreground">
+                  {editingNoticeId ? "Edit Department Notice / Circular" : "Broadcast Official Notice"}
+                </h3>
+                <p className="text-[0.68rem] text-muted-foreground mt-0.5 font-mono">
+                  Full Markdown Support · Links, Images, Lists &amp; Tables
+                </p>
+              </div>
               <button
                 onClick={() => {
                   setShowNoticeModal(false);
                   setEditingNoticeId(null);
+                  setNoticePreviewTab("write");
                 }}
-                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer"
+                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface hover:text-foreground cursor-pointer transition-colors"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
-            <form onSubmit={handleSaveNotice} className="space-y-3.5 text-xs">
+
+            <form onSubmit={handleSaveNotice} className="space-y-4 text-xs">
               <div>
-                <label className="block font-bold mb-1">Headline</label>
+                <label className="block font-bold mb-1.5 text-foreground">Headline</label>
                 <input
                   type="text"
                   value={newNotice.title}
                   onChange={(e) => setNewNotice({ ...newNotice, title: e.target.value })}
                   placeholder="End-Term Practical Examination Schedule"
                   required
-                  className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
+                  className="h-10 w-full rounded-2xl border border-border bg-background px-3.5 focus:border-primary focus:outline-none text-xs font-semibold"
                 />
               </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold mb-1">Category</label>
+                  <label className="block font-bold mb-1.5 text-foreground">Category</label>
                   <select
                     value={newNotice.category}
                     onChange={(e) => setNewNotice({ ...newNotice, category: e.target.value })}
-                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
+                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none font-medium cursor-pointer"
                   >
                     <option value="Examination">Examination</option>
                     <option value="Academic Update">Academic Update</option>
                     <option value="Lab Circular">Lab Circular</option>
+                    <option value="General Circular">General Circular</option>
+                    <option value="Hackathon & Events">Hackathon &amp; Events</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block font-bold mb-1">Priority</label>
+                  <label className="block font-bold mb-1.5 text-foreground">Priority</label>
                   <select
                     value={newNotice.priority}
                     onChange={(e) => setNewNotice({ ...newNotice, priority: e.target.value })}
-                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
+                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none font-medium cursor-pointer"
                   >
                     <option value="HIGH">High Priority</option>
                     <option value="URGENT">Urgent Circular</option>
@@ -6391,18 +6412,170 @@ export function AdminPortal() {
                   </select>
                 </div>
               </div>
-              <div>
-                <label className="block font-bold mb-1">Circular Content</label>
-                <textarea
-                  value={newNotice.content}
-                  onChange={(e) => setNewNotice({ ...newNotice, content: e.target.value })}
-                  placeholder="Enter Full Official Notice Statement..."
-                  rows={4}
-                  required
-                  className="w-full rounded-2xl border border-border bg-background p-3 focus:border-primary focus:outline-none"
-                />
+
+              {/* Markdown Content Field with Toolbar and Live Preview Toggle */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="font-bold text-foreground flex items-center gap-1.5">
+                    <span>Circular Content</span>
+                    <span className="rounded-md bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.2 text-[0.62rem] font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+                      .MD Format
+                    </span>
+                  </label>
+
+                  {/* Write vs Preview Toggle Switcher */}
+                  <div className="flex items-center gap-1 bg-surface p-1 rounded-xl border border-border text-[0.68rem] shadow-2xs">
+                    <button
+                      type="button"
+                      onClick={() => setNoticePreviewTab("write")}
+                      className={cn(
+                        "px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer",
+                        noticePreviewTab === "write"
+                          ? "bg-primary text-primary-foreground shadow-2xs"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      ✏️ Write (.md)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setNoticePreviewTab("preview")}
+                      className={cn(
+                        "px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer",
+                        noticePreviewTab === "preview"
+                          ? "bg-primary text-primary-foreground shadow-2xs"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      👁️ Live Preview
+                    </button>
+                  </div>
+                </div>
+
+                {noticePreviewTab === "write" ? (
+                  <div className="space-y-1.5">
+                    {/* Markdown Quick Formatting Toolbar */}
+                    <div className="flex flex-wrap items-center gap-1 p-1.5 rounded-xl border border-border/80 bg-surface/70 text-muted-foreground">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNewNotice((prev) => ({
+                            ...prev,
+                            content: prev.content + "**Bold Text**",
+                          }));
+                        }}
+                        className="rounded-lg p-1.5 hover:bg-card hover:text-foreground transition-colors cursor-pointer"
+                        title="Add Bold Text"
+                      >
+                        <Bold className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNewNotice((prev) => ({
+                            ...prev,
+                            content: prev.content + "*Italic Text*",
+                          }));
+                        }}
+                        className="rounded-lg p-1.5 hover:bg-card hover:text-foreground transition-colors cursor-pointer"
+                        title="Add Italic Text"
+                      >
+                        <Italic className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNewNotice((prev) => ({
+                            ...prev,
+                            content: prev.content + "\n[Link Title](https://example.com)",
+                          }));
+                        }}
+                        className="rounded-lg p-1.5 hover:bg-card hover:text-foreground transition-colors cursor-pointer"
+                        title="Insert Web Link"
+                      >
+                        <Link className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNewNotice((prev) => ({
+                            ...prev,
+                            content: prev.content + "\n![Image Alt Text](https://images.unsplash.com/...)",
+                          }));
+                        }}
+                        className="rounded-lg p-1.5 hover:bg-card hover:text-foreground transition-colors cursor-pointer"
+                        title="Insert Image"
+                      >
+                        <ImageIcon className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNewNotice((prev) => ({
+                            ...prev,
+                            content: prev.content + "\n- Item 1\n- Item 2\n- Item 3",
+                          }));
+                        }}
+                        className="rounded-lg p-1.5 hover:bg-card hover:text-foreground transition-colors cursor-pointer"
+                        title="Insert Bullet List"
+                      >
+                        <List className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNewNotice((prev) => ({
+                            ...prev,
+                            content: prev.content + "\n1. Step 1\n2. Step 2",
+                          }));
+                        }}
+                        className="rounded-lg p-1.5 hover:bg-card hover:text-foreground transition-colors cursor-pointer"
+                        title="Insert Numbered List"
+                      >
+                        <ListOrdered className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNewNotice((prev) => ({
+                            ...prev,
+                            content: prev.content + "\n> Important Announcement Note",
+                          }));
+                        }}
+                        className="rounded-lg p-1.5 hover:bg-card hover:text-foreground transition-colors cursor-pointer"
+                        title="Insert Blockquote"
+                      >
+                        <Quote className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+
+                    <textarea
+                      value={newNotice.content}
+                      onChange={(e) => setNewNotice({ ...newNotice, content: e.target.value })}
+                      placeholder={"# Important Circular\n\nAll students are advised to check the official portal: [SIH Portal](https://www.sih.gov.in/)\n\n![Poster](https://...)\n\n- Deadline: 15th Sep\n- Requirement: All teams registered"}
+                      rows={6}
+                      required
+                      className="w-full rounded-2xl border border-border bg-background p-3.5 font-mono text-xs focus:border-primary focus:outline-none leading-relaxed"
+                    />
+                    <p className="text-[0.65rem] text-muted-foreground">
+                      💡 <strong>Tip:</strong> Plain URLs like <code className="text-primary font-mono">https://www.sih.gov.in/</code>, markdown links <code className="text-primary font-mono">[Title](URL)</code>, and images <code className="text-primary font-mono">![Alt](Image_URL)</code> render interactively.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="rounded-2xl border border-border/80 bg-surface/50 p-4 min-h-[160px] max-h-64 overflow-y-auto">
+                    {newNotice.content.trim().length > 0 ? (
+                      <MarkdownContent content={newNotice.content} />
+                    ) : (
+                      <p className="text-xs text-muted-foreground italic">No Markdown content typed yet. Switch to Write tab to compose your notice.</p>
+                    )}
+                  </div>
+                )}
               </div>
-              <button type="submit" className="h-11 w-full rounded-2xl bg-primary font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer">
+
+              <button
+                type="submit"
+                className="h-11 w-full rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 font-bold text-white shadow-md hover:opacity-95 cursor-pointer transition-all"
+              >
                 {editingNoticeId ? "Save Notice Changes" : "Broadcast Circular"}
               </button>
             </form>

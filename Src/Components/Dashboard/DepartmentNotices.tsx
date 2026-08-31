@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/Lib/Utils";
 import { DepartmentNotice, apiFetch } from "@/Lib/Api";
+import { MarkdownContent } from "@/Components/Ui/MarkdownContent";
 
 export function DepartmentNotices() {
   const [notices, setNotices] = useState<DepartmentNotice[]>([]);
@@ -183,9 +184,9 @@ export function DepartmentNotices() {
                   <h2 className="font-display text-base sm:text-lg font-bold text-foreground leading-snug">
                     {notice.title}
                   </h2>
-                  <p className="mt-2 text-xs sm:text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
-                    {notice.content}
-                  </p>
+                  <div className="mt-2.5 text-xs sm:text-sm text-foreground/90 leading-relaxed">
+                    <MarkdownContent content={notice.content} />
+                  </div>
                 </div>
 
                 {/* Notice Footer */}

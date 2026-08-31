@@ -41,6 +41,7 @@ import { useTheme } from "@/Hooks/UseTheme";
 import { cn } from "@/Lib/Utils";
 import { toast } from "sonner";
 import { apiFetch, DepartmentNotice, SidebarBadgeConfig } from "@/Lib/Api";
+import { MarkdownContent } from "@/Components/Ui/MarkdownContent";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -655,9 +656,9 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
                           <h4 className="font-bold text-foreground text-xs leading-snug break-words">
                             {item.title}
                           </h4>
-                          <p className="mt-1 text-[0.7rem] text-muted-foreground line-clamp-2 leading-relaxed break-words">
-                            {item.content}
-                          </p>
+                          <div className="mt-1 text-[0.7rem] text-muted-foreground line-clamp-2 leading-relaxed break-words">
+                            <MarkdownContent content={item.content} />
+                          </div>
 
                           <div className="mt-2 flex items-center justify-between pt-1.5 border-t border-border/40 text-[0.6rem] text-muted-foreground">
                             <span>{item.is_read ? "Status: Read" : "Status: Unread"}</span>
