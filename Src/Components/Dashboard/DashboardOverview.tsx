@@ -223,9 +223,12 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
 
       {/* ================= 2. Today's Lecture Schedule & Real-Time Clock Banner ================= */}
       {summary?.next_lecture?.day_status === "DAY_ENDED" ? (
-        <div className="rounded-3xl border border-border/80 bg-gradient-to-r from-emerald-500/5 via-card to-cyan-500/5 p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div 
+          onClick={() => onNavigateTab("timetable")}
+          className="rounded-3xl border border-border/80 bg-gradient-to-r from-emerald-500/5 via-card to-cyan-500/5 p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:border-emerald-500/50 hover:shadow-md transition-all group"
+        >
           <div className="flex items-start gap-4">
-            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition-transform">
               <CheckCircle2 className="h-5 w-5" />
             </div>
             <div>
@@ -245,34 +248,31 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
               </p>
             </div>
           </div>
-          {summary.next_lecture.day && summary.next_lecture.title && summary.next_lecture.title !== "No Scheduled Lectures In Blueprint" ? (
-            <div className="flex flex-wrap items-center gap-2.5 text-xs">
+          <div className="flex flex-wrap items-center gap-3 text-xs shrink-0">
+            {summary.next_lecture.day && summary.next_lecture.title && summary.next_lecture.title !== "No Scheduled Lectures In Blueprint" && (
               <span className="rounded-xl bg-surface border border-border/80 px-3 py-1.5 font-bold text-foreground">
-                🗓️ {summary.next_lecture.day}: {summary.next_lecture.title}
+                🗓️ {summary.next_lecture.day}: {summary.next_lecture.title} ({summary.next_lecture.time})
               </span>
-              {summary.next_lecture.room && (
-                <span className="rounded-xl bg-surface border border-border/80 px-3 py-1.5 font-bold text-foreground">
-                  📍 {summary.next_lecture.room}
-                </span>
-              )}
-              <span className="rounded-xl bg-primary/10 px-3 py-1.5 font-bold font-mono text-primary">
-                ⏰ {summary.next_lecture.time}
-              </span>
-            </div>
-          ) : (
+            )}
             <button
-              onClick={() => onNavigateTab("timetable")}
+              onClick={(e) => {
+                e.stopPropagation();
+                onNavigateTab("timetable");
+              }}
               className="inline-flex items-center gap-2 rounded-2xl border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-bold text-primary hover:bg-primary/20 transition-all cursor-pointer whitespace-nowrap"
             >
-              <span>View Full Weekly Timetable</span>
-              <ArrowRight className="h-3.5 w-3.5" />
+              <span>View Today's Timetable</span>
+              <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
             </button>
-          )}
+          </div>
         </div>
       ) : summary?.next_lecture?.day_status === "NO_CLASSES_TODAY" ? (
-        <div className="rounded-3xl border border-border/80 bg-gradient-to-r from-cyan-500/5 via-card to-indigo-500/5 p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div 
+          onClick={() => onNavigateTab("timetable")}
+          className="rounded-3xl border border-border/80 bg-gradient-to-r from-cyan-500/5 via-card to-indigo-500/5 p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:border-cyan-500/50 hover:shadow-md transition-all group"
+        >
           <div className="flex items-start gap-4">
-            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-cyan-500/15 text-cyan-600 dark:text-cyan-400">
+            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 group-hover:scale-105 transition-transform">
               <Calendar className="h-5 w-5" />
             </div>
             <div>
@@ -287,34 +287,32 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
               </p>
             </div>
           </div>
-          {summary.next_lecture.day && summary.next_lecture.title && summary.next_lecture.title !== "No Scheduled Lectures In Blueprint" ? (
-            <div className="flex flex-wrap items-center gap-2.5 text-xs">
+          <div className="flex flex-wrap items-center gap-3 text-xs shrink-0">
+            {summary.next_lecture.day && summary.next_lecture.title && summary.next_lecture.title !== "No Scheduled Lectures In Blueprint" && (
               <span className="rounded-xl bg-surface border border-border/80 px-3 py-1.5 font-bold text-foreground">
-                🗓️ {summary.next_lecture.day}: {summary.next_lecture.title}
+                🗓️ {summary.next_lecture.day}: {summary.next_lecture.title} ({summary.next_lecture.time})
               </span>
-              {summary.next_lecture.room && (
-                <span className="rounded-xl bg-surface border border-border/80 px-3 py-1.5 font-bold text-foreground">
-                  📍 {summary.next_lecture.room}
-                </span>
-              )}
-              <span className="rounded-xl bg-primary/10 px-3 py-1.5 font-bold font-mono text-primary">
-                ⏰ {summary.next_lecture.time}
-              </span>
-            </div>
-          ) : (
+            )}
             <button
-              onClick={() => onNavigateTab("timetable")}
-              className="font-bold text-xs text-primary hover:underline cursor-pointer"
+              onClick={(e) => {
+                e.stopPropagation();
+                onNavigateTab("timetable");
+              }}
+              className="inline-flex items-center gap-2 rounded-2xl border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-bold text-primary hover:bg-primary/20 transition-all cursor-pointer whitespace-nowrap"
             >
-              View Weekly Timetable →
+              <span>View Today's Timetable</span>
+              <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
             </button>
-          )}
+          </div>
         </div>
       ) : summary?.next_lecture ? (
-        <div className="rounded-3xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div 
+          onClick={() => onNavigateTab("timetable")}
+          className="rounded-3xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:border-emerald-500/50 hover:shadow-md transition-all group"
+        >
           <div className="flex items-start gap-4">
             <div className={cn(
-              "grid h-11 w-11 shrink-0 place-items-center rounded-2xl",
+              "grid h-11 w-11 shrink-0 place-items-center rounded-2xl group-hover:scale-105 transition-transform",
               summary.next_lecture.is_ongoing
                 ? "bg-rose-500/15 text-rose-600 dark:text-rose-400"
                 : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
@@ -343,28 +341,50 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
               <p className="text-xs text-muted-foreground mt-0.5">{summary.next_lecture.topic}</p>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2.5 text-xs">
+          <div className="flex flex-wrap items-center gap-2.5 text-xs shrink-0">
             {summary.next_lecture.faculty && (
               <span className="rounded-xl bg-surface px-3 py-1.5 font-semibold text-foreground/85">
                 👨‍🏫 {summary.next_lecture.faculty}
               </span>
             )}
-            <span className="rounded-xl bg-surface px-3 py-1.5 font-bold text-foreground">
-              📍 {summary.next_lecture.room}
-            </span>
+            {summary.next_lecture.room && (
+              <span className="rounded-xl bg-surface px-3 py-1.5 font-bold text-foreground">
+                📍 {summary.next_lecture.room}
+              </span>
+            )}
             <span className="rounded-xl bg-primary/10 px-3 py-1.5 font-bold font-mono text-primary">
               ⏰ {summary.next_lecture.time}
             </span>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onNavigateTab("timetable");
+              }}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-primary/30 bg-primary/10 px-3 py-1.5 font-bold text-primary hover:bg-primary/20 transition-all cursor-pointer"
+            >
+              <span>Timetable</span>
+              <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
+            </button>
           </div>
         </div>
       ) : (
-        <div className="rounded-3xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs flex items-center justify-between text-xs text-muted-foreground">
+        <div 
+          onClick={() => onNavigateTab("timetable")}
+          className="rounded-3xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs flex items-center justify-between text-xs text-muted-foreground cursor-pointer hover:border-primary/50 transition-all group"
+        >
           <div className="flex items-center gap-3">
             <Clock className="h-4 w-4 text-primary" />
             <span>No Lectures Scheduled In Timetable Matrix.</span>
           </div>
-          <button onClick={() => onNavigateTab("timetable")} className="font-bold text-primary hover:underline cursor-pointer">
-            View Weekly Timetable →
+          <button 
+            onClick={(e) => {
+              e.stopPropagation();
+              onNavigateTab("timetable");
+            }}
+            className="inline-flex items-center gap-1 font-bold text-primary hover:underline cursor-pointer"
+          >
+            <span>View Today's Timetable</span>
+            <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
       )}

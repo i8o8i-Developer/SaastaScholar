@@ -17,10 +17,18 @@ class TimetableScheduleView(APIView):
         cache_key = f"planner:timetable:{user.semester}:{user.section}:{day or 'all'}"
         
         def _fetch():
-            qs = TimetableSlot.objects.filter(semester=user.semester, section=user.section)
-            if day:
-                qs = qs.filter(day_of_week=day)
-            serializer = TimetableSlotSerializer(qs, many=True)
+            qs = TimetableSlot.objects.filter(semester=user.semester)
+            if user.section:
+                sec_qs = qs.filter(section__iexact=user.section)
+                if sec_qs.exists():
+                    qs = sec_qs
+            if not qs.exists():
+                qs = TimetableSlot.objects.all()
+
+            if day and day != "All":
+                qs = qs.filter(day_of_week__iexact=day)
+
+            serializer = TimetableSlotSerializer(qs.order_by("start_time"), many=True)
             return {
                 "semester": user.semester,
                 "section": user.section,
@@ -28,7 +36,7 @@ class TimetableScheduleView(APIView):
                 "slots": serializer.data,
             }
 
-        data = get_or_set_redis_cache(cache_key, _fetch, timeout=600)
+        data = get_or_set_redis_cache(cache_key, _fetch, timeout=60)
         return Response(data)
 
 class PersonalStudyTaskListCreateView(generics.ListCreateAPIView):
