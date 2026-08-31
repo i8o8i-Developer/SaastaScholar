@@ -3116,16 +3116,17 @@ export function AdminPortal() {
                 </div>
               </div>
 
-              {/* Station 7 Navigation Sub-Tabs */}
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3 border-b border-border pb-4 min-w-0 max-w-full">
-                <div className="flex items-center gap-2 overflow-x-auto max-w-full scrollbar-none min-w-0 pb-1 shrink-0">
+              {/* Station 7 Navigation Sub-Tabs & Context Actions */}
+              <div className="flex flex-col gap-3.5 border-b border-border pb-4 w-full">
+                {/* Navigation Sub-Tabs Pill Group */}
+                <div className="flex flex-wrap items-center gap-2">
                   <button
                     onClick={() => setStudentSubTab("registry")}
                     className={cn(
-                      "inline-flex items-center gap-2 rounded-2xl px-3.5 sm:px-4 py-2 text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0",
+                      "inline-flex items-center gap-2 rounded-2xl px-3.5 sm:px-4 py-2 text-xs font-bold transition-all cursor-pointer",
                       studentSubTab === "registry"
                         ? "bg-primary text-primary-foreground shadow-sm"
-                        : "border border-border bg-card text-muted-foreground hover:text-foreground"
+                        : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-surface"
                     )}
                   >
                     <Users className="h-4 w-4" />
@@ -3138,10 +3139,10 @@ export function AdminPortal() {
                   <button
                     onClick={() => setStudentSubTab("audit")}
                     className={cn(
-                      "inline-flex items-center gap-2 rounded-2xl px-3.5 sm:px-4 py-2 text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0",
+                      "inline-flex items-center gap-2 rounded-2xl px-3.5 sm:px-4 py-2 text-xs font-bold transition-all cursor-pointer",
                       studentSubTab === "audit"
                         ? "bg-primary text-primary-foreground shadow-sm"
-                        : "border border-border bg-card text-muted-foreground hover:text-foreground"
+                        : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-surface"
                     )}
                   >
                     <History className="h-4 w-4" />
@@ -3154,10 +3155,10 @@ export function AdminPortal() {
                   <button
                     onClick={() => setStudentSubTab("incidents")}
                     className={cn(
-                      "inline-flex items-center gap-2 rounded-2xl px-3.5 sm:px-4 py-2 text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0",
+                      "inline-flex items-center gap-2 rounded-2xl px-3.5 sm:px-4 py-2 text-xs font-bold transition-all cursor-pointer",
                       studentSubTab === "incidents"
                         ? "bg-primary text-primary-foreground shadow-sm"
-                        : "border border-border bg-card text-muted-foreground hover:text-foreground"
+                        : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-surface"
                     )}
                   >
                     <ShieldAlert className="h-4 w-4" />
@@ -3168,57 +3169,62 @@ export function AdminPortal() {
                   </button>
                 </div>
 
-                <div className="flex items-center gap-2 overflow-x-auto max-w-full scrollbar-none min-w-0 shrink-0">
-                  {studentSubTab === "audit" && (
+                {/* Sub-Station Operational Actions Toolbar */}
+                <div className="flex flex-wrap items-center justify-between gap-2.5 pt-0.5">
+                  <div className="flex flex-wrap items-center gap-2">
+                    {studentSubTab === "audit" && (
+                      <button
+                        onClick={handleClearAuditLogs}
+                        className="inline-flex items-center gap-1.5 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-3.5 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 shadow-xs hover:bg-rose-500/20 active:scale-95 transition-all cursor-pointer"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        <span>Clear Audit Vault ({auditLogs.length})</span>
+                      </button>
+                    )}
+
+                    {studentSubTab === "incidents" && (
+                      <button
+                        onClick={handleClearDrmIncidents}
+                        className="inline-flex items-center gap-1.5 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-3.5 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 shadow-xs hover:bg-rose-500/20 active:scale-95 transition-all cursor-pointer"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        <span>Clear DRM Telemetry ({drmIncidents.length})</span>
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
                     <button
-                      onClick={handleClearAuditLogs}
-                      className="inline-flex items-center gap-1.5 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-3.5 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 shadow-xs hover:bg-rose-500/20 active:scale-95 transition-all cursor-pointer whitespace-nowrap shrink-0"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      <span>Clear Audit Vault ({auditLogs.length})</span>
-                    </button>
-                  )}
-
-                  {studentSubTab === "incidents" && (
-                    <button
-                      onClick={handleClearDrmIncidents}
-                      className="inline-flex items-center gap-1.5 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-3.5 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 shadow-xs hover:bg-rose-500/20 active:scale-95 transition-all cursor-pointer whitespace-nowrap shrink-0"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      <span>Clear DRM Telemetry ({drmIncidents.length})</span>
-                    </button>
-                  )}
-
-                  <button
-                    onClick={async () => {
-                      const confirmed = confirm(
-                        "✨ GLOBAL CLEAN SLATE CONFIRMATION:\n\nAre You Sure You Want To Reset And Clear All DRM Locks, Login Suspensions, Cooldown Periods, Warning Banners, And Security Violation Counters For EVERY Registered Student Across The Entire Platform?"
-                      );
-                      if (!confirmed) return;
-
-                      try {
-                        const res = await studentSecurityApi.bulkResetSecurity(
-                          "Global Administrative Clean Slate Reset For All Students"
+                      onClick={async () => {
+                        const confirmed = confirm(
+                          "✨ GLOBAL CLEAN SLATE CONFIRMATION:\n\nAre You Sure You Want To Reset And Clear All DRM Locks, Login Suspensions, Cooldown Periods, Warning Banners, And Security Violation Counters For EVERY Registered Student Across The Entire Platform?"
                         );
-                        toast.success(toTitleCase(res.message || "Global Clean Slate Reset Completed Successfully."));
-                        loadAdminData();
-                      } catch (err: any) {
-                        toast.error(toTitleCase(err.message || "Failed To Execute Global Reset."));
-                      }
-                    }}
-                    className="inline-flex items-center gap-2 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 shadow-xs hover:bg-emerald-500/20 active:scale-95 transition-all cursor-pointer whitespace-nowrap shrink-0"
-                  >
-                    <Sparkles className="h-4 w-4" />
-                    <span>Global Clean Slate (Reset Everyone)</span>
-                  </button>
+                        if (!confirmed) return;
 
-                  <button
-                    onClick={loadAdminData}
-                    className="inline-flex items-center gap-2 rounded-2xl border border-border bg-card px-3.5 py-2 text-xs font-bold text-foreground shadow-xs hover:bg-surface cursor-pointer whitespace-nowrap shrink-0"
-                  >
-                    <RefreshCw className="h-4 w-4" />
-                    <span>Refresh Registry</span>
-                  </button>
+                        try {
+                          const res = await studentSecurityApi.bulkResetSecurity(
+                            "Global Administrative Clean Slate Reset For All Students"
+                          );
+                          toast.success(toTitleCase(res.message || "Global Clean Slate Reset Completed Successfully."));
+                          loadAdminData();
+                        } catch (err: any) {
+                          toast.error(toTitleCase(err.message || "Failed To Execute Global Reset."));
+                        }
+                      }}
+                      className="inline-flex items-center gap-2 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 shadow-xs hover:bg-emerald-500/20 active:scale-95 transition-all cursor-pointer"
+                    >
+                      <Sparkles className="h-4 w-4" />
+                      <span>Global Clean Slate (Reset Everyone)</span>
+                    </button>
+
+                    <button
+                      onClick={loadAdminData}
+                      className="inline-flex items-center gap-2 rounded-2xl border border-border bg-card px-3.5 py-2 text-xs font-bold text-foreground shadow-xs hover:bg-surface cursor-pointer"
+                    >
+                      <RefreshCw className="h-4 w-4" />
+                      <span>Refresh Registry</span>
+                    </button>
+                  </div>
                 </div>
               </div>
 
