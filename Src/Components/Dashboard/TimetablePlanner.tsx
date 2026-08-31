@@ -125,24 +125,24 @@ export function TimetablePlanner() {
   };
 
   return (
-    <div className="space-y-6 sm:space-y-8 max-w-7xl mx-auto min-w-0">
+    <div className="space-y-4 sm:space-y-6 max-w-7xl mx-auto min-w-0">
       {/* ================= Header Banner ================= */}
-      <div className="relative overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-r from-emerald-500/10 via-surface to-teal-500/10 p-6 sm:p-8 backdrop-blur-md shadow-xs">
-        <div className="space-y-2 min-w-0">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-300">
-            <Calendar className="h-3.5 w-3.5" />
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-br from-emerald-500/10 via-surface to-teal-500/10 p-4 sm:p-7 backdrop-blur-md shadow-xs min-w-0">
+        <div className="space-y-1.5 sm:space-y-2 min-w-0">
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 sm:px-3 py-0.5 text-[0.65rem] sm:text-xs font-bold text-emerald-700 dark:text-emerald-300">
+            <Calendar className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
             <span>Synchronized Lecture &amp; Revision Matrix</span>
           </div>
-          <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+          <h1 className="font-display text-lg sm:text-2xl md:text-3xl font-bold tracking-tight text-foreground">
             Timetable &amp; Study Planner
           </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-2xl">
+          <p className="text-[0.72rem] sm:text-xs md:text-sm text-muted-foreground leading-relaxed max-w-2xl">
             Synchronized Lecture Timings, Lab Practical Batches, Room Allocations, And Personal Revision Tasks.
           </p>
         </div>
 
-        {/* Weekday Selector Bar */}
-        <div className="mt-6 flex flex-wrap gap-2">
+        {/* Weekday Segmented Grid (Seamless 6-Col Mobile Bar) */}
+        <div className="mt-4 sm:mt-6 grid grid-cols-6 gap-1 sm:gap-1.5 p-1 sm:p-1.5 rounded-2xl bg-surface/80 border border-border/70 shadow-2xs">
           {WEEKDAYS.map((day) => {
             const isActive = selectedDay === day;
             const isToday = todayCode === day;
@@ -152,17 +152,17 @@ export function TimetablePlanner() {
                 type="button"
                 onClick={() => setSelectedDay(day)}
                 className={cn(
-                  "inline-flex items-center gap-1.5 rounded-2xl px-4 py-2 text-xs font-bold transition-all cursor-pointer",
+                  "flex flex-col sm:flex-row items-center justify-center gap-0.5 sm:gap-1.5 rounded-xl py-1.5 sm:py-2 px-1 text-xs font-bold transition-all cursor-pointer select-none",
                   isActive
-                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
-                    : "border border-border/70 bg-card text-muted-foreground hover:bg-surface hover:text-foreground",
+                    ? "bg-primary text-primary-foreground shadow-md shadow-primary/20 scale-[1.02]"
+                    : "text-muted-foreground hover:bg-surface/50 hover:text-foreground",
                 )}
               >
-                <span>{day}</span>
+                <span className="text-[0.72rem] sm:text-xs font-bold">{day}</span>
                 {isToday && (
                   <span className={cn(
-                    "rounded-full px-1.5 py-0.2 text-[0.58rem] font-bold uppercase",
-                    isActive ? "bg-white/25 text-white" : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                    "rounded-full px-1.5 py-0.2 text-[0.5rem] sm:text-[0.58rem] font-extrabold uppercase leading-tight",
+                    isActive ? "bg-white/25 text-white" : "bg-emerald-500/20 text-emerald-700 dark:text-emerald-300"
                   )}>
                     Today
                   </span>
@@ -174,14 +174,14 @@ export function TimetablePlanner() {
       </div>
 
       {/* ================= 2-Column Schedule Workspace ================= */}
-      <div className="grid gap-6 lg:grid-cols-12 min-w-0 items-start">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-12 min-w-0 items-start">
         {/* Left: Day Schedule Timeline (7 cols) */}
-        <div className="lg:col-span-7 space-y-4">
-          <div className="flex items-center justify-between border-b border-border/60 pb-3">
-            <span className="font-display font-bold text-sm text-foreground">
+        <div className="lg:col-span-7 space-y-3 sm:space-y-4">
+          <div className="flex items-center justify-between border-b border-border/60 pb-2.5 sm:pb-3">
+            <span className="font-display font-bold text-xs sm:text-sm text-foreground">
               {selectedDay} Schedule Timeline
             </span>
-            <span className="text-xs font-mono text-muted-foreground">
+            <span className="text-[0.68rem] sm:text-xs font-mono text-muted-foreground">
               {slots.length} Events Scheduled
             </span>
           </div>
@@ -189,56 +189,56 @@ export function TimetablePlanner() {
           {loading ? (
             <div className="space-y-3">
               {[1, 2, 3].map((n) => (
-                <div key={n} className="h-24 rounded-3xl border border-border/80 bg-card/60 animate-pulse" />
+                <div key={n} className="h-20 sm:h-24 rounded-2xl sm:rounded-3xl border border-border/80 bg-card/60 animate-pulse" />
               ))}
             </div>
           ) : slots.length === 0 ? (
-            <div className="rounded-3xl border border-dashed border-border bg-card/60 p-12 text-center space-y-3">
-              <Clock className="h-10 w-10 mx-auto text-muted-foreground/40" />
-              <h3 className="font-display font-bold text-base text-foreground">
+            <div className="rounded-2xl sm:rounded-3xl border border-dashed border-border bg-card/60 p-8 sm:p-12 text-center space-y-3">
+              <Clock className="h-9 w-9 sm:h-10 sm:w-10 mx-auto text-muted-foreground/40" />
+              <h3 className="font-display font-bold text-sm sm:text-base text-foreground">
                 No Lectures Scheduled For {selectedDay}
               </h3>
-              <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                No Active Timetable Slots Configured For This Day. Faculty And Admin Can Publish Lecture Slots From The Admin Portal.
+              <p className="text-[0.72rem] sm:text-xs text-muted-foreground max-w-sm mx-auto leading-relaxed">
+                No Active Timetable Slots Configured For This Day. Utilize This Time For Unit Notes Revision, Lab Prep, Or Adding Personal Study Goals.
               </p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2.5 sm:space-y-3">
               {slots.map((slot) => (
                 <div
                   key={slot.id}
-                  className="rounded-3xl border border-border/80 bg-card p-5 shadow-xs flex flex-col justify-between space-y-3 hover:border-primary/50 transition-all"
+                  className="rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-3.5 sm:p-5 shadow-xs flex flex-col justify-between space-y-2.5 sm:space-y-3 hover:border-primary/50 transition-all"
                 >
-                  <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
-                    <div className="flex items-center gap-2">
-                      <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold font-mono text-primary">
+                  <div className="flex items-center justify-between border-b border-border/60 pb-2">
+                    <div className="flex items-center gap-1.5 sm:gap-2">
+                      <span className="rounded-lg sm:rounded-full bg-primary/10 px-2 py-0.5 text-[0.65rem] sm:text-xs font-bold font-mono text-primary">
                         {slot.subject_code || "ACAD"}
                       </span>
-                      <span className="rounded-full bg-surface px-2 py-0.5 text-[0.65rem] font-bold text-muted-foreground">
+                      <span className="rounded-lg sm:rounded-full bg-surface px-2 py-0.5 text-[0.6rem] sm:text-[0.65rem] font-bold text-muted-foreground">
                         {slot.event_type}
                       </span>
                     </div>
-                    <span className="font-mono text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                    <span className="font-mono text-[0.68rem] sm:text-xs font-bold text-emerald-600 dark:text-emerald-400">
                       {slot.start_time} - {slot.end_time}
                     </span>
                   </div>
 
                   <div>
-                    <h4 className="font-display font-bold text-sm text-foreground">{slot.title}</h4>
+                    <h4 className="font-display font-bold text-xs sm:text-sm text-foreground">{slot.title}</h4>
                     {slot.meta_info && (
-                      <p className="text-xs text-muted-foreground mt-0.5">{slot.meta_info}</p>
+                      <p className="text-[0.68rem] sm:text-xs text-muted-foreground mt-0.5">{slot.meta_info}</p>
                     )}
                   </div>
 
-                  <div className="flex items-center justify-between pt-2 border-t border-border/60 text-xs text-muted-foreground">
+                  <div className="flex items-center justify-between pt-2 border-t border-border/60 text-[0.68rem] sm:text-xs text-muted-foreground">
                     <span className="flex items-center gap-1 font-mono">
-                      <MapPin className="h-3.5 w-3.5 text-primary" />
+                      <MapPin className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary" />
                       <span>{slot.room_number || "LT-01"}</span>
                     </span>
                     {slot.faculty_name && (
-                      <span className="flex items-center gap-1">
-                        <User className="h-3.5 w-3.5 text-primary" />
-                        <span>{slot.faculty_name}</span>
+                      <span className="flex items-center gap-1 truncate max-w-[50%]">
+                        <User className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary shrink-0" />
+                        <span className="truncate">{slot.faculty_name}</span>
                       </span>
                     )}
                   </div>
