@@ -143,12 +143,38 @@ export function Pricing() {
 
       {/* 3-Tier Pricing Grid */}
       <div className="mt-10 grid gap-5 lg:grid-cols-3 min-w-0 relative">
-        {/* Free Floating Banner Overlay - Glassmorphic & Elegant */}
+        {/* Free Floating Banner Overlay - Ultra-Vibrant Glassmorphic & Radiant */}
         <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none px-4">
-          <div className="rotate-[-2deg] rounded-3xl bg-background/40 px-8 py-6 text-center shadow-[0_0_100px_rgba(16,185,129,0.2)] border border-primary/20 backdrop-blur-xl ring-1 ring-white/10 transition-transform hover:scale-105">
-            <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-red-500 to-rose-700 drop-shadow-sm">
-              Everything Is Free <br className="hidden sm:block" /> Till 31 October 2026
-            </h2>
+          <div className="relative pointer-events-auto transform -rotate-1 sm:-rotate-2 hover:rotate-0 transition-transform duration-300">
+            {/* Ambient Multi-Color Glowing Aura */}
+            <div className="absolute -inset-2 rounded-3xl bg-gradient-to-r from-emerald-500/40 via-rose-500/40 to-amber-500/40 blur-2xl -z-10 animate-pulse" />
+
+            <div className="rounded-3xl bg-zinc-950/95 border-2 border-emerald-400/50 p-5 sm:p-8 text-center shadow-[0_0_60px_rgba(16,185,129,0.35),0_20px_50px_rgba(0,0,0,0.7)] backdrop-blur-2xl ring-1 ring-white/20 max-w-lg mx-auto">
+              {/* Top Launch Pill */}
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-emerald-500/20 via-teal-500/20 to-emerald-500/20 border border-emerald-400/40 px-3 py-1 text-[0.68rem] sm:text-xs font-extrabold uppercase tracking-wider text-emerald-400 mb-2.5 shadow-xs">
+                <Sparkles className="h-3.5 w-3.5 text-emerald-400 animate-pulse" />
+                <span>Special Campus Launch Celebration</span>
+                <Sparkles className="h-3.5 w-3.5 text-emerald-400 animate-pulse" />
+              </div>
+
+              {/* Main Glowing Headline */}
+              <h2 className="font-display text-2xl xs:text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tight text-white drop-shadow-[0_2px_12px_rgba(0,0,0,0.8)] leading-tight">
+                Everything Is Free
+              </h2>
+
+              {/* Highlighted Glowing Date Pill */}
+              <div className="mt-2.5 inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-rose-600 via-red-500 to-amber-500 px-4 py-1.5 shadow-[0_0_30px_rgba(244,63,94,0.6)] border border-white/30">
+                <span className="font-display text-xs sm:text-sm md:text-base font-black uppercase tracking-wide text-white drop-shadow-sm">
+                  Till 31 October 2026
+                </span>
+              </div>
+
+              {/* Sub-feature Note */}
+              <p className="mt-3 text-[0.72rem] sm:text-xs font-semibold text-emerald-300 tracking-wide flex items-center justify-center gap-1.5">
+                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                <span>All Notes, Solved PYQs, Lab Manuals &amp; Syllabus 100% Unlocked</span>
+              </p>
+            </div>
           </div>
         </div>
 
