@@ -89,7 +89,25 @@ import {
 } from "@/Lib/Api";
 import { cn } from "@/Lib/Utils";
 
+import {
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  CartesianGrid,
+} from "recharts";
+import { ArrowUpRight, Check, Compass, Globe, Server, TrendingUp } from "lucide-react";
+
 type AdminStation =
+  | "overview"
   | "structure"
   | "publisher"
   | "timetable"
@@ -120,7 +138,7 @@ const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 export function AdminPortal() {
   const { user, logout, isAuthenticated, isLoading } = useAuth();
-  const [activeStation, setActiveStation] = useState<AdminStation>("structure");
+  const [activeStation, setActiveStation] = useState<AdminStation>("overview");
   const [structureSubTab, setStructureSubTab] = useState<"departments" | "programs" | "sections" | "subjects">("departments");
   const [publisherType, setPublisherType] = useState<PublisherContentType>("NOTES");
   const [selectedTimetableDay, setSelectedTimetableDay] = useState<string>("Mon");
@@ -1434,6 +1452,7 @@ export function AdminPortal() {
               {/* Station Navigation List */}
               <nav className="mt-4 space-y-1">
                 {[
+                  { id: "overview", label: "0. Executive Overview", icon: LayoutDashboard, count: "Live" },
                   { id: "structure", label: "1. Academic Blueprint", icon: Building2, count: departments.length },
                   { id: "publisher", label: "2. Publishing Studio", icon: Upload, count: materials.length + labs.length },
                   { id: "timetable", label: "3. Timetable Grid", icon: Clock, count: timetableSlots.length },
@@ -1546,6 +1565,7 @@ export function AdminPortal() {
           {/* Station Navigation List */}
           <nav className="mt-5 space-y-1">
             {[
+              { id: "overview", label: "0. Executive Overview", icon: LayoutDashboard, count: "Live" },
               { id: "structure", label: "1. Academic Blueprint", icon: Building2, count: departments.length },
               { id: "publisher", label: "2. Publishing Studio", icon: Upload, count: materials.length + labs.length },
               { id: "timetable", label: "3. Timetable Grid", icon: Clock, count: timetableSlots.length },
@@ -1618,6 +1638,12 @@ export function AdminPortal() {
               <Menu className="h-4 w-4 xs:h-5 xs:w-5" />
             </button>
             <span className="font-display text-xs xs:text-sm sm:text-lg font-bold text-foreground truncate">
+              {activeStation === "overview" && (
+                <>
+                  <span className="sm:hidden">Executive Command</span>
+                  <span className="hidden sm:inline">Station 0: Executive Overview &amp; Academic Intelligence Command</span>
+                </>
+              )}
               {activeStation === "structure" && (
                 <>
                   <span className="sm:hidden">Station 1: Academic Matrix</span>
@@ -1694,6 +1720,359 @@ export function AdminPortal() {
 
         {/* Station Body Canvas */}
         <div className="flex-1 overflow-y-auto p-3 xs:p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 min-w-0 overflow-x-hidden">
+          {/* ========================================================================= */}
+          {/* STATION 0: EXECUTIVE COMMAND CENTER & HOME ANALYTICS */}
+          {/* ========================================================================= */}
+          {activeStation === "overview" && (
+            <div className="space-y-6 min-w-0">
+              {/* Executive Welcome Hero Banner */}
+              <div className="relative overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-br from-emerald-500/10 via-card to-cyan-500/10 p-5 sm:p-7 shadow-xs backdrop-blur-md">
+                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 min-w-0">
+                  <div className="space-y-2 min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/20 px-3 py-0.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 font-mono">
+                        <ShieldCheck className="h-3.5 w-3.5" />
+                        <span>Master Command Active</span>
+                      </span>
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-surface border border-border px-2.5 py-0.5 text-xs font-mono text-muted-foreground">
+                        <Server className="h-3 w-3 text-cyan-500" />
+                        <span>NIMS Cloud Core v2.4</span>
+                      </span>
+                    </div>
+
+                    <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-extrabold text-foreground tracking-tight">
+                      Academic Intelligence &amp; Operations Command
+                    </h1>
+                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-3xl">
+                      Real-Time Institutional Oversight Across Student Authentication, DRM Document Security, Courseware Publishing Metrics, And Timetable Orchestration.
+                    </p>
+                  </div>
+
+                  {/* Top Action Quick Buttons */}
+                  <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+                    <button
+                      onClick={() => setActiveStation("publisher")}
+                      className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-xs font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer transition-all active:scale-95"
+                    >
+                      <Plus className="h-4 w-4" />
+                      <span>Publish Material</span>
+                    </button>
+                    <button
+                      onClick={() => setActiveStation("structure")}
+                      className="inline-flex items-center gap-2 rounded-2xl border border-border bg-card px-4 py-2.5 text-xs font-bold text-foreground hover:bg-surface cursor-pointer transition-all shadow-2xs active:scale-95"
+                    >
+                      <Building2 className="h-4 w-4 text-primary" />
+                      <span>Curriculum Matrix</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* 4 Executive KPI Metric Cards */}
+              <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
+                {/* 1. Scholars Metric */}
+                <div
+                  onClick={() => setActiveStation("students")}
+                  className="rounded-3xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs hover:border-emerald-500/50 hover:shadow-md transition-all cursor-pointer group space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="grid h-10 w-10 place-items-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform">
+                      <Users className="h-5 w-5" />
+                    </div>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[0.65rem] font-bold text-emerald-600 dark:text-emerald-400">
+                      <TrendingUp className="h-3 w-3" />
+                      <span>Live Registry</span>
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="font-display font-extrabold text-2xl sm:text-3xl text-foreground">
+                      {students.length || 1}
+                    </h3>
+                    <p className="text-xs text-muted-foreground font-semibold mt-0.5">Enrolled Scholars</p>
+                  </div>
+                  <div className="text-[0.68rem] text-muted-foreground pt-2 border-t border-border/60 flex items-center justify-between font-mono">
+                    <span>Active DRM Tokens</span>
+                    <span className="font-bold text-foreground">{students.length || 1} Verified</span>
+                  </div>
+                </div>
+
+                {/* 2. Courseware Vault Metric */}
+                <div
+                  onClick={() => setActiveStation("publisher")}
+                  className="rounded-3xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs hover:border-cyan-500/50 hover:shadow-md transition-all cursor-pointer group space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="grid h-10 w-10 place-items-center rounded-2xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 group-hover:scale-110 transition-transform">
+                      <FileText className="h-5 w-5" />
+                    </div>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-cyan-500/10 px-2 py-0.5 text-[0.65rem] font-bold text-cyan-600 dark:text-cyan-400">
+                      <Sparkles className="h-3 w-3" />
+                      <span>{materials.length + labs.length} Units</span>
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="font-display font-extrabold text-2xl sm:text-3xl text-foreground">
+                      {materials.length + labs.length}
+                    </h3>
+                    <p className="text-xs text-muted-foreground font-semibold mt-0.5">Published Manuscripts</p>
+                  </div>
+                  <div className="text-[0.68rem] text-muted-foreground pt-2 border-t border-border/60 flex items-center justify-between font-mono">
+                    <span>Notes &amp; PYQs</span>
+                    <span className="font-bold text-cyan-600 dark:text-cyan-400">{materials.filter(m => m.material_type === "NOTES").length} Notes • {labs.length} Labs</span>
+                  </div>
+                </div>
+
+                {/* 3. Academic Structure Metric */}
+                <div
+                  onClick={() => setActiveStation("structure")}
+                  className="rounded-3xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs hover:border-purple-500/50 hover:shadow-md transition-all cursor-pointer group space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="grid h-10 w-10 place-items-center rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform">
+                      <Building2 className="h-5 w-5" />
+                    </div>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-purple-500/10 px-2 py-0.5 text-[0.65rem] font-bold text-purple-600 dark:text-purple-400">
+                      <span>{programs.length} Specializations</span>
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="font-display font-extrabold text-2xl sm:text-3xl text-foreground">
+                      {subjects.length}
+                    </h3>
+                    <p className="text-xs text-muted-foreground font-semibold mt-0.5">Course Modules</p>
+                  </div>
+                  <div className="text-[0.68rem] text-muted-foreground pt-2 border-t border-border/60 flex items-center justify-between font-mono">
+                    <span>Departments</span>
+                    <span className="font-bold text-purple-600 dark:text-purple-400">{departments.length} Active</span>
+                  </div>
+                </div>
+
+                {/* 4. Timetable & Schedule Density */}
+                <div
+                  onClick={() => setActiveStation("timetable")}
+                  className="rounded-3xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs hover:border-amber-500/50 hover:shadow-md transition-all cursor-pointer group space-y-3"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="grid h-10 w-10 place-items-center rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 group-hover:scale-110 transition-transform">
+                      <Clock className="h-5 w-5" />
+                    </div>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[0.65rem] font-bold text-amber-600 dark:text-amber-400">
+                      <span>6-Day Matrix</span>
+                    </span>
+                  </div>
+                  <div>
+                    <h3 className="font-display font-extrabold text-2xl sm:text-3xl text-foreground">
+                      {timetableSlots.length}
+                    </h3>
+                    <p className="text-xs text-muted-foreground font-semibold mt-0.5">Scheduled Periods</p>
+                  </div>
+                  <div className="text-[0.68rem] text-muted-foreground pt-2 border-t border-border/60 flex items-center justify-between font-mono">
+                    <span>Sections</span>
+                    <span className="font-bold text-amber-600 dark:text-amber-400">{sections.length} Cohorts</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Interactive Charts Canvas Section */}
+              <div className="grid gap-6 lg:grid-cols-12">
+                {/* Chart 1: Courseware Distribution Bar Chart (7 Cols) */}
+                <div className="lg:col-span-7 rounded-3xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs space-y-4">
+                  <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                    <div className="space-y-0.5">
+                      <h3 className="font-display font-bold text-sm sm:text-base text-foreground flex items-center gap-2">
+                        <FileText className="h-4 w-4 text-primary" />
+                        <span>Courseware Distribution By Material Type</span>
+                      </h3>
+                      <p className="text-xs text-muted-foreground">
+                        Live Breakdown Of Uploaded Study Assets Across Academic Formats
+                      </p>
+                    </div>
+                    <span className="rounded-full bg-surface border border-border px-2.5 py-1 text-xs font-mono font-bold text-muted-foreground">
+                      {materials.length + labs.length} Total
+                    </span>
+                  </div>
+
+                  <div className="h-64 sm:h-72 w-full pt-2">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={[
+                          { name: "Notes", count: materials.filter((m) => m.material_type === "NOTES").length, fill: "#10b981" },
+                          { name: "PYQs", count: materials.filter((m) => m.material_type === "SOLVED_PYQ").length, fill: "#8b5cf6" },
+                          { name: "Syllabus", count: materials.filter((m) => m.material_type === "SYLLABUS").length, fill: "#06b6d4" },
+                          { name: "Labs", count: labs.length, fill: "#f59e0b" },
+                          { name: "Faculty", count: materials.filter((m) => m.material_type === "FACULTY").length, fill: "#ec4899" },
+                        ]}
+                        margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" opacity={0.15} />
+                        <XAxis dataKey="name" tick={{ fontSize: 11, fill: "var(--color-muted-foreground, #888)" }} tickLine={false} />
+                        <YAxis tick={{ fontSize: 11, fill: "var(--color-muted-foreground, #888)" }} allowDecimals={false} />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "var(--color-card, #18181b)",
+                            borderColor: "var(--color-border, #3f3f46)",
+                            borderRadius: "1rem",
+                            fontSize: "0.75rem",
+                            fontWeight: "bold",
+                            boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+                          }}
+                          formatter={(value: any) => [`${value} Manuscripts`, "Published"]}
+                        />
+                        <Bar dataKey="count" radius={[8, 8, 0, 0]}>
+                          {[
+                            { fill: "#10b981" },
+                            { fill: "#8b5cf6" },
+                            { fill: "#06b6d4" },
+                            { fill: "#f59e0b" },
+                            { fill: "#ec4899" },
+                          ].map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* Chart 2: Degree Specialization Distribution Donut (5 Cols) */}
+                <div className="lg:col-span-5 rounded-3xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs space-y-4 flex flex-col justify-between">
+                  <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                    <div className="space-y-0.5">
+                      <h3 className="font-display font-bold text-sm sm:text-base text-foreground flex items-center gap-2">
+                        <GraduationCap className="h-4 w-4 text-emerald-500" />
+                        <span>Specializations Breakdown</span>
+                      </h3>
+                      <p className="text-xs text-muted-foreground">
+                        Degree Branches Configured In The Curriculum
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="h-56 sm:h-64 w-full flex items-center justify-center">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={
+                            programs.length > 0
+                              ? programs.map((p, idx) => {
+                                  const colors = ["#10b981", "#06b6d4", "#8b5cf6", "#f59e0b", "#ec4899", "#3b82f6"];
+                                  return {
+                                    name: p.code || p.name,
+                                    fullName: p.name,
+                                    value: subjects.filter((s) => s.program_codes?.includes(p.code) || s.department === p.department).length || 1,
+                                    color: colors[idx % colors.length],
+                                  };
+                                })
+                              : [{ name: "AI & ML", value: 1, color: "#10b981" }]
+                          }
+                          innerRadius={55}
+                          outerRadius={85}
+                          paddingAngle={4}
+                          dataKey="value"
+                        >
+                          {(programs.length > 0 ? programs : [{ name: "AI & ML" }]).map((entry: any, index: number) => {
+                            const colors = ["#10b981", "#06b6d4", "#8b5cf6", "#f59e0b", "#ec4899", "#3b82f6"];
+                            return <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />;
+                          })}
+                        </Pie>
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "var(--color-card, #18181b)",
+                            borderColor: "var(--color-border, #3f3f46)",
+                            borderRadius: "1rem",
+                            fontSize: "0.75rem",
+                            fontWeight: "bold",
+                          }}
+                          formatter={(value: any) => [`${value} Modules`, "Course Load"]}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  {/* Program Legend Tags */}
+                  <div className="flex flex-wrap items-center justify-center gap-2 pt-2 border-t border-border/60">
+                    {programs.map((p, idx) => {
+                      const colors = ["bg-emerald-500", "bg-cyan-500", "bg-purple-500", "bg-amber-500", "bg-pink-500", "bg-blue-500"];
+                      return (
+                        <div key={p.id} className="flex items-center gap-1.5 text-xs font-mono">
+                          <span className={cn("h-2.5 w-2.5 rounded-full", colors[idx % colors.length])} />
+                          <span className="font-semibold text-foreground">{p.code || p.name}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Action Executive Launchpad */}
+              <div className="rounded-3xl border border-border/80 bg-surface/50 p-5 sm:p-6 space-y-4">
+                <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                  <h3 className="font-display font-bold text-sm sm:text-base text-foreground flex items-center gap-2">
+                    <Zap className="h-4 w-4 text-amber-500" />
+                    <span>Quick Command Launchers</span>
+                  </h3>
+                  <span className="text-xs text-muted-foreground font-semibold">1-Click Administration</span>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+                  <button
+                    onClick={() => {
+                      setPublisherType("NOTES");
+                      setActiveStation("publisher");
+                    }}
+                    className="flex flex-col items-center justify-center gap-2 p-3.5 rounded-2xl border border-border bg-card hover:border-emerald-500/50 hover:shadow-xs transition-all cursor-pointer group text-center"
+                  >
+                    <FileText className="h-5 w-5 text-emerald-500 group-hover:scale-110 transition-transform" />
+                    <span className="text-xs font-bold text-foreground">Publish Notes</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setPublisherType("SOLVED_PYQ");
+                      setActiveStation("publisher");
+                    }}
+                    className="flex flex-col items-center justify-center gap-2 p-3.5 rounded-2xl border border-border bg-card hover:border-purple-500/50 hover:shadow-xs transition-all cursor-pointer group text-center"
+                  >
+                    <Award className="h-5 w-5 text-purple-500 group-hover:scale-110 transition-transform" />
+                    <span className="text-xs font-bold text-foreground">Upload PYQ</span>
+                  </button>
+
+                  <button
+                    onClick={() => setActiveStation("structure")}
+                    className="flex flex-col items-center justify-center gap-2 p-3.5 rounded-2xl border border-border bg-card hover:border-cyan-500/50 hover:shadow-xs transition-all cursor-pointer group text-center"
+                  >
+                    <BookOpen className="h-5 w-5 text-cyan-500 group-hover:scale-110 transition-transform" />
+                    <span className="text-xs font-bold text-foreground">Add Subject</span>
+                  </button>
+
+                  <button
+                    onClick={() => setActiveStation("timetable")}
+                    className="flex flex-col items-center justify-center gap-2 p-3.5 rounded-2xl border border-border bg-card hover:border-amber-500/50 hover:shadow-xs transition-all cursor-pointer group text-center"
+                  >
+                    <Clock className="h-5 w-5 text-amber-500 group-hover:scale-110 transition-transform" />
+                    <span className="text-xs font-bold text-foreground">Add Timetable</span>
+                  </button>
+
+                  <button
+                    onClick={() => setActiveStation("notices")}
+                    className="flex flex-col items-center justify-center gap-2 p-3.5 rounded-2xl border border-border bg-card hover:border-rose-500/50 hover:shadow-xs transition-all cursor-pointer group text-center"
+                  >
+                    <Megaphone className="h-5 w-5 text-rose-500 group-hover:scale-110 transition-transform" />
+                    <span className="text-xs font-bold text-foreground">Post Notice</span>
+                  </button>
+
+                  <button
+                    onClick={() => setActiveStation("students")}
+                    className="flex flex-col items-center justify-center gap-2 p-3.5 rounded-2xl border border-border bg-card hover:border-blue-500/50 hover:shadow-xs transition-all cursor-pointer group text-center"
+                  >
+                    <ShieldCheck className="h-5 w-5 text-blue-500 group-hover:scale-110 transition-transform" />
+                    <span className="text-xs font-bold text-foreground">DRM Shield</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* ========================================================================= */}
           {/* STATION 1: ACADEMIC BLUEPRINT */}
           {/* ========================================================================= */}
