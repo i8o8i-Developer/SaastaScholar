@@ -178,3 +178,40 @@ class SidebarBadgeConfig(models.Model):
     def __str__(self):
         return f"{self.label}: [{self.badge_text}] ({'Active' if self.is_active else 'Disabled'})"
 
+
+class BannerVariant(models.TextChoices):
+    EMERALD = "emerald", "Emerald Glow"
+    AMBER = "amber", "Amber Warning"
+    ROSE = "rose", "Rose Urgent"
+    PURPLE = "purple", "Purple Event"
+    CYAN = "cyan", "Cyan Info"
+    GRADIENT = "gradient", "Multi-Color Rainbow"
+
+
+class BannerTarget(models.TextChoices):
+    ALL = "ALL", "Everywhere (Dashboard + Landing Page)"
+    DASHBOARD = "DASHBOARD", "Student Dashboard Only"
+    WEBSITE = "WEBSITE", "Landing Page / Website Only"
+
+
+class SiteBanner(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    title = models.CharField(max_length=255)
+    message = models.TextField(help_text="Banner Markdown Message Or Announcement Details")
+    tag = models.CharField(max_length=50, default="Announcement", help_text="Badge Text e.g. 'NEW', 'URGENT', 'SIH 2026'")
+    variant = models.CharField(max_length=30, choices=BannerVariant.choices, default=BannerVariant.EMERALD)
+    target = models.CharField(max_length=30, choices=BannerTarget.choices, default=BannerTarget.ALL)
+    link_url = models.CharField(max_length=500, blank=True, default="", help_text="Destination Link (e.g. https://... or /dashboard?tab=notices)")
+    link_text = models.CharField(max_length=100, blank=True, default="Learn More", help_text="Button Text")
+    is_active = models.BooleanField(default=True, db_index=True)
+    is_dismissible = models.BooleanField(default=True, help_text="Allow Students To Close The Banner")
+    priority = models.PositiveSmallIntegerField(default=1, help_text="Higher Priority Shows First")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-priority", "-created_at"]
+
+    def __str__(self):
+        return f"[{self.tag}] {self.title} ({'Active' if self.is_active else 'Inactive'})"
+

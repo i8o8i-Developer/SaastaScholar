@@ -42,6 +42,7 @@ import { cn } from "@/Lib/Utils";
 import { toast } from "sonner";
 import { apiFetch, DepartmentNotice, SidebarBadgeConfig } from "@/Lib/Api";
 import { MarkdownContent } from "@/Components/Ui/MarkdownContent";
+import { BroadcastBanner } from "@/Components/Ui/BroadcastBanner";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -731,6 +732,9 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
 
         {/* Routed Dashboard Page Canvas */}
         <main className="flex-1 overflow-y-auto p-2 xs:p-4 sm:p-6 lg:p-8 bg-background scrollbar-thin min-w-0 overflow-x-hidden">
+          <div className="max-w-6xl mx-auto w-full mb-4 sm:mb-6">
+            <BroadcastBanner target="DASHBOARD" />
+          </div>
           {children}
         </main>
       </div>

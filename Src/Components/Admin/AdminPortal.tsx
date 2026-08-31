@@ -66,6 +66,7 @@ import {
   List,
   ListOrdered,
   Quote,
+  Radio,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/Hooks/UseAuth";
@@ -73,6 +74,7 @@ import { useTheme } from "@/Hooks/UseTheme";
 import { isDrmGloballyDisabled, setDrmGloballyDisabled } from "@/Hooks/UseDrmProtection";
 import { DrmSecureReader } from "../Dashboard/DrmSecureReader";
 import { MarkdownContent } from "../Ui/MarkdownContent";
+import { BroadcastBanner } from "../Ui/BroadcastBanner";
 import {
   AcademicMaterial,
   AdminAuditLog,
@@ -87,6 +89,7 @@ import {
   removeAccessToken,
   SectionBatch,
   SidebarBadgeConfig,
+  SiteBanner,
   StudentAssignment,
   studentSecurityApi,
   StudentUser,
@@ -127,6 +130,7 @@ type AdminStation =
   | "milestones"
   | "students"
   | "badges"
+  | "banners"
   | "support"
   | "forum";
 
@@ -201,6 +205,22 @@ export function AdminPortal() {
   const [posts, setPosts] = useState<ForumPost[]>([]);
   const [badges, setBadges] = useState<SidebarBadgeConfig[]>([]);
   const [editingBadge, setEditingBadge] = useState<Record<string, { badge_text: string; badge_variant: string; is_active: boolean }>>({});
+  const [banners, setBanners] = useState<SiteBanner[]>([]);
+  const [showBannerModal, setShowBannerModal] = useState<boolean>(false);
+  const [editingBannerId, setEditingBannerId] = useState<string | null>(null);
+  const [bannerPreviewTab, setBannerPreviewTab] = useState<"write" | "preview">("write");
+  const [newBanner, setNewBanner] = useState<Omit<SiteBanner, "id">>({
+    title: "",
+    message: "",
+    tag: "Announcement",
+    variant: "emerald",
+    target: "ALL",
+    link_url: "",
+    link_text: "Learn More",
+    is_active: true,
+    is_dismissible: true,
+    priority: 10,
+  });
 
   // ================= Cascading Selection State =================
   const [selectedDeptId, setSelectedDeptId] = useState<string>("");
@@ -373,6 +393,7 @@ export function AdminPortal() {
         auditRes,
         incidentsRes,
         drmConfigRes,
+        bannersRes,
       ] = await Promise.all([
         apiFetch("/academic/admin/departments/"),
         apiFetch("/academic/admin/programs/"),
@@ -391,6 +412,7 @@ export function AdminPortal() {
         studentSecurityApi.getAuditLogs(),
         studentSecurityApi.getDrmIncidents(),
         globalDrmApi.getConfig().catch(() => ({ is_drm_enabled: true })),
+        apiFetch("/academic/admin/banners/").catch(() => []),
       ]);
 
       if (drmConfigRes && typeof (drmConfigRes as any).is_drm_enabled === "boolean") {
@@ -412,6 +434,7 @@ export function AdminPortal() {
       setStudents(extractArray<StudentUser>(usersRes));
       setAuditLogs(extractArray<AdminAuditLog>(auditRes));
       setDrmIncidents(extractArray<DrmSecurityIncident>(incidentsRes));
+      setBanners(extractArray<SiteBanner>(bannersRes));
       
       // Community
       setTickets(Array.isArray(ticketsRes) ? ticketsRes : (ticketsRes as any)?.results || []);
@@ -1298,6 +1321,73 @@ export function AdminPortal() {
     }
   };
 
+  const handleSaveBanner = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      if (editingBannerId) {
+        await apiFetch(`/academic/admin/banners/${editingBannerId}/`, {
+          method: "PATCH",
+          body: JSON.stringify(newBanner),
+        });
+        toast.success("Broadcast Banner Updated Live.");
+      } else {
+        await apiFetch("/academic/admin/banners/", {
+          method: "POST",
+          body: JSON.stringify(newBanner),
+        });
+        toast.success("Broadcast Banner Published Live.");
+      }
+      setShowBannerModal(false);
+      setEditingBannerId(null);
+      setNewBanner({
+        title: "",
+        message: "",
+        tag: "Announcement",
+        variant: "emerald",
+        target: "ALL",
+        link_url: "",
+        link_text: "Learn More",
+        is_active: true,
+        is_dismissible: true,
+        priority: 10,
+      });
+      loadAdminData();
+    } catch (err: any) {
+      toast.error(err.message || "Failed To Save Banner.");
+    }
+  };
+
+  const handleEditBanner = (banner: SiteBanner) => {
+    setEditingBannerId(banner.id);
+    setNewBanner({
+      title: banner.title,
+      message: banner.message || "",
+      tag: banner.tag || "Announcement",
+      variant: banner.variant || "emerald",
+      target: banner.target || "ALL",
+      link_url: banner.link_url || "",
+      link_text: banner.link_text || "Learn More",
+      is_active: banner.is_active,
+      is_dismissible: banner.is_dismissible,
+      priority: banner.priority || 10,
+    });
+    setBannerPreviewTab("write");
+    setShowBannerModal(true);
+  };
+
+  const handleToggleBannerActive = async (banner: SiteBanner) => {
+    try {
+      await apiFetch(`/academic/admin/banners/${banner.id}/`, {
+        method: "PATCH",
+        body: JSON.stringify({ is_active: !banner.is_active }),
+      });
+      toast.success(`Banner is now ${!banner.is_active ? "Active & Broadcasting Live" : "Deactivated"}.`);
+      loadAdminData();
+    } catch (err: any) {
+      toast.error(err.message || "Failed To Update Banner Status.");
+    }
+  };
+
   const handleDeleteItem = async (endpoint: string, id: string, name: string, callback: () => void) => {
     if (!confirm(`Are You Sure You Want To Delete "${name}"? This Action Is Permanent.`)) {
       return;
@@ -1485,9 +1575,10 @@ export function AdminPortal() {
                   { id: "notices", label: "5. Notice Dispatcher", icon: Megaphone, count: notices.length },
                   { id: "milestones", label: "6. Exam Milestones", icon: Calendar, count: milestones.length },
                   { id: "students", label: "7. Student Registry", icon: Users, count: students.length },
-                  { id: "badges", label: "8. Navigation Badges", icon: Sparkles, count: badges.filter((b) => b.is_active && b.badge_text).length },
-                  { id: "support", label: "9. Support Desk", icon: HelpCircle, count: tickets.length },
-                  { id: "forum", label: "10. Community Forum", icon: MessageSquare, count: posts.length },
+                  { id: "banners", label: "8. Broadcast Banners", icon: Radio, count: banners.filter((b) => b.is_active).length },
+                  { id: "badges", label: "9. Navigation Badges", icon: Sparkles, count: badges.filter((b) => b.is_active && b.badge_text).length },
+                  { id: "support", label: "10. Support Desk", icon: HelpCircle, count: tickets.length },
+                  { id: "forum", label: "11. Community Forum", icon: MessageSquare, count: posts.length },
                 ].map((station) => {
                   const Icon = station.icon;
                   const isActive = activeStation === station.id;
@@ -1614,9 +1705,10 @@ export function AdminPortal() {
               { id: "notices", label: "5. Notice Dispatcher", icon: Megaphone, count: notices.length },
               { id: "milestones", label: "6. Exam Milestones", icon: Calendar, count: milestones.length },
               { id: "students", label: "7. Student Registry", icon: Users, count: students.length },
-              { id: "badges", label: "8. Navigation Badges", icon: Sparkles, count: badges.filter((b) => b.is_active && b.badge_text).length },
-              { id: "support", label: "9. Support Desk", icon: HelpCircle, count: tickets.length },
-              { id: "forum", label: "10. Community Forum", icon: MessageSquare, count: posts.length },
+              { id: "banners", label: "8. Broadcast Banners", icon: Radio, count: banners.filter((b) => b.is_active).length },
+              { id: "badges", label: "9. Navigation Badges", icon: Sparkles, count: badges.filter((b) => b.is_active && b.badge_text).length },
+              { id: "support", label: "10. Support Desk", icon: HelpCircle, count: tickets.length },
+              { id: "forum", label: "11. Community Forum", icon: MessageSquare, count: posts.length },
             ].map((station) => {
               const Icon = station.icon;
               const isActive = activeStation === station.id;
@@ -1746,22 +1838,28 @@ export function AdminPortal() {
                   <span className="hidden sm:inline">Station 7: Active Student Registry &amp; User Base</span>
                 </>
               )}
+              {activeStation === "banners" && (
+                <>
+                  <span className="sm:hidden">Station 8: Broadcast Banners</span>
+                  <span className="hidden sm:inline">Station 8: Announcement &amp; Promotional Broadcast Banners</span>
+                </>
+              )}
               {activeStation === "badges" && (
                 <>
-                  <span className="sm:hidden">Station 8: Sidebar Badges</span>
-                  <span className="hidden sm:inline">Station 8: Sidebar Dynamic Badges Matrix</span>
+                  <span className="sm:hidden">Station 9: Sidebar Badges</span>
+                  <span className="hidden sm:inline">Station 9: Sidebar Dynamic Badges Matrix</span>
                 </>
               )}
               {activeStation === "support" && (
                 <>
-                  <span className="sm:hidden">Station 9: Support Desk</span>
-                  <span className="hidden sm:inline">Station 9: Student Support Desk &amp; Query Resolution</span>
+                  <span className="sm:hidden">Station 10: Support Desk</span>
+                  <span className="hidden sm:inline">Station 10: Student Support Desk &amp; Query Resolution</span>
                 </>
               )}
               {activeStation === "forum" && (
                 <>
-                  <span className="sm:hidden">Station 10: Forum Hub</span>
-                  <span className="hidden sm:inline">Station 10: Community Forum Moderation Hub</span>
+                  <span className="sm:hidden">Station 11: Forum Hub</span>
+                  <span className="hidden sm:inline">Station 11: Community Forum Moderation Hub</span>
                 </>
               )}
             </span>
@@ -4507,6 +4605,225 @@ export function AdminPortal() {
             </div>
           )}
 
+          {/* ========================================================================= */}
+          {/* STATION 8: BROADCAST & PROMOTIONAL BANNERS */}
+          {/* ========================================================================= */}
+          {activeStation === "banners" && (
+            <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500 min-w-0">
+              {/* Header Action Bar */}
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border pb-4">
+                <div>
+                  <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 mb-1">
+                    <Radio className="h-3.5 w-3.5" />
+                    <span>Real-Time Broadcast Network</span>
+                  </div>
+                  <h3 className="font-display font-bold text-base sm:text-lg text-foreground">
+                    Station 8: Announcement &amp; Promotional Broadcast Banners
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Deploy Glowing M ulti-color announcement strips, hackathon promos, and urgent alerts across student dashboards &amp; public site.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      setEditingBannerId(null);
+                      setNewBanner({
+                        title: "",
+                        message: "",
+                        tag: "Announcement",
+                        variant: "emerald",
+                        target: "ALL",
+                        link_url: "",
+                        link_text: "Learn More",
+                        is_active: true,
+                        is_dismissible: true,
+                        priority: 10,
+                      });
+                      setBannerPreviewTab("write");
+                      setShowBannerModal(true);
+                    }}
+                    className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-2.5 text-xs font-bold text-white shadow-md hover:opacity-95 cursor-pointer transition-all active:scale-95"
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span>Deploy New Banner</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Live Real-Time Interactive Simulation Area */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                    <Sparkles className="h-3.5 w-3.5 text-primary" />
+                    <span>Live Simulation (How Students See It Right Now)</span>
+                  </span>
+                  <span className="text-[0.68rem] font-mono text-muted-foreground">
+                    Active Streams: {banners.filter((b) => b.is_active).length}
+                  </span>
+                </div>
+                <div className="rounded-3xl border border-border/80 bg-card/60 p-4 sm:p-5 shadow-xs">
+                  {banners.filter((b) => b.is_active).length > 0 ? (
+                    <BroadcastBanner target="ALL" />
+                  ) : (
+                    <div className="text-center py-6 text-xs text-muted-foreground italic">
+                      No active banners broadcasting right now. Click "Deploy New Banner" or activate an existing banner below.
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* KPI Summary Metric Cards */}
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-xs">
+                  <span className="block text-[0.65rem] font-bold uppercase text-muted-foreground">Total Banners</span>
+                  <span className="font-mono text-xl sm:text-2xl font-bold text-foreground mt-0.5 block">{banners.length}</span>
+                  <span className="text-[0.65rem] text-muted-foreground">All time configured</span>
+                </div>
+
+                <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4 shadow-xs">
+                  <span className="block text-[0.65rem] font-bold uppercase text-emerald-700 dark:text-emerald-300">Live Active</span>
+                  <span className="font-mono text-xl sm:text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-0.5 block">
+                    {banners.filter((b) => b.is_active).length}
+                  </span>
+                  <span className="text-[0.65rem] text-emerald-700/80 dark:text-emerald-300/80">Broadcasting live</span>
+                </div>
+
+                <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-xs">
+                  <span className="block text-[0.65rem] font-bold uppercase text-muted-foreground">Dashboard Targets</span>
+                  <span className="font-mono text-xl sm:text-2xl font-bold text-foreground mt-0.5 block">
+                    {banners.filter((b) => b.target === "ALL" || b.target === "DASHBOARD").length}
+                  </span>
+                  <span className="text-[0.65rem] text-muted-foreground">Student Portal streams</span>
+                </div>
+
+                <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-xs">
+                  <span className="block text-[0.65rem] font-bold uppercase text-muted-foreground">Landing Site Targets</span>
+                  <span className="font-mono text-xl sm:text-2xl font-bold text-foreground mt-0.5 block">
+                    {banners.filter((b) => b.target === "ALL" || b.target === "WEBSITE").length}
+                  </span>
+                  <span className="text-[0.65rem] text-muted-foreground">Public Website strips</span>
+                </div>
+              </div>
+
+              {/* Banners Feed Grid */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-display font-bold text-sm text-foreground">Configured Banner Streams ({banners.length})</h4>
+                  <span className="text-[0.68rem] text-muted-foreground font-mono">1-Click Toggle to Activate / Deactivate</span>
+                </div>
+
+                {banners.length === 0 ? (
+                  <div className="rounded-3xl border border-dashed border-border bg-card/60 p-12 text-center space-y-3">
+                    <Radio className="h-10 w-10 mx-auto text-muted-foreground/40" />
+                    <h4 className="font-display font-bold text-base text-foreground">No Broadcast Banners Created Yet</h4>
+                    <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                      Create your first promotional or announcement banner to broadcast hackathons, exam countdowns, or alerts.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                    {banners.map((b) => (
+                      <div
+                        key={b.id}
+                        className={cn(
+                          "rounded-3xl border p-5 shadow-xs flex flex-col justify-between space-y-4 transition-all",
+                          b.is_active
+                            ? "border-emerald-500/40 bg-card hover:border-emerald-500/70"
+                            : "border-border/80 bg-card/50 opacity-85 hover:opacity-100"
+                        )}
+                      >
+                        <div className="space-y-3">
+                          {/* Card Top: Badges + Action Buttons */}
+                          <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span
+                                className={cn(
+                                  "rounded-full px-2.5 py-0.5 text-[0.65rem] font-bold uppercase",
+                                  b.variant === "amber" && "bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30",
+                                  b.variant === "rose" && "bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30",
+                                  b.variant === "purple" && "bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/30",
+                                  b.variant === "cyan" && "bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30",
+                                  b.variant === "gradient" && "bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-600 dark:text-teal-300 border border-emerald-500/30",
+                                  b.variant === "emerald" && "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
+                                )}
+                              >
+                                {b.tag || b.variant}
+                              </span>
+
+                              <span className="rounded-full bg-surface border border-border px-2 py-0.5 text-[0.62rem] font-mono font-bold text-muted-foreground">
+                                {b.target === "ALL" ? "All Channels" : b.target === "DASHBOARD" ? "Dashboard" : "Website"}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={() => handleEditBanner(b)}
+                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
+                                title="Edit Banner"
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteItem("/academic/admin/banners/", b.id, b.title, loadAdminData)}
+                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer"
+                                title="Delete Banner"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </div>
+
+                          {/* Banner Headline & Message */}
+                          <div>
+                            <h4 className="font-display font-bold text-sm text-foreground leading-snug">{b.title}</h4>
+                            <div className="mt-1.5 text-xs text-foreground/80 line-clamp-3 leading-relaxed">
+                              <MarkdownContent content={b.message} />
+                            </div>
+                          </div>
+
+                          {/* Link Preview if exists */}
+                          {b.link_url && (
+                            <div className="rounded-xl border border-border/60 bg-surface/60 px-3 py-2 text-[0.7rem] flex items-center justify-between gap-2">
+                              <span className="font-semibold text-foreground truncate">
+                                Button: "{b.link_text || "Learn More"}"
+                              </span>
+                              <span className="font-mono text-muted-foreground text-[0.62rem] truncate max-w-[120px]">
+                                {b.link_url}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Card Footer: Priority & 1-Click Toggle */}
+                        <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs">
+                          <span className="font-mono text-[0.68rem] text-muted-foreground">
+                            Priority: {b.priority || 10}
+                          </span>
+
+                          <button
+                            type="button"
+                            onClick={() => handleToggleBannerActive(b)}
+                            className={cn(
+                              "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[0.68rem] font-bold transition-all cursor-pointer shadow-2xs",
+                              b.is_active
+                                ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/25"
+                                : "bg-muted/50 text-muted-foreground border border-border hover:bg-surface"
+                            )}
+                          >
+                            <span className={cn("h-2 w-2 rounded-full", b.is_active ? "bg-emerald-500 animate-pulse" : "bg-muted-foreground/40")} />
+                            <span>{b.is_active ? "Live Active" : "Deactivated"}</span>
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {activeStation === "support" && (
             <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -6664,6 +6981,282 @@ export function AdminPortal() {
               </div>
               <button type="submit" className="h-11 w-full rounded-2xl bg-primary font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer">
                 {editingMilestoneId ? "Save Milestone Changes" : "Add Exam Milestone Countdown"}
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Broadcast / Edit Banner */}
+      {showBannerModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-2xl rounded-3xl border border-border bg-card p-5 sm:p-7 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-border/80 pb-3.5">
+              <div>
+                <h3 className="font-display font-bold text-base sm:text-lg text-foreground">
+                  {editingBannerId ? "Edit Broadcast Banner" : "Deploy New Broadcast Banner"}
+                </h3>
+                <p className="text-[0.68rem] text-muted-foreground mt-0.5 font-mono">
+                  Full Markdown Support · Multi-Color Variants · Real-Time Sync
+                </p>
+              </div>
+              <button
+                onClick={() => {
+                  setShowBannerModal(false);
+                  setEditingBannerId(null);
+                  setBannerPreviewTab("write");
+                }}
+                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface hover:text-foreground cursor-pointer transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveBanner} className="space-y-4 text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="sm:col-span-2">
+                  <label className="block font-bold mb-1.5 text-foreground">Headline Title</label>
+                  <input
+                    type="text"
+                    value={newBanner.title}
+                    onChange={(e) => setNewBanner({ ...newBanner, title: e.target.value })}
+                    placeholder="E.g. Smart India Hackathon (SIH) 2026"
+                    required
+                    className="h-10 w-full rounded-2xl border border-border bg-background px-3.5 focus:border-primary focus:outline-none text-xs font-semibold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold mb-1.5 text-foreground">Badge Tag Text</label>
+                  <input
+                    type="text"
+                    value={newBanner.tag}
+                    onChange={(e) => setNewBanner({ ...newBanner, tag: e.target.value })}
+                    placeholder="E.g. SIH 2026, URGENT, NEW"
+                    required
+                    className="h-10 w-full rounded-2xl border border-border bg-background px-3.5 focus:border-primary focus:outline-none text-xs font-mono font-bold"
+                  />
+                </div>
+              </div>
+
+              {/* Color Variant & Target Selector */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold mb-1.5 text-foreground">Color Glow Variant</label>
+                  <select
+                    value={newBanner.variant}
+                    onChange={(e) => setNewBanner({ ...newBanner, variant: e.target.value as any })}
+                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none font-medium cursor-pointer"
+                  >
+                    <option value="emerald">🟢 Emerald Glow (Academic &amp; Announcements)</option>
+                    <option value="amber">🟠 Amber Glow (Warning &amp; Deadlines)</option>
+                    <option value="rose">🔴 Rose Glow (Urgent Alerts &amp; Critical Notice)</option>
+                    <option value="purple">🟣 Purple Glow (Events &amp; Competitions)</option>
+                    <option value="cyan">🔵 Cyan Glow (Tech Updates &amp; Support)</option>
+                    <option value="gradient">🌈 Multi-Color Rainbow Gradient</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block font-bold mb-1.5 text-foreground">Target Audience</label>
+                  <select
+                    value={newBanner.target}
+                    onChange={(e) => setNewBanner({ ...newBanner, target: e.target.value as any })}
+                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none font-medium cursor-pointer"
+                  >
+                    <option value="ALL">🌐 Everywhere (Student Dashboard + Landing Page)</option>
+                    <option value="DASHBOARD">🎓 Student Dashboard Only</option>
+                    <option value="WEBSITE">🚀 Public Landing Website Only</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* CTA Link Configuration */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-bold mb-1.5 text-foreground">Destination Link URL (Optional)</label>
+                  <input
+                    type="text"
+                    value={newBanner.link_url || ""}
+                    onChange={(e) => setNewBanner({ ...newBanner, link_url: e.target.value })}
+                    placeholder="https://... or /login or /dashboard?tab=notices"
+                    className="h-10 w-full rounded-2xl border border-border bg-background px-3.5 focus:border-primary focus:outline-none text-xs font-mono"
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-bold mb-1.5 text-foreground">Action Button Text</label>
+                  <input
+                    type="text"
+                    value={newBanner.link_text || ""}
+                    onChange={(e) => setNewBanner({ ...newBanner, link_text: e.target.value })}
+                    placeholder="Register Now / Learn More / View Notice"
+                    className="h-10 w-full rounded-2xl border border-border bg-background px-3.5 focus:border-primary focus:outline-none text-xs font-semibold"
+                  />
+                </div>
+              </div>
+
+              {/* Switches & Priority */}
+              <div className="grid grid-cols-3 gap-3 items-center rounded-2xl border border-border/80 bg-surface/50 p-3">
+                <div>
+                  <label className="block font-bold text-[0.7rem] text-foreground mb-1">Live Active</label>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={newBanner.is_active}
+                      onChange={(e) => setNewBanner({ ...newBanner, is_active: e.target.checked })}
+                      className="sr-only peer"
+                    />
+                    <div className="w-9 h-5 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                  </label>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-[0.7rem] text-foreground mb-1">Dismissible (X)</label>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={newBanner.is_dismissible}
+                      onChange={(e) => setNewBanner({ ...newBanner, is_dismissible: e.target.checked })}
+                      className="sr-only peer"
+                    />
+                    <div className="w-9 h-5 bg-zinc-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-600"></div>
+                  </label>
+                </div>
+
+                <div>
+                  <label className="block font-bold text-[0.7rem] text-foreground mb-1">Display Priority</label>
+                  <input
+                    type="number"
+                    value={newBanner.priority}
+                    onChange={(e) => setNewBanner({ ...newBanner, priority: Number(e.target.value) || 1 })}
+                    className="h-8 w-full rounded-xl border border-border bg-background px-2.5 font-mono text-xs font-bold focus:border-primary focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              {/* Markdown Message Field with Toolbar and Live Preview Toggle */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="font-bold text-foreground flex items-center gap-1.5">
+                    <span>Banner Message Statement</span>
+                    <span className="rounded-md bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.2 text-[0.62rem] font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+                      .MD Format
+                    </span>
+                  </label>
+
+                  {/* Write vs Preview Toggle Switcher */}
+                  <div className="flex items-center gap-1 bg-surface p-1 rounded-xl border border-border text-[0.68rem] shadow-2xs">
+                    <button
+                      type="button"
+                      onClick={() => setBannerPreviewTab("write")}
+                      className={cn(
+                        "px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer",
+                        bannerPreviewTab === "write"
+                          ? "bg-primary text-primary-foreground shadow-2xs"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      ✏️ Write (.md)
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setBannerPreviewTab("preview")}
+                      className={cn(
+                        "px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer",
+                        bannerPreviewTab === "preview"
+                          ? "bg-primary text-primary-foreground shadow-2xs"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      👁️ Live Preview
+                    </button>
+                  </div>
+                </div>
+
+                {bannerPreviewTab === "write" ? (
+                  <div className="space-y-1.5">
+                    {/* Markdown Quick Formatting Toolbar */}
+                    <div className="flex flex-wrap items-center gap-1 p-1.5 rounded-xl border border-border/80 bg-surface/70 text-muted-foreground">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNewBanner((prev) => ({
+                            ...prev,
+                            message: prev.message + "**Bold Text**",
+                          }));
+                        }}
+                        className="rounded-lg p-1.5 hover:bg-card hover:text-foreground transition-colors cursor-pointer"
+                        title="Add Bold Text"
+                      >
+                        <Bold className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNewBanner((prev) => ({
+                            ...prev,
+                            message: prev.message + "*Italic Text*",
+                          }));
+                        }}
+                        className="rounded-lg p-1.5 hover:bg-card hover:text-foreground transition-colors cursor-pointer"
+                        title="Add Italic Text"
+                      >
+                        <Italic className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNewBanner((prev) => ({
+                            ...prev,
+                            message: prev.message + " [Link](https://...)",
+                          }));
+                        }}
+                        className="rounded-lg p-1.5 hover:bg-card hover:text-foreground transition-colors cursor-pointer"
+                        title="Insert Web Link"
+                      >
+                        <Link className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setNewBanner((prev) => ({
+                            ...prev,
+                            message: prev.message + "\n- Item",
+                          }));
+                        }}
+                        className="rounded-lg p-1.5 hover:bg-card hover:text-foreground transition-colors cursor-pointer"
+                        title="Insert List Item"
+                      >
+                        <List className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+
+                    <textarea
+                      value={newBanner.message}
+                      onChange={(e) => setNewBanner({ ...newBanner, message: e.target.value })}
+                      placeholder="Internal registrations are open for all engineering branches. Form teams and submit your proposal before 15th September!"
+                      rows={3}
+                      required
+                      className="w-full rounded-2xl border border-border bg-background p-3.5 font-mono text-xs focus:border-primary focus:outline-none leading-relaxed"
+                    />
+                  </div>
+                ) : (
+                  <div className="rounded-2xl border border-border/80 bg-surface/50 p-4 min-h-[100px] max-h-48 overflow-y-auto">
+                    {newBanner.message.trim().length > 0 ? (
+                      <MarkdownContent content={newBanner.message} />
+                    ) : (
+                      <p className="text-xs text-muted-foreground italic">No message typed yet.</p>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                className="h-11 w-full rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 font-bold text-white shadow-md hover:opacity-95 cursor-pointer transition-all"
+              >
+                {editingBannerId ? "Save Banner Changes" : "Deploy Broadcast Banner Live"}
               </button>
             </form>
           </div>

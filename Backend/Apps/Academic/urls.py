@@ -16,6 +16,8 @@ from .views import (
     AdminSectionListCreateView,
     AdminSidebarBadgeDetailView,
     AdminSidebarBadgeListCreateView,
+    AdminSiteBannerDetailView,
+    AdminSiteBannerListCreateView,
     AdminStudentDetailView,
     AdminStudentsListView,
     AdminSubjectDetailView,
@@ -28,6 +30,7 @@ from .views import (
     ProgramSpecializationListView,
     SectionBatchListView,
     SidebarBadgeListView,
+    SiteBannerListView,
     SubjectListView,
 )
 
@@ -37,6 +40,7 @@ urlpatterns = [
     path("sections/", SectionBatchListView.as_view(), name="academic-sections-list"),
     path("students/", AdminStudentsListView.as_view(), name="academic-students-list"),
     path("badges/", SidebarBadgeListView.as_view(), name="academic-badges-list"),
+    path("banners/", SiteBannerListView.as_view(), name="academic-banners-list"),
     path("subjects/", SubjectListView.as_view(), name="academic-subjects"),
     path("materials/", AcademicMaterialListView.as_view(), name="academic-materials"),
     path("materials/<uuid:pk>/", AcademicMaterialDetailView.as_view(), name="academic-material-detail"),
@@ -64,5 +68,7 @@ urlpatterns = [
     path("admin/students/<uuid:pk>/", AdminStudentDetailView.as_view(), name="admin-student-detail"),
     path("admin/badges/", AdminSidebarBadgeListCreateView.as_view(), name="admin-badges"),
     path("admin/badges/<str:pk>/", AdminSidebarBadgeDetailView.as_view(), name="admin-badge-detail"),
+    path("admin/banners/", AdminSiteBannerListCreateView.as_view(), name="admin-banners"),
+    path("admin/banners/<uuid:pk>/", AdminSiteBannerDetailView.as_view(), name="admin-banner-detail"),
 ]
 

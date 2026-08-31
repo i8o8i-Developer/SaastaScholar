@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useTheme } from "@/Hooks/UseTheme";
 import { cn } from "@/Lib/Utils";
 import { Cta } from "./Primitives";
+import { BroadcastBanner } from "../Ui/BroadcastBanner";
 
 const NAV_ITEMS = [
   { label: "Features", href: "#features" },
@@ -43,6 +44,7 @@ export function SiteNav() {
           : "border-transparent bg-background",
       )}
     >
+      <BroadcastBanner target="WEBSITE" compact className="rounded-none border-x-0 border-t-0" />
       <div
         className={cn(
           "mx-auto flex w-full max-w-[84rem] items-center justify-between px-5 transition-all duration-300 sm:px-8",

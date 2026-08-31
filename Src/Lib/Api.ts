@@ -249,6 +249,22 @@ export interface SidebarBadgeConfig {
   updated_at?: string;
 }
 
+export interface SiteBanner {
+  id: string;
+  title: string;
+  message: string;
+  tag: string;
+  variant: "emerald" | "amber" | "rose" | "purple" | "cyan" | "gradient";
+  target: "ALL" | "DASHBOARD" | "WEBSITE";
+  link_url?: string;
+  link_text?: string;
+  is_active: boolean;
+  is_dismissible: boolean;
+  priority: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface DashboardSummary {
   user_name: string;
   roll_number: string;

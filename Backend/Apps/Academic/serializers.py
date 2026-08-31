@@ -9,6 +9,7 @@ from .models import (
     ProgramSpecialization,
     SectionBatch,
     SidebarBadgeConfig,
+    SiteBanner,
     Subject,
     UserBookmark,
 )
@@ -477,6 +478,26 @@ class SidebarBadgeConfigSerializer(serializers.ModelSerializer):
             "badge_variant",
             "is_active",
             "display_order",
+            "updated_at",
+        ]
+
+
+class SiteBannerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SiteBanner
+        fields = [
+            "id",
+            "title",
+            "message",
+            "tag",
+            "variant",
+            "target",
+            "link_url",
+            "link_text",
+            "is_active",
+            "is_dismissible",
+            "priority",
+            "created_at",
             "updated_at",
         ]
 

@@ -13,6 +13,7 @@ from .models import (
     ProgramSpecialization,
     SectionBatch,
     SidebarBadgeConfig,
+    SiteBanner,
     Subject,
     UserBookmark,
 )
@@ -25,6 +26,7 @@ from .serializers import (
     ProgramSpecializationSerializer,
     SectionBatchSerializer,
     SidebarBadgeConfigSerializer,
+    SiteBannerSerializer,
     SubjectSerializer,
 )
 from Apps.Accounts.models import StudentUser
@@ -346,5 +348,55 @@ class AdminSidebarBadgeListCreateView(generics.ListCreateAPIView):
 class AdminSidebarBadgeDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = SidebarBadgeConfig.objects.all()
     serializer_class = SidebarBadgeConfigSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+
+DEFAULT_BANNERS = [
+    {
+        "title": "Smart India Hackathon 2026",
+        "message": "Internal Registrations Are Open For All Engineering Branches. Register Your Team Before Deadline!",
+        "tag": "SIH 2026",
+        "variant": "emerald",
+        "target": "ALL",
+        "link_url": "https://www.sih.gov.in/",
+        "link_text": "Register Team",
+        "is_active": True,
+        "is_dismissible": True,
+        "priority": 10,
+    }
+]
+
+
+class SiteBannerListView(generics.ListAPIView):
+    serializer_class = SiteBannerSerializer
+    permission_classes = [permissions.AllowAny]
+    pagination_class = None
+
+    def get_queryset(self):
+        if not SiteBanner.objects.exists():
+            for b in DEFAULT_BANNERS:
+                SiteBanner.objects.create(**b)
+        target = self.request.query_params.get("target")
+        qs = SiteBanner.objects.filter(is_active=True)
+        if target:
+            qs = qs.filter(Q(target=target) | Q(target="ALL"))
+        return qs.order_by("-priority", "-created_at")
+
+
+class AdminSiteBannerListCreateView(generics.ListCreateAPIView):
+    serializer_class = SiteBannerSerializer
+    permission_classes = [permissions.IsAdminUser]
+    pagination_class = None
+
+    def get_queryset(self):
+        if not SiteBanner.objects.exists():
+            for b in DEFAULT_BANNERS:
+                SiteBanner.objects.create(**b)
+        return SiteBanner.objects.all().order_by("-priority", "-created_at")
+
+
+class AdminSiteBannerDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = SiteBanner.objects.all()
+    serializer_class = SiteBannerSerializer
     permission_classes = [permissions.IsAdminUser]
 
