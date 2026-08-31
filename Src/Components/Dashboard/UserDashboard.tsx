@@ -83,7 +83,7 @@ export function UserDashboard() {
           {activeTab === "assignments" && (
             <AssignmentsTracker />
           )}
-          {activeTab === "planner" && (
+          {(activeTab === "planner" || activeTab === "timetable") && (
             <TimetablePlanner />
           )}
           {activeTab === "notices" && (

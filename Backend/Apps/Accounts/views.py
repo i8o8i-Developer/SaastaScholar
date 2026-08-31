@@ -184,22 +184,10 @@ class DashboardSummaryView(APIView):
                 if not upcoming_today_slot:
                     upcoming_today_slot = slot
 
-        # Check Tomorrow's Slots (Day + 1)
+        # Check Tomorrow's Slots strictly (Day + 1)
         tomorrow_weekday = (current_weekday_num + 1) % 7
         tomorrow_code = day_map.get(tomorrow_weekday)
         tomorrow_slot = user_slots.filter(day_of_week=tomorrow_code).order_by("start_time").first()
-
-        # Check Next Available Day Slots (Day + 2, etc.)
-        next_available_slot = None
-        next_available_day_label = ""
-        for offset in range(2, 7):
-            future_weekday = (current_weekday_num + offset) % 7
-            future_code = day_map.get(future_weekday)
-            f_slot = user_slots.filter(day_of_week=future_code).order_by("start_time").first()
-            if f_slot:
-                next_available_slot = f_slot
-                next_available_day_label = day_names.get(future_weekday, future_code)
-                break
 
         if active_slot:
             day_status = "LIVE_IN_SESSION"
@@ -211,12 +199,12 @@ class DashboardSummaryView(APIView):
             day_label = "Today"
         elif today_has_slots:
             day_status = "DAY_ENDED"
-            slot_to_show = tomorrow_slot or next_available_slot
-            day_label = "Tomorrow" if tomorrow_slot else (f"On {next_available_day_label}" if next_available_day_label else "")
+            slot_to_show = tomorrow_slot
+            day_label = "Tomorrow" if tomorrow_slot else ""
         else:
             day_status = "NO_CLASSES_TODAY"
-            slot_to_show = tomorrow_slot or next_available_slot
-            day_label = "Tomorrow" if tomorrow_slot else (f"On {next_available_day_label}" if next_available_day_label else "")
+            slot_to_show = tomorrow_slot
+            day_label = "Tomorrow" if tomorrow_slot else ""
 
         next_lecture_data = {
             "title": slot_to_show.title if slot_to_show else "No Scheduled Lectures In Blueprint",

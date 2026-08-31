@@ -224,7 +224,7 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
       {/* ================= 2. Today's Lecture Schedule & Real-Time Clock Banner ================= */}
       {summary?.next_lecture?.day_status === "DAY_ENDED" ? (
         <div 
-          onClick={() => onNavigateTab("timetable")}
+          onClick={() => onNavigateTab("planner")}
           className="rounded-2xl sm:rounded-3xl border border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 via-card to-cyan-500/10 p-4 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:border-emerald-500/50 hover:shadow-md transition-all group"
         >
           <div className="flex items-start gap-3.5 sm:gap-4">
@@ -249,15 +249,15 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
             </div>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-3 text-xs shrink-0 w-full sm:w-auto">
-            {summary.next_lecture.day && summary.next_lecture.title && summary.next_lecture.title !== "No Scheduled Lectures In Blueprint" && (
+            {summary.next_lecture.day === "Tomorrow" && summary.next_lecture.title && summary.next_lecture.title !== "No Scheduled Lectures In Blueprint" && (
               <span className="rounded-xl bg-surface border border-border/80 px-3 py-1.5 font-bold text-foreground text-center sm:text-left text-xs">
-                🗓️ {summary.next_lecture.day}: {summary.next_lecture.title} ({summary.next_lecture.time})
+                🗓️ Tomorrow: {summary.next_lecture.title} ({summary.next_lecture.time})
               </span>
             )}
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                onNavigateTab("timetable");
+                onNavigateTab("planner");
               }}
               className="inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-bold text-primary hover:bg-primary/20 transition-all cursor-pointer whitespace-nowrap"
             >
@@ -268,7 +268,7 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
         </div>
       ) : summary?.next_lecture?.day_status === "NO_CLASSES_TODAY" ? (
         <div 
-          onClick={() => onNavigateTab("timetable")}
+          onClick={() => onNavigateTab("planner")}
           className="rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-r from-cyan-500/5 via-card to-indigo-500/5 p-4 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:border-cyan-500/50 hover:shadow-md transition-all group"
         >
           <div className="flex items-start gap-3.5 sm:gap-4">
@@ -288,15 +288,15 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
             </div>
           </div>
           <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-3 text-xs shrink-0 w-full sm:w-auto">
-            {summary.next_lecture.day && summary.next_lecture.title && summary.next_lecture.title !== "No Scheduled Lectures In Blueprint" && (
+            {summary.next_lecture.day === "Tomorrow" && summary.next_lecture.title && summary.next_lecture.title !== "No Scheduled Lectures In Blueprint" && (
               <span className="rounded-xl bg-surface border border-border/80 px-3 py-1.5 font-bold text-foreground text-center sm:text-left text-xs">
-                🗓️ {summary.next_lecture.day}: {summary.next_lecture.title} ({summary.next_lecture.time})
+                🗓️ Tomorrow: {summary.next_lecture.title} ({summary.next_lecture.time})
               </span>
             )}
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                onNavigateTab("timetable");
+                onNavigateTab("planner");
               }}
               className="inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-bold text-primary hover:bg-primary/20 transition-all cursor-pointer whitespace-nowrap"
             >
@@ -307,7 +307,7 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
         </div>
       ) : summary?.next_lecture ? (
         <div 
-          onClick={() => onNavigateTab("timetable")}
+          onClick={() => onNavigateTab("planner")}
           className="rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-4 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:border-emerald-500/50 hover:shadow-md transition-all group"
         >
           <div className="flex items-start gap-3.5 sm:gap-4">
@@ -358,7 +358,7 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                onNavigateTab("timetable");
+                onNavigateTab("planner");
               }}
               className="inline-flex items-center gap-1.5 rounded-xl border border-primary/30 bg-primary/10 px-3 py-1.5 font-bold text-primary hover:bg-primary/20 transition-all cursor-pointer text-[0.7rem] sm:text-xs"
             >
@@ -369,7 +369,7 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
         </div>
       ) : (
         <div 
-          onClick={() => onNavigateTab("timetable")}
+          onClick={() => onNavigateTab("planner")}
           className="rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs flex items-center justify-between text-xs text-muted-foreground cursor-pointer hover:border-primary/50 transition-all group"
         >
           <div className="flex items-center gap-2.5 sm:gap-3">
@@ -379,7 +379,7 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
           <button 
             onClick={(e) => {
               e.stopPropagation();
-              onNavigateTab("timetable");
+              onNavigateTab("planner");
             }}
             className="inline-flex items-center gap-1 font-bold text-primary hover:underline cursor-pointer text-xs shrink-0"
           >
