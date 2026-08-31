@@ -109,72 +109,78 @@ const FOOTER_COLUMNS: FooterColumn[] = [
 
 const POLICY_DETAILS: Record<string, { title: string; subtitle: string; content: string[] }> = {
   "Legal Disclaimer": {
-    title: "University Non-Affiliation & Fair Use Legal Disclaimer",
-    subtitle: "Statutory Educational Fair Use Declaration Under Section 52(1)(a) Indian Copyright Act 1957",
+    title: "University Non-Affiliation & Statutory Fair Use Legal Disclaimer",
+    subtitle: "Statutory Educational Fair Dealing Declaration Under Section 52(1)(a) Of The Indian Copyright Act, 1957 & Section 30(2)(d) Of The Trade Marks Act, 1999",
     content: [
-      "Independent Student Initiative: NimsWallah Is An Independent Student-Led Peer-To-Peer Educational Support Portal. It Is Not Officially Affiliated With, Endorsed, Sponsored, Or Operated By NIMS University Rajasthan Or Any University Governing Body.",
-      "Fair Use Doctrine (Indian Copyright Act, 1957): All Syllabus Breakdowns, Handwritten Student Notes, Past Examination Archives, And Reference Study Guides Hosted On This Platform Are Distributed Strictly Under The 'Fair Dealing' Exception (Section 52(1)(a) Of The Indian Copyright Act, 1957) Exclusively For Non-Commercial Private Study, Research, And Academic Scholarship.",
-      "Trademarks & Registered Intellectual Property: All University Names, Institution Insignias, Official Subject Acronyms, And Course Codes Referenced On This Site Belong Exclusively To Their Respective Institutional Trademark Proprietors. Their Reference On NimsWallah Is Strictly Nominative And Intended Solely For Student Courseware Organization.",
-      "Peer-To-Peer Content: All Courseware Uploaded By Scholars Remains The Intellectual Authorship Of The Respective Student Or Contributing Educator. NimsWallah Acts As A Passive Technical Platform Hosting Study Units With Forensic DRM Protections.",
+      "Statutory University Non-Affiliation Declaration (Consumer Protection Act, 2019): NimsWallah Is An Independent Student-Led Peer-To-Peer Educational Support Portal. NimsWallah Is Not Officially Affiliated With, Endorsed, Sponsored, Maintained, Or Operated By NIMS University Rajasthan Or Any Statutory University Governing Body.",
+      "Educational Fair Dealing Exemption (Section 52(1)(a)(i) Of The Indian Copyright Act, 1957): All Syllabus Breakdowns, Handwritten Student Lecture Notes, Past Examination Archives, And Reference Study Aids Hosted Across This Platform Are Distributed Strictly Under The Statutory 'Fair Dealing' Doctrine Exclusively For Non-Commercial Private Study, Research, Criticism, And Academic Revision.",
+      "Instructional Reproduction Defense (Section 52(1)(h) & Section 52(1)(i) Of The Indian Copyright Act, 1957): Study Materials And Model Answers Are Produced And Shared Strictly In The Course Of Academic Instruction And For Answering University Examination Questions.",
+      "Nominative Trademark Fair Use (Section 30(2)(d) Of The Trade Marks Act, 1999): All University Names, Institutional Acronyms, Degree Program Designations, And Subject Codes Mentioned On This Platform Belong Solely To Their Respective Trademark Holders. Their Use On NimsWallah Is Strictly Nominative To Facilitate Courseware Navigation And Student Cataloging.",
+      "Intermediary Safe Harbour Immunity (Section 79 Of The Information Technology Act, 2000 & IT Intermediary Rules, 2021): NimsWallah Acts Exclusively As A Neutral Educational Technology Intermediary Providing Secure Cloud Hosting And Automated Forensic DRM Protection For Peer-To-Peer Academic Submissions.",
     ],
   },
   "Privacy Policy": {
     title: "Student Privacy Policy & Data Protection Charter",
-    subtitle: "Compliant With Information Technology Act, 2000 (SPDI Rules 2011) & International Privacy Principles",
+    subtitle: "Compliant With Digital Personal Data Protection Act, 2023 (DPDP Act, 2023) & Information Technology Act, 2000 (SPDI Rules, 2011)",
     content: [
-      "Information We Collect: We Collect Only The Essential Credentials Required To Provision Your Academic Workspace (Full Name, Student Roll Number, Department, Program Specialization, Semester, Cohort Section, And Verified Email Address).",
-      "Forensic DRM Watermark Telemetry: To Protect Published Scholar Notes Against Illegal Scraping And Commercial Distribution, Our DRM Engine Dynamically Renders Real-Time Forensic Session Watermarks (Student Name, Roll Number, Session Hash, And Client IP). This Telemetry Data Is Never Sold Or Used For Behavioral Profiling.",
-      "Zero Third-Party Advertising: NimsWallah Maintains A Strict Zero-Tracker Policy. We Never Sell, Lease, Or Monetize Student Personal Records, Course Choices, Or Academic Analytics With Third-Party Advertisers Or Data Brokers.",
-      "Cryptographic Security & Data Storage: All Passwords Are Encrypted With Military-Grade Argon2 And PBKDF2 SHA-256 Algorithms. All Data In Transit Is Shielded Via TLS 1.3 Encryption With Strict HTTP Strict Transport Security (HSTS).",
-      "Student Rights & Data Erasure: In Compliance With The IT Act 2000, You Possess The Permanent Legal Right To Inspect, Correct, Export, Or Permanently Erase Your Academic Profile And Submissions At Any Time By Contacting compliance@nimswallah.in.",
+      "Lawful Data Collection & Purpose Limitation (Digital Personal Data Protection Act, 2023 - DPDP Act 2023): We Collect Only Necessary Student Verification Data (Full Name, University Roll Number, Academic Department, Specialization Program, Semester, Section, And Institutional Email) Solely For Workspace Provisioning And DRM Protection.",
+      "Forensic Watermark Telemetry & Tamper Evident Proof (Section 65B Of Indian Evidence Act, 1872 & Bharatiya Sakshya Adhiniyam, 2023): To Prevent Unauthorized Scraping And Illegal Commercial Redistribution, Our Dynamic Engine Overlays Cryptographic Session Watermarks (Student Name, Roll Number, Timestamp, Session Hash, And Client IP). This Telemetry Is Maintained As Forensic Tamper-Proof Evidence And Never Monetized.",
+      "Zero Third-Party Commercial Data Brokerage (SPDI Rules 2011 & DPDP Act 2023): NimsWallah Strictly Prohibits Selling, Renting, Leasing, Or Exchanging Student Personal Data, Usage Patterns, Or Reading History With Any External Advertisers, Data Brokers, Or Marketing Agencies.",
+      "Cryptographic Infrastructure & Secure Storage (Section 43A Of The Information Technology Act, 2000): All User Passwords Are Cryptographically Protected With Argon2 And PBKDF2 SHA-256 Algorithms. Data In Transit Is Fully Shielded Using TLS 1.3 Transport Encryption With Mandatory HTTP Strict Transport Security (HSTS).",
+      "Student Rights Of Data Principals (Section 11, 12 & 13 Of DPDP Act, 2023): Every Student Enrolled Retains The Statutory Right To Access, Review, Rectify, Export, Or Permanently Delete Their Personal Information And Uploaded Contributions By Submitting A Request To privacy@nimswallah.in.",
+      "Statutory Grievance Redressal Mechanism (Rule 3(2) Of Information Technology Intermediary Rules, 2021): The Grievance Redressal Officer Can Be Reached At grievance@nimswallah.in With An Expedited 48-Hour Response Guarantee For All Privacy And Account Security Petitions.",
     ],
   },
   "Terms Of Service": {
     title: "Terms Of Service & Academic User Agreement",
-    subtitle: "Legally Binding User Agreement Governing Platform Usage, Content Ownership, And DRM Integrity",
+    subtitle: "Legally Binding User Agreement Governing Platform Usage, Content Ownership, And Forensic DRM Safeguards Under Indian Law",
     content: [
-      "Single-Scholar Educational License: Access To NimsWallah Courseware Is Granted Under A Personal, Non-Exclusive, Non-Transferable, Revocable License Strictly For The Individual Student's Examination Preparation. Account Sharing, Credential Reselling, Or Unauthorized Group Access Is Strictly Prohibited.",
-      "DRM Anti-Circumvention Covenant: Students Expressly Agree Not To Bypass, Disable, Decompile, Tamper With, Or Circumvent Any Forensic DRM Watermarks, Capture-Prevention Overlays, Or Viewing Safeguards Implemented Across The Platform. Violations Will Result In Immediate Permanent Account Termination.",
-      "Uploader Content Warranty: Any Student Or Faculty Contributor Uploading Notes, Lab Codes, Or Solutions Warrants That They Hold The Requisite Permissions To Share Such Educational Study Aids And That Their Submission Does Not Violate Confidentiality Or Intellectual Property Rights.",
-      "Disclaimers Of Academic Warranty: NimsWallah Study Materials And AI-Generated Assignment Outlines Are Structured To Assist Conceptual Mastery. The Platform Makes No Guarantees Of Specific Examination Grades Or Institutional Curriculum Alignment.",
-      "Governing Law & Jurisdiction: These Terms And Conditions Are Governed By And Construed In Accordance With The Laws Of The Republic Of India, With Exclusive Jurisdiction Situated In Jaipur, Rajasthan.",
+      "Legally Enforceable Electronic Agreement (Section 10A Of The Information Technology Act, 2000 & Indian Contract Act, 1872): Creating An Account Or Accessing Courseware Establishes A Binding Electronic Contract Between The Enrolled Student And NimsWallah Governance.",
+      "Single-Scholar Non-Commercial License (Section 14 & Section 51 Of The Indian Copyright Act, 1957): Access To Platform Courseware Is Granted Exclusively Under A Limited, Revocable, Personal, Non-Transferable Educational License Solely For Private Study. Reselling, Mass Downloading, Scraping, Or Group Account Sharing Is Strictly Prohibited.",
+      "Forensic DRM Anti-Circumvention Covenant (Section 65A & Section 65B Of The Indian Copyright Act, 1957): Users Strictly Covenants Not To Bypass, Disable, Decompile, Intercept, Screen-Capture, Or Circumvent Any Forensic Watermarks Or Technical Safeguards. Violations Trigger Immediate Termination And Civil Liability Under Applicable Copyright Laws.",
+      "Uploader Warranty & Originality Declaration (Section 57 Of The Indian Copyright Act, 1957): Any Scholar Or Faculty Contributor Publishing Study Guides Warrants That They Hold Lawful Intellectual Authority Over The Content And That It Contains No Plagiarized Material Or Confidentially Protected Institutional Data.",
+      "Academic Disclaimer & Absence Of Grade Warranty: NimsWallah Educational Modules, PYQ Solutions, And AI Tools Are Conceptual Revision Aids. The Platform Explicitly Disclaims Any Guarantee Regarding Specific Institutional Exam Questions Or Final Grade Outcomes.",
+      "Dispute Resolution, Arbitration & Exclusive Jurisdiction: Any Legal Claim Or Dispute Arising Under These Terms Shall Be Resolved In Accordance With The Arbitration And Conciliation Act, 1996, With Exclusive Territorial Jurisdiction Vested In Jaipur, Rajasthan, India.",
     ],
   },
   "DMCA & Copyright Policy": {
-    title: "DMCA & Copyright Infringement Takedown Policy",
-    subtitle: "Expedited Notice-And-Takedown Protocol For Copyright Holders & Academic Authors",
+    title: "DMCA & Statutory Copyright Infringement Takedown Policy",
+    subtitle: "Notice-And-Takedown Protocol Under Rule 3(1)(d) Of Information Technology Intermediary Rules, 2021 & Section 52(1)(c) Of The Indian Copyright Act, 1957",
     content: [
-      "Commitment To Copyright Compliance: NimsWallah Respects All Intellectual Property Rights And Promptly Addresses Formal Notices Of Alleged Copyright Infringement Under Applicable Copyright Acts And International Standards.",
-      "Notice Submission Requirements: If You Believe Your Copyrighted Material Is Present On This Platform Without Authorization, Submit A Formal Notice To legal@nimswallah.in Including: (1) Identification Of The Copyrighted Work, (2) Direct URL/Material Identifier, (3) Proof Of Copyright Ownership Or Legal Authorization, And (4) Contact Details With A Statement Of Good Faith.",
-      "24-Hour Expedited Material Review: Upon Receipt Of A Valid Copyright Notice, Our Legal Administration Will Immediately Review And Temporarily Restrict Or Permanently Remove The Challenged Material Within 24 Hours Pending Verification.",
-      "Repeat Infringer Policy: Contributing Accounts That Repeatedly Upload Non-Compliant Copyrighted Documents Will Face Immediate And Permanent Platform Exclusion.",
+      "Statutory Takedown Notice Framework (Rule 3(1)(d) Of Information Technology Intermediary Guidelines Rules, 2021 & Section 52(1)(c) Of Copyright Act, 1957): NimsWallah Respects Intellectual Property Rights And Maintains A 24-To-36-Hour Notice-And-Takedown Mechanism For Copyright Holders.",
+      "Formal Infringement Notice Mandate: To File A Valid Copyright Complaint, Rights Holders Must Send A Verified Written Notice To legal@nimswallah.in Containing: (1) Exact Identification Of The Copyrighted Work, (2) Direct URL Or Material Identifier, (3) Proof Of Legal Authority Or Copyright Ownership, And (4) Statement Of Good Faith Belief Under Penalty Of Perjury.",
+      "Expedited Interim Access Restriction (24-Hour Protocol): Upon Receipt Of A Bona Fide Infringement Notice, Our Legal Compliance Desk Immediately Restricts Public Access To The Challenged URL Within 24 Hours Pending Formal Verification.",
+      "Counter-Notification & Due Process: Contributors Facing An Unjust Copyright Claim May Submit A Sworn Counter-Notification Demonstrating Original Authorship Or Fair Dealing Under Section 52(1)(a) Of The Indian Copyright Act, 1957.",
+      "Repeat Infringer Termination Policy: Accounts That Repeatedly Violate Copyright Provisions Will Face Permanent Platform Expulsion And Forfeiture Of Courseware Privileges.",
     ],
   },
   "Data Security Policy": {
-    title: "Data Security & Infrastructure Policy",
-    subtitle: "Container Sandboxing, End-To-End Encryption, And High-Availability Architecture",
+    title: "Data Security & Infrastructure Hardening Policy",
+    subtitle: "Enterprise Container Sandboxing, End-To-End Encryption, And Real-Time Threat Mitigation In Compliance With ISO/IEC 27001 Standards",
     content: [
-      "Zero-Trust Infrastructure: Our Deployment Architecture Runs Within Isolated Container Sandboxes With Automated TLS 1.3 Certificates And Hardened Linux Environments.",
-      "Automated Database Redundancy: Student Profiles, Course Configurations, And Academic Records Are Backed Up With Cryptographic Verification To Ensure 100% Data Durability.",
-      "Active Threat Mitigation: Automated Rate-Limiting, IP-Level Brute-Force Defense, And SQL Injection Firewalls Protect All API Endpoints Against Hostile Network Activity.",
+      "Zero-Trust Hardened Infrastructure (Section 43A IT Act, 2000 & ISO/IEC 27001 Standards): Our Production Environment Deploys In Isolated Linux Container Sandboxes With Automated TLS 1.3 Encryption, Gunicorn Thread Isolation, And Least-Privilege Role Access Controls.",
+      "Active Cybersecurity Threat Mitigation: Real-Time Web Application Firewalls, Brute-Force Rate Limiters, SQL Injection Parameterization, And Cross-Site Scripting (XSS) Sanitization Protect All User Data Against Hostile Network Attacks.",
+      "Automated Redundancy & Data Durability: All Relational Database Tables, Student Progress Records, And DRM Vault Storage Are Replicated With Multi-Tier Point-In-Time Recovery Mechanisms.",
+      "Mandatory Cybersecurity Incident Reporting: In Accordance With CERT-In (Indian Computer Emergency Response Team) Directives, Security Incidents Are Promptly Documented And Addressed With Full Transparency.",
     ],
   },
   "Security Policy": {
-    title: "Data Security & Infrastructure Policy",
-    subtitle: "Container Sandboxing, End-To-End Encryption, And High-Availability Architecture",
+    title: "Data Security & Infrastructure Hardening Policy",
+    subtitle: "Enterprise Container Sandboxing, End-To-End Encryption, And Real-Time Threat Mitigation In Compliance With ISO/IEC 27001 Standards",
     content: [
-      "Zero-Trust Infrastructure: Our Deployment Architecture Runs Within Isolated Container Sandboxes With Automated TLS 1.3 Certificates And Hardened Linux Environments.",
-      "Automated Database Redundancy: Student Profiles, Course Configurations, And Academic Records Are Backed Up With Cryptographic Verification To Ensure 100% Data Durability.",
-      "Active Threat Mitigation: Automated Rate-Limiting, IP-Level Brute-Force Defense, And SQL Injection Firewalls Protect All API Endpoints Against Hostile Network Activity.",
+      "Zero-Trust Hardened Infrastructure (Section 43A IT Act, 2000 & ISO/IEC 27001 Standards): Our Production Environment Deploys In Isolated Linux Container Sandboxes With Automated TLS 1.3 Encryption, Gunicorn Thread Isolation, And Least-Privilege Role Access Controls.",
+      "Active Cybersecurity Threat Mitigation: Real-Time Web Application Firewalls, Brute-Force Rate Limiters, SQL Injection Parameterization, And Cross-Site Scripting (XSS) Sanitization Protect All User Data Against Hostile Network Attacks.",
+      "Automated Redundancy & Data Durability: All Relational Database Tables, Student Progress Records, And DRM Vault Storage Are Replicated With Multi-Tier Point-In-Time Recovery Mechanisms.",
+      "Mandatory Cybersecurity Incident Reporting: In Accordance With CERT-In (Indian Computer Emergency Response Team) Directives, Security Incidents Are Promptly Documented And Addressed With Full Transparency.",
     ],
   },
   "Cookie Preferences": {
     title: "Cookie & Session Telemetry Policy",
-    subtitle: "Essential Functional Tokens Only · Zero Advertising Trackers",
+    subtitle: "Essential Session Authentication Tokens Only · Zero Cross-Site Behavioral Tracking",
     content: [
-      "Essential Session Tokens: We Utilize Strictly Essential HTTP Cookies And Local Storage Items Solely To Authenticate Your Login State, Theme Mode, And Semester Preferences.",
-      "Zero Advertising Trackers: We Do Not Deploy Third-Party Advertising Cookies, Fingerprinting Pixels, Or Behavioral Marketing Trackers.",
-      "Complete User Control: You Can Clear Your Stored Browser Session Data At Any Time Via Your Browser Settings Or By Signing Out Of Your Workspace.",
+      "Strictly Essential Authentication Tokens Only: NimsWallah Deploys Only Cryptographically Signed, HTTP-Only Session Cookies Necessary To Maintain Scholar Login Authentication, CSRF Security, And Workspace Preferences.",
+      "Zero Behavioral Tracking Pixels: We Do Not Employ Any Third-Party Cross-Site Marketing Cookies, Fingerprinting Telemetry, Or Invasive Tracking Beacons.",
+      "Client-Side Privacy Controls: Scholars May Reset Or Purge Stored Session Preferences At Any Time Through Standard Browser Storage Controls Or By Logging Out Of The Academic Workspace.",
     ],
   },
 };
@@ -542,13 +548,13 @@ export function SiteFooter() {
 
       {/* ===================== Interactive Policy Modal Dialog ===================== */}
       <Dialog open={!!activeModal} onOpenChange={(open) => !open && setActiveModal(null)}>
-        <DialogContent className="sm:max-w-lg bg-card/95 backdrop-blur-xl border border-border/80 shadow-2xl">
-          <DialogHeader>
+        <DialogContent className="w-[95vw] sm:w-full sm:max-w-2xl max-h-[88dvh] sm:max-h-[85vh] flex flex-col p-4 sm:p-6 bg-card/95 backdrop-blur-xl border border-border/80 shadow-2xl rounded-2xl sm:rounded-3xl overflow-hidden">
+          <DialogHeader className="shrink-0 text-left pr-6">
             <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-emerald-500 mb-1">
               <ShieldCheck className="h-4 w-4" />
-              <span>NimsWallah Governance</span>
+              <span>NimsWallah Governance &amp; Statutory Compliance</span>
             </div>
-            <DialogTitle className="font-display text-xl font-bold text-foreground">
+            <DialogTitle className="font-display text-lg sm:text-xl font-bold text-foreground">
               {currentPolicy?.title ?? activeModal}
             </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
@@ -556,25 +562,25 @@ export function SiteFooter() {
             </DialogDescription>
           </DialogHeader>
 
-          <div className="mt-4 space-y-3 text-xs leading-relaxed text-foreground/90">
+          <div className="flex-1 overflow-y-auto min-h-0 space-y-3 py-3 text-xs leading-relaxed text-foreground/90 scrollbar-thin pr-1">
             {currentPolicy?.content.map((paragraph, index) => (
               <div
                 key={index}
-                className="flex items-start gap-2.5 rounded-xl border border-border/60 bg-surface/70 p-3"
+                className="flex items-start gap-2.5 rounded-xl border border-border/60 bg-surface/70 p-3 sm:p-3.5 shadow-2xs"
               >
                 <div className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[0.65rem] font-bold mt-0.5">
                   {index + 1}
                 </div>
-                <p className="flex-1">{paragraph}</p>
+                <p className="flex-1 text-foreground/90 leading-relaxed font-normal">{paragraph}</p>
               </div>
             ))}
           </div>
 
-          <div className="mt-6 flex justify-end border-t border-border/60 pt-4">
+          <div className="shrink-0 mt-2 flex justify-end border-t border-border/60 pt-3">
             <button
               type="button"
               onClick={() => setActiveModal(null)}
-              className="rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-xs transition-all hover:bg-primary-deep cursor-pointer"
+              className="rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground shadow-xs transition-all hover:bg-primary-deep cursor-pointer"
             >
               Understood &amp; Close
             </button>

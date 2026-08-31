@@ -22,10 +22,11 @@ ENV VITE_PORT=$VITE_PORT
 ENV PORT=$PORT
 ENV HOST=$HOST
 ENV NODE_ENV=development
+ENV TZ=Asia/Kolkata
 
 WORKDIR /app
 
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat tzdata
 COPY package.json package-lock.json* ./
 RUN npm install --include=dev
 
@@ -41,9 +42,11 @@ ARG COOLIFY_FQDN=nimswallah.durgaaisolutions.in
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV PORT=7865
+ENV TZ=Asia/Kolkata
+ENV DEBIAN_FRONTEND=noninteractive
 
-# Install system dependencies, Nginx, wget for healthcheck, LibreOffice, and metric-compatible Microsoft fonts
 RUN apt-get update && apt-get install -y --no-install-recommends \
+    tzdata \
     nginx \
     wget \
     libpq5 \
@@ -56,6 +59,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     fonts-crosextra-carlito \
     fonts-crosextra-caladea \
     fontconfig \
+    && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone \
     && rm -rf /var/lib/apt/lists/*
 
 # Rebuild font cache

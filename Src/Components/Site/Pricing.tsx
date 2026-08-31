@@ -147,7 +147,7 @@ export function Pricing() {
         <div className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none px-4">
           <div className="rotate-[-2deg] rounded-3xl bg-background/40 px-8 py-6 text-center shadow-[0_0_100px_rgba(16,185,129,0.2)] border border-primary/20 backdrop-blur-xl ring-1 ring-white/10 transition-transform hover:scale-105">
             <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-black uppercase tracking-tighter text-transparent bg-clip-text bg-gradient-to-br from-red-500 to-rose-700 drop-shadow-sm">
-              Everything Is Free <br className="hidden sm:block" /> Till 29 August 2026
+              Everything Is Free <br className="hidden sm:block" /> Till 31 October 2026
             </h2>
           </div>
         </div>
