@@ -245,11 +245,16 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
               </p>
             </div>
           </div>
-          {summary.next_lecture.day === "Tomorrow" ? (
+          {summary.next_lecture.day && summary.next_lecture.title && summary.next_lecture.title !== "No Scheduled Lectures In Blueprint" ? (
             <div className="flex flex-wrap items-center gap-2.5 text-xs">
               <span className="rounded-xl bg-surface border border-border/80 px-3 py-1.5 font-bold text-foreground">
-                🗓️ Tomorrow : {summary.next_lecture.title}
+                🗓️ {summary.next_lecture.day}: {summary.next_lecture.title}
               </span>
+              {summary.next_lecture.room && (
+                <span className="rounded-xl bg-surface border border-border/80 px-3 py-1.5 font-bold text-foreground">
+                  📍 {summary.next_lecture.room}
+                </span>
+              )}
               <span className="rounded-xl bg-primary/10 px-3 py-1.5 font-bold font-mono text-primary">
                 ⏰ {summary.next_lecture.time}
               </span>
@@ -265,13 +270,13 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
           )}
         </div>
       ) : summary?.next_lecture?.day_status === "NO_CLASSES_TODAY" ? (
-        <div className="rounded-3xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="rounded-3xl border border-border/80 bg-gradient-to-r from-cyan-500/5 via-card to-indigo-500/5 p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-start gap-4">
-            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-amber-500/15 text-amber-600 dark:text-amber-400">
+            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-cyan-500/15 text-cyan-600 dark:text-cyan-400">
               <Calendar className="h-5 w-5" />
             </div>
             <div>
-              <span className="text-[0.65rem] uppercase font-bold text-amber-600 dark:text-amber-400 tracking-wider">
+              <span className="text-[0.65rem] uppercase font-bold text-cyan-600 dark:text-cyan-400 tracking-wider">
                 No Classroom Lectures Scheduled For Today
               </span>
               <h3 className="font-display font-bold text-base text-foreground mt-0.5">
@@ -282,11 +287,16 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
               </p>
             </div>
           </div>
-          {summary.next_lecture.day === "Tomorrow" ? (
+          {summary.next_lecture.day && summary.next_lecture.title && summary.next_lecture.title !== "No Scheduled Lectures In Blueprint" ? (
             <div className="flex flex-wrap items-center gap-2.5 text-xs">
               <span className="rounded-xl bg-surface border border-border/80 px-3 py-1.5 font-bold text-foreground">
-                🗓️ Tomorrow : {summary.next_lecture.title}
+                🗓️ {summary.next_lecture.day}: {summary.next_lecture.title}
               </span>
+              {summary.next_lecture.room && (
+                <span className="rounded-xl bg-surface border border-border/80 px-3 py-1.5 font-bold text-foreground">
+                  📍 {summary.next_lecture.room}
+                </span>
+              )}
               <span className="rounded-xl bg-primary/10 px-3 py-1.5 font-bold font-mono text-primary">
                 ⏰ {summary.next_lecture.time}
               </span>
