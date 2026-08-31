@@ -156,7 +156,7 @@ export function Hero() {
   }, []);
 
   return (
-    <div id="top" className="relative overflow-hidden bg-radial from-emerald-500/5 via-background to-background">
+    <div id="top" className="relative overflow-hidden">
       {/* Dynamic Colorful Ambient Lighting */}
       <div
         aria-hidden

@@ -44,7 +44,10 @@ export function SiteNav() {
           : "border-transparent bg-background",
       )}
     >
-      <BroadcastBanner target="WEBSITE" compact className="rounded-none border-x-0 border-t-0" />
+      {/* Centered Floating Popup Banner */}
+      <div className="w-full max-w-4xl mx-auto px-3.5 sm:px-6 pt-2.5 pb-1">
+        <BroadcastBanner target="WEBSITE" compact className="shadow-lg" />
+      </div>
       <div
         className={cn(
           "mx-auto flex w-full max-w-[84rem] items-center justify-between px-5 transition-all duration-300 sm:px-8",

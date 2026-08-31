@@ -154,11 +154,11 @@ export function BroadcastBanner({ target = "ALL", className, compact = false }: 
   return (
     <div
       className={cn(
-        "relative w-full rounded-2xl sm:rounded-3xl border backdrop-blur-md transition-all duration-300 overflow-hidden",
+        "relative w-full rounded-2xl sm:rounded-3xl border shadow-xl backdrop-blur-xl transition-all duration-300 overflow-hidden animate-in fade-in slide-in-from-top-3 duration-300",
         style.border,
         style.bg,
         style.glow,
-        compact ? "p-3 sm:p-4" : "p-4 sm:p-5",
+        compact ? "p-3 sm:p-3.5" : "p-4 sm:p-5",
         className
       )}
     >
