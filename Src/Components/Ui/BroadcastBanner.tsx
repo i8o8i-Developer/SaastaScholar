@@ -19,6 +19,7 @@ interface BroadcastBannerProps {
   target?: "ALL" | "DASHBOARD" | "WEBSITE";
   className?: string;
   compact?: boolean;
+  mode?: "inline" | "popup";
   previewBanners?: SiteBanner[];
   ignoreDismissed?: boolean;
 }
@@ -95,6 +96,7 @@ export function BroadcastBanner({
   target = "ALL",
   className,
   compact = false,
+  mode = "inline",
   previewBanners,
   ignoreDismissed = false,
 }: BroadcastBannerProps) {
@@ -178,107 +180,201 @@ export function BroadcastBanner({
   const isExternalLink =
     currentBanner.link_url?.startsWith("http://") || currentBanner.link_url?.startsWith("https://");
 
-  return (
+  const cardContent = (
     <div
       className={cn(
-        "relative w-full rounded-2xl sm:rounded-3xl border shadow-xl backdrop-blur-xl transition-all duration-300 overflow-hidden animate-in fade-in slide-in-from-top-3 duration-300",
+        "relative w-full rounded-2xl sm:rounded-3xl border shadow-2xl backdrop-blur-xl transition-all duration-300 overflow-hidden",
         style.border,
         style.bg,
         style.glow,
-        compact ? "p-3 sm:p-3.5" : "p-4 sm:p-5",
-        className
+        compact ? "p-3 sm:p-4" : "p-4 sm:p-5"
       )}
     >
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
-        {/* Left Section: Live Pulse Icon + Badge + Message */}
-        <div className="flex items-start gap-3 min-w-0 flex-1">
-          {/* Animated Glow Icon */}
-          <div className="relative mt-0.5 sm:mt-0 shrink-0">
-            <div className="grid h-8 w-8 sm:h-9 sm:sm:w-9 place-items-center rounded-xl bg-card/80 border border-border shadow-xs">
-              <IconComponent className="h-4 w-4 text-foreground" />
+      {/* Mode Popup Layout */}
+      {mode === "popup" ? (
+        <div className="space-y-3">
+          {/* Popup Header: Badge + Pulse + Dismiss */}
+          <div className="flex items-center justify-between border-b border-border/50 pb-2.5">
+            <div className="flex items-center gap-2">
+              <div className="relative flex h-2.5 w-2.5">
+                <span className={cn("absolute inline-flex h-full w-full animate-ping rounded-full opacity-75", style.dot)} />
+                <span className={cn("relative inline-flex h-2.5 w-2.5 rounded-full", style.dot)} />
+              </div>
+              <span className={cn("inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[0.68rem] font-bold uppercase tracking-wider", style.badge)}>
+                <span>{currentBanner.tag || "Announcement"}</span>
+              </span>
             </div>
-            <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
-              <span className={cn("absolute inline-flex h-full w-full animate-ping rounded-full opacity-75", style.dot)} />
-              <span className={cn("relative inline-flex h-2.5 w-2.5 rounded-full", style.dot)} />
-            </span>
+
+            <div className="flex items-center gap-1">
+              {activeBanners.length > 1 && (
+                <div className="flex items-center gap-1 mr-1">
+                  <button
+                    type="button"
+                    onClick={handlePrev}
+                    className="grid h-6 w-6 place-items-center rounded-lg border border-border bg-card/80 text-muted-foreground hover:text-foreground cursor-pointer shadow-2xs"
+                    title="Previous Announcement"
+                  >
+                    <ChevronLeft className="h-3 w-3" />
+                  </button>
+                  <span className="text-[0.65rem] font-mono font-bold text-muted-foreground">
+                    {currentIndex + 1}/{activeBanners.length}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    className="grid h-6 w-6 place-items-center rounded-lg border border-border bg-card/80 text-muted-foreground hover:text-foreground cursor-pointer shadow-2xs"
+                    title="Next Announcement"
+                  >
+                    <ChevronRight className="h-3 w-3" />
+                  </button>
+                </div>
+              )}
+
+              {currentBanner.is_dismissible && (
+                <button
+                  type="button"
+                  onClick={() => handleDismiss(currentBanner.id)}
+                  className="grid h-6 w-6 place-items-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-surface cursor-pointer transition-colors"
+                  title="Dismiss Announcement"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
           </div>
 
-          <div className="min-w-0 flex-1 space-y-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className={cn("inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[0.68rem] font-bold uppercase tracking-wider", style.badge)}>
-                <span>{currentBanner.tag || "Notice"}</span>
-              </span>
-              <h4 className="font-display text-xs sm:text-sm font-bold text-foreground truncate">
-                {currentBanner.title}
-              </h4>
-            </div>
-
-            <div className="text-xs text-foreground/85 leading-relaxed font-sans">
+          {/* Popup Headline & Body Message */}
+          <div className="space-y-1.5">
+            <h4 className="font-display text-sm sm:text-base font-bold text-foreground leading-snug">
+              {currentBanner.title}
+            </h4>
+            <div className="text-xs text-foreground/90 leading-relaxed font-sans">
               <MarkdownContent content={currentBanner.message} className="text-xs [&>p]:my-0" />
             </div>
           </div>
-        </div>
 
-        {/* Right Section: Action Button + Multi-Banner Controls + Dismiss button */}
-        <div className="flex items-center justify-between sm:justify-end gap-2.5 w-full sm:w-auto shrink-0 border-t sm:border-t-0 pt-2.5 sm:pt-0 border-border/40">
-          {/*  */}
-          {activeBanners.length > 1 && (
-            <div className="flex items-center gap-1">
-              <button
-                type="button"
-                onClick={handlePrev}
-                className="grid h-7 w-7 place-items-center rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-surface cursor-pointer shadow-2xs"
-                title="Previous Announcement"
+          {/* Popup Footer Action Button */}
+          {currentBanner.link_url && (
+            <div className="pt-1">
+              <a
+                href={currentBanner.link_url}
+                target={isExternalLink ? "_blank" : undefined}
+                rel={isExternalLink ? "noopener noreferrer" : undefined}
+                className={cn(
+                  "inline-flex w-full items-center justify-center gap-1.5 rounded-xl px-4 py-2 text-xs font-bold transition-all duration-200 cursor-pointer shadow-xs active:scale-[0.98]",
+                  style.btn
+                )}
               >
-                <ChevronLeft className="h-3.5 w-3.5" />
-              </button>
-              <span className="text-[0.65rem] font-mono font-bold text-muted-foreground px-1">
-                {currentIndex + 1}/{activeBanners.length}
-              </span>
-              <button
-                type="button"
-                onClick={handleNext}
-                className="grid h-7 w-7 place-items-center rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-surface cursor-pointer shadow-2xs"
-                title="Next Announcement"
-              >
-                <ChevronRight className="h-3.5 w-3.5" />
-              </button>
+                <span>{currentBanner.link_text || "Learn More"}</span>
+                {isExternalLink ? <ExternalLink className="h-3.5 w-3.5 shrink-0" /> : <ArrowRight className="h-3.5 w-3.5 shrink-0" />}
+              </a>
             </div>
           )}
-
-          {/* CTA Action Link */}
-          {currentBanner.link_url && (
-            <a
-              href={currentBanner.link_url}
-              target={isExternalLink ? "_blank" : undefined}
-              rel={isExternalLink ? "noopener noreferrer" : undefined}
-              className={cn(
-                "inline-flex items-center gap-1.5 rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all active:scale-95 cursor-pointer shrink-0",
-                style.btn
-              )}
-            >
-              <span>{currentBanner.link_text || "Learn More"}</span>
-              {isExternalLink ? (
-                <ExternalLink className="h-3 w-3 shrink-0 opacity-85" />
-              ) : (
-                <ArrowRight className="h-3 w-3 shrink-0" />
-              )}
-            </a>
-          )}
-
-          {/* Dismiss Button */}
-          {currentBanner.is_dismissible && (
-            <button
-              type="button"
-              onClick={() => handleDismiss(currentBanner.id)}
-              className="grid h-7 w-7 place-items-center rounded-xl text-muted-foreground hover:text-foreground hover:bg-surface/80 cursor-pointer transition-colors shrink-0"
-              title="Dismiss Banner"
-            >
-              <X className="h-4 w-4" />
-            </button>
-          )}
         </div>
+      ) : (
+        /* Mode Inline Layout */
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4">
+          {/* Left Section: Live Pulse Icon + Badge + Message */}
+          <div className="flex items-start gap-3 min-w-0 flex-1">
+            <div className="relative mt-0.5 sm:mt-0 shrink-0">
+              <div className="grid h-8 w-8 sm:h-9 sm:w-9 place-items-center rounded-xl bg-card/80 border border-border shadow-xs">
+                <IconComponent className="h-4 w-4 text-foreground" />
+              </div>
+              <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                <span className={cn("absolute inline-flex h-full w-full animate-ping rounded-full opacity-75", style.dot)} />
+                <span className={cn("relative inline-flex h-2.5 w-2.5 rounded-full", style.dot)} />
+              </span>
+            </div>
+
+            <div className="min-w-0 flex-1 space-y-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={cn("inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[0.68rem] font-bold uppercase tracking-wider", style.badge)}>
+                  <span>{currentBanner.tag || "Notice"}</span>
+                </span>
+                <h4 className="font-display text-xs sm:text-sm font-bold text-foreground truncate">
+                  {currentBanner.title}
+                </h4>
+              </div>
+
+              <div className="text-xs text-foreground/85 leading-relaxed font-sans">
+                <MarkdownContent content={currentBanner.message} className="text-xs [&>p]:my-0" />
+              </div>
+            </div>
+          </div>
+
+          {/* Right Section: Action Button + Multi-Banner Controls + Dismiss button */}
+          <div className="flex items-center justify-between sm:justify-end gap-2.5 w-full sm:w-auto shrink-0 border-t sm:border-t-0 pt-2.5 sm:pt-0 border-border/40">
+            {activeBanners.length > 1 && (
+              <div className="flex items-center gap-1">
+                <button
+                  type="button"
+                  onClick={handlePrev}
+                  className="grid h-7 w-7 place-items-center rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-surface cursor-pointer shadow-2xs"
+                  title="Previous Announcement"
+                >
+                  <ChevronLeft className="h-3.5 w-3.5" />
+                </button>
+                <span className="text-[0.65rem] font-mono font-bold text-muted-foreground px-1">
+                  {currentIndex + 1}/{activeBanners.length}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  className="grid h-7 w-7 place-items-center rounded-lg border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-surface cursor-pointer shadow-2xs"
+                  title="Next Announcement"
+                >
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            )}
+
+            {currentBanner.link_url && (
+              <a
+                href={currentBanner.link_url}
+                target={isExternalLink ? "_blank" : undefined}
+                rel={isExternalLink ? "noopener noreferrer" : undefined}
+                className={cn(
+                  "inline-flex items-center justify-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-bold transition-all duration-200 cursor-pointer shadow-2xs active:scale-95 shrink-0",
+                  style.btn
+                )}
+              >
+                <span>{currentBanner.link_text || "Learn More"}</span>
+                {isExternalLink ? <ExternalLink className="h-3 w-3" /> : <ArrowRight className="h-3 w-3" />}
+              </a>
+            )}
+
+            {currentBanner.is_dismissible && (
+              <button
+                type="button"
+                onClick={() => handleDismiss(currentBanner.id)}
+                className="grid h-7 w-7 place-items-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-surface cursor-pointer transition-colors shrink-0"
+                title="Dismiss Announcement"
+              >
+                <X className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+
+  if (mode === "popup") {
+    return (
+      <div
+        className={cn(
+          "fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 w-[calc(100%-2rem)] max-w-sm sm:max-w-md animate-in slide-in-from-bottom-8 fade-in duration-500",
+          className
+        )}
+      >
+        {cardContent}
       </div>
+    );
+  }
+
+  return (
+    <div className={cn("w-full animate-in fade-in slide-in-from-top-3 duration-300", className)}>
+      {cardContent}
     </div>
   );
 }

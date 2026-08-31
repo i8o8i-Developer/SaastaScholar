@@ -13,6 +13,7 @@ import { Practicals } from "@/Components/Site/Practicals";
 import { Pricing } from "@/Components/Site/Pricing";
 import { SiteFooter } from "@/Components/Site/SiteFooter";
 import { SiteNav } from "@/Components/Site/SiteNav";
+import { BroadcastBanner } from "@/Components/Ui/BroadcastBanner";
 
 const TITLE = "NimsWallah — Your Entire University Life. Organized.";
 const DESCRIPTION =
@@ -57,6 +58,9 @@ function Index() {
         </main>
         <SiteFooter />
       </div>
+
+      {/* External Floating Modern Announcement Popup Widget */}
+      <BroadcastBanner target="WEBSITE" mode="popup" />
     </div>
   );
 }
