@@ -19,7 +19,7 @@ import {
   Twitter,
   Zap,
 } from "lucide-react";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import {
@@ -29,6 +29,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/Components/Ui/Dialog";
+import { apiFetch } from "@/Lib/Api";
 import { cn } from "@/Lib/Utils";
 
 interface FooterLink {
@@ -185,16 +186,18 @@ const POLICY_DETAILS: Record<string, { title: string; subtitle: string; content:
   },
 };
 
-const CAMPUS_DEPARTMENTS = [
-  { name: "B.Tech CSE", hover: "hover:border-emerald-500/50 hover:text-emerald-500 hover:bg-emerald-500/10" },
-  { name: "B.Tech AI & Data Science", hover: "hover:border-cyan-500/50 hover:text-cyan-500 hover:bg-cyan-500/10" },
-  { name: "B.Tech Cyber Security", hover: "hover:border-indigo-500/50 hover:text-indigo-500 hover:bg-indigo-500/10" },
-  { name: "B.Tech Mechanical / Civil", hover: "hover:border-amber-500/50 hover:text-amber-500 hover:bg-amber-500/10" },
-  { name: "BCA & MCA", hover: "hover:border-purple-500/50 hover:text-purple-500 hover:bg-purple-500/10" },
-  { name: "B.Sc / M.Sc Computer Science", hover: "hover:border-teal-500/50 hover:text-teal-500 hover:bg-teal-500/10" },
-  { name: "B.Pharm / M.Pharm", hover: "hover:border-rose-500/50 hover:text-rose-500 hover:bg-rose-500/10" },
-  { name: "BBA & MBA", hover: "hover:border-orange-500/50 hover:text-orange-500 hover:bg-orange-500/10" },
-  { name: "Medical & Allied Sciences", hover: "hover:border-fuchsia-500/50 hover:text-fuchsia-500 hover:bg-fuchsia-500/10" },
+const DEFAULT_CAMPUS_PROGRAMS = [
+  { name: "B.Tech Computer Science & Engineering", code: "B.Tech CSE", hover: "hover:border-emerald-500/50 hover:text-emerald-500 hover:bg-emerald-500/10" },
+  { name: "B.Tech Artificial Intelligence & Data Science", code: "B.Tech AI & DS", hover: "hover:border-cyan-500/50 hover:text-cyan-500 hover:bg-cyan-500/10" },
+  { name: "B.Tech Cyber Security & Digital Forensics", code: "B.Tech Cyber", hover: "hover:border-indigo-500/50 hover:text-indigo-500 hover:bg-indigo-500/10" },
+  { name: "Bachelor Of Computer Applications", code: "BCA", hover: "hover:border-purple-500/50 hover:text-purple-500 hover:bg-purple-500/10" },
+  { name: "Master Of Computer Applications", code: "MCA", hover: "hover:border-pink-500/50 hover:text-pink-500 hover:bg-pink-500/10" },
+  { name: "B.Sc Computer Science & Information Technology", code: "B.Sc CS & IT", hover: "hover:border-teal-500/50 hover:text-teal-500 hover:bg-teal-500/10" },
+  { name: "Bachelor Of Pharmacy", code: "B.Pharm", hover: "hover:border-rose-500/50 hover:text-rose-500 hover:bg-rose-500/10" },
+  { name: "Master Of Pharmacy", code: "M.Pharm", hover: "hover:border-amber-500/50 hover:text-amber-500 hover:bg-amber-500/10" },
+  { name: "Bachelor Of Business Administration", code: "BBA", hover: "hover:border-orange-500/50 hover:text-orange-500 hover:bg-orange-500/10" },
+  { name: "Master Of Business Administration", code: "MBA", hover: "hover:border-violet-500/50 hover:text-violet-500 hover:bg-violet-500/10" },
+  { name: "B.Tech Mechanical & Civil Engineering", code: "B.Tech Mech/Civil", hover: "hover:border-fuchsia-500/50 hover:text-fuchsia-500 hover:bg-fuchsia-500/10" },
 ];
 
 const SOCIAL_LINKS = [
@@ -229,6 +232,44 @@ export function SiteFooter() {
   const [subscribed, setSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [activeModal, setActiveModal] = useState<string | null>(null);
+  const [programsList, setProgramsList] = useState<{ id?: string; name: string; code?: string; hover: string }[]>(DEFAULT_CAMPUS_PROGRAMS);
+
+  useEffect(() => {
+    let active = true;
+    const loadRealPrograms = async () => {
+      try {
+        const res = await apiFetch<any>("/academic/programs/");
+        const rawList = Array.isArray(res) ? res : res?.results || [];
+        if (active && rawList.length > 0) {
+          const hoverColors = [
+            "hover:border-emerald-500/50 hover:text-emerald-500 hover:bg-emerald-500/10",
+            "hover:border-cyan-500/50 hover:text-cyan-500 hover:bg-cyan-500/10",
+            "hover:border-indigo-500/50 hover:text-indigo-500 hover:bg-indigo-500/10",
+            "hover:border-purple-500/50 hover:text-purple-500 hover:bg-purple-500/10",
+            "hover:border-pink-500/50 hover:text-pink-500 hover:bg-pink-500/10",
+            "hover:border-teal-500/50 hover:text-teal-500 hover:bg-teal-500/10",
+            "hover:border-amber-500/50 hover:text-amber-500 hover:bg-amber-500/10",
+            "hover:border-rose-500/50 hover:text-rose-500 hover:bg-rose-500/10",
+            "hover:border-orange-500/50 hover:text-orange-500 hover:bg-orange-500/10",
+            "hover:border-violet-500/50 hover:text-violet-500 hover:bg-violet-500/10",
+          ];
+          const mapped = rawList.map((p: any, idx: number) => ({
+            id: p.id,
+            name: p.name,
+            code: p.code,
+            hover: hoverColors[idx % hoverColors.length],
+          }));
+          setProgramsList(mapped);
+        }
+      } catch {
+        // Retain default verified programs list
+      }
+    };
+    loadRealPrograms();
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const handleSubscribe = (e: FormEvent) => {
     e.preventDefault();
@@ -476,16 +517,23 @@ export function SiteFooter() {
               <span>Supported Programs:</span>
             </div>
             <div className="flex flex-wrap gap-1.5 min-w-0">
-              {CAMPUS_DEPARTMENTS.map((dept) => (
-                <span
-                  key={dept.name}
+              {programsList.map((prog, idx) => (
+                <a
+                  key={prog.name + idx}
+                  href="/login?mode=signup"
                   className={cn(
-                    "rounded-lg border border-border/70 bg-card/70 px-2 py-0.5 sm:px-2.5 sm:py-1 text-[0.65rem] sm:text-xs font-medium text-muted-foreground transition-all duration-200 shadow-2xs backdrop-blur-xs cursor-default truncate",
-                    dept.hover,
+                    "rounded-lg border border-border/70 bg-card/70 px-2.5 py-1 text-[0.65rem] sm:text-xs font-medium text-muted-foreground transition-all duration-200 shadow-2xs backdrop-blur-xs hover:scale-105 cursor-pointer flex items-center gap-1.5",
+                    prog.hover,
                   )}
+                  title={`Enroll in ${prog.name}`}
                 >
-                  {dept.name}
-                </span>
+                  <span>{prog.name}</span>
+                  {prog.code && (
+                    <span className="font-mono text-[0.6rem] font-bold opacity-75">
+                      ({prog.code})
+                    </span>
+                  )}
+                </a>
               ))}
             </div>
           </div>
