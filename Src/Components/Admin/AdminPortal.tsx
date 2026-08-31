@@ -1803,7 +1803,7 @@ export function AdminPortal() {
                       Academic Intelligence &amp; Operations Command
                     </h1>
                     <p className="text-[0.72rem] sm:text-sm text-muted-foreground leading-relaxed max-w-3xl">
-                      Real-time institutional oversight across student authentication, DRM document security, courseware publishing metrics, and timetable orchestration.
+                      Real-Time Institutional Oversight Across Student Authentication, DRM Document Security, Courseware Publishing Metrics, And Timetable Orchestration.
                     </p>
                   </div>
 
@@ -1840,7 +1840,7 @@ export function AdminPortal() {
                     </div>
                     <span className="inline-flex items-center gap-0.5 rounded-full bg-emerald-500/10 px-1.5 sm:px-2 py-0.5 text-[0.6rem] sm:text-[0.65rem] font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
                       <TrendingUp className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                      <span>Registry</span>
+                      <span>Live Registry</span>
                     </span>
                   </div>
                   <div>
@@ -1873,10 +1873,10 @@ export function AdminPortal() {
                     <h3 className="font-display font-extrabold text-xl sm:text-3xl text-foreground">
                       {materials.length + labs.length}
                     </h3>
-                    <p className="text-[0.7rem] sm:text-xs text-muted-foreground font-semibold mt-0.5 truncate">Manuscripts</p>
+                    <p className="text-[0.7rem] sm:text-xs text-muted-foreground font-semibold mt-0.5 truncate">Published Manuscripts</p>
                   </div>
                   <div className="text-[0.62rem] sm:text-[0.68rem] text-muted-foreground pt-1.5 sm:pt-2 border-t border-border/60 flex items-center justify-between font-mono">
-                    <span className="truncate">Published</span>
+                    <span className="truncate">Course Assets</span>
                     <span className="font-bold text-cyan-600 dark:text-cyan-400 shrink-0">{materials.filter(m => m.material_type === "NOTES").length} Notes • {labs.length} Labs</span>
                   </div>
                 </div>
@@ -1891,7 +1891,7 @@ export function AdminPortal() {
                       <Building2 className="h-4 w-4 sm:h-5 sm:w-5" />
                     </div>
                     <span className="inline-flex items-center gap-0.5 rounded-full bg-purple-500/10 px-1.5 sm:px-2 py-0.5 text-[0.6rem] sm:text-[0.65rem] font-bold text-purple-600 dark:text-purple-400 whitespace-nowrap">
-                      <span>{programs.length} Programs</span>
+                      <span>{programs.length} Specializations</span>
                     </span>
                   </div>
                   <div>
@@ -1901,7 +1901,7 @@ export function AdminPortal() {
                     <p className="text-[0.7rem] sm:text-xs text-muted-foreground font-semibold mt-0.5 truncate">Course Modules</p>
                   </div>
                   <div className="text-[0.62rem] sm:text-[0.68rem] text-muted-foreground pt-1.5 sm:pt-2 border-t border-border/60 flex items-center justify-between font-mono">
-                    <span className="truncate">Departments</span>
+                    <span className="truncate">Academic Blueprint</span>
                     <span className="font-bold text-purple-600 dark:text-purple-400 shrink-0">{departments.length} Active</span>
                   </div>
                 </div>
@@ -1923,7 +1923,7 @@ export function AdminPortal() {
                     <h3 className="font-display font-extrabold text-xl sm:text-3xl text-foreground">
                       {timetableSlots.length}
                     </h3>
-                    <p className="text-[0.7rem] sm:text-xs text-muted-foreground font-semibold mt-0.5 truncate">Periods Scheduled</p>
+                    <p className="text-[0.7rem] sm:text-xs text-muted-foreground font-semibold mt-0.5 truncate">Scheduled Periods</p>
                   </div>
                   <div className="text-[0.62rem] sm:text-[0.68rem] text-muted-foreground pt-1.5 sm:pt-2 border-t border-border/60 flex items-center justify-between font-mono">
                     <span className="truncate">Cohort Sections</span>
@@ -1943,7 +1943,7 @@ export function AdminPortal() {
                         <span className="truncate">Courseware Distribution</span>
                       </h3>
                       <p className="text-[0.68rem] sm:text-xs text-muted-foreground truncate">
-                        Uploaded study assets by format
+                        Live Breakdown Of Uploaded Study Assets By Format
                       </p>
                     </div>
                     <span className="rounded-full bg-surface border border-border px-2 sm:px-2.5 py-0.5 sm:py-1 text-[0.65rem] sm:text-xs font-mono font-bold text-muted-foreground shrink-0 whitespace-nowrap">
@@ -2002,7 +2002,7 @@ export function AdminPortal() {
                         <span className="truncate">Specializations Breakdown</span>
                       </h3>
                       <p className="text-[0.68rem] sm:text-xs text-muted-foreground truncate">
-                        Degree branches in curriculum
+                        Degree Branches Configured In Curriculum
                       </p>
                     </div>
                   </div>
