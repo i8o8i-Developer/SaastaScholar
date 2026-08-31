@@ -3694,56 +3694,74 @@ export function AdminPortal() {
                 </div>
               ) : (
                 <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                  {filteredNotices.map((n) => (
-                    <div key={n.id} className="rounded-3xl border border-border/80 bg-card p-5 shadow-xs flex flex-col justify-between space-y-4 hover:border-primary/50 transition-all">
-                      <div>
-                        <div className="flex items-center justify-between border-b border-border/60 pb-3">
-                          <span className="rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-bold text-emerald-600">
-                            {n.category}
-                          </span>
-                          <div className="flex items-center gap-1">
-                            <button
-                              onClick={() => setViewingNotice(n)}
-                              className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
-                              title="View Full Circular"
-                            >
-                              <Eye className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => handleEditNotice(n)}
-                              className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
-                              title="Edit Notice"
-                            >
-                              <Pencil className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteItem("/academic/admin/notices/", n.id, n.title, loadAdminData)}
-                              className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer"
-                              title="Delete Notice"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </button>
+                  {filteredNotices.map((n) => {
+                    const snippet = (n.content || "")
+                      .replace(/!\[.*?\]\(.*?\)/g, "")
+                      .replace(/\[(.*?)\]\(.*?\)/g, "$1")
+                      .replace(/[#*`_~>-]/g, " ")
+                      .replace(/\s+/g, " ")
+                      .trim();
+
+                    return (
+                      <div
+                        key={n.id}
+                        className="rounded-3xl border border-border/80 bg-card p-5 shadow-xs flex flex-col justify-between hover:border-primary/50 transition-all min-h-[220px]"
+                      >
+                        <div>
+                          <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                            <span className="rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                              {n.category}
+                            </span>
+                            <div className="flex items-center gap-1">
+                              <button
+                                onClick={() => setViewingNotice(n)}
+                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
+                                title="View Full Circular"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => handleEditNotice(n)}
+                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
+                                title="Edit Notice"
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteItem("/academic/admin/notices/", n.id, n.title, loadAdminData)}
+                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer"
+                                title="Delete Notice"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
                           </div>
+
+                          <h4 className="mt-3 font-display text-sm sm:text-base font-bold text-foreground line-clamp-2 leading-snug">
+                            {n.title}
+                          </h4>
+
+                          <p className="mt-2 text-xs text-muted-foreground line-clamp-3 leading-relaxed">
+                            {snippet || "Official department circular details."}
+                          </p>
+
+                          <button
+                            type="button"
+                            onClick={() => setViewingNotice(n)}
+                            className="mt-2.5 font-bold text-primary hover:underline text-xs cursor-pointer inline-flex items-center gap-1"
+                          >
+                            <Eye className="h-3.5 w-3.5" />
+                            <span>Read Full Circular...</span>
+                          </button>
                         </div>
-                        <h3 className="mt-3 font-display text-base font-bold text-foreground leading-snug">{n.title}</h3>
-                        <div className="mt-2 text-xs text-foreground/85 line-clamp-3 leading-relaxed relative">
-                          <MarkdownContent content={n.content} />
+
+                        <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs text-muted-foreground mt-4">
+                          <span>Target: {n.is_broadcast_all ? "All Students" : `Sem ${n.target_semester}`}</span>
+                          <span className="font-mono text-[0.65rem]">{n.priority}</span>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => setViewingNotice(n)}
-                          className="mt-2 font-bold text-primary hover:underline text-xs cursor-pointer inline-flex items-center gap-1"
-                        >
-                          <Eye className="h-3.5 w-3.5" />
-                          <span>Read Full Circular...</span>
-                        </button>
                       </div>
-                      <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs text-muted-foreground">
-                        <span>Target: {n.is_broadcast_all ? "All Students" : `Sem ${n.target_semester}`}</span>
-                        <span className="font-mono text-[0.65rem]">{n.priority}</span>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
@@ -4748,79 +4766,87 @@ export function AdminPortal() {
                   </div>
                 ) : (
                   <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {banners.map((b) => (
-                      <div
-                        key={b.id}
-                        className={cn(
-                          "rounded-3xl border p-5 shadow-xs flex flex-col justify-between space-y-4 transition-all",
-                          b.is_active
-                            ? "border-emerald-500/40 bg-card hover:border-emerald-500/70"
-                            : "border-border/80 bg-card/50 opacity-85 hover:opacity-100"
-                        )}
-                      >
-                        <div className="space-y-3">
-                          {/* Card Top: Badges + Action Buttons */}
-                          <div className="flex items-center justify-between border-b border-border/60 pb-3">
-                            <div className="flex items-center gap-1.5 flex-wrap">
-                              <span
-                                className={cn(
-                                  "rounded-full px-2.5 py-0.5 text-[0.65rem] font-bold uppercase",
-                                  b.variant === "amber" && "bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30",
-                                  b.variant === "rose" && "bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30",
-                                  b.variant === "purple" && "bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/30",
-                                  b.variant === "cyan" && "bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30",
-                                  b.variant === "gradient" && "bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-600 dark:text-teal-300 border border-emerald-500/30",
-                                  b.variant === "emerald" && "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
-                                )}
-                              >
-                                {b.tag || b.variant}
-                              </span>
+                    {banners.map((b) => {
+                      const bannerSnippet = (b.message || "")
+                        .replace(/!\[.*?\]\(.*?\)/g, "")
+                        .replace(/\[(.*?)\]\(.*?\)/g, "$1")
+                        .replace(/[#*`_~>-]/g, " ")
+                        .replace(/\s+/g, " ")
+                        .trim();
 
-                              <span className="rounded-full bg-surface border border-border px-2 py-0.5 text-[0.62rem] font-mono font-bold text-muted-foreground">
-                                {b.target === "ALL" ? "All Channels" : b.target === "DASHBOARD" ? "Dashboard" : "Website"}
-                              </span>
+                      return (
+                        <div
+                          key={b.id}
+                          className={cn(
+                            "rounded-3xl border p-5 shadow-xs flex flex-col justify-between space-y-4 transition-all min-h-[220px]",
+                            b.is_active
+                              ? "border-emerald-500/40 bg-card hover:border-emerald-500/70"
+                              : "border-border/80 bg-card/50 opacity-85 hover:opacity-100"
+                          )}
+                        >
+                          <div className="space-y-3">
+                            {/* Card Top: Badges + Action Buttons */}
+                            <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span
+                                  className={cn(
+                                    "rounded-full px-2.5 py-0.5 text-[0.65rem] font-bold uppercase",
+                                    b.variant === "amber" && "bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30",
+                                    b.variant === "rose" && "bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30",
+                                    b.variant === "purple" && "bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/30",
+                                    b.variant === "cyan" && "bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/30",
+                                    b.variant === "gradient" && "bg-gradient-to-r from-emerald-500/20 to-teal-500/20 text-emerald-600 dark:text-teal-300 border border-emerald-500/30",
+                                    b.variant === "emerald" && "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
+                                  )}
+                                >
+                                  {b.tag || b.variant}
+                                </span>
+
+                                <span className="rounded-full bg-surface border border-border px-2 py-0.5 text-[0.62rem] font-mono font-bold text-muted-foreground">
+                                  {b.target === "ALL" ? "All Channels" : b.target === "DASHBOARD" ? "Dashboard" : "Website"}
+                                </span>
+                              </div>
+
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={() => setViewingBanner(b)}
+                                  className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
+                                  title="View Banner Card"
+                                >
+                                  <Eye className="h-4 w-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleEditBanner(b)}
+                                  className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
+                                  title="Edit Banner"
+                                >
+                                  <Pencil className="h-4 w-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteItem("/academic/admin/banners/", b.id, b.title, loadAdminData)}
+                                  className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer"
+                                  title="Delete Banner"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              </div>
                             </div>
 
-                            <div className="flex items-center gap-1">
+                            {/* Banner Headline & Message */}
+                            <div>
+                              <h4 className="font-display font-bold text-sm text-foreground leading-snug">{b.title}</h4>
+                              <p className="mt-1.5 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                                {bannerSnippet || "Live promotional banner announcement."}
+                              </p>
                               <button
+                                type="button"
                                 onClick={() => setViewingBanner(b)}
-                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
-                                title="View Banner Card"
+                                className="mt-1 font-bold text-primary hover:underline text-xs cursor-pointer inline-flex items-center gap-1"
                               >
-                                <Eye className="h-4 w-4" />
-                              </button>
-                              <button
-                                onClick={() => handleEditBanner(b)}
-                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
-                                title="Edit Banner"
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteItem("/academic/admin/banners/", b.id, b.title, loadAdminData)}
-                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer"
-                                title="Delete Banner"
-                              >
-                                <Trash2 className="h-4 w-4" />
+                                <Eye className="h-3 w-3" />
+                                <span>View Live Card...</span>
                               </button>
                             </div>
-                          </div>
-
-                          {/* Banner Headline & Message */}
-                          <div>
-                            <h4 className="font-display font-bold text-sm text-foreground leading-snug">{b.title}</h4>
-                            <div className="mt-1.5 text-xs text-foreground/80 line-clamp-3 leading-relaxed">
-                              <MarkdownContent content={b.message} />
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => setViewingBanner(b)}
-                              className="mt-1 font-bold text-primary hover:underline text-xs cursor-pointer inline-flex items-center gap-1"
-                            >
-                              <Eye className="h-3 w-3" />
-                              <span>View Live Card...</span>
-                            </button>
-                          </div>
 
                           {/* Link Preview if exists */}
                           {b.link_url && (
@@ -4856,7 +4882,8 @@ export function AdminPortal() {
                           </button>
                         </div>
                       </div>
-                    ))}
+                    );
+                  })}
                   </div>
                 )}
               </div>
