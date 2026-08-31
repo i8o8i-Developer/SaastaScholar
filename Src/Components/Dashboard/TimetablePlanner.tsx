@@ -17,8 +17,15 @@ import { toast } from "sonner";
 
 const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+const getTodayCode = (): string => {
+  const dayIndex = new Date().getDay(); // 0 = Sun, 1 = Mon, 2 = Tue, 3 = Wed, 4 = Thu, 5 = Fri, 6 = Sat
+  const map: Record<number, string> = { 1: "Mon", 2: "Tue", 3: "Wed", 4: "Thu", 5: "Fri", 6: "Sat", 0: "Mon" };
+  return map[dayIndex] || "Mon";
+};
+
 export function TimetablePlanner() {
-  const [selectedDay, setSelectedDay] = useState<string>("Mon");
+  const todayCode = getTodayCode();
+  const [selectedDay, setSelectedDay] = useState<string>(todayCode);
   const [slots, setSlots] = useState<TimetableSlot[]>([]);
   const [tasks, setTasks] = useState<PersonalStudyTask[]>([]);
   const [milestones, setMilestones] = useState<MilestoneCountdown[]>([]);
@@ -138,19 +145,28 @@ export function TimetablePlanner() {
         <div className="mt-6 flex flex-wrap gap-2">
           {WEEKDAYS.map((day) => {
             const isActive = selectedDay === day;
+            const isToday = todayCode === day;
             return (
               <button
                 key={day}
                 type="button"
                 onClick={() => setSelectedDay(day)}
                 className={cn(
-                  "rounded-2xl px-4 py-2 text-xs font-bold transition-all cursor-pointer",
+                  "inline-flex items-center gap-1.5 rounded-2xl px-4 py-2 text-xs font-bold transition-all cursor-pointer",
                   isActive
                     ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
                     : "border border-border/70 bg-card text-muted-foreground hover:bg-surface hover:text-foreground",
                 )}
               >
                 <span>{day}</span>
+                {isToday && (
+                  <span className={cn(
+                    "rounded-full px-1.5 py-0.2 text-[0.58rem] font-bold uppercase",
+                    isActive ? "bg-white/25 text-white" : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                  )}>
+                    Today
+                  </span>
+                )}
               </button>
             );
           })}

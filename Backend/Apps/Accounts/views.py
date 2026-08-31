@@ -142,16 +142,71 @@ class DashboardSummaryView(APIView):
         pending_assignments = StudentAssignment.objects.filter(user=user, status__in=["PENDING", "IN_PROGRESS"]).count()
         completed_assignments = StudentAssignment.objects.filter(user=user, status__in=["SUBMITTED", "EVALUATED"]).count()
 
-        # Real Next Lecture
-        next_slot = TimetableSlot.objects.filter(semester=user.semester, section=user.section).first()
+        # Real-time Next/Ongoing Lecture based on Indian Standard Time and actual DB timetable
+        import datetime
+        from django.utils import timezone
+        
+        try:
+            import zoneinfo
+            tz = zoneinfo.ZoneInfo("Asia/Kolkata")
+            now_ist = datetime.datetime.now(tz)
+        except Exception:
+            now_ist = timezone.localtime(timezone.now())
+
+        current_weekday_num = now_ist.weekday()  # 0=Mon, 1=Tue, 2=Wed, 3=Thu, 4=Fri, 5=Sat, 6=Sun
+        day_map = {0: "Mon", 1: "Tue", 2: "Wed", 3: "Thu", 4: "Fri", 5: "Sat", 6: "Sun"}
+        day_names = {0: "Monday", 1: "Tuesday", 2: "Wednesday", 3: "Thursday", 4: "Friday", 5: "Saturday", 6: "Sunday"}
+        today_code = day_map.get(current_weekday_num, "Mon")
+        current_time_str = now_ist.strftime("%H:%M")
+
+        user_slots = TimetableSlot.objects.filter(semester=user.semester)
+        if user.section:
+            section_slots = user_slots.filter(section=user.section)
+            if section_slots.exists():
+                user_slots = section_slots
+
+        today_slots = user_slots.filter(day_of_week=today_code).order_by("start_time")
+        next_slot = None
+        is_ongoing = False
+        lecture_day_label = "Today"
+
+        for slot in today_slots:
+            end_val = slot.end_time.strip() if slot.end_time else ""
+            start_val = slot.start_time.strip() if slot.start_time else ""
+            if end_val and end_val >= current_time_str:
+                next_slot = slot
+                if start_val and start_val <= current_time_str <= end_val:
+                    is_ongoing = True
+                break
+
+        if not next_slot:
+            for offset in range(1, 7):
+                next_weekday = (current_weekday_num + offset) % 7
+                next_day_code = day_map.get(next_weekday)
+                future_slot = user_slots.filter(day_of_week=next_day_code).order_by("start_time").first()
+                if future_slot:
+                    next_slot = future_slot
+                    lecture_day_label = "Tomorrow" if offset == 1 else f"On {day_names.get(next_weekday, next_day_code)}"
+                    break
+
+        if not next_slot:
+            next_slot = user_slots.order_by("day_of_week", "start_time").first() or TimetableSlot.objects.first()
+            if next_slot:
+                lecture_day_label = f"On {next_slot.get_day_of_week_display() if hasattr(next_slot, 'get_day_of_week_display') else next_slot.day_of_week}"
+
         next_lecture_data = None
         if next_slot:
             next_lecture_data = {
                 "title": next_slot.title,
                 "time": f"{next_slot.start_time} - {next_slot.end_time}",
+                "start_time": next_slot.start_time,
+                "end_time": next_slot.end_time,
                 "room": next_slot.room_number or "LT-01",
                 "faculty": next_slot.faculty_name or "Faculty Department",
                 "topic": next_slot.meta_info or f"{next_slot.event_type} Session",
+                "day": lecture_day_label,
+                "day_code": next_slot.day_of_week,
+                "is_ongoing": is_ongoing,
             }
 
         # Auto-recover false-positive automated focus blocks

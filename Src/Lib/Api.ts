@@ -276,9 +276,14 @@ export interface DashboardSummary {
   next_lecture?: {
     title: string;
     time: string;
+    start_time?: string;
+    end_time?: string;
     room: string;
     faculty: string;
     topic: string;
+    day?: string;
+    day_code?: string;
+    is_ongoing?: boolean;
   };
   recent_materials: AcademicMaterial[];
   notices: Array<{

@@ -224,18 +224,42 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
       {summary?.next_lecture ? (
         <div className="rounded-3xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-start gap-4">
-            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400">
+            <div className={cn(
+              "grid h-11 w-11 shrink-0 place-items-center rounded-2xl",
+              summary.next_lecture.is_ongoing
+                ? "bg-rose-500/15 text-rose-600 dark:text-rose-400"
+                : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+            )}>
               <Clock className="h-5 w-5" />
             </div>
             <div>
-              <span className="text-[0.65rem] uppercase font-bold text-emerald-600 dark:text-emerald-400 tracking-wider">
-                Next Upcoming Lecture Today
-              </span>
+              <div className="flex items-center gap-2">
+                <span className={cn(
+                  "text-[0.65rem] uppercase font-bold tracking-wider",
+                  summary.next_lecture.is_ongoing
+                    ? "text-rose-600 dark:text-rose-400"
+                    : "text-emerald-600 dark:text-emerald-400"
+                )}>
+                  {summary.next_lecture.is_ongoing
+                    ? "Active Lecture In Session"
+                    : `Next Upcoming Lecture (${summary.next_lecture.day || "Today"})`}
+                </span>
+                {summary.next_lecture.is_ongoing && (
+                  <span className="inline-flex items-center rounded-full bg-rose-500/20 px-2 py-0.2 text-[0.6rem] font-extrabold text-rose-600 dark:text-rose-400 animate-pulse">
+                    Live
+                  </span>
+                )}
+              </div>
               <h3 className="font-display font-bold text-base text-foreground mt-0.5">{summary.next_lecture.title}</h3>
               <p className="text-xs text-muted-foreground mt-0.5">{summary.next_lecture.topic}</p>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-3 text-xs">
+          <div className="flex flex-wrap items-center gap-2.5 text-xs">
+            {summary.next_lecture.faculty && (
+              <span className="rounded-xl bg-surface px-3 py-1.5 font-semibold text-foreground/85">
+                👨‍🏫 {summary.next_lecture.faculty}
+              </span>
+            )}
             <span className="rounded-xl bg-surface px-3 py-1.5 font-bold text-foreground">
               📍 {summary.next_lecture.room}
             </span>
@@ -248,7 +272,7 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
         <div className="rounded-3xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs flex items-center justify-between text-xs text-muted-foreground">
           <div className="flex items-center gap-3">
             <Clock className="h-4 w-4 text-primary" />
-            <span>No Lectures Scheduled For Today In Timetable Matrix.</span>
+            <span>No Lectures Scheduled In Timetable Matrix.</span>
           </div>
           <button onClick={() => onNavigateTab("timetable")} className="font-bold text-primary hover:underline cursor-pointer">
             View Weekly Timetable →
