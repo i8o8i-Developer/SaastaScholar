@@ -232,40 +232,75 @@ export function SiteFooter() {
   const [subscribed, setSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [activeModal, setActiveModal] = useState<string | null>(null);
-  const [programsList, setProgramsList] = useState<{ id?: string; name: string; code?: string; hover: string }[]>(DEFAULT_CAMPUS_PROGRAMS);
+  const [programsList, setProgramsList] = useState<{ id?: string; name: string; code?: string; hover: string }[]>([]);
 
   useEffect(() => {
     let active = true;
-    const loadRealPrograms = async () => {
+    const loadRealProgramsFromDb = async () => {
       try {
-        const res = await apiFetch<any>("/academic/programs/");
-        const rawList = Array.isArray(res) ? res : res?.results || [];
-        if (active && rawList.length > 0) {
-          const hoverColors = [
-            "hover:border-emerald-500/50 hover:text-emerald-500 hover:bg-emerald-500/10",
-            "hover:border-cyan-500/50 hover:text-cyan-500 hover:bg-cyan-500/10",
-            "hover:border-indigo-500/50 hover:text-indigo-500 hover:bg-indigo-500/10",
-            "hover:border-purple-500/50 hover:text-purple-500 hover:bg-purple-500/10",
-            "hover:border-pink-500/50 hover:text-pink-500 hover:bg-pink-500/10",
-            "hover:border-teal-500/50 hover:text-teal-500 hover:bg-teal-500/10",
-            "hover:border-amber-500/50 hover:text-amber-500 hover:bg-amber-500/10",
-            "hover:border-rose-500/50 hover:text-rose-500 hover:bg-rose-500/10",
-            "hover:border-orange-500/50 hover:text-orange-500 hover:bg-orange-500/10",
-            "hover:border-violet-500/50 hover:text-violet-500 hover:bg-violet-500/10",
-          ];
-          const mapped = rawList.map((p: any, idx: number) => ({
-            id: p.id,
-            name: p.name,
-            code: p.code,
-            hover: hoverColors[idx % hoverColors.length],
-          }));
-          setProgramsList(mapped);
+        const [progsRes, deptsRes] = await Promise.allSettled([
+          apiFetch<any>("/academic/programs/"),
+          apiFetch<any>("/academic/departments/"),
+        ]);
+
+        const rawProgs =
+          progsRes.status === "fulfilled"
+            ? Array.isArray(progsRes.value)
+              ? progsRes.value
+              : progsRes.value?.results || []
+            : [];
+
+        const rawDepts =
+          deptsRes.status === "fulfilled"
+            ? Array.isArray(deptsRes.value)
+              ? deptsRes.value
+              : deptsRes.value?.results || []
+            : [];
+
+        const hoverColors = [
+          "hover:border-emerald-500/50 hover:text-emerald-500 hover:bg-emerald-500/10",
+          "hover:border-cyan-500/50 hover:text-cyan-500 hover:bg-cyan-500/10",
+          "hover:border-indigo-500/50 hover:text-indigo-500 hover:bg-indigo-500/10",
+          "hover:border-purple-500/50 hover:text-purple-500 hover:bg-purple-500/10",
+          "hover:border-pink-500/50 hover:text-pink-500 hover:bg-pink-500/10",
+          "hover:border-teal-500/50 hover:text-teal-500 hover:bg-teal-500/10",
+          "hover:border-amber-500/50 hover:text-amber-500 hover:bg-amber-500/10",
+          "hover:border-rose-500/50 hover:text-rose-500 hover:bg-rose-500/10",
+          "hover:border-orange-500/50 hover:text-orange-500 hover:bg-orange-500/10",
+          "hover:border-violet-500/50 hover:text-violet-500 hover:bg-violet-500/10",
+        ];
+
+        if (active) {
+          if (rawProgs.length > 0) {
+            setProgramsList(
+              rawProgs.map((p: any, idx: number) => ({
+                id: p.id,
+                name: p.name,
+                code: p.code,
+                hover: hoverColors[idx % hoverColors.length],
+              }))
+            );
+          } else if (rawDepts.length > 0) {
+            setProgramsList(
+              rawDepts.map((d: any, idx: number) => ({
+                id: d.id,
+                name: d.name,
+                code: d.code,
+                hover: hoverColors[idx % hoverColors.length],
+              }))
+            );
+          } else {
+            setProgramsList(DEFAULT_CAMPUS_PROGRAMS);
+          }
         }
       } catch {
-        // Retain default verified programs list
+        if (active) {
+          setProgramsList(DEFAULT_CAMPUS_PROGRAMS);
+        }
       }
     };
-    loadRealPrograms();
+
+    loadRealProgramsFromDb();
     return () => {
       active = false;
     };
