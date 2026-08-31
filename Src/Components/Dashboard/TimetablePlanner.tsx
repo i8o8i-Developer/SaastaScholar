@@ -158,35 +158,8 @@ export function TimetablePlanner() {
           </p>
         </div>
 
-        {/* Dropdown Weekday Selector + Equal 6-Col Segmented Grid */}
-        <div className="mt-4 sm:mt-6 space-y-3 min-w-0">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 min-w-0">
-            <label className="text-xs font-bold text-muted-foreground flex items-center gap-1.5 shrink-0">
-              <Clock className="h-3.5 w-3.5 text-primary" />
-              <span>Select Weekday:</span>
-            </label>
-            <div className="relative w-full sm:w-64">
-              <select
-                value={selectedDay}
-                onChange={(e) => setSelectedDay(e.target.value)}
-                className="h-10 w-full appearance-none rounded-2xl border border-border/80 bg-card px-3.5 pr-10 text-xs font-bold text-foreground focus:border-primary focus:outline-none shadow-2xs cursor-pointer"
-              >
-                {WEEKDAYS.map((d) => (
-                  <option key={d} value={d}>
-                    {d === "Mon" && "Monday (Mon)"}
-                    {d === "Tue" && "Tuesday (Tue)"}
-                    {d === "Wed" && "Wednesday (Wed)"}
-                    {d === "Thu" && "Thursday (Thu)"}
-                    {d === "Fri" && "Friday (Fri)"}
-                    {d === "Sat" && "Saturday (Sat)"}
-                    {todayCode === d ? " • Today" : ""}
-                  </option>
-                ))}
-              </select>
-              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            </div>
-          </div>
-
+        {/* Equal 6-Column Segmented Weekday Matrix */}
+        <div className="mt-4 sm:mt-6 min-w-0">
           <div className="grid grid-cols-6 gap-1.5 sm:gap-2 p-1.5 rounded-2xl bg-surface/80 border border-border/80 shadow-2xs min-w-0">
             {WEEKDAYS.map((day) => {
               const isActive = selectedDay === day;
@@ -228,7 +201,7 @@ export function TimetablePlanner() {
               <Calendar className="h-4 w-4 text-primary" />
               <span>{selectedDay} Schedule Timeline</span>
             </span>
-            <span className="text-[0.68rem] sm:text-xs font-mono text-muted-foreground">
+            <span className="text-[0.68rem] sm:text-xs font-mono text-muted-foreground font-bold">
               {slots.length} Events Scheduled
             </span>
           </div>
@@ -254,7 +227,6 @@ export function TimetablePlanner() {
             <div className="relative pl-4 sm:pl-6 border-l-2 border-dashed border-border/80 space-y-3 sm:space-y-4 ml-2 sm:ml-3">
               {slots.map((slot) => {
                 const isLab = (slot.event_type || "").toLowerCase().includes("lab") || (slot.title || "").toLowerCase().includes("lab");
-                const isExpanded = Boolean(expandedSlots[slot.id]);
 
                 return (
                   <div key={slot.id} className="relative group">
@@ -269,14 +241,14 @@ export function TimetablePlanner() {
                     {/* Timeline Event Card */}
                     <div
                       className={cn(
-                        "rounded-2xl sm:rounded-3xl border bg-gradient-to-b from-card via-card to-surface/30 p-3.5 sm:p-4 shadow-xs transition-all hover:shadow-md",
+                        "rounded-2xl sm:rounded-3xl border bg-gradient-to-b from-card via-card to-surface/30 p-4 sm:p-5 shadow-xs transition-all hover:shadow-md space-y-3",
                         isLab
                           ? "border-cyan-500/30 hover:border-cyan-500/60"
                           : "border-emerald-500/30 hover:border-emerald-500/60"
                       )}
                     >
-                      {/* Card Header: Badges, Time & Accordion Dropdown Trigger */}
-                      <div className="flex items-center justify-between border-b border-border/60 pb-2.5 gap-2">
+                      {/* Card Header: Badges & Time */}
+                      <div className="flex items-center justify-between border-b border-border/60 pb-2.5 gap-2 flex-wrap">
                         <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                           <span className={cn(
                             "rounded-xl px-2.5 py-0.5 text-xs font-mono font-bold border",
@@ -288,72 +260,43 @@ export function TimetablePlanner() {
                           </span>
                           <span className="inline-flex items-center gap-1 rounded-xl bg-surface border border-border/70 px-2 py-0.5 text-[0.65rem] font-bold text-muted-foreground">
                             {isLab ? <FlaskConical className="h-3 w-3 text-cyan-600 dark:text-cyan-400" /> : <BookOpen className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />}
-                            <span>{slot.event_type || "Class"}</span>
+                            <span>{slot.event_type || "Class Lecture"}</span>
                           </span>
                         </div>
 
-                        <div className="flex items-center gap-1.5">
-                          <div className="inline-flex items-center gap-1 font-mono text-[0.7rem] sm:text-xs font-bold text-foreground bg-surface/80 border border-border/60 px-2.5 py-1 rounded-xl shadow-2xs">
-                            <Clock className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary" />
-                            <span>{slot.start_time} - {slot.end_time}</span>
-                          </div>
-
-                          <button
-                            type="button"
-                            onClick={() => toggleSlotExpand(slot.id)}
-                            className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface hover:text-foreground transition-colors cursor-pointer"
-                            title={isExpanded ? "Collapse Details" : "Expand Details"}
-                          >
-                            {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                          </button>
+                        <div className="inline-flex items-center gap-1.5 font-mono text-[0.7rem] sm:text-xs font-bold text-foreground bg-surface/80 border border-border/60 px-2.5 py-1 rounded-xl shadow-2xs">
+                          <Clock className="h-3.5 w-3.5 text-primary" />
+                          <span>{slot.start_time} - {slot.end_time}</span>
                         </div>
                       </div>
 
-                      {/* Middle: Title & Meta */}
-                      <div className="mt-2.5">
-                        <h4 className="font-display font-bold text-xs sm:text-sm md:text-base text-foreground group-hover:text-primary transition-colors leading-snug">
+                      {/* Middle: Title */}
+                      <div>
+                        <h4 className="font-display font-bold text-sm sm:text-base text-foreground group-hover:text-primary transition-colors leading-snug">
                           {slot.title}
                         </h4>
                       </div>
 
-                      {/* Footer: Room & Faculty Chips */}
-                      <div className="mt-3 pt-2 border-t border-border/60 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
-                        <span className="inline-flex items-center gap-1.5 font-mono font-semibold bg-surface px-2.5 py-1 rounded-xl border border-border/60">
-                          <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
-                          <span className="font-bold text-foreground">{slot.room_number || "LT-01"}</span>
-                        </span>
+                      {/* Footer: Room, Faculty & Semester Chips */}
+                      <div className="pt-2 border-t border-border/60 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="inline-flex items-center gap-1.5 font-mono font-semibold bg-surface px-2.5 py-1 rounded-xl border border-border/60">
+                            <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
+                            <span className="font-bold text-foreground">{slot.room_number || "LT-01"}</span>
+                          </span>
+                          <span className="inline-flex items-center gap-1.5 font-mono bg-surface px-2.5 py-1 rounded-xl border border-border/60 font-semibold text-foreground">
+                            <Layers className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
+                            <span>Sem {slot.semester || 1} • Sec {slot.section || "A"}</span>
+                          </span>
+                        </div>
+
                         {slot.faculty_name && (
-                          <span className="inline-flex items-center gap-1.5 bg-surface px-2.5 py-1 rounded-xl border border-border/60 truncate max-w-[60%] sm:max-w-none">
+                          <span className="inline-flex items-center gap-1.5 bg-surface px-2.5 py-1 rounded-xl border border-border/60 truncate">
                             <User className="h-3.5 w-3.5 text-primary shrink-0" />
                             <span className="truncate font-semibold text-foreground">{slot.faculty_name}</span>
                           </span>
                         )}
                       </div>
-
-                      {/* Dropdown / Collapsible Accordion Drawer */}
-                      {isExpanded && (
-                        <div className="mt-3 pt-3 border-t border-dashed border-border/80 space-y-2.5 animate-in fade-in zoom-in-95 duration-200">
-                          <div className="rounded-xl bg-surface/80 p-2.5 border border-border/60 text-xs space-y-1">
-                            <span className="text-[0.65rem] font-bold text-muted-foreground uppercase tracking-wider block">
-                              Academic Session Insights
-                            </span>
-                            <p className="text-muted-foreground leading-relaxed text-[0.75rem]">
-                              {slot.meta_info || "Standard university curriculum session. Recommended To Review Topper Notes & Solved PYQs Prior To Lecture."}
-                            </p>
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-2 text-[0.7rem] font-bold">
-                            <div className="rounded-xl border border-border/60 bg-surface/50 p-2 flex items-center gap-1.5">
-                              <Layers className="h-3.5 w-3.5 text-primary shrink-0" />
-                              <span className="truncate">Sem {slot.semester || 1} • Sec {slot.section || "A"}</span>
-                            </div>
-                            <div className="rounded-xl border border-border/60 bg-surface/50 p-2 flex items-center gap-1.5">
-                              <MapPin className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                              <span className="truncate">{slot.room_number || "Lecture Hall"}</span>
-                            </div>
-                          </div>
-                        </div>
-                      )}
                     </div>
                   </div>
                 );

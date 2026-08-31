@@ -2751,47 +2751,23 @@ export function AdminPortal() {
             <div className="space-y-6">
               {renderCascadingContextBar({ showSection: true })}
 
-              {/* Day Selector (Dropdown + 6-Day Grid) & Action Bar */}
+              {/* Day Selector (6-Day Grid) & Action Bar */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-3 w-full sm:w-auto">
-                  {/* Dropdown Day Selector */}
-                  <div className="relative w-full sm:w-48">
-                    <select
-                      value={selectedTimetableDay}
-                      onChange={(e) => setSelectedTimetableDay(e.target.value)}
-                      className="h-10 w-full appearance-none rounded-2xl border border-border/80 bg-card px-3.5 pr-10 text-xs font-bold text-foreground focus:border-primary focus:outline-none shadow-2xs cursor-pointer"
+                <div className="grid grid-cols-6 gap-1 bg-surface p-1 rounded-2xl border border-border w-full sm:w-auto">
+                  {WEEKDAYS.map((d) => (
+                    <button
+                      key={d}
+                      onClick={() => setSelectedTimetableDay(d)}
+                      className={cn(
+                        "px-1.5 xs:px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer text-center whitespace-nowrap",
+                        selectedTimetableDay === d
+                          ? "bg-primary text-primary-foreground shadow-xs"
+                          : "text-muted-foreground hover:text-foreground",
+                      )}
                     >
-                      {WEEKDAYS.map((d) => (
-                        <option key={d} value={d}>
-                          {d === "Mon" && "Monday (Mon)"}
-                          {d === "Tue" && "Tuesday (Tue)"}
-                          {d === "Wed" && "Wednesday (Wed)"}
-                          {d === "Thu" && "Thursday (Thu)"}
-                          {d === "Fri" && "Friday (Fri)"}
-                          {d === "Sat" && "Saturday (Sat)"}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  </div>
-
-                  {/* 6-Day Button Matrix */}
-                  <div className="grid grid-cols-6 gap-1 bg-surface p-1 rounded-2xl border border-border w-full sm:w-auto">
-                    {WEEKDAYS.map((d) => (
-                      <button
-                        key={d}
-                        onClick={() => setSelectedTimetableDay(d)}
-                        className={cn(
-                          "px-1.5 xs:px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer text-center whitespace-nowrap",
-                          selectedTimetableDay === d
-                            ? "bg-primary text-primary-foreground shadow-xs"
-                            : "text-muted-foreground hover:text-foreground",
-                        )}
-                      >
-                        {d}
-                      </button>
-                    ))}
-                  </div>
+                      {d}
+                    </button>
+                  ))}
                 </div>
 
                 <button
