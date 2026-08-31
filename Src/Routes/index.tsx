@@ -36,11 +36,6 @@ export const Route = createFileRoute("/")({
 function Index() {
   return (
     <div className="relative min-h-screen bg-background overflow-x-hidden">
-      {/* Universal Blueprint Grid Lines Overlay */}
-      <div
-        aria-hidden
-        className="grid-lines pointer-events-none absolute inset-0 opacity-80"
-      />
       <div className="relative z-10">
         <SiteNav />
         <main>

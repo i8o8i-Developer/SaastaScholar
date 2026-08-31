@@ -611,66 +611,13 @@ export function Login() {
                   </div>
                 </div>
 
-                {/* 2. Transparent Student Pricing Tiers Card (Only in student login/register modes) */}
-                {authMode !== "admin" && (
-                  <div className="rounded-3xl border border-primary/30 bg-card p-4 sm:p-5 space-y-3 shadow-xs">
-                    <div className="flex items-center justify-between border-b border-border/80 pb-2.5">
-                      <span className="font-bold text-xs sm:text-sm text-foreground flex items-center gap-1.5">
-                        <Award className="h-4 w-4 text-primary" />
-                        <span>Student Access &amp; Pricing Tiers</span>
-                      </span>
-                      <span className="text-[0.65rem] font-bold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                        Pocket Friendly
-                      </span>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-2 text-center">
-                      {/* Free Tier */}
-                      <div className="rounded-2xl border border-border/80 bg-surface/60 p-2.5 flex flex-col justify-between">
-                        <div>
-                          <span className="block text-[0.65rem] font-bold text-muted-foreground uppercase">Free Starter</span>
-                          <span className="text-sm font-extrabold text-foreground mt-0.5 block">₹0</span>
-                        </div>
-                        <span className="text-[0.62rem] text-muted-foreground leading-tight mt-1.5 block">
-                          Unit 1 Notes &amp; Timetable
-                        </span>
-                      </div>
-
-                      {/* Semester Topper */}
-                      <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-2.5 flex flex-col justify-between relative shadow-xs">
-                        <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[0.55rem] font-bold bg-emerald-600 text-white px-1.5 py-0.2 rounded-full uppercase">
-                          Popular
-                        </span>
-                        <div>
-                          <span className="block text-[0.65rem] font-bold text-emerald-700 dark:text-emerald-300 uppercase">Topper</span>
-                          <span className="text-sm font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5 block">₹499<span className="text-[0.6rem] font-normal text-muted-foreground">/sem</span></span>
-                        </div>
-                        <span className="text-[0.62rem] text-emerald-800 dark:text-emerald-200 leading-tight mt-1.5 block">
-                          All 5 Units + Solved PYQs
-                        </span>
-                      </div>
-
-                      {/* VIP Scholar */}
-                      <div className="rounded-2xl border border-border/80 bg-surface/60 p-2.5 flex flex-col justify-between">
-                        <div>
-                          <span className="block text-[0.65rem] font-bold text-muted-foreground uppercase">VIP Access</span>
-                          <span className="text-sm font-extrabold text-foreground mt-0.5 block">₹899<span className="text-[0.6rem] font-normal text-muted-foreground">/sem</span></span>
-                        </div>
-                        <span className="text-[0.62rem] text-muted-foreground leading-tight mt-1.5 block">
-                          Offline PDFs + 1-on-1 Help
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* 3. Protected DRM Platform Card */}
-                <div className="rounded-3xl border border-emerald-500/30 bg-emerald-500/10 p-4 sm:p-4.5 text-xs text-emerald-800 dark:text-emerald-300 space-y-1.5 shadow-xs">
-                  <div className="flex items-center gap-2 font-bold text-xs sm:text-sm">
+                {/* 2. Protected DRM Platform Card */}
+                <div className="rounded-3xl border border-emerald-500/30 bg-emerald-500/10 p-5 text-xs text-emerald-800 dark:text-emerald-300 space-y-2 shadow-xs">
+                  <div className="flex items-center gap-2 font-bold text-sm">
                     <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
                     <span>{authMode === "admin" ? "Administrative Security Matrix" : "Forensic DRM Protected Reader"}</span>
                   </div>
-                  <p className="text-[0.72rem] text-muted-foreground leading-relaxed">
+                  <p className="text-xs text-muted-foreground leading-relaxed">
                     {authMode === "admin"
                       ? "Administrative Actions, Curriculum Publications, And Student Telemetry Are Protected With JWT Bearer Tokens And Encrypted Role Permissions."
                       : "All Study Notes And Solved Papers Are Rendered In Real-Time With Your Dynamic Institutional Forensic Watermark For Clean, High-Speed Learning."}
