@@ -3117,65 +3117,84 @@ export function AdminPortal() {
               </div>
 
               {/* Station 7 Navigation Sub-Tabs & Context Actions */}
-              <div className="flex flex-col gap-3.5 border-b border-border pb-4 w-full">
-                {/* Navigation Sub-Tabs Pill Group */}
-                <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-col gap-4 border-b border-border pb-5 w-full">
+                {/* Executive Segmented Navigation Bar */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-1.5 p-1.5 rounded-2xl sm:rounded-3xl bg-surface/90 dark:bg-zinc-900/90 border border-border/80 shadow-2xs backdrop-blur-md">
                   <button
+                    type="button"
                     onClick={() => setStudentSubTab("registry")}
                     className={cn(
-                      "inline-flex items-center gap-2 rounded-2xl px-3.5 sm:px-4 py-2 text-xs font-bold transition-all cursor-pointer",
+                      "flex items-center justify-center gap-2.5 rounded-xl sm:rounded-2xl px-4 py-2.5 text-xs font-bold transition-all cursor-pointer",
                       studentSubTab === "registry"
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-surface"
+                        ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-sm shadow-emerald-600/25"
+                        : "text-muted-foreground hover:text-foreground hover:bg-card/70"
                     )}
                   >
-                    <Users className="h-4 w-4" />
-                    <span>Scholars Registry &amp; DRM Controls</span>
-                    <span className="rounded-full bg-white/20 px-1.5 py-0.2 text-[0.6rem]">
+                    <Users className="h-4 w-4 shrink-0" />
+                    <span className="truncate">Scholars Registry &amp; DRM</span>
+                    <span className={cn(
+                      "rounded-full px-2 py-0.5 text-[0.62rem] font-mono font-bold shrink-0",
+                      studentSubTab === "registry"
+                        ? "bg-white/20 text-white"
+                        : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                    )}>
                       {filteredStudents.length}
                     </span>
                   </button>
 
                   <button
+                    type="button"
                     onClick={() => setStudentSubTab("audit")}
                     className={cn(
-                      "inline-flex items-center gap-2 rounded-2xl px-3.5 sm:px-4 py-2 text-xs font-bold transition-all cursor-pointer",
+                      "flex items-center justify-center gap-2.5 rounded-xl sm:rounded-2xl px-4 py-2.5 text-xs font-bold transition-all cursor-pointer",
                       studentSubTab === "audit"
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-surface"
+                        ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-sm shadow-emerald-600/25"
+                        : "text-muted-foreground hover:text-foreground hover:bg-card/70"
                     )}
                   >
-                    <History className="h-4 w-4" />
-                    <span>Immutable Audit Log Vault</span>
-                    <span className="rounded-full bg-white/20 px-1.5 py-0.2 text-[0.6rem]">
+                    <History className="h-4 w-4 shrink-0" />
+                    <span className="truncate">Audit Log Vault</span>
+                    <span className={cn(
+                      "rounded-full px-2 py-0.5 text-[0.62rem] font-mono font-bold shrink-0",
+                      studentSubTab === "audit"
+                        ? "bg-white/20 text-white"
+                        : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                    )}>
                       {auditLogs.length}
                     </span>
                   </button>
 
                   <button
+                    type="button"
                     onClick={() => setStudentSubTab("incidents")}
                     className={cn(
-                      "inline-flex items-center gap-2 rounded-2xl px-3.5 sm:px-4 py-2 text-xs font-bold transition-all cursor-pointer",
+                      "flex items-center justify-center gap-2.5 rounded-xl sm:rounded-2xl px-4 py-2.5 text-xs font-bold transition-all cursor-pointer",
                       studentSubTab === "incidents"
-                        ? "bg-primary text-primary-foreground shadow-sm"
-                        : "border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-surface"
+                        ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-sm shadow-emerald-600/25"
+                        : "text-muted-foreground hover:text-foreground hover:bg-card/70"
                     )}
                   >
-                    <ShieldAlert className="h-4 w-4" />
-                    <span>DRM Security Telemetry</span>
-                    <span className="rounded-full bg-white/20 px-1.5 py-0.2 text-[0.6rem]">
+                    <ShieldAlert className="h-4 w-4 shrink-0" />
+                    <span className="truncate">DRM Telemetry</span>
+                    <span className={cn(
+                      "rounded-full px-2 py-0.5 text-[0.62rem] font-mono font-bold shrink-0",
+                      studentSubTab === "incidents"
+                        ? "bg-white/20 text-white"
+                        : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                    )}>
                       {drmIncidents.length}
                     </span>
                   </button>
                 </div>
 
-                {/* Sub-Station Operational Actions Toolbar */}
-                <div className="flex flex-wrap items-center justify-between gap-2.5 pt-0.5">
-                  <div className="flex flex-wrap items-center gap-2">
+                {/* Sub-Station Operational Actions Strip */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                  <div className="flex items-center gap-2">
                     {studentSubTab === "audit" && (
                       <button
+                        type="button"
                         onClick={handleClearAuditLogs}
-                        className="inline-flex items-center gap-1.5 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-3.5 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 shadow-xs hover:bg-rose-500/20 active:scale-95 transition-all cursor-pointer"
+                        className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3.5 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 shadow-2xs hover:bg-rose-500/20 active:scale-95 transition-all cursor-pointer"
                       >
                         <Trash2 className="h-4 w-4" />
                         <span>Clear Audit Vault ({auditLogs.length})</span>
@@ -3184,8 +3203,9 @@ export function AdminPortal() {
 
                     {studentSubTab === "incidents" && (
                       <button
+                        type="button"
                         onClick={handleClearDrmIncidents}
-                        className="inline-flex items-center gap-1.5 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-3.5 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 shadow-xs hover:bg-rose-500/20 active:scale-95 transition-all cursor-pointer"
+                        className="inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3.5 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 shadow-2xs hover:bg-rose-500/20 active:scale-95 transition-all cursor-pointer"
                       >
                         <Trash2 className="h-4 w-4" />
                         <span>Clear DRM Telemetry ({drmIncidents.length})</span>
@@ -3193,8 +3213,9 @@ export function AdminPortal() {
                     )}
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-2">
+                  <div className="grid grid-cols-1 sm:flex items-center gap-2">
                     <button
+                      type="button"
                       onClick={async () => {
                         const confirmed = confirm(
                           "✨ GLOBAL CLEAN SLATE CONFIRMATION:\n\nAre You Sure You Want To Reset And Clear All DRM Locks, Login Suspensions, Cooldown Periods, Warning Banners, And Security Violation Counters For EVERY Registered Student Across The Entire Platform?"
@@ -3211,15 +3232,16 @@ export function AdminPortal() {
                           toast.error(toTitleCase(err.message || "Failed To Execute Global Reset."));
                         }
                       }}
-                      className="inline-flex items-center gap-2 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 shadow-xs hover:bg-emerald-500/20 active:scale-95 transition-all cursor-pointer"
+                      className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-2 text-xs font-bold text-emerald-600 dark:text-emerald-400 shadow-2xs hover:bg-emerald-500/20 active:scale-95 transition-all cursor-pointer"
                     >
                       <Sparkles className="h-4 w-4" />
-                      <span>Global Clean Slate (Reset Everyone)</span>
+                      <span>Global Clean Slate (Reset All)</span>
                     </button>
 
                     <button
+                      type="button"
                       onClick={loadAdminData}
-                      className="inline-flex items-center gap-2 rounded-2xl border border-border bg-card px-3.5 py-2 text-xs font-bold text-foreground shadow-xs hover:bg-surface cursor-pointer"
+                      className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-bold text-foreground shadow-2xs hover:bg-surface active:scale-95 transition-all cursor-pointer"
                     >
                       <RefreshCw className="h-4 w-4" />
                       <span>Refresh Registry</span>
