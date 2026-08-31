@@ -2078,21 +2078,21 @@ export function AdminPortal() {
           {/* ========================================================================= */}
           {activeStation === "structure" && (
             <div className="space-y-4 sm:space-y-6 min-w-0">
-              {/* Executive Sub-Station Segmented Bar (2 cols on mobile, 4 cols on desktop) */}
+              {/* Executive Sub-Station Segmented Bar */}
               <div className="flex flex-col gap-3 border-b border-border pb-4 w-full">
-                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 p-1.5 rounded-2xl sm:rounded-3xl bg-surface/80 border border-border/80 shadow-2xs">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2 p-1.5 rounded-2xl sm:rounded-3xl bg-surface/80 border border-border/80 shadow-2xs">
                   <button
                     type="button"
                     onClick={() => setStructureSubTab("departments")}
                     className={cn(
-                      "flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl px-3 py-2.5 text-xs font-bold transition-all cursor-pointer",
+                      "flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl sm:rounded-2xl px-2 sm:px-3 py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer min-w-0",
                       structureSubTab === "departments"
                         ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20"
                         : "text-muted-foreground hover:bg-card/70 hover:text-foreground",
                     )}
                   >
                     <Building2 className="h-3.5 w-3.5 shrink-0" />
-                    <span className="truncate">1. Departments</span>
+                    <span className="whitespace-nowrap">Departments</span>
                     <span className={cn(
                       "rounded-full px-1.5 py-0.2 text-[0.62rem] font-mono font-bold shrink-0",
                       structureSubTab === "departments" ? "bg-white/25 text-white" : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
@@ -2105,14 +2105,14 @@ export function AdminPortal() {
                     type="button"
                     onClick={() => setStructureSubTab("programs")}
                     className={cn(
-                      "flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl px-3 py-2.5 text-xs font-bold transition-all cursor-pointer",
+                      "flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl sm:rounded-2xl px-2 sm:px-3 py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer min-w-0",
                       structureSubTab === "programs"
                         ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20"
                         : "text-muted-foreground hover:bg-card/70 hover:text-foreground",
                     )}
                   >
                     <GraduationCap className="h-3.5 w-3.5 shrink-0" />
-                    <span className="truncate">2. Specializations</span>
+                    <span className="whitespace-nowrap">Programs</span>
                     <span className={cn(
                       "rounded-full px-1.5 py-0.2 text-[0.62rem] font-mono font-bold shrink-0",
                       structureSubTab === "programs" ? "bg-white/25 text-white" : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
@@ -2125,14 +2125,14 @@ export function AdminPortal() {
                     type="button"
                     onClick={() => setStructureSubTab("sections")}
                     className={cn(
-                      "flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl px-3 py-2.5 text-xs font-bold transition-all cursor-pointer",
+                      "flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl sm:rounded-2xl px-2 sm:px-3 py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer min-w-0",
                       structureSubTab === "sections"
                         ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20"
                         : "text-muted-foreground hover:bg-card/70 hover:text-foreground",
                     )}
                   >
                     <Users className="h-3.5 w-3.5 shrink-0" />
-                    <span className="truncate">3. Sections</span>
+                    <span className="whitespace-nowrap">Sections</span>
                     <span className={cn(
                       "rounded-full px-1.5 py-0.2 text-[0.62rem] font-mono font-bold shrink-0",
                       structureSubTab === "sections" ? "bg-white/25 text-white" : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
@@ -2145,14 +2145,14 @@ export function AdminPortal() {
                     type="button"
                     onClick={() => setStructureSubTab("subjects")}
                     className={cn(
-                      "flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl px-3 py-2.5 text-xs font-bold transition-all cursor-pointer",
+                      "flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl sm:rounded-2xl px-2 sm:px-3 py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer min-w-0",
                       structureSubTab === "subjects"
                         ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20"
                         : "text-muted-foreground hover:bg-card/70 hover:text-foreground",
                     )}
                   >
                     <BookOpen className="h-3.5 w-3.5 shrink-0" />
-                    <span className="truncate">4. Course Modules</span>
+                    <span className="whitespace-nowrap">Modules</span>
                     <span className={cn(
                       "rounded-full px-1.5 py-0.2 text-[0.62rem] font-mono font-bold shrink-0",
                       structureSubTab === "subjects" ? "bg-white/25 text-white" : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
