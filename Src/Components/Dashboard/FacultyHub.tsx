@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import {
   ArrowRight,
-  LibraryBig,
+  ChevronDown,
   FileText,
+  LibraryBig,
   Search,
   Sparkles,
 } from "lucide-react";
@@ -83,38 +84,22 @@ export function FacultyHub({ onOpenReader }: FacultyHubProps) {
         </div>
       </div>
 
-      {/* Filter Toolbar Container */}
-      <div className="space-y-2.5">
-        {/* Subject Filter Pills */}
-        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 no-scrollbar min-w-0">
-          <button
-            type="button"
-            onClick={() => setSelectedSubject("ALL")}
-            className={cn(
-              "rounded-xl px-3 sm:px-4 py-1.5 sm:py-2 text-[0.7rem] sm:text-xs font-bold transition-all cursor-pointer shrink-0 shadow-2xs",
-              selectedSubject === "ALL"
-                ? "bg-primary text-primary-foreground font-bold shadow-xs scale-[1.02]"
-                : "border border-border/70 bg-card text-muted-foreground hover:bg-surface hover:text-foreground",
-            )}
-          >
-            All Materials ({materials.length})
-          </button>
+      {/* Selection Filter (No Scrolling) */}
+      <div className="relative">
+        <select
+          value={selectedSubject}
+          onChange={(e) => setSelectedSubject(e.target.value)}
+          aria-label="Filter by subject"
+          className="h-11 w-full appearance-none rounded-2xl border border-border/80 bg-card px-3.5 pr-10 text-xs sm:text-sm font-bold text-foreground focus:border-blue-500 focus:outline-none shadow-xs cursor-pointer transition-all truncate"
+        >
+          <option value="ALL">📚 All Subjects ({materials.length} Faculty Materials)</option>
           {subjects.map((sub) => (
-            <button
-              key={sub.code}
-              type="button"
-              onClick={() => setSelectedSubject(sub.code)}
-              className={cn(
-                "rounded-xl px-3 sm:px-4 py-1.5 sm:py-2 text-[0.7rem] sm:text-xs font-semibold transition-all cursor-pointer shrink-0 shadow-2xs max-w-[220px] truncate sm:max-w-none",
-                selectedSubject === sub.code
-                  ? "bg-primary text-primary-foreground font-bold shadow-xs scale-[1.02]"
-                  : "border border-border/70 bg-card text-muted-foreground hover:bg-surface hover:text-foreground",
-              )}
-            >
+            <option key={sub.code} value={sub.code}>
               {sub.code}: {sub.name}
-            </button>
+            </option>
           ))}
-        </div>
+        </select>
+        <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
       </div>
 
       {/* Cards Grid */}

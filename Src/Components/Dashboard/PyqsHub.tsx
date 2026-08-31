@@ -4,6 +4,7 @@ import {
   Award,
   BookMarked,
   CheckCircle2,
+  ChevronDown,
   FileCheck2,
   FileText,
   Filter,
@@ -92,56 +93,42 @@ export function PyqsHub({ onOpenReader }: PyqsHubProps) {
         </div>
       </div>
 
-      {/* Filter Toolbar Container */}
-      <div className="space-y-2.5">
-        {/* Subject Filter Pills */}
-        <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto pb-1 no-scrollbar min-w-0">
-          <button
-            type="button"
-            onClick={() => setSelectedSubject("ALL")}
-            className={cn(
-              "rounded-xl px-3 sm:px-4 py-1.5 sm:py-2 text-[0.7rem] sm:text-xs font-bold transition-all cursor-pointer shrink-0 shadow-2xs",
-              selectedSubject === "ALL"
-                ? "bg-primary text-primary-foreground font-bold shadow-xs scale-[1.02]"
-                : "border border-border/70 bg-card text-muted-foreground hover:bg-surface hover:text-foreground",
-            )}
+      {/* Selection Filters (No Scrolling) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+        {/* Subject Select Dropdown */}
+        <div className="relative">
+          <select
+            value={selectedSubject}
+            onChange={(e) => setSelectedSubject(e.target.value)}
+            aria-label="Filter by subject"
+            className="h-11 w-full appearance-none rounded-2xl border border-border/80 bg-card px-3.5 pr-10 text-xs sm:text-sm font-bold text-foreground focus:border-cyan-500 focus:outline-none shadow-xs cursor-pointer transition-all truncate"
           >
-            All PYQs ({pyqs.length})
-          </button>
-          {subjects.map((sub) => (
-            <button
-              key={sub.code}
-              type="button"
-              onClick={() => setSelectedSubject(sub.code)}
-              className={cn(
-                "rounded-xl px-3 sm:px-4 py-1.5 sm:py-2 text-[0.7rem] sm:text-xs font-semibold transition-all cursor-pointer shrink-0 shadow-2xs max-w-[220px] truncate sm:max-w-none",
-                selectedSubject === sub.code
-                  ? "bg-primary text-primary-foreground font-bold shadow-xs scale-[1.02]"
-                  : "border border-border/70 bg-card text-muted-foreground hover:bg-surface hover:text-foreground",
-              )}
-            >
-              {sub.code}: {sub.name}
-            </button>
-          ))}
+            <option value="ALL">📚 All Subjects ({pyqs.length} Solved Papers)</option>
+            {subjects.map((sub) => (
+              <option key={sub.code} value={sub.code}>
+                {sub.code}: {sub.name}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         </div>
 
-        {/* Year Filter Segmented Bar */}
-        <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-surface/70 border border-border/60 overflow-x-auto no-scrollbar w-full sm:w-auto">
-          <span className="text-muted-foreground font-bold text-[0.62rem] sm:text-[0.68rem] uppercase tracking-wider px-2 shrink-0">Exam Year:</span>
-          {["ALL", "2026-2027", "2025-2026", "2024", "2023", "2022"].map((yr) => (
-            <button
-              key={yr}
-              onClick={() => setSelectedYear(yr)}
-              className={cn(
-                "rounded-xl px-2.5 sm:px-3 py-1 text-[0.65rem] sm:text-xs font-bold transition-all cursor-pointer shrink-0",
-                selectedYear === yr
-                  ? "bg-background border border-cyan-500/40 text-cyan-600 dark:text-cyan-400 shadow-xs font-extrabold"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {yr === "ALL" ? "All Years" : yr}
-            </button>
-          ))}
+        {/* Year Select Dropdown */}
+        <div className="relative">
+          <select
+            value={selectedYear}
+            onChange={(e) => setSelectedYear(e.target.value)}
+            aria-label="Filter by year"
+            className="h-11 w-full appearance-none rounded-2xl border border-border/80 bg-card px-3.5 pr-10 text-xs sm:text-sm font-bold text-foreground focus:border-cyan-500 focus:outline-none shadow-xs cursor-pointer transition-all truncate"
+          >
+            <option value="ALL">📅 All Exam Years (2020–2027 Archive)</option>
+            {["2026-2027", "2025-2026", "2024", "2023", "2022"].map((yr) => (
+              <option key={yr} value={yr}>
+                Academic Year {yr}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         </div>
       </div>
 
