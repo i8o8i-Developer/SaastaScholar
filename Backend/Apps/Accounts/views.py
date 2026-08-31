@@ -417,3 +417,33 @@ class AdminBulkResetSecurityView(APIView):
             "message": f"Global Clean Slate Completed: All Security Locks, Cooldowns, And Violations Have Been Cleared For {updated_count} Accounts.",
             "affected_users_count": updated_count,
         })
+
+class AdminAuditLogClearView(APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    def post(self, request):
+        action_filter = request.data.get("action_filter", "ALL")
+        reason = request.data.get("reason", "Administrative Audit Vault Purge").strip()
+        
+        qs = AdminAuditLog.objects.all()
+        if action_filter and action_filter != "ALL":
+            qs = qs.filter(action_type=action_filter)
+            
+        count, _ = qs.delete()
+        
+        client_ip = get_client_ip(request)
+        AdminAuditLog.objects.create(
+            actor=request.user,
+            target_user=None,
+            target_email="AUDIT_VAULT@SYSTEM",
+            target_name="Audit Log Vault",
+            action_type=ActionType.GLOBAL_BULK_RESET,
+            reason=f"{reason} (Purged {count} Records)",
+            metadata={"deleted_count": count, "action_filter": action_filter},
+            ip_address=client_ip,
+        )
+        
+        return Response({
+            "message": f"Successfully Cleared {count} Audit Log Records.",
+            "deleted_count": count,
+        })

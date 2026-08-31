@@ -697,6 +697,11 @@ export const studentSecurityApi = {
     const res = await apiFetch<any>(`/accounts/admin/audit-logs/${qs}`);
     return Array.isArray(res) ? res : res?.results || [];
   },
+  clearAuditLogs: (params?: { action_filter?: string; reason?: string }) =>
+    apiFetch<{ message: string; deleted_count: number }>("/accounts/admin/audit-logs/clear/", {
+      method: "POST",
+      body: JSON.stringify(params || {}),
+    }),
   getDrmIncidents: async (params?: { user_id?: string; event_type?: string }): Promise<DrmSecurityIncident[]> => {
     const query = new URLSearchParams();
     if (params?.user_id) query.set("user_id", params.user_id);
@@ -705,6 +710,11 @@ export const studentSecurityApi = {
     const res = await apiFetch<any>(`/drm/admin/incidents/${qs}`);
     return Array.isArray(res) ? res : res?.results || [];
   },
+  clearDrmIncidents: (params?: { event_filter?: string; reason?: string }) =>
+    apiFetch<{ message: string; deleted_count: number }>("/drm/admin/incidents/clear/", {
+      method: "POST",
+      body: JSON.stringify(params || {}),
+    }),
   acknowledgeWarning: () =>
     apiFetch<{ message: string }>("/accounts/acknowledge-warning/", { method: "POST" }),
 };

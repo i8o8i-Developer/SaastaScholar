@@ -11,6 +11,7 @@ from .views import (
     AcknowledgeWarningView,
     AdminStudentSecurityActionView,
     AdminAuditLogListView,
+    AdminAuditLogClearView,
     AdminBulkResetSecurityView,
 )
 
@@ -30,4 +31,5 @@ urlpatterns = [
     path("admin/users/<uuid:pk>/", AdminStudentDetailView.as_view(), name="auth-admin-user-detail"),
     path("admin/users/<uuid:pk>/security-action/", AdminStudentSecurityActionView.as_view(), name="auth-admin-student-security"),
     path("admin/audit-logs/", AdminAuditLogListView.as_view(), name="auth-admin-audit-logs"),
+    path("admin/audit-logs/clear/", AdminAuditLogClearView.as_view(), name="auth-admin-audit-logs-clear"),
 ]

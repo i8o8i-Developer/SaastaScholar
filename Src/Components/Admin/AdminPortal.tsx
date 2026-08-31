@@ -478,6 +478,44 @@ export function AdminPortal() {
     }
   };
 
+  const handleClearAuditLogs = async () => {
+    const filterLabel = auditFilterAction === "ALL" ? "All" : auditFilterAction.replace(/_/g, " ");
+    const confirmed = confirm(
+      `⚠️ CLEAR AUDIT LOG VAULT CONFIRMATION:\n\nAre You Sure You Want To Permanently Clear And Purge ${filterLabel} Audit Records From The Immutable Audit Vault?`
+    );
+    if (!confirmed) return;
+
+    try {
+      const res = await studentSecurityApi.clearAuditLogs({
+        action_filter: auditFilterAction,
+        reason: `Administrative Audit Vault Purge (${filterLabel})`,
+      });
+      toast.success(toTitleCase(res.message || "Audit Logs Cleared Successfully."));
+      loadAdminData();
+    } catch (err: any) {
+      toast.error(toTitleCase(err.message || "Failed To Clear Audit Logs."));
+    }
+  };
+
+  const handleClearDrmIncidents = async () => {
+    const filterLabel = incidentFilterType === "ALL" ? "All" : incidentFilterType.replace(/_/g, " ");
+    const confirmed = confirm(
+      `⚠️ CLEAR DRM SECURITY TELEMETRY CONFIRMATION:\n\nAre You Sure You Want To Permanently Clear And Purge ${filterLabel} DRM Security Telemetry Incidents?`
+    );
+    if (!confirmed) return;
+
+    try {
+      const res = await studentSecurityApi.clearDrmIncidents({
+        event_filter: incidentFilterType,
+        reason: `Administrative DRM Telemetry Purge (${filterLabel})`,
+      });
+      toast.success(toTitleCase(res.message || "DRM Security Telemetry Cleared Successfully."));
+      loadAdminData();
+    } catch (err: any) {
+      toast.error(toTitleCase(err.message || "Failed To Clear DRM Telemetry."));
+    }
+  };
+
   // Filter Cascade Computations
   const filteredPrograms = programs.filter((p) => {
     if (selectedDeptId && p.department !== selectedDeptId) return false;
@@ -3131,6 +3169,26 @@ export function AdminPortal() {
                 </div>
 
                 <div className="flex items-center gap-2 overflow-x-auto max-w-full scrollbar-none min-w-0 shrink-0">
+                  {studentSubTab === "audit" && (
+                    <button
+                      onClick={handleClearAuditLogs}
+                      className="inline-flex items-center gap-1.5 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-3.5 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 shadow-xs hover:bg-rose-500/20 active:scale-95 transition-all cursor-pointer whitespace-nowrap shrink-0"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      <span>Clear Audit Vault ({auditLogs.length})</span>
+                    </button>
+                  )}
+
+                  {studentSubTab === "incidents" && (
+                    <button
+                      onClick={handleClearDrmIncidents}
+                      className="inline-flex items-center gap-1.5 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-3.5 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 shadow-xs hover:bg-rose-500/20 active:scale-95 transition-all cursor-pointer whitespace-nowrap shrink-0"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      <span>Clear DRM Telemetry ({drmIncidents.length})</span>
+                    </button>
+                  )}
+
                   <button
                     onClick={async () => {
                       const confirmed = confirm(
@@ -3361,6 +3419,15 @@ export function AdminPortal() {
                         <option value="CHANGE_TIER">Change Access Tier</option>
                         <option value="HARD_DELETE_USER">Hard Delete User Account</option>
                       </select>
+
+                      <button
+                        onClick={handleClearAuditLogs}
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-1.5 text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 active:scale-95 transition-all cursor-pointer whitespace-nowrap"
+                        title="Permanently Purge Audit Records"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        <span>Clear Logs</span>
+                      </button>
                     </div>
                   </div>
 
@@ -3469,6 +3536,15 @@ export function AdminPortal() {
                         <option value="RAPID_PRINT_ATTEMPT">Print Key Shortcut Blocked</option>
                         <option value="BLUR_PROTECTION">Canvas Window Focus Lost</option>
                       </select>
+
+                      <button
+                        onClick={handleClearDrmIncidents}
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-rose-500/30 bg-rose-500/10 px-3 py-1.5 text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 active:scale-95 transition-all cursor-pointer whitespace-nowrap"
+                        title="Permanently Purge DRM Telemetry Incidents"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                        <span>Clear Telemetry</span>
+                      </button>
                     </div>
                     <span className="text-xs text-muted-foreground font-mono">
                       Real-Time Forensic Watermark Triggers

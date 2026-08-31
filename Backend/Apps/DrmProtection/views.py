@@ -322,3 +322,35 @@ class AdminDrmIncidentListView(generics.ListAPIView):
         if event_type:
             qs = qs.filter(event_type=event_type)
         return qs
+
+class AdminDrmIncidentClearView(APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    def post(self, request):
+        event_filter = request.data.get("event_filter", "ALL")
+        reason = request.data.get("reason", "Administrative DRM Telemetry Purge").strip()
+        
+        qs = DrmSecurityIncident.objects.all()
+        if event_filter and event_filter != "ALL":
+            qs = qs.filter(event_type=event_filter)
+            
+        count, _ = qs.delete()
+        
+        from Apps.Accounts.models import AdminAuditLog, ActionType
+        from Apps.Accounts.views import get_client_ip
+        client_ip = get_client_ip(request)
+        AdminAuditLog.objects.create(
+            actor=request.user,
+            target_user=None,
+            target_email="DRM_TELEMETRY@SYSTEM",
+            target_name="DRM Security Incident Telemetry",
+            action_type=ActionType.GLOBAL_BULK_RESET,
+            reason=f"{reason} (Cleared {count} Incident Records)",
+            metadata={"deleted_count": count, "event_filter": event_filter},
+            ip_address=client_ip,
+        )
+        
+        return Response({
+            "message": f"Successfully Cleared {count} DRM Telemetry Records.",
+            "deleted_count": count,
+        })
