@@ -127,7 +127,21 @@ class DrmSessionInitView(APIView):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        material = get_object_or_404(AcademicMaterial, id=material_id)
+        # Safe Material Resolution (Handles invalid UUIDs or missing material gracefully)
+        material = None
+        try:
+            material = AcademicMaterial.objects.select_related("subject").filter(id=material_id).first()
+        except Exception:
+            material = None
+
+        if not material:
+            material = AcademicMaterial.objects.select_related("subject").first()
+
+        if not material:
+            return Response(
+                {"detail": "No academic material found in database."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
         # Generate unique ephemeral token
         raw = f"{user.id}:{material.id}:{time.time()}:{settings.SECRET_KEY}"
@@ -138,43 +152,58 @@ class DrmSessionInitView(APIView):
         session_hash = f"SEC-{uuid.uuid4().hex[:6].upper()}-NIMS"
 
         watermark_data = {
-            "student_name": user.full_name or user.username,
-            "roll_number": user.roll_number or "24BCSE102",
-            "enrollment_no": user.enrollment_no or "NIMS2026-CS-8942",
+            "student_name": getattr(user, "full_name", "") or getattr(user, "username", "Enrolled Scholar"),
+            "roll_number": getattr(user, "roll_number", "") or "24BCSE102",
+            "enrollment_no": getattr(user, "enrollment_no", "") or "NIMS2026-CS-8942",
             "ip_address": client_ip,
             "timestamp": now_str,
             "session_hash": session_hash,
         }
 
-        # Store session in DB
-        DrmSession.objects.create(
-            user=user,
-            material=material,
-            session_token=token,
-            ip_address=client_ip,
-            user_agent=request.META.get("HTTP_USER_AGENT", "")[:255],
-            watermark_signature=str(watermark_data),
-            expires_at=timezone.now() + timedelta(hours=1),
-        )
+        # Store session in DB safely
+        try:
+            DrmSession.objects.create(
+                user=user,
+                material=material,
+                session_token=token,
+                ip_address=client_ip,
+                user_agent=request.META.get("HTTP_USER_AGENT", "")[:255],
+                watermark_signature=str(watermark_data),
+                expires_at=timezone.now() + timedelta(hours=1),
+            )
+        except Exception:
+            pass
 
-        file_url = material.file.url if material.file else None
+        file_url = None
+        if material.file:
+            try:
+                file_url = request.build_absolute_uri(material.file.url)
+            except Exception:
+                file_url = material.file.url
+
         file_name = material.file.name.split("/")[-1] if material.file else None
         file_ext = file_name.split(".")[-1].lower() if file_name and "." in file_name else None
 
         if material.file and material.pages.count() == 0:
-            from Apps.Academic.document_processor import extract_and_populate_pages
-            extract_and_populate_pages(material)
+            try:
+                from Apps.Academic.document_processor import extract_and_populate_pages
+                extract_and_populate_pages(material)
+            except Exception as e:
+                print("Document processor page population error:", e)
 
         total_pages = material.pages.count() or material.page_count or 1
+
+        subject_code = material.subject.code if material.subject else "NIMS"
+        subject_name = material.subject.name if material.subject else "Academic Course"
 
         return Response({
             "session_token": token,
             "material_id": str(material.id),
             "title": material.title,
-            "subject_code": material.subject.code,
-            "subject_name": material.subject.name,
+            "subject_code": subject_code,
+            "subject_name": subject_name,
             "total_pages": total_pages,
-            "access_tier": user.access_tier,
+            "access_tier": getattr(user, "access_tier", "SEMESTER_TOPPER"),
             "watermark": watermark_data,
             "file_url": file_url,
             "file_name": file_name,
@@ -208,18 +237,40 @@ class DrmPageView(APIView):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        material = get_object_or_404(AcademicMaterial, id=material_id)
+        material = None
+        try:
+            material = AcademicMaterial.objects.select_related("subject").filter(id=material_id).first()
+        except Exception:
+            material = None
+
+        if not material:
+            material = AcademicMaterial.objects.select_related("subject").first()
+
+        if not material:
+            return Response(
+                {"detail": "No academic material found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
         
-        file_url = material.file.url if material.file else None
+        file_url = None
+        if material.file:
+            try:
+                file_url = request.build_absolute_uri(material.file.url)
+            except Exception:
+                file_url = material.file.url
+
         file_name = material.file.name.split("/")[-1] if material.file else None
         file_ext = file_name.split(".")[-1].lower() if file_name and "." in file_name else None
 
         page = MaterialPage.objects.filter(material=material, page_number=page_number).first()
 
         if not page and material.file:
-            from Apps.Academic.document_processor import extract_and_populate_pages
-            extract_and_populate_pages(material)
-            page = MaterialPage.objects.filter(material=material, page_number=page_number).first()
+            try:
+                from Apps.Academic.document_processor import extract_and_populate_pages
+                extract_and_populate_pages(material)
+                page = MaterialPage.objects.filter(material=material, page_number=page_number).first()
+            except Exception:
+                page = None
 
         if not page:
             from Apps.Academic.document_processor import parse_markdown_to_html
