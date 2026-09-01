@@ -1903,15 +1903,15 @@ export function AdminPortal() {
           {activeStation === "overview" && (
             <div className="space-y-4 sm:space-y-6 min-w-0">
               {/* Executive Welcome Hero Banner */}
-              <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-r from-emerald-500/15 via-card to-teal-500/10 p-5 sm:p-7 shadow-xs backdrop-blur-md">
+              <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-emerald-500/25 dark:border-border/80 bg-gradient-to-br from-emerald-500/10 via-emerald-50/40 to-teal-500/10 dark:from-emerald-500/15 dark:via-card dark:to-teal-500/10 p-5 sm:p-7 shadow-xs backdrop-blur-md">
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 min-w-0">
                   <div className="space-y-2 min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-3 py-0.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 font-mono whitespace-nowrap shadow-2xs">
-                        <ShieldCheck className="h-3.5 w-3.5" />
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 dark:bg-emerald-500/20 border border-emerald-500/30 px-3 py-1 text-xs font-bold text-emerald-800 dark:text-emerald-300 font-mono whitespace-nowrap shadow-2xs">
+                        <ShieldCheck className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                         <span>Institutional Master Command</span>
                       </span>
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-surface/90 border border-border px-3 py-0.5 text-xs font-mono text-muted-foreground whitespace-nowrap shadow-2xs">
+                      <span className="inline-flex items-center gap-1.5 rounded-full bg-card/90 dark:bg-surface/90 border border-border px-3 py-1 text-xs font-mono text-slate-700 dark:text-muted-foreground whitespace-nowrap shadow-2xs">
                         <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                         <span>Live Telemetry Synced</span>
                       </span>
@@ -1957,26 +1957,26 @@ export function AdminPortal() {
                 {/* 1. Scholars Metric */}
                 <div
                   onClick={() => setActiveStation("students")}
-                  className="rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-3 sm:p-5 shadow-xs hover:border-emerald-500/50 hover:shadow-md transition-all cursor-pointer group space-y-2 sm:space-y-3 min-w-0 overflow-hidden"
+                  className="rounded-2xl sm:rounded-3xl border border-border/90 bg-card p-3 sm:p-5 shadow-xs hover:border-emerald-500/50 hover:shadow-md transition-all cursor-pointer group space-y-2 sm:space-y-3 min-w-0 overflow-hidden"
                 >
                   <div className="flex items-center justify-between gap-1 min-w-0">
-                    <div className="grid h-8 w-8 sm:h-10 sm:w-10 place-items-center rounded-xl sm:rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform shrink-0">
+                    <div className="grid h-8 w-8 sm:h-10 sm:w-10 place-items-center rounded-xl sm:rounded-2xl bg-emerald-500/10 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 group-hover:scale-110 transition-transform shrink-0">
                       <Users className="h-4 w-4 sm:h-5 sm:w-5" />
                     </div>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-1.5 sm:px-2 py-0.5 text-[0.58rem] sm:text-[0.65rem] font-bold text-emerald-600 dark:text-emerald-400 truncate shrink-0 shadow-2xs">
-                      <TrendingUp className="h-2.5 w-2.5 sm:h-3 sm:w-3 shrink-0" />
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 dark:bg-emerald-500/15 border border-emerald-500/30 px-1.5 sm:px-2 py-0.5 text-[0.58rem] sm:text-[0.65rem] font-bold text-emerald-800 dark:text-emerald-300 truncate shrink-0 shadow-2xs">
+                      <TrendingUp className="h-2.5 w-2.5 sm:h-3 sm:w-3 shrink-0 text-emerald-600 dark:text-emerald-400" />
                       <span className="truncate">Live Sync</span>
                     </span>
                   </div>
                   <div className="min-w-0">
-                    <h3 className="font-display font-extrabold text-xl sm:text-2xl lg:text-3xl text-foreground truncate">
+                    <h3 className="font-display font-extrabold text-xl sm:text-2xl lg:text-3xl text-foreground font-mono truncate">
                       {students.length || 1}
                     </h3>
                     <p className="text-[0.68rem] sm:text-xs text-muted-foreground font-semibold mt-0.5 truncate">
                       Enrolled Scholars
                     </p>
                   </div>
-                  <div className="text-[0.6rem] sm:text-[0.68rem] text-muted-foreground pt-1.5 sm:pt-2 border-t border-border/60 flex items-center justify-between font-mono gap-1 min-w-0">
+                  <div className="text-[0.6rem] sm:text-[0.68rem] text-muted-foreground pt-1.5 sm:pt-2 border-t border-border/80 flex items-center justify-between font-mono gap-1 min-w-0">
                     <span className="truncate">DRM Security</span>
                     <span className="font-bold text-foreground shrink-0">{students.length || 1} Verified</span>
                   </div>
@@ -1985,28 +1985,28 @@ export function AdminPortal() {
                 {/* 2. Courseware Vault Metric */}
                 <div
                   onClick={() => setActiveStation("publisher")}
-                  className="rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-3 sm:p-5 shadow-xs hover:border-cyan-500/50 hover:shadow-md transition-all cursor-pointer group space-y-2 sm:space-y-3 min-w-0 overflow-hidden"
+                  className="rounded-2xl sm:rounded-3xl border border-border/90 bg-card p-3 sm:p-5 shadow-xs hover:border-cyan-500/50 hover:shadow-md transition-all cursor-pointer group space-y-2 sm:space-y-3 min-w-0 overflow-hidden"
                 >
                   <div className="flex items-center justify-between gap-1 min-w-0">
-                    <div className="grid h-8 w-8 sm:h-10 sm:w-10 place-items-center rounded-xl sm:rounded-2xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 group-hover:scale-110 transition-transform shrink-0">
+                    <div className="grid h-8 w-8 sm:h-10 sm:w-10 place-items-center rounded-xl sm:rounded-2xl bg-cyan-500/10 dark:bg-cyan-500/15 text-cyan-700 dark:text-cyan-400 group-hover:scale-110 transition-transform shrink-0">
                       <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
                     </div>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 px-1.5 sm:px-2 py-0.5 text-[0.58rem] sm:text-[0.65rem] font-bold text-cyan-600 dark:text-cyan-400 truncate shrink-0 shadow-2xs">
-                      <Sparkles className="h-2.5 w-2.5 sm:h-3 sm:w-3 shrink-0" />
+                    <span className="inline-flex items-center gap-1 rounded-full bg-cyan-500/10 dark:bg-cyan-500/15 border border-cyan-500/30 px-1.5 sm:px-2 py-0.5 text-[0.58rem] sm:text-[0.65rem] font-bold text-cyan-800 dark:text-cyan-300 truncate shrink-0 shadow-2xs">
+                      <Sparkles className="h-2.5 w-2.5 sm:h-3 sm:w-3 shrink-0 text-cyan-600 dark:text-cyan-400" />
                       <span className="truncate">{materials.length + labs.length} Units</span>
                     </span>
                   </div>
                   <div className="min-w-0">
-                    <h3 className="font-display font-extrabold text-xl sm:text-2xl lg:text-3xl text-foreground truncate">
+                    <h3 className="font-display font-extrabold text-xl sm:text-2xl lg:text-3xl text-foreground font-mono truncate">
                       {materials.length + labs.length}
                     </h3>
                     <p className="text-[0.68rem] sm:text-xs text-muted-foreground font-semibold mt-0.5 truncate">
                       Study Materials
                     </p>
                   </div>
-                  <div className="text-[0.6rem] sm:text-[0.68rem] text-muted-foreground pt-1.5 sm:pt-2 border-t border-border/60 flex items-center justify-between font-mono gap-1 min-w-0">
+                  <div className="text-[0.6rem] sm:text-[0.68rem] text-muted-foreground pt-1.5 sm:pt-2 border-t border-border/80 flex items-center justify-between font-mono gap-1 min-w-0">
                     <span className="truncate">Vault</span>
-                    <span className="font-bold text-cyan-600 dark:text-cyan-400 shrink-0">
+                    <span className="font-bold text-cyan-700 dark:text-cyan-400 shrink-0">
                       {materials.filter(m => m.material_type === "NOTES").length} Notes · {labs.length} Labs
                     </span>
                   </div>
@@ -2015,27 +2015,27 @@ export function AdminPortal() {
                 {/* 3. Academic Structure Metric */}
                 <div
                   onClick={() => setActiveStation("structure")}
-                  className="rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-3 sm:p-5 shadow-xs hover:border-purple-500/50 hover:shadow-md transition-all cursor-pointer group space-y-2 sm:space-y-3 min-w-0 overflow-hidden"
+                  className="rounded-2xl sm:rounded-3xl border border-border/90 bg-card p-3 sm:p-5 shadow-xs hover:border-purple-500/50 hover:shadow-md transition-all cursor-pointer group space-y-2 sm:space-y-3 min-w-0 overflow-hidden"
                 >
                   <div className="flex items-center justify-between gap-1 min-w-0">
-                    <div className="grid h-8 w-8 sm:h-10 sm:w-10 place-items-center rounded-xl sm:rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform shrink-0">
+                    <div className="grid h-8 w-8 sm:h-10 sm:w-10 place-items-center rounded-xl sm:rounded-2xl bg-purple-500/10 dark:bg-purple-500/15 text-purple-700 dark:text-purple-400 group-hover:scale-110 transition-transform shrink-0">
                       <Building2 className="h-4 w-4 sm:h-5 sm:w-5" />
                     </div>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-purple-500/10 border border-purple-500/20 px-1.5 sm:px-2 py-0.5 text-[0.58rem] sm:text-[0.65rem] font-bold text-purple-600 dark:text-purple-400 truncate shrink-0 shadow-2xs">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-purple-500/10 dark:bg-purple-500/15 border border-purple-500/30 px-1.5 sm:px-2 py-0.5 text-[0.58rem] sm:text-[0.65rem] font-bold text-purple-800 dark:text-purple-300 truncate shrink-0 shadow-2xs">
                       <span className="truncate">{programs.length} Branches</span>
                     </span>
                   </div>
                   <div className="min-w-0">
-                    <h3 className="font-display font-extrabold text-xl sm:text-2xl lg:text-3xl text-foreground truncate">
+                    <h3 className="font-display font-extrabold text-xl sm:text-2xl lg:text-3xl text-foreground font-mono truncate">
                       {subjects.length}
                     </h3>
                     <p className="text-[0.68rem] sm:text-xs text-muted-foreground font-semibold mt-0.5 truncate">
                       Course Modules
                     </p>
                   </div>
-                  <div className="text-[0.6rem] sm:text-[0.68rem] text-muted-foreground pt-1.5 sm:pt-2 border-t border-border/60 flex items-center justify-between font-mono gap-1 min-w-0">
+                  <div className="text-[0.6rem] sm:text-[0.68rem] text-muted-foreground pt-1.5 sm:pt-2 border-t border-border/80 flex items-center justify-between font-mono gap-1 min-w-0">
                     <span className="truncate">Blueprint</span>
-                    <span className="font-bold text-purple-600 dark:text-purple-400 shrink-0">
+                    <span className="font-bold text-purple-700 dark:text-purple-400 shrink-0">
                       {departments.length} Depts Active
                     </span>
                   </div>
@@ -2044,27 +2044,27 @@ export function AdminPortal() {
                 {/* 4. Timetable & Schedule Density */}
                 <div
                   onClick={() => setActiveStation("timetable")}
-                  className="rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-3 sm:p-5 shadow-xs hover:border-amber-500/50 hover:shadow-md transition-all cursor-pointer group space-y-2 sm:space-y-3 min-w-0 overflow-hidden"
+                  className="rounded-2xl sm:rounded-3xl border border-border/90 bg-card p-3 sm:p-5 shadow-xs hover:border-amber-500/50 hover:shadow-md transition-all cursor-pointer group space-y-2 sm:space-y-3 min-w-0 overflow-hidden"
                 >
                   <div className="flex items-center justify-between gap-1 min-w-0">
-                    <div className="grid h-8 w-8 sm:h-10 sm:w-10 place-items-center rounded-xl sm:rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 group-hover:scale-110 transition-transform shrink-0">
+                    <div className="grid h-8 w-8 sm:h-10 sm:w-10 place-items-center rounded-xl sm:rounded-2xl bg-amber-500/10 dark:bg-amber-500/15 text-amber-700 dark:text-amber-400 group-hover:scale-110 transition-transform shrink-0">
                       <Clock className="h-4 w-4 sm:h-5 sm:w-5" />
                     </div>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/20 px-1.5 sm:px-2 py-0.5 text-[0.58rem] sm:text-[0.65rem] font-bold text-amber-600 dark:text-amber-400 truncate shrink-0 shadow-2xs">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 dark:bg-amber-500/15 border border-amber-500/30 px-1.5 sm:px-2 py-0.5 text-[0.58rem] sm:text-[0.65rem] font-bold text-amber-800 dark:text-amber-300 truncate shrink-0 shadow-2xs">
                       <span className="truncate">6-Day Grid</span>
                     </span>
                   </div>
                   <div className="min-w-0">
-                    <h3 className="font-display font-extrabold text-xl sm:text-2xl lg:text-3xl text-foreground truncate">
+                    <h3 className="font-display font-extrabold text-xl sm:text-2xl lg:text-3xl text-foreground font-mono truncate">
                       {timetableSlots.length}
                     </h3>
                     <p className="text-[0.68rem] sm:text-xs text-muted-foreground font-semibold mt-0.5 truncate">
                       Weekly Periods
                     </p>
                   </div>
-                  <div className="text-[0.6rem] sm:text-[0.68rem] text-muted-foreground pt-1.5 sm:pt-2 border-t border-border/60 flex items-center justify-between font-mono gap-1 min-w-0">
+                  <div className="text-[0.6rem] sm:text-[0.68rem] text-muted-foreground pt-1.5 sm:pt-2 border-t border-border/80 flex items-center justify-between font-mono gap-1 min-w-0">
                     <span className="truncate">Sections</span>
-                    <span className="font-bold text-amber-600 dark:text-amber-400 shrink-0">
+                    <span className="font-bold text-amber-700 dark:text-amber-400 shrink-0">
                       {sections.length} Cohorts
                     </span>
                   </div>
@@ -2074,19 +2074,19 @@ export function AdminPortal() {
               {/* Interactive Charts Canvas Section */}
               <div className="grid gap-4 sm:gap-6 lg:grid-cols-12 min-w-0">
                 {/* Chart 1: Study Materials by Category (7 Cols) */}
-                <div className="lg:col-span-7 rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-4 sm:p-6 shadow-xs space-y-4 min-w-0 flex flex-col justify-between">
+                <div className="lg:col-span-7 rounded-2xl sm:rounded-3xl border border-border bg-card p-4 sm:p-6 shadow-xs space-y-4 min-w-0 flex flex-col justify-between">
                   <div>
-                    <div className="flex items-center justify-between border-b border-border/60 pb-3 gap-2">
+                    <div className="flex items-center justify-between border-b border-border/80 pb-3 gap-2">
                       <div className="space-y-0.5 min-w-0">
                         <h3 className="font-display font-bold text-xs sm:text-base text-foreground flex items-center gap-1.5 sm:gap-2 truncate">
-                          <FileText className="h-4 w-4 text-emerald-500 shrink-0" />
+                          <FileText className="h-4 w-4 text-emerald-600 dark:text-emerald-500 shrink-0" />
                           <span className="truncate">Uploaded Study Materials By Category</span>
                         </h3>
                         <p className="text-[0.68rem] sm:text-xs text-muted-foreground truncate">
                           Live Count Of Active PDFs, Notes &amp; Solved Papers Across All {subjects.length} Courses
                         </p>
                       </div>
-                      <span className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 shrink-0 whitespace-nowrap">
+                      <span className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 text-xs font-mono font-bold text-emerald-800 dark:text-emerald-400 shrink-0 whitespace-nowrap">
                         {materials.length + labs.length} Total Uploads
                       </span>
                     </div>
@@ -2108,41 +2108,43 @@ export function AdminPortal() {
                           <defs>
                             <linearGradient id="barGradEmerald" x1="0" y1="0" x2="0" y2="1">
                               <stop offset="0%" stopColor="#10b981" stopOpacity={1} />
-                              <stop offset="100%" stopColor="#059669" stopOpacity={0.8} />
+                              <stop offset="100%" stopColor="#059669" stopOpacity={0.85} />
                             </linearGradient>
                             <linearGradient id="barGradPurple" x1="0" y1="0" x2="0" y2="1">
                               <stop offset="0%" stopColor="#8b5cf6" stopOpacity={1} />
-                              <stop offset="100%" stopColor="#6d28d9" stopOpacity={0.8} />
+                              <stop offset="100%" stopColor="#6d28d9" stopOpacity={0.85} />
                             </linearGradient>
                             <linearGradient id="barGradCyan" x1="0" y1="0" x2="0" y2="1">
                               <stop offset="0%" stopColor="#06b6d4" stopOpacity={1} />
-                              <stop offset="100%" stopColor="#0891b2" stopOpacity={0.8} />
+                              <stop offset="100%" stopColor="#0891b2" stopOpacity={0.85} />
                             </linearGradient>
                             <linearGradient id="barGradAmber" x1="0" y1="0" x2="0" y2="1">
                               <stop offset="0%" stopColor="#f59e0b" stopOpacity={1} />
-                              <stop offset="100%" stopColor="#d97706" stopOpacity={0.8} />
+                              <stop offset="100%" stopColor="#d97706" stopOpacity={0.85} />
                             </linearGradient>
                             <linearGradient id="barGradRose" x1="0" y1="0" x2="0" y2="1">
                               <stop offset="0%" stopColor="#ec4899" stopOpacity={1} />
-                              <stop offset="100%" stopColor="#db2777" stopOpacity={0.8} />
+                              <stop offset="100%" stopColor="#db2777" stopOpacity={0.85} />
                             </linearGradient>
                           </defs>
 
-                          <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.15} stroke="currentColor" />
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.2} stroke="currentColor" />
                           <XAxis
                             dataKey="name"
-                            tick={{ fontSize: 11, fontWeight: 700, fill: "var(--color-foreground, #fff)" }}
+                            tick={{ fontSize: 11, fontWeight: 700, fill: "currentColor" }}
+                            className="text-slate-800 dark:text-slate-200"
                             tickLine={false}
-                            axisLine={{ stroke: "var(--color-border, #3f3f46)", opacity: 0.6 }}
+                            axisLine={{ stroke: "currentColor", opacity: 0.2 }}
                           />
                           <YAxis
-                            tick={{ fontSize: 10, fill: "var(--color-muted-foreground, #a1a1aa)" }}
+                            tick={{ fontSize: 10, fill: "currentColor" }}
+                            className="text-slate-500 dark:text-muted-foreground"
                             allowDecimals={false}
                             tickLine={false}
                             axisLine={false}
                           />
                           <Tooltip
-                            cursor={{ fill: "var(--color-surface, rgba(255,255,255,0.05))", radius: 8 }}
+                            cursor={{ fill: "currentColor", opacity: 0.05, radius: 8 }}
                             content={({ active, payload }: any) => {
                               if (active && payload && payload.length > 0 && payload[0]?.payload) {
                                 const data = payload[0].payload;
@@ -2167,7 +2169,6 @@ export function AdminPortal() {
                           <Bar
                             dataKey="count"
                             radius={[8, 8, 2, 2]}
-                            background={{ fill: "var(--color-surface, rgba(120, 120, 128, 0.08))", radius: 8 }}
                           >
                             {[
                               { fill: "url(#barGradEmerald)" },
@@ -2184,45 +2185,45 @@ export function AdminPortal() {
                     </div>
                   </div>
 
-                  {/* Clear Category Count Chips at Bottom */}
-                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 pt-3 border-t border-border/60">
-                    <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center">
-                      <span className="text-[0.62rem] text-emerald-600 dark:text-emerald-400 font-bold uppercase block">Notes</span>
-                      <span className="font-mono font-extrabold text-sm text-foreground">{materials.filter((m) => m.material_type === "NOTES").length}</span>
+                  {/* High-Contrast Category Count Chips */}
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 pt-3 border-t border-border/80">
+                    <div className="p-2 rounded-xl bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-300/80 dark:border-emerald-500/25 text-center shadow-2xs">
+                      <span className="text-[0.62rem] text-emerald-900 dark:text-emerald-300 font-extrabold uppercase block">Notes</span>
+                      <span className="font-mono font-black text-sm text-slate-900 dark:text-white">{materials.filter((m) => m.material_type === "NOTES").length}</span>
                     </div>
-                    <div className="p-2 rounded-xl bg-purple-500/10 border border-purple-500/20 text-center">
-                      <span className="text-[0.62rem] text-purple-600 dark:text-purple-400 font-bold uppercase block">PYQs</span>
-                      <span className="font-mono font-extrabold text-sm text-foreground">{materials.filter((m) => m.material_type === "SOLVED_PYQ").length}</span>
+                    <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-500/10 border border-purple-300/80 dark:border-purple-500/25 text-center shadow-2xs">
+                      <span className="text-[0.62rem] text-purple-900 dark:text-purple-300 font-extrabold uppercase block">PYQs</span>
+                      <span className="font-mono font-black text-sm text-slate-900 dark:text-white">{materials.filter((m) => m.material_type === "SOLVED_PYQ").length}</span>
                     </div>
-                    <div className="p-2 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-center">
-                      <span className="text-[0.62rem] text-cyan-600 dark:text-cyan-400 font-bold uppercase block">Syllabus</span>
-                      <span className="font-mono font-extrabold text-sm text-foreground">{materials.filter((m) => m.material_type === "SYLLABUS").length}</span>
+                    <div className="p-2 rounded-xl bg-cyan-50 dark:bg-cyan-500/10 border border-cyan-300/80 dark:border-cyan-500/25 text-center shadow-2xs">
+                      <span className="text-[0.62rem] text-cyan-900 dark:text-cyan-300 font-extrabold uppercase block">Syllabus</span>
+                      <span className="font-mono font-black text-sm text-slate-900 dark:text-white">{materials.filter((m) => m.material_type === "SYLLABUS").length}</span>
                     </div>
-                    <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center">
-                      <span className="text-[0.62rem] text-amber-600 dark:text-amber-400 font-bold uppercase block">Labs</span>
-                      <span className="font-mono font-extrabold text-sm text-foreground">{labs.length}</span>
+                    <div className="p-2 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-300/80 dark:border-amber-500/25 text-center shadow-2xs">
+                      <span className="text-[0.62rem] text-amber-900 dark:text-amber-300 font-extrabold uppercase block">Labs</span>
+                      <span className="font-mono font-black text-sm text-slate-900 dark:text-white">{labs.length}</span>
                     </div>
-                    <div className="p-2 rounded-xl bg-pink-500/10 border border-pink-500/20 text-center col-span-2 sm:col-span-1">
-                      <span className="text-[0.62rem] text-pink-600 dark:text-pink-400 font-bold uppercase block">Faculty</span>
-                      <span className="font-mono font-extrabold text-sm text-foreground">{materials.filter((m) => m.material_type === "FACULTY").length}</span>
+                    <div className="p-2 rounded-xl bg-pink-50 dark:bg-pink-500/10 border border-pink-300/80 dark:border-pink-500/25 text-center col-span-2 sm:col-span-1 shadow-2xs">
+                      <span className="text-[0.62rem] text-pink-900 dark:text-pink-300 font-extrabold uppercase block">Faculty</span>
+                      <span className="font-mono font-black text-sm text-slate-900 dark:text-white">{materials.filter((m) => m.material_type === "FACULTY").length}</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Chart 2: Degree Program Breakdown (5 Cols) */}
-                <div className="lg:col-span-5 rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-4 sm:p-6 shadow-xs space-y-4 flex flex-col justify-between min-w-0">
+                <div className="lg:col-span-5 rounded-2xl sm:rounded-3xl border border-border bg-card p-4 sm:p-6 shadow-xs space-y-4 flex flex-col justify-between min-w-0">
                   <div>
-                    <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                    <div className="flex items-center justify-between border-b border-border/80 pb-3">
                       <div className="space-y-0.5 min-w-0">
                         <h3 className="font-display font-bold text-xs sm:text-base text-foreground flex items-center gap-1.5 sm:gap-2 truncate">
-                          <GraduationCap className="h-4 w-4 text-cyan-500 shrink-0" />
+                          <GraduationCap className="h-4 w-4 text-cyan-600 dark:text-cyan-400 shrink-0" />
                           <span className="truncate">Degree Specializations</span>
                         </h3>
                         <p className="text-[0.68rem] sm:text-xs text-muted-foreground truncate">
                           Active Degree Programs Configured In Blueprint
                         </p>
                       </div>
-                      <span className="rounded-full bg-cyan-500/10 border border-cyan-500/30 px-3 py-1 text-xs font-mono font-bold text-cyan-600 dark:text-cyan-400 shrink-0 whitespace-nowrap">
+                      <span className="rounded-full bg-cyan-500/10 border border-cyan-500/30 px-3 py-1 text-xs font-mono font-bold text-cyan-800 dark:text-cyan-300 shrink-0 whitespace-nowrap">
                         {programs.length} Programs
                       </span>
                     </div>
@@ -2274,7 +2275,7 @@ export function AdminPortal() {
                             outerRadius={78}
                             paddingAngle={5}
                             dataKey="value"
-                            stroke="var(--color-card, #18181b)"
+                            stroke="var(--color-card, #ffffff)"
                             strokeWidth={3}
                           >
                             {(programs.length > 0 ? programs : [{ name: "AI & ML" }]).map((_, index: number) => {
@@ -2306,7 +2307,7 @@ export function AdminPortal() {
 
                       {/* Central Metric in Donut Hole */}
                       <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                        <span className="font-display font-black text-2xl text-foreground">
+                        <span className="font-display font-black text-2xl text-foreground font-mono">
                           {subjects.length}
                         </span>
                         <span className="text-[0.62rem] font-bold text-muted-foreground uppercase tracking-wider">
@@ -2317,20 +2318,20 @@ export function AdminPortal() {
                   </div>
 
                   {/* Clean Program Breakdown Cards */}
-                  <div className="space-y-1.5 pt-2 border-t border-border/60">
+                  <div className="space-y-1.5 pt-2 border-t border-border/80">
                     {programs.slice(0, 3).map((p, idx) => {
                       const colors = ["bg-emerald-500", "bg-cyan-500", "bg-purple-500", "bg-amber-500", "bg-pink-500"];
                       const modCount = subjects.filter((s) => s.program_codes?.includes(p.code) || s.department === p.department).length || 0;
                       return (
                         <div
                           key={p.id}
-                          className="flex items-center justify-between px-3 py-2 rounded-2xl bg-surface/60 border border-border/60 text-xs"
+                          className="flex items-center justify-between px-3 py-2 rounded-2xl bg-surface/80 dark:bg-surface/60 border border-border/80 text-xs shadow-2xs"
                         >
                           <div className="flex items-center gap-2 min-w-0">
-                            <span className={cn("h-2.5 w-2.5 rounded-full shrink-0", colors[idx % colors.length])} />
+                            <span className={cn("h-2.5 w-2.5 rounded-full shrink-0 shadow-xs", colors[idx % colors.length])} />
                             <span className="font-bold text-foreground truncate">{p.name || p.code}</span>
                           </div>
-                          <span className="font-mono font-bold text-muted-foreground shrink-0 text-xs">
+                          <span className="font-mono font-bold text-slate-700 dark:text-slate-300 bg-card dark:bg-surface px-2 py-0.5 rounded-lg border border-border/60 shrink-0 text-xs">
                             {modCount} Courses
                           </span>
                         </div>
@@ -2340,22 +2341,22 @@ export function AdminPortal() {
                 </div>
               </div>
 
-              {/* Row 2 Analytics Charts: Timetable Schedule & CGPA Spectrum */}
+              {/* Row 2 Analytics Charts: Timetable Schedule & DRM Security Matrix */}
               <div className="grid gap-4 sm:gap-6 lg:grid-cols-12 min-w-0">
                 {/* Chart 3: Weekly Class Schedule (7 Cols) */}
-                <div className="lg:col-span-7 rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-4 sm:p-6 shadow-xs space-y-4 min-w-0 flex flex-col justify-between">
+                <div className="lg:col-span-7 rounded-2xl sm:rounded-3xl border border-border bg-card p-4 sm:p-6 shadow-xs space-y-4 min-w-0 flex flex-col justify-between">
                   <div>
-                    <div className="flex items-center justify-between border-b border-border/60 pb-3 gap-2">
+                    <div className="flex items-center justify-between border-b border-border/80 pb-3 gap-2">
                       <div className="space-y-0.5 min-w-0">
                         <h3 className="font-display font-bold text-xs sm:text-base text-foreground flex items-center gap-1.5 sm:gap-2 truncate">
-                          <Clock className="h-4 w-4 text-cyan-500 shrink-0" />
+                          <Clock className="h-4 w-4 text-cyan-600 dark:text-cyan-400 shrink-0" />
                           <span className="truncate">Weekly Class Schedule (Periods Per Day)</span>
                         </h3>
                         <p className="text-[0.68rem] sm:text-xs text-muted-foreground truncate">
                           Total Active Lecture Slots Scheduled Across All 6 Student Cohorts (Mon – Sat)
                         </p>
                       </div>
-                      <span className="rounded-full bg-cyan-500/10 border border-cyan-500/30 px-3 py-1 text-xs font-mono font-bold text-cyan-600 dark:text-cyan-400 shrink-0 whitespace-nowrap">
+                      <span className="rounded-full bg-cyan-500/10 border border-cyan-500/30 px-3 py-1 text-xs font-mono font-bold text-cyan-800 dark:text-cyan-300 shrink-0 whitespace-nowrap">
                         {timetableSlots.length} Periods / Week
                       </span>
                     </div>
@@ -2379,15 +2380,17 @@ export function AdminPortal() {
                               <stop offset="95%" stopColor="#06b6d4" stopOpacity={0.02} />
                             </linearGradient>
                           </defs>
-                          <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.15} stroke="currentColor" />
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.2} stroke="currentColor" />
                           <XAxis
                             dataKey="shortDay"
-                            tick={{ fontSize: 11, fontWeight: 700, fill: "var(--color-foreground, #fff)" }}
+                            tick={{ fontSize: 11, fontWeight: 700, fill: "currentColor" }}
+                            className="text-slate-800 dark:text-slate-200"
                             tickLine={false}
-                            axisLine={{ stroke: "var(--color-border, #3f3f46)", opacity: 0.6 }}
+                            axisLine={{ stroke: "currentColor", opacity: 0.2 }}
                           />
                           <YAxis
-                            tick={{ fontSize: 10, fill: "var(--color-muted-foreground, #a1a1aa)" }}
+                            tick={{ fontSize: 10, fill: "currentColor" }}
+                            className="text-slate-500 dark:text-muted-foreground"
                             allowDecimals={false}
                             tickLine={false}
                             axisLine={false}
@@ -2403,8 +2406,8 @@ export function AdminPortal() {
                                       {d.day} Class Load
                                     </span>
                                     <div className="flex items-center justify-between gap-4 text-xs font-mono">
-                                      <span className="text-cyan-500 font-bold">{d.periods} Scheduled Periods</span>
-                                      <span className="text-emerald-500 font-bold">{d.hours} Academic Hours</span>
+                                      <span className="text-cyan-600 dark:text-cyan-400 font-bold">{d.periods} Scheduled Periods</span>
+                                      <span className="text-emerald-600 dark:text-emerald-400 font-bold">{d.hours} Academic Hours</span>
                                     </div>
                                   </div>
                                 );
@@ -2415,12 +2418,12 @@ export function AdminPortal() {
                           <Area
                             type="monotone"
                             dataKey="periods"
-                            stroke="#06b6d4"
+                            stroke="#0891b2"
                             strokeWidth={3}
                             fillOpacity={1}
                             fill="url(#areaGradPeriods)"
-                            dot={{ r: 4, fill: "#06b6d4", strokeWidth: 2, stroke: "var(--color-card, #18181b)" }}
-                            activeDot={{ r: 6, fill: "#06b6d4", stroke: "#ffffff", strokeWidth: 2 }}
+                            dot={{ r: 4, fill: "#0891b2", strokeWidth: 2, stroke: "var(--color-card, #ffffff)" }}
+                            activeDot={{ r: 6, fill: "#0891b2", stroke: "#ffffff", strokeWidth: 2 }}
                           />
                         </AreaChart>
                       </ResponsiveContainer>
@@ -2428,22 +2431,22 @@ export function AdminPortal() {
                   </div>
 
                   {/* Summary Ticker */}
-                  <div className="grid grid-cols-3 gap-2 pt-2 border-t border-border/60 text-center">
-                    <div className="p-2.5 rounded-2xl bg-surface/70 border border-border/60">
-                      <span className="text-[0.62rem] uppercase font-bold text-muted-foreground block">Peak Load Day</span>
-                      <span className="font-mono font-extrabold text-xs text-cyan-600 dark:text-cyan-400 mt-0.5 block">
+                  <div className="grid grid-cols-3 gap-2 pt-2 border-t border-border/80 text-center">
+                    <div className="p-2.5 rounded-2xl bg-cyan-50/70 dark:bg-cyan-500/10 border border-cyan-200 dark:border-cyan-500/25 shadow-2xs">
+                      <span className="text-[0.62rem] uppercase font-extrabold text-cyan-900 dark:text-cyan-300 block">Peak Load Day</span>
+                      <span className="font-mono font-black text-xs text-cyan-800 dark:text-cyan-400 mt-0.5 block">
                         Monday (29 Periods)
                       </span>
                     </div>
-                    <div className="p-2.5 rounded-2xl bg-surface/70 border border-border/60">
-                      <span className="text-[0.62rem] uppercase font-bold text-muted-foreground block">Weekly Hours</span>
-                      <span className="font-mono font-extrabold text-xs text-emerald-600 dark:text-emerald-400 mt-0.5 block">
+                    <div className="p-2.5 rounded-2xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/25 shadow-2xs">
+                      <span className="text-[0.62rem] uppercase font-extrabold text-emerald-900 dark:text-emerald-300 block">Weekly Hours</span>
+                      <span className="font-mono font-black text-xs text-emerald-800 dark:text-emerald-400 mt-0.5 block">
                         {(timetableSlots.length * 1.5).toFixed(1)} Total Hours
                       </span>
                     </div>
-                    <div className="p-2.5 rounded-2xl bg-surface/70 border border-border/60">
-                      <span className="text-[0.62rem] uppercase font-bold text-muted-foreground block">Mapped Cohorts</span>
-                      <span className="font-mono font-extrabold text-xs text-purple-600 dark:text-purple-400 mt-0.5 block">
+                    <div className="p-2.5 rounded-2xl bg-purple-50/70 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/25 shadow-2xs">
+                      <span className="text-[0.62rem] uppercase font-extrabold text-purple-900 dark:text-purple-300 block">Mapped Cohorts</span>
+                      <span className="font-mono font-black text-xs text-purple-800 dark:text-purple-400 mt-0.5 block">
                         {sections.length} Sections Active
                       </span>
                     </div>
@@ -2451,19 +2454,19 @@ export function AdminPortal() {
                 </div>
 
                 {/* Panel 4: Forensic DRM Security & Document Protection Matrix (5 Cols) */}
-                <div className="lg:col-span-5 rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-4 sm:p-6 shadow-xs space-y-4 flex flex-col justify-between min-w-0">
+                <div className="lg:col-span-5 rounded-2xl sm:rounded-3xl border border-border bg-card p-4 sm:p-6 shadow-xs space-y-4 flex flex-col justify-between min-w-0">
                   <div>
-                    <div className="flex items-center justify-between border-b border-border/60 pb-3 gap-2">
+                    <div className="flex items-center justify-between border-b border-border/80 pb-3 gap-2">
                       <div className="space-y-0.5 min-w-0">
                         <h3 className="font-display font-bold text-xs sm:text-base text-foreground flex items-center gap-1.5 sm:gap-2 truncate">
-                          <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
+                          <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-500 shrink-0" />
                           <span className="truncate">Forensic DRM Document Security</span>
                         </h3>
                         <p className="text-[0.68rem] sm:text-xs text-muted-foreground truncate">
                           Active Anti-Piracy Protection Across {materials.length + labs.length} Published Manuscripts
                         </p>
                       </div>
-                      <span className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1 text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 shrink-0 whitespace-nowrap">
+                      <span className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1 text-xs font-mono font-bold text-emerald-800 dark:text-emerald-400 shrink-0 whitespace-nowrap">
                         100% DRM Armed
                       </span>
                     </div>
@@ -2471,13 +2474,13 @@ export function AdminPortal() {
                     {/* 4 Real Live Security Telemetry Cards */}
                     <div className="space-y-2.5 py-2.5">
                       {/* 1. Dynamic Canvas Watermarking */}
-                      <div className="rounded-2xl bg-surface/60 p-3 border border-border/60 space-y-1">
+                      <div className="rounded-2xl bg-surface/80 dark:bg-surface/60 p-3 border border-border/80 space-y-1 shadow-2xs">
                         <div className="flex items-center justify-between text-xs">
                           <div className="flex items-center gap-2 min-w-0">
                             <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
                             <span className="font-bold text-foreground truncate">Dynamic Canvas Watermarking</span>
                           </div>
-                          <span className="font-mono font-extrabold text-[0.68rem] text-emerald-600 dark:text-emerald-400 shrink-0">
+                          <span className="font-mono font-extrabold text-[0.68rem] text-emerald-800 dark:text-emerald-300 shrink-0">
                             Enforced
                           </span>
                         </div>
@@ -2487,13 +2490,13 @@ export function AdminPortal() {
                       </div>
 
                       {/* 2. Anti-Exfiltration & Print Shield */}
-                      <div className="rounded-2xl bg-surface/60 p-3 border border-border/60 space-y-1">
+                      <div className="rounded-2xl bg-surface/80 dark:bg-surface/60 p-3 border border-border/80 space-y-1 shadow-2xs">
                         <div className="flex items-center justify-between text-xs">
                           <div className="flex items-center gap-2 min-w-0">
                             <span className="h-2.5 w-2.5 rounded-full bg-cyan-500 shrink-0" />
                             <span className="font-bold text-foreground truncate">Anti-Exfiltration &amp; Print Shield</span>
                           </div>
-                          <span className="font-mono font-extrabold text-[0.68rem] text-cyan-600 dark:text-cyan-400 shrink-0">
+                          <span className="font-mono font-extrabold text-[0.68rem] text-cyan-800 dark:text-cyan-300 shrink-0">
                             Active
                           </span>
                         </div>
@@ -2503,13 +2506,13 @@ export function AdminPortal() {
                       </div>
 
                       {/* 3. Encrypted Documents Vault */}
-                      <div className="rounded-2xl bg-surface/60 p-3 border border-border/60 space-y-1">
+                      <div className="rounded-2xl bg-surface/80 dark:bg-surface/60 p-3 border border-border/80 space-y-1 shadow-2xs">
                         <div className="flex items-center justify-between text-xs">
                           <div className="flex items-center gap-2 min-w-0">
                             <span className="h-2.5 w-2.5 rounded-full bg-purple-500 shrink-0" />
                             <span className="font-bold text-foreground truncate">Protected Course Vault</span>
                           </div>
-                          <span className="font-mono font-extrabold text-[0.68rem] text-purple-600 dark:text-purple-400 shrink-0">
+                          <span className="font-mono font-extrabold text-[0.68rem] text-purple-800 dark:text-purple-300 shrink-0">
                             {materials.length + labs.length} Files
                           </span>
                         </div>
@@ -2519,13 +2522,13 @@ export function AdminPortal() {
                       </div>
 
                       {/* 4. Security Incident Telemetry */}
-                      <div className="rounded-2xl bg-surface/60 p-3 border border-border/60 space-y-1">
+                      <div className="rounded-2xl bg-surface/80 dark:bg-surface/60 p-3 border border-border/80 space-y-1 shadow-2xs">
                         <div className="flex items-center justify-between text-xs">
                           <div className="flex items-center gap-2 min-w-0">
                             <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 shrink-0" />
                             <span className="font-bold text-foreground truncate">Incident Telemetry</span>
                           </div>
-                          <span className="font-mono font-extrabold text-[0.68rem] text-emerald-600 dark:text-emerald-400 shrink-0">
+                          <span className="font-mono font-extrabold text-[0.68rem] text-emerald-800 dark:text-emerald-300 shrink-0">
                             0 Violations
                           </span>
                         </div>
@@ -2537,9 +2540,9 @@ export function AdminPortal() {
                   </div>
 
                   {/* Real-time Security Footer */}
-                  <div className="rounded-2xl bg-surface/80 p-3 border border-border/60 flex items-center justify-between text-xs">
+                  <div className="rounded-2xl bg-surface/90 dark:bg-surface/80 p-3 border border-border/80 flex items-center justify-between text-xs">
                     <div className="flex items-center gap-1.5 text-muted-foreground text-[0.7rem]">
-                      <Lock className="h-3.5 w-3.5 text-emerald-500" />
+                      <Lock className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
                       <span>Security Engine:</span>
                       <strong className="text-foreground font-mono">Dynamic WebGL DRM</strong>
                     </div>
