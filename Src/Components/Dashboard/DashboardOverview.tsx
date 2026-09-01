@@ -531,102 +531,140 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
           </span>
         </div>
 
-        <div className="grid gap-4 sm:gap-6 lg:grid-cols-12 items-stretch">
+        <div className="grid gap-4 sm:gap-6 lg:grid-cols-12 items-start">
           {/* Panel 1: Subject Modules & Coverage Matrix (7 cols) */}
-          <div className="lg:col-span-7 rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-4 sm:p-6 shadow-xs flex flex-col justify-between space-y-4 sm:space-y-5">
+          <div className="lg:col-span-7 rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-4 sm:p-6 shadow-xs flex flex-col justify-between space-y-4">
             <div>
               <div className="flex items-center justify-between border-b border-border/60 pb-3">
-                <span className="font-display font-bold text-xs sm:text-sm text-foreground">
-                  Enrolled Subjects &amp; Coverage
-                </span>
-                <span className="text-[0.68rem] sm:text-xs text-muted-foreground font-mono">
+                <div className="flex items-center gap-2">
+                  <BookOpen className="h-4 w-4 text-primary" />
+                  <span className="font-display font-bold text-xs sm:text-sm text-foreground">
+                    Enrolled Subjects &amp; Coverage
+                  </span>
+                </div>
+                <span className="text-[0.68rem] sm:text-xs text-muted-foreground font-mono font-bold bg-surface px-2.5 py-0.5 rounded-full border border-border">
                   {subjects.length} Enrolled Courses
                 </span>
               </div>
 
-              <div className="space-y-3 mt-3 sm:mt-4">
+              <div className="mt-3.5">
                 {subjects.length === 0 ? (
                   <div className="rounded-2xl border border-dashed border-border p-6 text-center text-xs text-muted-foreground">
                     No Subjects Registered Yet.
                   </div>
                 ) : (
-                  subjects.map((sub) => {
-                    const subNotes = materials.filter((m) => m.subject === sub.id && m.material_type === "NOTES").length;
-                    const subPyqs = materials.filter((m) => m.subject === sub.id && m.material_type === "SOLVED_PYQ").length;
-                    const progressPct = Math.min(Math.round((subNotes / 5) * 100), 100);
+                  <div className="grid sm:grid-cols-2 gap-2.5 max-h-[460px] overflow-y-auto pr-0.5">
+                    {subjects.map((sub) => {
+                      const subNotes = materials.filter((m) => m.subject === sub.id && m.material_type === "NOTES").length;
+                      const subPyqs = materials.filter((m) => m.subject === sub.id && m.material_type === "SOLVED_PYQ").length;
+                      const progressPct = Math.min(Math.round((subNotes / 5) * 100), 100);
 
-                    return (
-                      <div key={sub.id} className="space-y-2 rounded-xl sm:rounded-2xl bg-surface/60 p-3 sm:p-3.5 border border-border/60">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                          <div className="flex items-center gap-2 min-w-0">
-                            <span className="rounded-lg bg-primary/10 px-2 py-0.5 text-[0.65rem] sm:text-xs font-bold font-mono text-primary shrink-0">
-                              {sub.code}
-                            </span>
-                            <span className="font-bold text-xs sm:text-sm text-foreground truncate">{sub.name}</span>
+                      return (
+                        <div
+                          key={sub.id}
+                          className="space-y-2 rounded-2xl bg-surface/60 p-3 sm:p-3.5 border border-border/60 hover:border-primary/40 transition-colors flex flex-col justify-between"
+                        >
+                          <div className="space-y-1">
+                            <div className="flex items-center justify-between gap-1">
+                              <span className="rounded-lg bg-primary/10 px-1.5 py-0.5 text-[0.62rem] font-bold font-mono text-primary truncate max-w-[90px]">
+                                {sub.code}
+                              </span>
+                              <span className="text-[0.62rem] sm:text-[0.65rem] font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                                {subNotes}/5 Units
+                              </span>
+                            </div>
+                            <h4 className="font-bold text-xs text-foreground line-clamp-1" title={sub.name}>
+                              {sub.name}
+                            </h4>
                           </div>
-                          <span className="text-[0.68rem] sm:text-xs font-mono font-bold text-emerald-600 shrink-0">
-                            {subNotes}/5 Units Published
-                          </span>
-                        </div>
 
-                        {/* Progress Bar */}
-                        <div className="h-1.5 sm:h-2 w-full overflow-hidden rounded-full bg-border">
-                          <div
-                            className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-500"
-                            style={{ width: `${Math.max(progressPct, 8)}%` }}
-                          />
+                          {/* Progress Bar & Faculty */}
+                          <div className="space-y-1.5 pt-0.5">
+                            <div className="h-1.5 w-full overflow-hidden rounded-full bg-border">
+                              <div
+                                className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-500"
+                                style={{ width: `${Math.max(progressPct, 8)}%` }}
+                              />
+                            </div>
+                            <div className="flex items-center justify-between text-[0.62rem] text-muted-foreground">
+                              <span className="truncate max-w-[65%]" title={sub.faculty_name || "Faculty"}>
+                                👨‍🏫 {sub.faculty_name || "Faculty"}
+                              </span>
+                              <span className="font-mono font-medium">{subPyqs} PYQs</span>
+                            </div>
+                          </div>
                         </div>
-
-                        <div className="flex items-center justify-between text-[0.65rem] sm:text-[0.7rem] text-muted-foreground pt-0.5">
-                          <span className="truncate max-w-[55%]">Faculty: <strong className="text-foreground">{sub.faculty_name || "Department Faculty"}</strong></span>
-                          <span>{subPyqs} Solved PYQs</span>
-                        </div>
-                      </div>
-                    );
-                  })
+                      );
+                    })}
+                  </div>
                 )}
               </div>
             </div>
           </div>
 
           {/* Panel 2: Weekly Timetable Distribution (5 cols) */}
-          <div className="lg:col-span-5 rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-4 sm:p-6 shadow-xs flex flex-col justify-between space-y-4 sm:space-y-5">
+          <div className="lg:col-span-5 rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-4 sm:p-6 shadow-xs flex flex-col justify-between space-y-4">
             <div>
               <div className="flex items-center justify-between border-b border-border/60 pb-3">
-                <span className="font-display font-bold text-xs sm:text-sm text-foreground">
-                  Weekly Period Distribution
-                </span>
-                <span className="text-[0.68rem] sm:text-xs text-muted-foreground font-mono">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-primary" />
+                  <span className="font-display font-bold text-xs sm:text-sm text-foreground">
+                    Weekly Period Distribution
+                  </span>
+                </div>
+                <span className="text-[0.68rem] sm:text-xs text-muted-foreground font-mono font-bold bg-surface px-2.5 py-0.5 rounded-full border border-border">
                   {timetableSlots.length} Total Periods
                 </span>
               </div>
 
-              <div className="space-y-2.5 sm:space-y-3 mt-3 sm:mt-4">
+              <div className="space-y-2.5 mt-3.5">
                 {timetableByDay.map(({ day, count, hours }) => {
                   const maxPeriods = 6;
                   const barWidth = Math.min(Math.round((count / maxPeriods) * 100), 100);
 
                   return (
-                    <div key={day} className="flex items-center gap-2.5 sm:gap-3 text-xs">
-                      <span className="w-8 sm:w-10 font-bold font-mono text-foreground text-xs">{day}</span>
-                      <div className="h-2.5 sm:h-3 flex-1 overflow-hidden rounded-full bg-surface border border-border/60">
+                    <div key={day} className="flex items-center gap-2.5 text-xs">
+                      <span className="w-8 font-bold font-mono text-foreground text-xs">{day}</span>
+                      <div className="h-2.5 flex-1 overflow-hidden rounded-full bg-surface border border-border/60">
                         <div
                           className="h-full rounded-full bg-gradient-to-r from-cyan-500 to-emerald-500 transition-all duration-500"
                           style={{ width: `${Math.max(barWidth, count > 0 ? 15 : 0)}%` }}
                         />
                       </div>
-                      <span className="w-16 sm:w-20 text-right font-mono text-muted-foreground text-[0.65rem] sm:text-[0.7rem] shrink-0">
+                      <span className="w-16 text-right font-mono text-muted-foreground text-[0.65rem] sm:text-[0.7rem] shrink-0">
                         {count} ({hours}h)
                       </span>
                     </div>
                   );
                 })}
               </div>
-            </div>
 
-            <div className="rounded-xl sm:rounded-2xl bg-surface/80 p-3 sm:p-3.5 border border-border/60 text-xs flex items-center justify-between">
-              <span className="text-muted-foreground text-[0.72rem] sm:text-xs">Semester Cohort:</span>
-              <strong className="text-foreground text-[0.72rem] sm:text-xs">Semester {user?.semester || 1} (Section {user?.section || "A"})</strong>
+              {/* Metric Breakdown Grid */}
+              <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-border/60">
+                <div className="rounded-2xl bg-surface/70 p-2.5 border border-border/60">
+                  <span className="text-[0.62rem] text-muted-foreground uppercase font-bold block">Weekly Workload</span>
+                  <span className="font-mono font-bold text-xs text-foreground mt-0.5 block">
+                    {timetableSlots.length} Periods ({timetableSlots.length * 1.5}h)
+                  </span>
+                </div>
+                <div className="rounded-2xl bg-surface/70 p-2.5 border border-border/60">
+                  <span className="text-[0.62rem] text-muted-foreground uppercase font-bold block">Cohort Section</span>
+                  <span className="font-mono font-bold text-xs text-foreground mt-0.5 block truncate">
+                    Sem {user?.semester || 1} · Sec {user?.section || "A"}
+                  </span>
+                </div>
+              </div>
+
+              {/* Quick Navigation Button */}
+              <button
+                type="button"
+                onClick={() => onNavigateTab("planner")}
+                className="w-full mt-3 h-10 rounded-2xl border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs active:scale-98"
+              >
+                <Calendar className="h-3.5 w-3.5" />
+                <span>Open Full Weekly Schedule</span>
+                <ChevronRight className="h-3.5 w-3.5 ml-0.5" />
+              </button>
             </div>
           </div>
         </div>
