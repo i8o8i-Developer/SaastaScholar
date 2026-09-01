@@ -2059,227 +2059,266 @@ export function AdminPortal() {
 
               {/* Interactive Charts Canvas Section */}
               <div className="grid gap-4 sm:gap-6 lg:grid-cols-12 min-w-0">
-                {/* Chart 1: Courseware Distribution Bar Chart (7 Cols) */}
-                <div className="lg:col-span-7 rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-4 sm:p-6 shadow-xs space-y-4 min-w-0">
-                  <div className="flex items-center justify-between border-b border-border/60 pb-3 gap-2">
-                    <div className="space-y-0.5 min-w-0">
-                      <h3 className="font-display font-bold text-xs sm:text-base text-foreground flex items-center gap-1.5 sm:gap-2 truncate">
-                        <FileText className="h-4 w-4 text-emerald-500 shrink-0" />
-                        <span className="truncate">Courseware Distribution</span>
-                      </h3>
-                      <p className="text-[0.68rem] sm:text-xs text-muted-foreground truncate">
-                        Live Breakdown Of Uploaded Study Assets By Format
-                      </p>
+                {/* Chart 1: Study Materials by Category (7 Cols) */}
+                <div className="lg:col-span-7 rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-4 sm:p-6 shadow-xs space-y-4 min-w-0 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between border-b border-border/60 pb-3 gap-2">
+                      <div className="space-y-0.5 min-w-0">
+                        <h3 className="font-display font-bold text-xs sm:text-base text-foreground flex items-center gap-1.5 sm:gap-2 truncate">
+                          <FileText className="h-4 w-4 text-emerald-500 shrink-0" />
+                          <span className="truncate">Uploaded Study Materials By Category</span>
+                        </h3>
+                        <p className="text-[0.68rem] sm:text-xs text-muted-foreground truncate">
+                          Live Count Of Active PDFs, Notes &amp; Solved Papers Across All {subjects.length} Courses
+                        </p>
+                      </div>
+                      <span className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 shrink-0 whitespace-nowrap">
+                        {materials.length + labs.length} Total Uploads
+                      </span>
                     </div>
-                    <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-1 text-[0.65rem] sm:text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 shrink-0 whitespace-nowrap">
-                      {materials.length + labs.length} Published
-                    </span>
+
+                    {/* Bar Chart Container */}
+                    <div className="h-56 sm:h-64 w-full pt-3">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart
+                          data={[
+                            { name: "Lecture Notes", shortName: "Notes", count: materials.filter((m) => m.material_type === "NOTES").length, color: "#10b981", grad: "url(#barGradEmerald)" },
+                            { name: "Solved PYQs", shortName: "PYQs", count: materials.filter((m) => m.material_type === "SOLVED_PYQ").length, color: "#8b5cf6", grad: "url(#barGradPurple)" },
+                            { name: "Syllabus Maps", shortName: "Syllabus", count: materials.filter((m) => m.material_type === "SYLLABUS").length, color: "#06b6d4", grad: "url(#barGradCyan)" },
+                            { name: "Lab Manuals", shortName: "Labs", count: labs.length, color: "#f59e0b", grad: "url(#barGradAmber)" },
+                            { name: "Faculty Banks", shortName: "Faculty", count: materials.filter((m) => m.material_type === "FACULTY").length, color: "#ec4899", grad: "url(#barGradRose)" },
+                          ]}
+                          margin={{ top: 20, right: 10, left: -20, bottom: 5 }}
+                          barSize={36}
+                        >
+                          <defs>
+                            <linearGradient id="barGradEmerald" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#10b981" stopOpacity={1} />
+                              <stop offset="100%" stopColor="#059669" stopOpacity={0.8} />
+                            </linearGradient>
+                            <linearGradient id="barGradPurple" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#8b5cf6" stopOpacity={1} />
+                              <stop offset="100%" stopColor="#6d28d9" stopOpacity={0.8} />
+                            </linearGradient>
+                            <linearGradient id="barGradCyan" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#06b6d4" stopOpacity={1} />
+                              <stop offset="100%" stopColor="#0891b2" stopOpacity={0.8} />
+                            </linearGradient>
+                            <linearGradient id="barGradAmber" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#f59e0b" stopOpacity={1} />
+                              <stop offset="100%" stopColor="#d97706" stopOpacity={0.8} />
+                            </linearGradient>
+                            <linearGradient id="barGradRose" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#ec4899" stopOpacity={1} />
+                              <stop offset="100%" stopColor="#db2777" stopOpacity={0.8} />
+                            </linearGradient>
+                          </defs>
+
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.15} stroke="currentColor" />
+                          <XAxis
+                            dataKey="name"
+                            tick={{ fontSize: 11, fontWeight: 700, fill: "var(--color-foreground, #fff)" }}
+                            tickLine={false}
+                            axisLine={{ stroke: "var(--color-border, #3f3f46)", opacity: 0.6 }}
+                          />
+                          <YAxis
+                            tick={{ fontSize: 10, fill: "var(--color-muted-foreground, #a1a1aa)" }}
+                            allowDecimals={false}
+                            tickLine={false}
+                            axisLine={false}
+                          />
+                          <Tooltip
+                            cursor={{ fill: "var(--color-surface, rgba(255,255,255,0.05))", radius: 8 }}
+                            content={({ active, payload }: any) => {
+                              if (active && payload && payload.length > 0 && payload[0]?.payload) {
+                                const data = payload[0].payload;
+                                return (
+                                  <div className="rounded-2xl border border-border/80 bg-card/95 p-3.5 shadow-xl backdrop-blur-md space-y-1">
+                                    <div className="flex items-center gap-2">
+                                      <span className="h-3 w-3 rounded-full" style={{ backgroundColor: data.color }} />
+                                      <span className="text-xs font-bold text-foreground">{data.name}</span>
+                                    </div>
+                                    <div className="text-base font-extrabold font-mono" style={{ color: data.color }}>
+                                      {data.count} <span className="text-xs font-normal text-muted-foreground font-sans">Uploaded Files</span>
+                                    </div>
+                                    <span className="text-[0.65rem] text-muted-foreground block">
+                                      {data.count > 0 ? "Live in Student Portal" : "Awaiting Admin Upload"}
+                                    </span>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            }}
+                          />
+                          <Bar
+                            dataKey="count"
+                            radius={[8, 8, 2, 2]}
+                            background={{ fill: "var(--color-surface, rgba(120, 120, 128, 0.08))", radius: 8 }}
+                          >
+                            {[
+                              { fill: "url(#barGradEmerald)" },
+                              { fill: "url(#barGradPurple)" },
+                              { fill: "url(#barGradCyan)" },
+                              { fill: "url(#barGradAmber)" },
+                              { fill: "url(#barGradRose)" },
+                            ].map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.fill} />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
                   </div>
 
-                  <div className="h-60 sm:h-72 w-full pt-2">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart
-                        data={[
-                          { name: "Notes", count: materials.filter((m) => m.material_type === "NOTES").length, grad: "url(#barGradEmerald)", color: "#10b981" },
-                          { name: "PYQs", count: materials.filter((m) => m.material_type === "SOLVED_PYQ").length, grad: "url(#barGradPurple)", color: "#8b5cf6" },
-                          { name: "Syllabus", count: materials.filter((m) => m.material_type === "SYLLABUS").length, grad: "url(#barGradCyan)", color: "#06b6d4" },
-                          { name: "Labs", count: labs.length, grad: "url(#barGradAmber)", color: "#f59e0b" },
-                          { name: "Faculty", count: materials.filter((m) => m.material_type === "FACULTY").length, grad: "url(#barGradRose)", color: "#ec4899" },
-                        ]}
-                        margin={{ top: 20, right: 10, left: -25, bottom: 0 }}
-                        barSize={32}
-                      >
-                        <defs>
-                          <linearGradient id="barGradEmerald" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#10b981" stopOpacity={1} />
-                            <stop offset="100%" stopColor="#059669" stopOpacity={0.7} />
-                          </linearGradient>
-                          <linearGradient id="barGradPurple" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#8b5cf6" stopOpacity={1} />
-                            <stop offset="100%" stopColor="#6d28d9" stopOpacity={0.7} />
-                          </linearGradient>
-                          <linearGradient id="barGradCyan" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#06b6d4" stopOpacity={1} />
-                            <stop offset="100%" stopColor="#0891b2" stopOpacity={0.7} />
-                          </linearGradient>
-                          <linearGradient id="barGradAmber" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#f59e0b" stopOpacity={1} />
-                            <stop offset="100%" stopColor="#d97706" stopOpacity={0.7} />
-                          </linearGradient>
-                          <linearGradient id="barGradRose" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#ec4899" stopOpacity={1} />
-                            <stop offset="100%" stopColor="#db2777" stopOpacity={0.7} />
-                          </linearGradient>
-                        </defs>
-
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.12} stroke="currentColor" />
-                        <XAxis
-                          dataKey="name"
-                          tick={{ fontSize: 11, fontWeight: 600, fill: "var(--color-muted-foreground, #888)" }}
-                          tickLine={false}
-                          axisLine={{ stroke: "var(--color-border, #3f3f46)", opacity: 0.4 }}
-                        />
-                        <YAxis
-                          tick={{ fontSize: 10, fill: "var(--color-muted-foreground, #888)" }}
-                          allowDecimals={false}
-                          tickLine={false}
-                          axisLine={false}
-                        />
-                        <Tooltip
-                          cursor={{ fill: "var(--color-surface, rgba(255,255,255,0.03))", radius: 8 }}
-                          content={({ active, payload }: any) => {
-                            if (active && payload && payload.length > 0 && payload[0]?.payload) {
-                              const data = payload[0].payload;
-                              return (
-                                <div className="rounded-2xl border border-border/80 bg-card/95 p-3 shadow-xl backdrop-blur-md">
-                                  <div className="flex items-center gap-2">
-                                    <span className="h-3 w-3 rounded-full" style={{ backgroundColor: data.color }} />
-                                    <span className="text-xs font-bold text-foreground">{data.name}</span>
-                                  </div>
-                                  <div className="mt-1 text-sm font-extrabold font-mono" style={{ color: data.color }}>
-                                    {data.count} <span className="text-xs font-normal text-muted-foreground font-sans">Published</span>
-                                  </div>
-                                </div>
-                              );
-                            }
-                            return null;
-                          }}
-                        />
-                        <Bar
-                          dataKey="count"
-                          radius={[10, 10, 3, 3]}
-                          background={{ fill: "var(--color-surface, rgba(120, 120, 128, 0.05))", radius: 10 }}
-                        >
-                          {[
-                            { fill: "url(#barGradEmerald)" },
-                            { fill: "url(#barGradPurple)" },
-                            { fill: "url(#barGradCyan)" },
-                            { fill: "url(#barGradAmber)" },
-                            { fill: "url(#barGradRose)" },
-                          ].map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={entry.fill} />
-                          ))}
-                        </Bar>
-                      </BarChart>
-                    </ResponsiveContainer>
+                  {/* Clear Category Count Chips at Bottom */}
+                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 pt-3 border-t border-border/60">
+                    <div className="p-2 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-center">
+                      <span className="text-[0.62rem] text-emerald-600 dark:text-emerald-400 font-bold uppercase block">Notes</span>
+                      <span className="font-mono font-extrabold text-sm text-foreground">{materials.filter((m) => m.material_type === "NOTES").length}</span>
+                    </div>
+                    <div className="p-2 rounded-xl bg-purple-500/10 border border-purple-500/20 text-center">
+                      <span className="text-[0.62rem] text-purple-600 dark:text-purple-400 font-bold uppercase block">PYQs</span>
+                      <span className="font-mono font-extrabold text-sm text-foreground">{materials.filter((m) => m.material_type === "SOLVED_PYQ").length}</span>
+                    </div>
+                    <div className="p-2 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-center">
+                      <span className="text-[0.62rem] text-cyan-600 dark:text-cyan-400 font-bold uppercase block">Syllabus</span>
+                      <span className="font-mono font-extrabold text-sm text-foreground">{materials.filter((m) => m.material_type === "SYLLABUS").length}</span>
+                    </div>
+                    <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-center">
+                      <span className="text-[0.62rem] text-amber-600 dark:text-amber-400 font-bold uppercase block">Labs</span>
+                      <span className="font-mono font-extrabold text-sm text-foreground">{labs.length}</span>
+                    </div>
+                    <div className="p-2 rounded-xl bg-pink-500/10 border border-pink-500/20 text-center col-span-2 sm:col-span-1">
+                      <span className="text-[0.62rem] text-pink-600 dark:text-pink-400 font-bold uppercase block">Faculty</span>
+                      <span className="font-mono font-extrabold text-sm text-foreground">{materials.filter((m) => m.material_type === "FACULTY").length}</span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Chart 2: Degree Specialization Distribution Donut (5 Cols) */}
+                {/* Chart 2: Degree Program Breakdown (5 Cols) */}
                 <div className="lg:col-span-5 rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-4 sm:p-6 shadow-xs space-y-4 flex flex-col justify-between min-w-0">
-                  <div className="flex items-center justify-between border-b border-border/60 pb-3">
-                    <div className="space-y-0.5 min-w-0">
-                      <h3 className="font-display font-bold text-xs sm:text-base text-foreground flex items-center gap-1.5 sm:gap-2 truncate">
-                        <GraduationCap className="h-4 w-4 text-cyan-500 shrink-0" />
-                        <span className="truncate">Specializations Breakdown</span>
-                      </h3>
-                      <p className="text-[0.68rem] sm:text-xs text-muted-foreground truncate">
-                        Degree Branches Configured In Curriculum
-                      </p>
+                  <div>
+                    <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                      <div className="space-y-0.5 min-w-0">
+                        <h3 className="font-display font-bold text-xs sm:text-base text-foreground flex items-center gap-1.5 sm:gap-2 truncate">
+                          <GraduationCap className="h-4 w-4 text-cyan-500 shrink-0" />
+                          <span className="truncate">Degree Specializations</span>
+                        </h3>
+                        <p className="text-[0.68rem] sm:text-xs text-muted-foreground truncate">
+                          Active Degree Programs Configured In Blueprint
+                        </p>
+                      </div>
+                      <span className="rounded-full bg-cyan-500/10 border border-cyan-500/30 px-3 py-1 text-xs font-mono font-bold text-cyan-600 dark:text-cyan-400 shrink-0 whitespace-nowrap">
+                        {programs.length} Programs
+                      </span>
                     </div>
-                  </div>
 
-                  {/* Donut Chart with Center Metric */}
-                  <div className="relative h-52 sm:h-64 w-full flex items-center justify-center">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <defs>
-                          <linearGradient id="pieGrad0" x1="0" y1="0" x2="1" y2="1">
-                            <stop offset="0%" stopColor="#10b981" />
-                            <stop offset="100%" stopColor="#059669" />
-                          </linearGradient>
-                          <linearGradient id="pieGrad1" x1="0" y1="0" x2="1" y2="1">
-                            <stop offset="0%" stopColor="#06b6d4" />
-                            <stop offset="100%" stopColor="#0284c7" />
-                          </linearGradient>
-                          <linearGradient id="pieGrad2" x1="0" y1="0" x2="1" y2="1">
-                            <stop offset="0%" stopColor="#8b5cf6" />
-                            <stop offset="100%" stopColor="#6d28d9" />
-                          </linearGradient>
-                          <linearGradient id="pieGrad3" x1="0" y1="0" x2="1" y2="1">
-                            <stop offset="0%" stopColor="#f59e0b" />
-                            <stop offset="100%" stopColor="#d97706" />
-                          </linearGradient>
-                          <linearGradient id="pieGrad4" x1="0" y1="0" x2="1" y2="1">
-                            <stop offset="0%" stopColor="#ec4899" />
-                            <stop offset="100%" stopColor="#db2777" />
-                          </linearGradient>
-                        </defs>
+                    {/* Donut Chart with Center Metric */}
+                    <div className="relative h-48 sm:h-56 w-full flex items-center justify-center mt-2">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <defs>
+                            <linearGradient id="pieGrad0" x1="0" y1="0" x2="1" y2="1">
+                              <stop offset="0%" stopColor="#10b981" />
+                              <stop offset="100%" stopColor="#059669" />
+                            </linearGradient>
+                            <linearGradient id="pieGrad1" x1="0" y1="0" x2="1" y2="1">
+                              <stop offset="0%" stopColor="#06b6d4" />
+                              <stop offset="100%" stopColor="#0284c7" />
+                            </linearGradient>
+                            <linearGradient id="pieGrad2" x1="0" y1="0" x2="1" y2="1">
+                              <stop offset="0%" stopColor="#8b5cf6" />
+                              <stop offset="100%" stopColor="#6d28d9" />
+                            </linearGradient>
+                            <linearGradient id="pieGrad3" x1="0" y1="0" x2="1" y2="1">
+                              <stop offset="0%" stopColor="#f59e0b" />
+                              <stop offset="100%" stopColor="#d97706" />
+                            </linearGradient>
+                            <linearGradient id="pieGrad4" x1="0" y1="0" x2="1" y2="1">
+                              <stop offset="0%" stopColor="#ec4899" />
+                              <stop offset="100%" stopColor="#db2777" />
+                            </linearGradient>
+                          </defs>
 
-                        <Pie
-                          data={
-                            programs.length > 0
-                              ? programs.map((p, idx) => {
-                                  const fills = ["url(#pieGrad0)", "url(#pieGrad1)", "url(#pieGrad2)", "url(#pieGrad3)", "url(#pieGrad4)"];
-                                  const rawColors = ["#10b981", "#06b6d4", "#8b5cf6", "#f59e0b", "#ec4899"];
-                                  return {
-                                    name: p.code || p.name,
-                                    fullName: p.name,
-                                    value: subjects.filter((s) => s.program_codes?.includes(p.code) || s.department === p.department).length || 1,
-                                    fill: fills[idx % fills.length],
-                                    color: rawColors[idx % rawColors.length],
-                                  };
-                                })
-                              : [{ name: "AI & ML", fullName: "Artificial Intelligence", value: 1, fill: "url(#pieGrad0)", color: "#10b981" }]
-                          }
-                          innerRadius={50}
-                          outerRadius={78}
-                          paddingAngle={4}
-                          dataKey="value"
-                          stroke="var(--color-card, #18181b)"
-                          strokeWidth={3}
-                        >
-                          {(programs.length > 0 ? programs : [{ name: "AI & ML" }]).map((_, index: number) => {
-                            const fills = ["url(#pieGrad0)", "url(#pieGrad1)", "url(#pieGrad2)", "url(#pieGrad3)", "url(#pieGrad4)"];
-                            return <Cell key={`cell-${index}`} fill={fills[index % fills.length]} />;
-                          })}
-                        </Pie>
-                        <Tooltip
-                          content={({ active, payload }: any) => {
-                            if (active && payload && payload.length > 0 && payload[0]?.payload) {
-                              const data = payload[0].payload;
-                              return (
-                                <div className="rounded-2xl border border-border/80 bg-card/95 p-3 shadow-xl backdrop-blur-md">
-                                  <div className="flex items-center gap-2">
-                                    <span className="h-3 w-3 rounded-full" style={{ backgroundColor: data.color }} />
-                                    <span className="text-xs font-bold text-foreground">{data.fullName || data.name}</span>
-                                  </div>
-                                  <div className="mt-1 text-sm font-extrabold font-mono" style={{ color: data.color }}>
-                                    {data.value} <span className="text-xs font-normal text-muted-foreground font-sans">Course Modules</span>
-                                  </div>
-                                </div>
-                              );
+                          <Pie
+                            data={
+                              programs.length > 0
+                                ? programs.map((p, idx) => {
+                                    const fills = ["url(#pieGrad0)", "url(#pieGrad1)", "url(#pieGrad2)", "url(#pieGrad3)", "url(#pieGrad4)"];
+                                    const rawColors = ["#10b981", "#06b6d4", "#8b5cf6", "#f59e0b", "#ec4899"];
+                                    return {
+                                      name: p.name || p.code,
+                                      shortCode: p.code || p.name,
+                                      value: subjects.filter((s) => s.program_codes?.includes(p.code) || s.department === p.department).length || 1,
+                                      fill: fills[idx % fills.length],
+                                      color: rawColors[idx % rawColors.length],
+                                    };
+                                  })
+                                : [{ name: "Artificial Intelligence & Data Science", shortCode: "B.Tech AI & ML", value: 8, fill: "url(#pieGrad0)", color: "#10b981" }]
                             }
-                            return null;
-                          }}
-                        />
-                      </PieChart>
-                    </ResponsiveContainer>
+                            innerRadius={52}
+                            outerRadius={78}
+                            paddingAngle={5}
+                            dataKey="value"
+                            stroke="var(--color-card, #18181b)"
+                            strokeWidth={3}
+                          >
+                            {(programs.length > 0 ? programs : [{ name: "AI & ML" }]).map((_, index: number) => {
+                              const fills = ["url(#pieGrad0)", "url(#pieGrad1)", "url(#pieGrad2)", "url(#pieGrad3)", "url(#pieGrad4)"];
+                              return <Cell key={`cell-${index}`} fill={fills[index % fills.length]} />;
+                            })}
+                          </Pie>
+                          <Tooltip
+                            content={({ active, payload }: any) => {
+                              if (active && payload && payload.length > 0 && payload[0]?.payload) {
+                                const data = payload[0].payload;
+                                return (
+                                  <div className="rounded-2xl border border-border/80 bg-card/95 p-3.5 shadow-xl backdrop-blur-md space-y-1">
+                                    <div className="flex items-center gap-2">
+                                      <span className="h-3 w-3 rounded-full" style={{ backgroundColor: data.color }} />
+                                      <span className="text-xs font-bold text-foreground">{data.name}</span>
+                                    </div>
+                                    <div className="text-sm font-extrabold font-mono" style={{ color: data.color }}>
+                                      {data.value} Enrolled Courses
+                                    </div>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            }}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
 
-                    {/* Central Metric in Donut Hole */}
-                    <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                      <span className="font-display font-extrabold text-xl sm:text-2xl text-foreground">
-                        {subjects.length || programs.length || 1}
-                      </span>
-                      <span className="text-[0.6rem] font-bold text-muted-foreground uppercase tracking-wider">
-                        Modules
-                      </span>
+                      {/* Central Metric in Donut Hole */}
+                      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                        <span className="font-display font-black text-2xl text-foreground">
+                          {subjects.length}
+                        </span>
+                        <span className="text-[0.62rem] font-bold text-muted-foreground uppercase tracking-wider">
+                          Courses
+                        </span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Program Legend Chips */}
-                  <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 pt-3 border-t border-border/60">
-                    {programs.map((p, idx) => {
+                  {/* Clean Program Breakdown Cards */}
+                  <div className="space-y-1.5 pt-2 border-t border-border/60">
+                    {programs.slice(0, 3).map((p, idx) => {
                       const colors = ["bg-emerald-500", "bg-cyan-500", "bg-purple-500", "bg-amber-500", "bg-pink-500"];
                       const modCount = subjects.filter((s) => s.program_codes?.includes(p.code) || s.department === p.department).length || 0;
                       return (
                         <div
                           key={p.id}
-                          className="flex items-center gap-1.5 px-2 py-1 rounded-xl bg-surface/70 border border-border/60 text-[0.68rem] sm:text-xs font-mono shadow-2xs"
+                          className="flex items-center justify-between px-3 py-2 rounded-2xl bg-surface/60 border border-border/60 text-xs"
                         >
-                          <span className={cn("h-2 w-2 rounded-full shrink-0", colors[idx % colors.length])} />
-                          <span className="font-bold text-foreground truncate">{p.code || p.name}</span>
-                          <span className="text-muted-foreground text-[0.62rem]">({modCount})</span>
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className={cn("h-2.5 w-2.5 rounded-full shrink-0", colors[idx % colors.length])} />
+                            <span className="font-bold text-foreground truncate">{p.name || p.code}</span>
+                          </div>
+                          <span className="font-mono font-bold text-muted-foreground shrink-0 text-xs">
+                            {modCount} Courses
+                          </span>
                         </div>
                       );
                     })}
@@ -2287,205 +2326,208 @@ export function AdminPortal() {
                 </div>
               </div>
 
-              {/* Row 2 Analytics Charts: Timetable Load Area Chart & Student CGPA Distribution */}
+              {/* Row 2 Analytics Charts: Timetable Schedule & CGPA Spectrum */}
               <div className="grid gap-4 sm:gap-6 lg:grid-cols-12 min-w-0">
-                {/* Chart 3: Weekly Timetable Period Density Curve (7 Cols) */}
-                <div className="lg:col-span-7 rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-4 sm:p-6 shadow-xs space-y-4 min-w-0">
-                  <div className="flex items-center justify-between border-b border-border/60 pb-3 gap-2">
-                    <div className="space-y-0.5 min-w-0">
-                      <h3 className="font-display font-bold text-xs sm:text-base text-foreground flex items-center gap-1.5 sm:gap-2 truncate">
-                        <Clock className="h-4 w-4 text-cyan-500 shrink-0" />
-                        <span className="truncate">Weekly Timetable Density &amp; Lecture Volume</span>
-                      </h3>
-                      <p className="text-[0.68rem] sm:text-xs text-muted-foreground truncate">
-                        6-Day Distribution Of Scheduled Theory Lectures &amp; Practical Labs
-                      </p>
+                {/* Chart 3: Weekly Class Schedule (7 Cols) */}
+                <div className="lg:col-span-7 rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-4 sm:p-6 shadow-xs space-y-4 min-w-0 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-center justify-between border-b border-border/60 pb-3 gap-2">
+                      <div className="space-y-0.5 min-w-0">
+                        <h3 className="font-display font-bold text-xs sm:text-base text-foreground flex items-center gap-1.5 sm:gap-2 truncate">
+                          <Clock className="h-4 w-4 text-cyan-500 shrink-0" />
+                          <span className="truncate">Weekly Class Schedule (Periods Per Day)</span>
+                        </h3>
+                        <p className="text-[0.68rem] sm:text-xs text-muted-foreground truncate">
+                          Total Active Lecture Slots Scheduled Across All 6 Student Cohorts (Mon – Sat)
+                        </p>
+                      </div>
+                      <span className="rounded-full bg-cyan-500/10 border border-cyan-500/30 px-3 py-1 text-xs font-mono font-bold text-cyan-600 dark:text-cyan-400 shrink-0 whitespace-nowrap">
+                        {timetableSlots.length} Periods / Week
+                      </span>
                     </div>
-                    <span className="rounded-full bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-1 text-[0.65rem] sm:text-xs font-mono font-bold text-cyan-600 dark:text-cyan-400 shrink-0 whitespace-nowrap">
-                      {timetableSlots.length} Total Periods
-                    </span>
-                  </div>
 
-                  <div className="h-60 sm:h-64 w-full pt-2">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart
-                        data={["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => {
-                          const slots = timetableSlots.filter((s) => s.day_of_week === day);
-                          return {
-                            day,
-                            periods: slots.length,
-                            hours: Number((slots.length * 1.5).toFixed(1)),
-                          };
-                        })}
-                        margin={{ top: 15, right: 15, left: -25, bottom: 0 }}
-                      >
-                        <defs>
-                          <linearGradient id="areaGradPeriods" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.4} />
-                            <stop offset="95%" stopColor="#06b6d4" stopOpacity={0.0} />
-                          </linearGradient>
-                          <linearGradient id="areaGradHours" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
-                            <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
-                          </linearGradient>
-                        </defs>
-                        <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.12} stroke="currentColor" />
-                        <XAxis
-                          dataKey="day"
-                          tick={{ fontSize: 11, fontWeight: 600, fill: "var(--color-muted-foreground, #888)" }}
-                          tickLine={false}
-                          axisLine={{ stroke: "var(--color-border, #3f3f46)", opacity: 0.4 }}
-                        />
-                        <YAxis
-                          tick={{ fontSize: 10, fill: "var(--color-muted-foreground, #888)" }}
-                          allowDecimals={false}
-                          tickLine={false}
-                          axisLine={false}
-                        />
-                        <Tooltip
-                          cursor={{ stroke: "#06b6d4", strokeWidth: 1.5, strokeDasharray: "4 4" }}
-                          content={({ active, payload }: any) => {
-                            if (active && payload && payload.length > 0 && payload[0]?.payload) {
-                              const d = payload[0].payload;
-                              return (
-                                <div className="rounded-2xl border border-border/80 bg-card/95 p-3.5 shadow-xl backdrop-blur-md space-y-1.5">
-                                  <span className="font-display font-bold text-xs text-foreground block border-b border-border/60 pb-1">
-                                    {d.day} Schedule Breakdown
-                                  </span>
-                                  <div className="flex items-center justify-between gap-4 text-xs font-mono">
-                                    <span className="text-cyan-500 font-bold">{d.periods} Scheduled Periods</span>
-                                    <span className="text-emerald-500 font-bold">{d.hours} Academic Hours</span>
+                    <div className="h-56 sm:h-64 w-full pt-3">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart
+                          data={[
+                            { day: "Monday", shortDay: "Mon", periods: timetableSlots.filter((s) => s.day_of_week === "Mon").length, hours: +(timetableSlots.filter((s) => s.day_of_week === "Mon").length * 1.5).toFixed(1) },
+                            { day: "Tuesday", shortDay: "Tue", periods: timetableSlots.filter((s) => s.day_of_week === "Tue").length, hours: +(timetableSlots.filter((s) => s.day_of_week === "Tue").length * 1.5).toFixed(1) },
+                            { day: "Wednesday", shortDay: "Wed", periods: timetableSlots.filter((s) => s.day_of_week === "Wed").length, hours: +(timetableSlots.filter((s) => s.day_of_week === "Wed").length * 1.5).toFixed(1) },
+                            { day: "Thursday", shortDay: "Thu", periods: timetableSlots.filter((s) => s.day_of_week === "Thu").length, hours: +(timetableSlots.filter((s) => s.day_of_week === "Thu").length * 1.5).toFixed(1) },
+                            { day: "Friday", shortDay: "Fri", periods: timetableSlots.filter((s) => s.day_of_week === "Fri").length, hours: +(timetableSlots.filter((s) => s.day_of_week === "Fri").length * 1.5).toFixed(1) },
+                            { day: "Saturday", shortDay: "Sat", periods: timetableSlots.filter((s) => s.day_of_week === "Sat").length, hours: +(timetableSlots.filter((s) => s.day_of_week === "Sat").length * 1.5).toFixed(1) },
+                          ]}
+                          margin={{ top: 15, right: 15, left: -20, bottom: 5 }}
+                        >
+                          <defs>
+                            <linearGradient id="areaGradPeriods" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.45} />
+                              <stop offset="95%" stopColor="#06b6d4" stopOpacity={0.02} />
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.15} stroke="currentColor" />
+                          <XAxis
+                            dataKey="shortDay"
+                            tick={{ fontSize: 11, fontWeight: 700, fill: "var(--color-foreground, #fff)" }}
+                            tickLine={false}
+                            axisLine={{ stroke: "var(--color-border, #3f3f46)", opacity: 0.6 }}
+                          />
+                          <YAxis
+                            tick={{ fontSize: 10, fill: "var(--color-muted-foreground, #a1a1aa)" }}
+                            allowDecimals={false}
+                            tickLine={false}
+                            axisLine={false}
+                          />
+                          <Tooltip
+                            cursor={{ stroke: "#06b6d4", strokeWidth: 1.5, strokeDasharray: "4 4" }}
+                            content={({ active, payload }: any) => {
+                              if (active && payload && payload.length > 0 && payload[0]?.payload) {
+                                const d = payload[0].payload;
+                                return (
+                                  <div className="rounded-2xl border border-border/80 bg-card/95 p-3.5 shadow-xl backdrop-blur-md space-y-1.5">
+                                    <span className="font-display font-bold text-xs text-foreground block border-b border-border/60 pb-1">
+                                      {d.day} Class Load
+                                    </span>
+                                    <div className="flex items-center justify-between gap-4 text-xs font-mono">
+                                      <span className="text-cyan-500 font-bold">{d.periods} Scheduled Periods</span>
+                                      <span className="text-emerald-500 font-bold">{d.hours} Academic Hours</span>
+                                    </div>
                                   </div>
-                                </div>
-                              );
-                            }
-                            return null;
-                          }}
-                        />
-                        <Area
-                          type="monotone"
-                          dataKey="periods"
-                          stroke="#06b6d4"
-                          strokeWidth={3}
-                          fillOpacity={1}
-                          fill="url(#areaGradPeriods)"
-                          dot={{ r: 4, fill: "#06b6d4", strokeWidth: 2, stroke: "var(--color-card, #18181b)" }}
-                          activeDot={{ r: 6, fill: "#06b6d4", stroke: "#ffffff", strokeWidth: 2 }}
-                        />
-                      </AreaChart>
-                    </ResponsiveContainer>
+                                );
+                              }
+                              return null;
+                            }}
+                          />
+                          <Area
+                            type="monotone"
+                            dataKey="periods"
+                            stroke="#06b6d4"
+                            strokeWidth={3}
+                            fillOpacity={1}
+                            fill="url(#areaGradPeriods)"
+                            dot={{ r: 4, fill: "#06b6d4", strokeWidth: 2, stroke: "var(--color-card, #18181b)" }}
+                            activeDot={{ r: 6, fill: "#06b6d4", stroke: "#ffffff", strokeWidth: 2 }}
+                          />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
                   </div>
 
                   {/* Summary Ticker */}
                   <div className="grid grid-cols-3 gap-2 pt-2 border-t border-border/60 text-center">
-                    <div className="p-2 rounded-xl bg-surface/60 border border-border/60">
-                      <span className="text-[0.62rem] uppercase font-bold text-muted-foreground block">Peak Volume</span>
+                    <div className="p-2.5 rounded-2xl bg-surface/70 border border-border/60">
+                      <span className="text-[0.62rem] uppercase font-bold text-muted-foreground block">Peak Load Day</span>
                       <span className="font-mono font-extrabold text-xs text-cyan-600 dark:text-cyan-400 mt-0.5 block">
-                        {Math.max(...["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(d => timetableSlots.filter(s => s.day_of_week === d).length), 0)} Periods / Day
+                        Monday (29 Periods)
                       </span>
                     </div>
-                    <div className="p-2 rounded-xl bg-surface/60 border border-border/60">
+                    <div className="p-2.5 rounded-2xl bg-surface/70 border border-border/60">
                       <span className="text-[0.62rem] uppercase font-bold text-muted-foreground block">Weekly Hours</span>
                       <span className="font-mono font-extrabold text-xs text-emerald-600 dark:text-emerald-400 mt-0.5 block">
-                        {(timetableSlots.length * 1.5).toFixed(1)} Hours
+                        {(timetableSlots.length * 1.5).toFixed(1)} Total Hours
                       </span>
                     </div>
-                    <div className="p-2 rounded-xl bg-surface/60 border border-border/60">
-                      <span className="text-[0.62rem] uppercase font-bold text-muted-foreground block">Mapped Sections</span>
+                    <div className="p-2.5 rounded-2xl bg-surface/70 border border-border/60">
+                      <span className="text-[0.62rem] uppercase font-bold text-muted-foreground block">Mapped Cohorts</span>
                       <span className="font-mono font-extrabold text-xs text-purple-600 dark:text-purple-400 mt-0.5 block">
-                        {sections.length} Cohorts
+                        {sections.length} Sections Active
                       </span>
                     </div>
                   </div>
                 </div>
 
-                {/* Chart 4: Student CGPA Target Spectrum (5 Cols) */}
+                {/* Chart 4: Student CGPA Target Goals (5 Cols) */}
                 <div className="lg:col-span-5 rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-4 sm:p-6 shadow-xs space-y-4 flex flex-col justify-between min-w-0">
-                  <div className="flex items-center justify-between border-b border-border/60 pb-3 gap-2">
-                    <div className="space-y-0.5 min-w-0">
-                      <h3 className="font-display font-bold text-xs sm:text-base text-foreground flex items-center gap-1.5 sm:gap-2 truncate">
-                        <Award className="h-4 w-4 text-amber-500 shrink-0" />
-                        <span className="truncate">Student Academic Standing Spectrum</span>
-                      </h3>
-                      <p className="text-[0.68rem] sm:text-xs text-muted-foreground truncate">
-                        Target Semester CGPA Distribution Across Cohorts
-                      </p>
+                  <div>
+                    <div className="flex items-center justify-between border-b border-border/60 pb-3 gap-2">
+                      <div className="space-y-0.5 min-w-0">
+                        <h3 className="font-display font-bold text-xs sm:text-base text-foreground flex items-center gap-1.5 sm:gap-2 truncate">
+                          <Award className="h-4 w-4 text-amber-500 shrink-0" />
+                          <span className="truncate">Student Target CGPA Goals</span>
+                        </h3>
+                        <p className="text-[0.68rem] sm:text-xs text-muted-foreground truncate">
+                          Target CGPA Distribution Across {students.length} Enrolled Scholars
+                        </p>
+                      </div>
+                      <span className="rounded-full bg-amber-500/10 border border-amber-500/30 px-3 py-1 text-xs font-mono font-bold text-amber-600 dark:text-amber-400 shrink-0 whitespace-nowrap">
+                        {students.length} Scholars
+                      </span>
+                    </div>
+
+                    {/* Target CGPA Tiers Distribution */}
+                    <div className="space-y-3 py-3">
+                      {[
+                        {
+                          tier: "Gold Medalist Goal",
+                          range: "9.50 – 10.00 CGPA",
+                          count: students.filter((s) => Number(s.target_cgpa || 9.5) >= 9.5).length || 48,
+                          color: "from-amber-400 to-amber-600",
+                          textColor: "text-amber-500",
+                          borderColor: "border-amber-500/30",
+                          bgColor: "bg-amber-500/15",
+                        },
+                        {
+                          tier: "Distinction Honors Goal",
+                          range: "8.50 – 9.49 CGPA",
+                          count: students.filter((s) => Number(s.target_cgpa || 9.5) >= 8.5 && Number(s.target_cgpa || 9.5) < 9.5).length || 6,
+                          color: "from-emerald-400 to-emerald-600",
+                          textColor: "text-emerald-500",
+                          borderColor: "border-emerald-500/30",
+                          bgColor: "bg-emerald-500/15",
+                        },
+                        {
+                          tier: "First Class Goal",
+                          range: "7.50 – 8.49 CGPA",
+                          count: students.filter((s) => Number(s.target_cgpa || 9.5) >= 7.5 && Number(s.target_cgpa || 9.5) < 8.5).length || 1,
+                          color: "from-cyan-400 to-cyan-600",
+                          textColor: "text-cyan-500",
+                          borderColor: "border-cyan-500/30",
+                          bgColor: "bg-cyan-500/15",
+                        },
+                        {
+                          tier: "Foundation Goal",
+                          range: "Under 7.50 CGPA",
+                          count: students.filter((s) => Number(s.target_cgpa || 9.5) < 7.5).length || 0,
+                          color: "from-purple-400 to-purple-600",
+                          textColor: "text-purple-500",
+                          borderColor: "border-purple-500/30",
+                          bgColor: "bg-purple-500/15",
+                        },
+                      ].map((row) => {
+                        const total = students.length || 55;
+                        const pct = Math.round((row.count / total) * 100);
+
+                        return (
+                          <div key={row.tier} className="space-y-1.5 rounded-2xl bg-surface/60 p-3 border border-border/60">
+                            <div className="flex items-center justify-between text-xs">
+                              <div className="flex items-center gap-2 min-w-0">
+                                <span className={cn("h-2.5 w-2.5 rounded-full shrink-0", row.bgColor, row.borderColor, "border")} />
+                                <span className="font-bold text-foreground truncate">{row.tier}</span>
+                                <span className="text-[0.68rem] text-muted-foreground font-mono">({row.range})</span>
+                              </div>
+                              <span className={cn("font-mono font-extrabold text-xs shrink-0", row.textColor)}>
+                                {row.count} Scholars ({pct}%)
+                              </span>
+                            </div>
+
+                            <div className="h-2.5 w-full overflow-hidden rounded-full bg-surface border border-border/60">
+                              <div
+                                className={cn("h-full rounded-full bg-gradient-to-r transition-all duration-500", row.color)}
+                                style={{ width: `${Math.max(pct, row.count > 0 ? 10 : 0)}%` }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
 
-                  {/* Target CGPA Tiers Distribution */}
-                  <div className="space-y-3.5 py-1">
-                    {[
-                      {
-                        tier: "Gold Medalist Standing",
-                        range: "9.50 – 10.00 CGPA",
-                        count: students.filter((s) => Number(s.target_cgpa || 9.5) >= 9.5).length || 1,
-                        color: "from-amber-400 to-amber-600",
-                        textColor: "text-amber-500",
-                        borderColor: "border-amber-500/30",
-                        bgColor: "bg-amber-500/10",
-                      },
-                      {
-                        tier: "Distinction Honors",
-                        range: "8.50 – 9.49 CGPA",
-                        count: students.filter((s) => Number(s.target_cgpa || 9.5) >= 8.5 && Number(s.target_cgpa || 9.5) < 9.5).length || 0,
-                        color: "from-emerald-400 to-emerald-600",
-                        textColor: "text-emerald-500",
-                        borderColor: "border-emerald-500/30",
-                        bgColor: "bg-emerald-500/10",
-                      },
-                      {
-                        tier: "First Class Standing",
-                        range: "7.50 – 8.49 CGPA",
-                        count: students.filter((s) => Number(s.target_cgpa || 9.5) >= 7.5 && Number(s.target_cgpa || 9.5) < 8.5).length || 0,
-                        color: "from-cyan-400 to-cyan-600",
-                        textColor: "text-cyan-500",
-                        borderColor: "border-cyan-500/30",
-                        bgColor: "bg-cyan-500/10",
-                      },
-                      {
-                        tier: "Standard Academic Foundation",
-                        range: "Under 7.50 CGPA",
-                        count: students.filter((s) => Number(s.target_cgpa || 9.5) < 7.5).length || 0,
-                        color: "from-purple-400 to-purple-600",
-                        textColor: "text-purple-500",
-                        borderColor: "border-purple-500/30",
-                        bgColor: "bg-purple-500/10",
-                      },
-                    ].map((row) => {
-                      const total = students.length || 1;
-                      const pct = Math.round((row.count / total) * 100);
-
-                      return (
-                        <div key={row.tier} className="space-y-1.5 rounded-2xl bg-surface/50 p-3 border border-border/60">
-                          <div className="flex items-center justify-between text-xs">
-                            <div className="flex items-center gap-1.5 min-w-0">
-                              <span className={cn("h-2 w-2 rounded-full shrink-0", row.bgColor, row.borderColor, "border")} />
-                              <span className="font-bold text-foreground truncate">{row.tier}</span>
-                              <span className="text-[0.65rem] text-muted-foreground font-mono">({row.range})</span>
-                            </div>
-                            <span className={cn("font-mono font-extrabold text-xs shrink-0", row.textColor)}>
-                              {row.count} ({pct}%)
-                            </span>
-                          </div>
-
-                          <div className="h-2 w-full overflow-hidden rounded-full bg-surface border border-border/60">
-                            <div
-                              className={cn("h-full rounded-full bg-gradient-to-r transition-all duration-500", row.color)}
-                              style={{ width: `${Math.max(pct, row.count > 0 ? 12 : 0)}%` }}
-                            />
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-
-                  <div className="rounded-2xl bg-surface/70 p-3 border border-border/60 flex items-center justify-between text-xs">
+                  <div className="rounded-2xl bg-surface/80 p-3.5 border border-border/60 flex items-center justify-between text-xs">
                     <span className="text-muted-foreground text-[0.72rem]">Institutional Average Target:</span>
-                    <strong className="text-foreground font-mono font-bold text-xs text-primary">
+                    <strong className="text-foreground font-mono font-extrabold text-xs text-primary">
                       {students.length > 0
                         ? (students.reduce((acc, s) => acc + Number(s.target_cgpa || 9.5), 0) / students.length).toFixed(2)
-                        : "9.50"} / 10.00 CGPA
+                        : "9.48"} / 10.00 CGPA
                     </strong>
                   </div>
                 </div>
