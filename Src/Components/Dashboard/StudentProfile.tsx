@@ -401,7 +401,7 @@ export function StudentProfile() {
               <textarea
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                placeholder="Share your academic interests, focus areas, or study objectives..."
+                placeholder="Share Your Academic Interests, Focus Areas, Or Study Objectives..."
                 rows={3}
                 className="w-full rounded-2xl border border-border bg-background p-3 text-xs focus:border-primary focus:outline-none leading-relaxed"
               />
