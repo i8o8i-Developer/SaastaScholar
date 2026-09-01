@@ -1953,29 +1953,31 @@ export function AdminPortal() {
               </div>
 
               {/* 4 Executive KPI Metric Cards (2x2 on Mobile, 4x1 on Desktop) */}
-              <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
+              <div className="grid gap-2.5 sm:gap-4 grid-cols-2 lg:grid-cols-4 min-w-0">
                 {/* 1. Scholars Metric */}
                 <div
                   onClick={() => setActiveStation("students")}
-                  className="rounded-3xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs hover:border-emerald-500/50 hover:shadow-md transition-all cursor-pointer group space-y-3"
+                  className="rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-3 sm:p-5 shadow-xs hover:border-emerald-500/50 hover:shadow-md transition-all cursor-pointer group space-y-2 sm:space-y-3 min-w-0 overflow-hidden"
                 >
-                  <div className="flex items-center justify-between gap-1">
-                    <div className="grid h-10 w-10 place-items-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform shrink-0">
-                      <Users className="h-5 w-5" />
+                  <div className="flex items-center justify-between gap-1 min-w-0">
+                    <div className="grid h-8 w-8 sm:h-10 sm:w-10 place-items-center rounded-xl sm:rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform shrink-0">
+                      <Users className="h-4 w-4 sm:h-5 sm:w-5" />
                     </div>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-[0.65rem] font-bold text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
-                      <TrendingUp className="h-3 w-3" />
-                      <span>Live Registry</span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-1.5 sm:px-2 py-0.5 text-[0.58rem] sm:text-[0.65rem] font-bold text-emerald-600 dark:text-emerald-400 truncate shrink-0 shadow-2xs">
+                      <TrendingUp className="h-2.5 w-2.5 sm:h-3 sm:w-3 shrink-0" />
+                      <span className="truncate">Live Sync</span>
                     </span>
                   </div>
-                  <div>
-                    <h3 className="font-display font-extrabold text-2xl sm:text-3xl text-foreground">
+                  <div className="min-w-0">
+                    <h3 className="font-display font-extrabold text-xl sm:text-2xl lg:text-3xl text-foreground truncate">
                       {students.length || 1}
                     </h3>
-                    <p className="text-xs text-muted-foreground font-semibold mt-0.5 truncate">Enrolled Scholars</p>
+                    <p className="text-[0.68rem] sm:text-xs text-muted-foreground font-semibold mt-0.5 truncate">
+                      Enrolled Scholars
+                    </p>
                   </div>
-                  <div className="text-[0.68rem] text-muted-foreground pt-2 border-t border-border/60 flex items-center justify-between font-mono">
-                    <span className="truncate">Active DRM</span>
+                  <div className="text-[0.6rem] sm:text-[0.68rem] text-muted-foreground pt-1.5 sm:pt-2 border-t border-border/60 flex items-center justify-between font-mono gap-1 min-w-0">
+                    <span className="truncate">DRM Security</span>
                     <span className="font-bold text-foreground shrink-0">{students.length || 1} Verified</span>
                   </div>
                 </div>
@@ -1983,76 +1985,88 @@ export function AdminPortal() {
                 {/* 2. Courseware Vault Metric */}
                 <div
                   onClick={() => setActiveStation("publisher")}
-                  className="rounded-3xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs hover:border-cyan-500/50 hover:shadow-md transition-all cursor-pointer group space-y-3"
+                  className="rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-3 sm:p-5 shadow-xs hover:border-cyan-500/50 hover:shadow-md transition-all cursor-pointer group space-y-2 sm:space-y-3 min-w-0 overflow-hidden"
                 >
-                  <div className="flex items-center justify-between gap-1">
-                    <div className="grid h-10 w-10 place-items-center rounded-2xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 group-hover:scale-110 transition-transform shrink-0">
-                      <FileText className="h-5 w-5" />
+                  <div className="flex items-center justify-between gap-1 min-w-0">
+                    <div className="grid h-8 w-8 sm:h-10 sm:w-10 place-items-center rounded-xl sm:rounded-2xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 group-hover:scale-110 transition-transform shrink-0">
+                      <FileText className="h-4 w-4 sm:h-5 sm:w-5" />
                     </div>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 text-[0.65rem] font-bold text-cyan-600 dark:text-cyan-400 whitespace-nowrap">
-                      <Sparkles className="h-3 w-3" />
-                      <span>{materials.length + labs.length} Units</span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-cyan-500/10 border border-cyan-500/20 px-1.5 sm:px-2 py-0.5 text-[0.58rem] sm:text-[0.65rem] font-bold text-cyan-600 dark:text-cyan-400 truncate shrink-0 shadow-2xs">
+                      <Sparkles className="h-2.5 w-2.5 sm:h-3 sm:w-3 shrink-0" />
+                      <span className="truncate">{materials.length + labs.length} Units</span>
                     </span>
                   </div>
-                  <div>
-                    <h3 className="font-display font-extrabold text-2xl sm:text-3xl text-foreground">
+                  <div className="min-w-0">
+                    <h3 className="font-display font-extrabold text-xl sm:text-2xl lg:text-3xl text-foreground truncate">
                       {materials.length + labs.length}
                     </h3>
-                    <p className="text-xs text-muted-foreground font-semibold mt-0.5 truncate">Published Manuscripts</p>
+                    <p className="text-[0.68rem] sm:text-xs text-muted-foreground font-semibold mt-0.5 truncate">
+                      Study Materials
+                    </p>
                   </div>
-                  <div className="text-[0.68rem] text-muted-foreground pt-2 border-t border-border/60 flex items-center justify-between font-mono">
-                    <span className="truncate">Course Assets</span>
-                    <span className="font-bold text-cyan-600 dark:text-cyan-400 shrink-0">{materials.filter(m => m.material_type === "NOTES").length} Notes • {labs.length} Labs</span>
+                  <div className="text-[0.6rem] sm:text-[0.68rem] text-muted-foreground pt-1.5 sm:pt-2 border-t border-border/60 flex items-center justify-between font-mono gap-1 min-w-0">
+                    <span className="truncate">Vault</span>
+                    <span className="font-bold text-cyan-600 dark:text-cyan-400 shrink-0">
+                      {materials.filter(m => m.material_type === "NOTES").length} Notes · {labs.length} Labs
+                    </span>
                   </div>
                 </div>
 
                 {/* 3. Academic Structure Metric */}
                 <div
                   onClick={() => setActiveStation("structure")}
-                  className="rounded-3xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs hover:border-purple-500/50 hover:shadow-md transition-all cursor-pointer group space-y-3"
+                  className="rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-3 sm:p-5 shadow-xs hover:border-purple-500/50 hover:shadow-md transition-all cursor-pointer group space-y-2 sm:space-y-3 min-w-0 overflow-hidden"
                 >
-                  <div className="flex items-center justify-between gap-1">
-                    <div className="grid h-10 w-10 place-items-center rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform shrink-0">
-                      <Building2 className="h-5 w-5" />
+                  <div className="flex items-center justify-between gap-1 min-w-0">
+                    <div className="grid h-8 w-8 sm:h-10 sm:w-10 place-items-center rounded-xl sm:rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform shrink-0">
+                      <Building2 className="h-4 w-4 sm:h-5 sm:w-5" />
                     </div>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 text-[0.65rem] font-bold text-purple-600 dark:text-purple-400 whitespace-nowrap">
-                      <span>{programs.length} Specializations</span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-purple-500/10 border border-purple-500/20 px-1.5 sm:px-2 py-0.5 text-[0.58rem] sm:text-[0.65rem] font-bold text-purple-600 dark:text-purple-400 truncate shrink-0 shadow-2xs">
+                      <span className="truncate">{programs.length} Branches</span>
                     </span>
                   </div>
-                  <div>
-                    <h3 className="font-display font-extrabold text-2xl sm:text-3xl text-foreground">
+                  <div className="min-w-0">
+                    <h3 className="font-display font-extrabold text-xl sm:text-2xl lg:text-3xl text-foreground truncate">
                       {subjects.length}
                     </h3>
-                    <p className="text-xs text-muted-foreground font-semibold mt-0.5 truncate">Course Modules</p>
+                    <p className="text-[0.68rem] sm:text-xs text-muted-foreground font-semibold mt-0.5 truncate">
+                      Course Modules
+                    </p>
                   </div>
-                  <div className="text-[0.68rem] text-muted-foreground pt-2 border-t border-border/60 flex items-center justify-between font-mono">
-                    <span className="truncate">Academic Blueprint</span>
-                    <span className="font-bold text-purple-600 dark:text-purple-400 shrink-0">{departments.length} Active</span>
+                  <div className="text-[0.6rem] sm:text-[0.68rem] text-muted-foreground pt-1.5 sm:pt-2 border-t border-border/60 flex items-center justify-between font-mono gap-1 min-w-0">
+                    <span className="truncate">Blueprint</span>
+                    <span className="font-bold text-purple-600 dark:text-purple-400 shrink-0">
+                      {departments.length} Depts Active
+                    </span>
                   </div>
                 </div>
 
                 {/* 4. Timetable & Schedule Density */}
                 <div
                   onClick={() => setActiveStation("timetable")}
-                  className="rounded-3xl border border-border/80 bg-card p-4 sm:p-5 shadow-xs hover:border-amber-500/50 hover:shadow-md transition-all cursor-pointer group space-y-3"
+                  className="rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-3 sm:p-5 shadow-xs hover:border-amber-500/50 hover:shadow-md transition-all cursor-pointer group space-y-2 sm:space-y-3 min-w-0 overflow-hidden"
                 >
-                  <div className="flex items-center justify-between gap-1">
-                    <div className="grid h-10 w-10 place-items-center rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 group-hover:scale-110 transition-transform shrink-0">
-                      <Clock className="h-5 w-5" />
+                  <div className="flex items-center justify-between gap-1 min-w-0">
+                    <div className="grid h-8 w-8 sm:h-10 sm:w-10 place-items-center rounded-xl sm:rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 group-hover:scale-110 transition-transform shrink-0">
+                      <Clock className="h-4 w-4 sm:h-5 sm:w-5" />
                     </div>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 text-[0.65rem] font-bold text-amber-600 dark:text-amber-400 whitespace-nowrap">
-                      <span>6-Day Matrix</span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 border border-amber-500/20 px-1.5 sm:px-2 py-0.5 text-[0.58rem] sm:text-[0.65rem] font-bold text-amber-600 dark:text-amber-400 truncate shrink-0 shadow-2xs">
+                      <span className="truncate">6-Day Grid</span>
                     </span>
                   </div>
-                  <div>
-                    <h3 className="font-display font-extrabold text-2xl sm:text-3xl text-foreground">
+                  <div className="min-w-0">
+                    <h3 className="font-display font-extrabold text-xl sm:text-2xl lg:text-3xl text-foreground truncate">
                       {timetableSlots.length}
                     </h3>
-                    <p className="text-xs text-muted-foreground font-semibold mt-0.5 truncate">Scheduled Periods</p>
+                    <p className="text-[0.68rem] sm:text-xs text-muted-foreground font-semibold mt-0.5 truncate">
+                      Weekly Periods
+                    </p>
                   </div>
-                  <div className="text-[0.68rem] text-muted-foreground pt-2 border-t border-border/60 flex items-center justify-between font-mono">
-                    <span className="truncate">Cohort Sections</span>
-                    <span className="font-bold text-amber-600 dark:text-amber-400 shrink-0">{sections.length} Cohorts</span>
+                  <div className="text-[0.6rem] sm:text-[0.68rem] text-muted-foreground pt-1.5 sm:pt-2 border-t border-border/60 flex items-center justify-between font-mono gap-1 min-w-0">
+                    <span className="truncate">Sections</span>
+                    <span className="font-bold text-amber-600 dark:text-amber-400 shrink-0">
+                      {sections.length} Cohorts
+                    </span>
                   </div>
                 </div>
               </div>
