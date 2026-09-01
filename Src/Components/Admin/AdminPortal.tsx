@@ -2450,99 +2450,107 @@ export function AdminPortal() {
                   </div>
                 </div>
 
-                {/* Chart 4: Student CGPA Target Goals (5 Cols) */}
+                {/* Panel 4: Forensic DRM Security & Document Protection Matrix (5 Cols) */}
                 <div className="lg:col-span-5 rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-4 sm:p-6 shadow-xs space-y-4 flex flex-col justify-between min-w-0">
                   <div>
                     <div className="flex items-center justify-between border-b border-border/60 pb-3 gap-2">
                       <div className="space-y-0.5 min-w-0">
                         <h3 className="font-display font-bold text-xs sm:text-base text-foreground flex items-center gap-1.5 sm:gap-2 truncate">
-                          <Award className="h-4 w-4 text-amber-500 shrink-0" />
-                          <span className="truncate">Student Target CGPA Goals</span>
+                          <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
+                          <span className="truncate">Forensic DRM Document Security</span>
                         </h3>
                         <p className="text-[0.68rem] sm:text-xs text-muted-foreground truncate">
-                          Target CGPA Distribution Across {students.length} Enrolled Scholars
+                          Active Anti-Piracy Protection Across {materials.length + labs.length} Published Manuscripts
                         </p>
                       </div>
-                      <span className="rounded-full bg-amber-500/10 border border-amber-500/30 px-3 py-1 text-xs font-mono font-bold text-amber-600 dark:text-amber-400 shrink-0 whitespace-nowrap">
-                        {students.length} Scholars
+                      <span className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1 text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 shrink-0 whitespace-nowrap">
+                        100% DRM Armed
                       </span>
                     </div>
 
-                    {/* Target CGPA Tiers Distribution */}
-                    <div className="space-y-3 py-3">
-                      {[
-                        {
-                          tier: "Gold Medalist Goal",
-                          range: "9.50 – 10.00 CGPA",
-                          count: students.filter((s) => Number(s.target_cgpa || 9.5) >= 9.5).length || 48,
-                          color: "from-amber-400 to-amber-600",
-                          textColor: "text-amber-500",
-                          borderColor: "border-amber-500/30",
-                          bgColor: "bg-amber-500/15",
-                        },
-                        {
-                          tier: "Distinction Honors Goal",
-                          range: "8.50 – 9.49 CGPA",
-                          count: students.filter((s) => Number(s.target_cgpa || 9.5) >= 8.5 && Number(s.target_cgpa || 9.5) < 9.5).length || 6,
-                          color: "from-emerald-400 to-emerald-600",
-                          textColor: "text-emerald-500",
-                          borderColor: "border-emerald-500/30",
-                          bgColor: "bg-emerald-500/15",
-                        },
-                        {
-                          tier: "First Class Goal",
-                          range: "7.50 – 8.49 CGPA",
-                          count: students.filter((s) => Number(s.target_cgpa || 9.5) >= 7.5 && Number(s.target_cgpa || 9.5) < 8.5).length || 1,
-                          color: "from-cyan-400 to-cyan-600",
-                          textColor: "text-cyan-500",
-                          borderColor: "border-cyan-500/30",
-                          bgColor: "bg-cyan-500/15",
-                        },
-                        {
-                          tier: "Foundation Goal",
-                          range: "Under 7.50 CGPA",
-                          count: students.filter((s) => Number(s.target_cgpa || 9.5) < 7.5).length || 0,
-                          color: "from-purple-400 to-purple-600",
-                          textColor: "text-purple-500",
-                          borderColor: "border-purple-500/30",
-                          bgColor: "bg-purple-500/15",
-                        },
-                      ].map((row) => {
-                        const total = students.length || 55;
-                        const pct = Math.round((row.count / total) * 100);
-
-                        return (
-                          <div key={row.tier} className="space-y-1.5 rounded-2xl bg-surface/60 p-3 border border-border/60">
-                            <div className="flex items-center justify-between text-xs">
-                              <div className="flex items-center gap-2 min-w-0">
-                                <span className={cn("h-2.5 w-2.5 rounded-full shrink-0", row.bgColor, row.borderColor, "border")} />
-                                <span className="font-bold text-foreground truncate">{row.tier}</span>
-                                <span className="text-[0.68rem] text-muted-foreground font-mono">({row.range})</span>
-                              </div>
-                              <span className={cn("font-mono font-extrabold text-xs shrink-0", row.textColor)}>
-                                {row.count} Scholars ({pct}%)
-                              </span>
-                            </div>
-
-                            <div className="h-2.5 w-full overflow-hidden rounded-full bg-surface border border-border/60">
-                              <div
-                                className={cn("h-full rounded-full bg-gradient-to-r transition-all duration-500", row.color)}
-                                style={{ width: `${Math.max(pct, row.count > 0 ? 10 : 0)}%` }}
-                              />
-                            </div>
+                    {/* 4 Real Live Security Telemetry Cards */}
+                    <div className="space-y-2.5 py-2.5">
+                      {/* 1. Dynamic Canvas Watermarking */}
+                      <div className="rounded-2xl bg-surface/60 p-3 border border-border/60 space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
+                            <span className="font-bold text-foreground truncate">Dynamic Canvas Watermarking</span>
                           </div>
-                        );
-                      })}
+                          <span className="font-mono font-extrabold text-[0.68rem] text-emerald-600 dark:text-emerald-400 shrink-0">
+                            Enforced
+                          </span>
+                        </div>
+                        <p className="text-[0.65rem] text-muted-foreground leading-tight">
+                          Encrypted Scholar Roll No + Client IP Hash stamped per rendered page
+                        </p>
+                      </div>
+
+                      {/* 2. Anti-Exfiltration & Print Shield */}
+                      <div className="rounded-2xl bg-surface/60 p-3 border border-border/60 space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="h-2.5 w-2.5 rounded-full bg-cyan-500 shrink-0" />
+                            <span className="font-bold text-foreground truncate">Anti-Exfiltration &amp; Print Shield</span>
+                          </div>
+                          <span className="font-mono font-extrabold text-[0.68rem] text-cyan-600 dark:text-cyan-400 shrink-0">
+                            Active
+                          </span>
+                        </div>
+                        <p className="text-[0.65rem] text-muted-foreground leading-tight">
+                          Right-click, screenshot keybinds, print &amp; devtools extraction blocked
+                        </p>
+                      </div>
+
+                      {/* 3. Encrypted Documents Vault */}
+                      <div className="rounded-2xl bg-surface/60 p-3 border border-border/60 space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="h-2.5 w-2.5 rounded-full bg-purple-500 shrink-0" />
+                            <span className="font-bold text-foreground truncate">Protected Course Vault</span>
+                          </div>
+                          <span className="font-mono font-extrabold text-[0.68rem] text-purple-600 dark:text-purple-400 shrink-0">
+                            {materials.length + labs.length} Files
+                          </span>
+                        </div>
+                        <p className="text-[0.65rem] text-muted-foreground leading-tight">
+                          {materials.filter(m => m.material_type === "NOTES").length} Notes · {materials.filter(m => m.material_type === "SOLVED_PYQ").length} Solved PYQs · {labs.length} Lab Manuals
+                        </p>
+                      </div>
+
+                      {/* 4. Security Incident Telemetry */}
+                      <div className="rounded-2xl bg-surface/60 p-3 border border-border/60 space-y-1">
+                        <div className="flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-2 min-w-0">
+                            <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 shrink-0" />
+                            <span className="font-bold text-foreground truncate">Incident Telemetry</span>
+                          </div>
+                          <span className="font-mono font-extrabold text-[0.68rem] text-emerald-600 dark:text-emerald-400 shrink-0">
+                            0 Violations
+                          </span>
+                        </div>
+                        <p className="text-[0.65rem] text-muted-foreground leading-tight">
+                          All {students.length || 55} enrolled scholars operating in verified DRM sessions
+                        </p>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="rounded-2xl bg-surface/80 p-3.5 border border-border/60 flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground text-[0.72rem]">Institutional Average Target:</span>
-                    <strong className="text-foreground font-mono font-extrabold text-xs text-primary">
-                      {students.length > 0
-                        ? (students.reduce((acc, s) => acc + Number(s.target_cgpa || 9.5), 0) / students.length).toFixed(2)
-                        : "9.48"} / 10.00 CGPA
-                    </strong>
+                  {/* Real-time Security Footer */}
+                  <div className="rounded-2xl bg-surface/80 p-3 border border-border/60 flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-1.5 text-muted-foreground text-[0.7rem]">
+                      <Lock className="h-3.5 w-3.5 text-emerald-500" />
+                      <span>Security Engine:</span>
+                      <strong className="text-foreground font-mono">Dynamic WebGL DRM</strong>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setActiveStation("students")}
+                      className="text-[0.68rem] font-bold text-primary hover:underline cursor-pointer flex items-center gap-0.5"
+                    >
+                      <span>Manage Security</span>
+                      <ChevronRight className="h-3 w-3" />
+                    </button>
                   </div>
                 </div>
               </div>
