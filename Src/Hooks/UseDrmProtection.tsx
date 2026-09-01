@@ -308,17 +308,23 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       }
     };
 
-    // 4. Window Focus Blur (Desktop Only - Avoids Mobile Address Bar False Positives)
+    // 4. Window Focus Blur & Visibility (Graceful Protection without False-Positive Incident Bans)
     const handleBlur = () => {
+      isMetaPressed = false;
+      isShiftPressed = false;
+      isCtrlPressed = false;
+
       if (isIOS || isAndroid) return;
+      // Soft privacy shield when window is in background; does not file a disciplinary breach
       setIsScreenBlurred(true);
       overwriteClipboard();
-      if (isMetaPressed || isShiftPressed || isCtrlPressed) {
-        triggerBlackoutShield("SNIPPING_TOOL_OVERLAY_ACTIVE", 4000);
-      }
     };
 
     const handleFocus = () => {
+      isMetaPressed = false;
+      isShiftPressed = false;
+      isCtrlPressed = false;
+
       if (!isAccountBlocked) {
         setIsScreenBlurred(false);
         setIsSecurityAlertActive(false);
