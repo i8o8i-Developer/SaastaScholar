@@ -50,13 +50,29 @@ export function StudentProfile() {
   }, []);
 
   const [fullName, setFullName] = useState<string>(user?.full_name || "");
-  const [phoneNumber, setPhoneNumber] = useState<string>(user?.phone_number || "+91 98111 22334");
-  const [targetCgpa, setTargetCgpa] = useState<number>(user?.target_cgpa ? Number(user.target_cgpa) : 10.0);
-  const [bio, setBio] = useState<string>("B.Tech AI & ML Student Focusing On Heuristic Search Algorithms And Deep Learning Architectures.");
-  const [minorSpecialization, setMinorSpecialization] = useState<string>("Cloud Computing & MLOps");
-  const [preferredLanguage, setPreferredLanguage] = useState<string>("Python 3.10");
+  const [phoneNumber, setPhoneNumber] = useState<string>(user?.phone_number || "");
+  const [targetCgpa, setTargetCgpa] = useState<number>(user?.target_cgpa ? Number(user.target_cgpa) : 9.5);
+  const [bio, setBio] = useState<string>(user?.bio || "");
+  const [academicFocus, setAcademicFocus] = useState<string>(user?.academic_focus || "");
+  const [careerGoal, setCareerGoal] = useState<string>(user?.career_goal || "");
+  const [semester, setSemester] = useState<number>(user?.semester || 1);
+  const [section, setSection] = useState<string>(user?.section || "A");
+  const [isEditingAcademicRecord, setIsEditingAcademicRecord] = useState<boolean>(false);
   const [uploadingAvatar, setUploadingAvatar] = useState<boolean>(false);
   const [saving, setSaving] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (user) {
+      setFullName(user.full_name || "");
+      setPhoneNumber(user.phone_number || "");
+      setTargetCgpa(user.target_cgpa ? Number(user.target_cgpa) : 9.5);
+      setBio(user.bio || "");
+      setAcademicFocus(user.academic_focus || "");
+      setCareerGoal(user.career_goal || "");
+      setSemester(user.semester || 1);
+      setSection(user.section || "A");
+    }
+  }, [user]);
 
   const handleToggleDrm = () => {
     const nextState = !isDrmDisabled;
@@ -116,8 +132,14 @@ export function StudentProfile() {
       await updateProfile({
         full_name: fullName,
         phone_number: phoneNumber,
+        bio: bio,
+        academic_focus: academicFocus,
+        career_goal: careerGoal,
+        semester: Number(semester),
+        section: section.toUpperCase(),
         target_cgpa: String(targetCgpa),
       });
+      setIsEditingAcademicRecord(false);
       toast.success("Academic Profile Details Updated Successfully.");
     } catch (err: any) {
       toast.error(toTitleCase(err.message || "Failed To Update Profile."));
@@ -178,14 +200,14 @@ export function StudentProfile() {
                   {user?.full_name || "Student Scholar"}
                 </h1>
                 <span className="rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 px-2.5 py-0.5 text-[0.62rem] sm:text-xs font-bold uppercase tracking-wider border border-emerald-500/20 whitespace-nowrap shrink-0">
-                  {user?.access_tier?.replace("_", " ") || "SEMESTER TOPPER"}
+                  {user?.access_tier?.replace("_", " ") || "FREE STARTER"}
                 </span>
               </div>
               <p className="text-[0.72rem] sm:text-xs md:text-sm text-muted-foreground break-all sm:break-normal">
-                {user?.email} · <span className="font-mono font-bold text-foreground">ID: {user?.roll_number || "ADMIN01"}</span>
+                {user?.email} · <span className="font-mono font-bold text-foreground">ID: {user?.roll_number || "STU01"}</span>
               </p>
               <p className="text-[0.72rem] sm:text-xs text-foreground/85 font-medium leading-relaxed break-words">
-                {bio}
+                {user?.bio || "No Academic Statement Set Yet. Add Your Study Focus And Research Goals In Personal Preferences."}
               </p>
             </div>
           </div>
@@ -225,9 +247,18 @@ export function StudentProfile() {
                   Institutional Academic Record
                 </h2>
               </div>
-              <span className="rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2.5 py-0.5 text-[0.65rem] font-bold border border-emerald-500/20">
-                Verified Student
-              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsEditingAcademicRecord(!isEditingAcademicRecord)}
+                  className="rounded-full bg-primary/10 hover:bg-primary/20 text-primary px-2.5 py-0.5 text-[0.68rem] font-bold transition-all cursor-pointer"
+                >
+                  {isEditingAcademicRecord ? "Close Edit" : "Edit Details"}
+                </button>
+                <span className="rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2.5 py-0.5 text-[0.65rem] font-bold border border-emerald-500/20">
+                  Verified Student
+                </span>
+              </div>
             </div>
 
             <div className="space-y-2.5 text-xs">
@@ -239,30 +270,73 @@ export function StudentProfile() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 p-3 rounded-2xl bg-surface/60 border border-border/60">
                 <span className="text-muted-foreground font-medium shrink-0">Department</span>
                 <span className="font-bold text-foreground sm:text-right">
-                  {user?.department || "Department Of Computer Science & Engineering"}
+                  {user?.department || "Registered Department"}
                 </span>
               </div>
 
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 p-3 rounded-2xl bg-surface/60 border border-border/60">
                 <span className="text-muted-foreground font-medium shrink-0">Degree Program</span>
-                <span className="font-bold text-foreground sm:text-right">{user?.program || "B.Tech AI & ML"}</span>
+                <span className="font-bold text-foreground sm:text-right">{user?.program || "Registered Program"}</span>
               </div>
 
-              <div className="flex items-center justify-between p-3 rounded-2xl bg-surface/60 border border-border/60">
-                <span className="text-muted-foreground font-medium shrink-0">Semester &amp; Section</span>
-                <span className="font-bold text-foreground">
-                  Semester {user?.semester || 1} · Section {user?.section || "A"}
-                </span>
-              </div>
+              {/* Semester & Section with Inline Edit Toggle */}
+              {isEditingAcademicRecord ? (
+                <div className="p-3.5 rounded-2xl bg-primary/5 border border-primary/30 space-y-3">
+                  <span className="text-xs font-bold text-foreground block">Update Semester &amp; Section</span>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-[0.68rem] font-bold text-muted-foreground mb-1">Semester</label>
+                      <select
+                        value={semester}
+                        onChange={(e) => setSemester(Number(e.target.value))}
+                        className="h-9 w-full rounded-xl border border-border bg-background px-2.5 text-xs font-bold focus:border-primary focus:outline-none"
+                      >
+                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((sem) => (
+                          <option key={sem} value={sem}>
+                            Semester {sem}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[0.68rem] font-bold text-muted-foreground mb-1">Section Batch</label>
+                      <input
+                        type="text"
+                        value={section}
+                        onChange={(e) => setSection(e.target.value.toUpperCase())}
+                        placeholder="E.g. A"
+                        maxLength={5}
+                        className="h-9 w-full rounded-xl border border-border bg-background px-2.5 text-xs font-bold focus:border-primary focus:outline-none uppercase"
+                      />
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleSave}
+                    disabled={saving}
+                    className="h-8 px-4 rounded-xl bg-primary text-xs font-bold text-primary-foreground hover:bg-primary-deep cursor-pointer"
+                  >
+                    {saving ? "Saving..." : "Apply Academic Changes"}
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between p-3 rounded-2xl bg-surface/60 border border-border/60">
+                  <span className="text-muted-foreground font-medium shrink-0">Semester &amp; Section</span>
+                  <span className="font-bold text-foreground">
+                    Semester {user?.semester || 1} · Section {user?.section || "A"}
+                  </span>
+                </div>
+              )}
 
               <div className="flex items-center justify-between p-3 rounded-2xl bg-surface/60 border border-border/60">
                 <span className="text-muted-foreground font-medium shrink-0">Student ID</span>
-                <span className="font-mono font-bold text-foreground">{user?.roll_number || "ADMIN01"}</span>
+                <span className="font-mono font-bold text-foreground">{user?.roll_number || "STU01"}</span>
               </div>
 
               <div className="flex items-center justify-between p-3 rounded-2xl bg-surface/60 border border-border/60">
                 <span className="text-muted-foreground font-medium shrink-0">Official Enrollment ID</span>
-                <span className="font-mono font-bold text-foreground">{user?.enrollment_no || "NIMS2026-CS-8942"}</span>
+                <span className="font-mono font-bold text-foreground">{user?.enrollment_no || "NIMS-ENR-2026"}</span>
               </div>
             </div>
           </div>
@@ -317,7 +391,7 @@ export function StudentProfile() {
                 type="tel"
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(e.target.value)}
-                placeholder="+91 98765 43210"
+                placeholder="E.g. +91 98765 43210"
                 className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
               />
             </div>
@@ -327,36 +401,44 @@ export function StudentProfile() {
               <textarea
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
-                placeholder="Enter Your Academic Interests..."
+                placeholder="Share your academic interests, focus areas, or study objectives..."
                 rows={3}
-                className="w-full rounded-2xl border border-border bg-background p-3 text-xs focus:border-primary focus:outline-none"
+                className="w-full rounded-2xl border border-border bg-background p-3 text-xs focus:border-primary focus:outline-none leading-relaxed"
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
               <div>
-                <label className="block text-xs font-bold text-foreground mb-1">Minor Specialization</label>
-                <select
-                  value={minorSpecialization}
-                  onChange={(e) => setMinorSpecialization(e.target.value)}
+                <label className="block text-xs font-bold text-foreground mb-1">
+                  Primary Academic Focus / Elective Area
+                </label>
+                <input
+                  type="text"
+                  value={academicFocus}
+                  onChange={(e) => setAcademicFocus(e.target.value)}
+                  placeholder="E.g. Pharmacology, Corporate Law, AI & Data, FinTech, Anatomy..."
                   className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
-                >
-                  <option value="Cloud Computing & MLOps">Cloud Computing &amp; MLOps</option>
-                  <option value="Cybersecurity & Forensics">Cybersecurity &amp; Forensics</option>
-                  <option value="Data Science & Big Data">Data Science &amp; Big Data</option>
-                </select>
+                />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-foreground mb-1">Core Coding Language</label>
+                <label className="block text-xs font-bold text-foreground mb-1">
+                  Career Goal &amp; Target Track
+                </label>
                 <select
-                  value={preferredLanguage}
-                  onChange={(e) => setPreferredLanguage(e.target.value)}
-                  className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
+                  value={careerGoal}
+                  onChange={(e) => setCareerGoal(e.target.value)}
+                  className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none font-medium"
                 >
-                  <option value="Python 3.10">Python 3.10</option>
-                  <option value="C++ 20">C++ 20</option>
-                  <option value="Java 17">Java 17</option>
+                  <option value="">Select Target Track (Optional)...</option>
+                  <option value="Corporate Industry & Top MNCs">Corporate Industry &amp; Top MNCs</option>
+                  <option value="Higher Studies & Research (MS / M.Tech / MBA / MD)">Higher Studies &amp; Research (MS / M.Tech / MBA / MD)</option>
+                  <option value="Government & Competitive Exams (UPSC / GATE / NET / PSU)">Government &amp; Competitive Exams (UPSC / GATE / NET / PSU)</option>
+                  <option value="Healthcare & Clinical Hospital Practice">Healthcare &amp; Clinical Hospital Practice</option>
+                  <option value="Judicial / Legal Services & Corporate Counsel">Judicial / Legal Services &amp; Corporate Counsel</option>
+                  <option value="Entrepreneurship & Startup Incubation">Entrepreneurship &amp; Startup Incubation</option>
+                  <option value="Core Sector / Research & Development">Core Sector / Research &amp; Development</option>
+                  <option value="Open / Exploring Opportunities">Open / Exploring Opportunities</option>
                 </select>
               </div>
             </div>

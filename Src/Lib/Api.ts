@@ -44,6 +44,9 @@ export interface StudentUser {
   username: string;
   full_name: string;
   phone_number: string;
+  bio?: string;
+  academic_focus?: string;
+  career_goal?: string;
   university: string;
   department: string;
   program: string;

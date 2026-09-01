@@ -12,6 +12,9 @@ class StudentUser(AbstractUser):
     email = models.EmailField(unique=True)
     full_name = models.CharField(max_length=255, blank=True)
     phone_number = models.CharField(max_length=20, blank=True)
+    bio = models.TextField(blank=True, default="")
+    academic_focus = models.CharField(max_length=255, blank=True, default="")
+    career_goal = models.CharField(max_length=255, blank=True, default="")
     
     # Institutional University Details
     university = models.CharField(max_length=255, default="NIMS University, Rajasthan")
