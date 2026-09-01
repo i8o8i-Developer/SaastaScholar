@@ -54,6 +54,8 @@ export function SiteNav() {
           <img
             src="/NIMSWallah.png?v=2"
             alt="NimsWallah Logo"
+            width="32"
+            height="32"
             className="h-8 w-8 object-contain rounded-md"
           />
           <span className="font-display text-lg font-bold tracking-tight">NimsWallah</span>

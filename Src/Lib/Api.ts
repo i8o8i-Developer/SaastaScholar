@@ -501,83 +501,108 @@ async function refreshAccessToken(): Promise<string | null> {
   return null;
 }
 
+// In-flight GET request deduplication map to prevent redundant concurrent fetches
+const inFlightRequests = new Map<string, Promise<any>>();
+
 export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const method = (options.method || "GET").toUpperCase();
   const token = getAccessToken();
-  const headers: HeadersInit = {
-    "Content-Type": "application/json",
-    ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...options.headers,
-  };
 
-  let res = await fetch(`${API_BASE}${endpoint}`, {
-    ...options,
-    headers,
-  });
+  // Deduplicate identical concurrent GET requests
+  const cacheKey = method === "GET" && !options.body ? `${endpoint}::${token || "anon"}` : null;
+  if (cacheKey && inFlightRequests.has(cacheKey)) {
+    return inFlightRequests.get(cacheKey)!;
+  }
 
-  // Handle 401 Unauthorized With Automatic JWT Token Refresh & Retry
-  if (res.status === 401 && token && !endpoint.includes("/auth/login/") && !endpoint.includes("/auth/refresh/")) {
-    if (!isRefreshing) {
-      isRefreshing = true;
-      const newToken = await refreshAccessToken();
-      isRefreshing = false;
-      if (newToken) {
-        onRefreshed(newToken);
-      } else {
-        removeAccessToken();
-        refreshSubscribers = [];
-      }
-    }
-
-    // Wait For The Token Refresh To Complete
-    const retryPromise = new Promise<Response>((resolve) => {
-      subscribeTokenRefresh(async (newToken) => {
-        const retryHeaders: HeadersInit = {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${newToken}`,
-          ...options.headers,
-        };
-        const retryRes = await fetch(`${API_BASE}${endpoint}`, {
-          ...options,
-          headers: retryHeaders,
-        });
-        resolve(retryRes);
-      });
-    });
-
-    const currentToken = getAccessToken();
-    if (currentToken && currentToken !== token) {
-      const retryHeaders: HeadersInit = {
+  const fetchPromise = (async () => {
+    try {
+      const headers: HeadersInit = {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${currentToken}`,
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
         ...options.headers,
       };
-      res = await fetch(`${API_BASE}${endpoint}`, {
+
+      let res = await fetch(`${API_BASE}${endpoint}`, {
         ...options,
-        headers: retryHeaders,
+        headers,
       });
-    } else if (isRefreshing) {
-      res = await retryPromise;
+
+      // Handle 401 Unauthorized With Automatic JWT Token Refresh & Retry
+      if (res.status === 401 && token && !endpoint.includes("/auth/login/") && !endpoint.includes("/auth/refresh/")) {
+        if (!isRefreshing) {
+          isRefreshing = true;
+          const newToken = await refreshAccessToken();
+          isRefreshing = false;
+          if (newToken) {
+            onRefreshed(newToken);
+          } else {
+            removeAccessToken();
+            refreshSubscribers = [];
+          }
+        }
+
+        // Wait For The Token Refresh To Complete
+        const retryPromise = new Promise<Response>((resolve) => {
+          subscribeTokenRefresh(async (newToken) => {
+            const retryHeaders: HeadersInit = {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${newToken}`,
+              ...options.headers,
+            };
+            const retryRes = await fetch(`${API_BASE}${endpoint}`, {
+              ...options,
+              headers: retryHeaders,
+            });
+            resolve(retryRes);
+          });
+        });
+
+        const currentToken = getAccessToken();
+        if (currentToken && currentToken !== token) {
+          const retryHeaders: HeadersInit = {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${currentToken}`,
+            ...options.headers,
+          };
+          res = await fetch(`${API_BASE}${endpoint}`, {
+            ...options,
+            headers: retryHeaders,
+          });
+        } else if (isRefreshing) {
+          res = await retryPromise;
+        }
+      }
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        const rawError =
+          errorData.error ||
+          errorData.detail ||
+          (Array.isArray(errorData.non_field_errors) ? errorData.non_field_errors[0] : null) ||
+          (typeof errorData === "object" ? Object.values(errorData)[0] : null) ||
+          `Request Failed With Status ${res.status}`;
+        const errorMsg = Array.isArray(rawError) ? rawError[0] : typeof rawError === "string" ? rawError : JSON.stringify(rawError);
+        throw new Error(toTitleCase(errorMsg));
+      }
+
+      if (res.status === 204) {
+        return {} as T;
+      }
+
+      const text = await res.text();
+      return text ? JSON.parse(text) : ({} as T);
+    } finally {
+      if (cacheKey) {
+        inFlightRequests.delete(cacheKey);
+      }
     }
+  })();
+
+  if (cacheKey) {
+    inFlightRequests.set(cacheKey, fetchPromise);
   }
 
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    const rawError =
-      errorData.error ||
-      errorData.detail ||
-      (Array.isArray(errorData.non_field_errors) ? errorData.non_field_errors[0] : null) ||
-      (typeof errorData === "object" ? Object.values(errorData)[0] : null) ||
-      `Request Failed With Status ${res.status}`;
-    const errorMsg = Array.isArray(rawError) ? rawError[0] : typeof rawError === "string" ? rawError : JSON.stringify(rawError);
-    throw new Error(toTitleCase(errorMsg));
-  }
-
-  if (res.status === 204) {
-    return {} as T;
-  }
-
-  const text = await res.text();
-  return text ? JSON.parse(text) : ({} as T);
+  return fetchPromise;
 }
 
 // --------------------------------------------------------

@@ -333,6 +333,7 @@ export function Practicals() {
               <div
                 className="mt-3 h-2 w-full overflow-hidden rounded-full bg-secondary"
                 role="progressbar"
+                aria-label="Lab Experiment Progress"
                 aria-valuenow={60}
                 aria-valuemin={0}
                 aria-valuemax={100}

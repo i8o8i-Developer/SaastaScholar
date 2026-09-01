@@ -137,7 +137,7 @@ export function Faq() {
                 <MessageCircle className="h-5 w-5" />
               </div>
               <div>
-                <h4 className="text-base font-bold text-foreground">Still Have Questions?</h4>
+                <h3 className="text-base font-bold text-foreground">Still Have Questions?</h3>
                 <p className="text-xs text-muted-foreground">
                   Our Student Support Team Responds In Minutes.
                 </p>

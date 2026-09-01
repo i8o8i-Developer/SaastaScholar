@@ -103,58 +103,6 @@ const TRACK_2_ITEMS = [
 ];
 
 export function Hero() {
-  const track1Ref = useRef<HTMLDivElement>(null);
-  const track2Ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    let pos1 = 0;
-    let pos2 = 0;
-    let animId: number;
-    let hovered1 = false;
-    let hovered2 = false;
-
-    const t1 = track1Ref.current;
-    const t2 = track2Ref.current;
-
-    const enter1 = () => (hovered1 = true);
-    const leave1 = () => (hovered1 = false);
-    const enter2 = () => (hovered2 = true);
-    const leave2 = () => (hovered2 = false);
-
-    t1?.addEventListener("mouseenter", enter1);
-    t1?.addEventListener("mouseleave", leave1);
-    t2?.addEventListener("mouseenter", enter2);
-    t2?.addEventListener("mouseleave", leave2);
-
-    const step = () => {
-      if (t1 && !hovered1) {
-        pos1 += 0.8;
-        const half1 = t1.scrollWidth / 2;
-        if (pos1 >= half1) pos1 = 0;
-        t1.style.transform = `translate3d(-${pos1}px, 0, 0)`;
-      }
-
-      if (t2 && !hovered2) {
-        pos2 += 0.7;
-        const half2 = t2.scrollWidth / 2;
-        if (pos2 >= half2) pos2 = 0;
-        t2.style.transform = `translate3d(${pos2 - half2}px, 0, 0)`;
-      }
-
-      animId = requestAnimationFrame(step);
-    };
-
-    animId = requestAnimationFrame(step);
-
-    return () => {
-      cancelAnimationFrame(animId);
-      t1?.removeEventListener("mouseenter", enter1);
-      t1?.removeEventListener("mouseleave", leave1);
-      t2?.removeEventListener("mouseenter", enter2);
-      t2?.removeEventListener("mouseleave", leave2);
-    };
-  }, []);
-
   return (
     <div id="top" className="relative overflow-hidden">
       {/* Dynamic Colorful Ambient Lighting */}
@@ -365,13 +313,11 @@ export function Hero() {
           className="pointer-events-none absolute inset-0 z-10 [background:linear-gradient(to_right,var(--color-background),transparent_10%,transparent_90%,var(--color-background))]"
         />
 
-        {/* Track 1: Accreditation & Features (Moves Left) */}
+        {/* Track 1: Accreditation & Features (Moves Left via GPU CSS) */}
         <div
-          ref={track1Ref}
-          className="flex items-center gap-3.5 whitespace-nowrap will-change-transform"
-          style={{ width: "max-content" }}
+          className="animate-marquee-left flex items-center gap-3.5 whitespace-nowrap will-change-transform"
         >
-          {[...TRACK_1_ITEMS, ...TRACK_1_ITEMS, ...TRACK_1_ITEMS].map((item, idx) => {
+          {[...TRACK_1_ITEMS, ...TRACK_1_ITEMS].map((item, idx) => {
             const Icon = item.icon;
             return (
               <div
@@ -392,13 +338,11 @@ export function Hero() {
           })}
         </div>
 
-        {/* Track 2: Live Course Notes & PYQ Packs (Moves Right) */}
+        {/* Track 2: Live Course Notes & PYQ Packs (Moves Right via GPU CSS) */}
         <div
-          ref={track2Ref}
-          className="flex items-center gap-3.5 whitespace-nowrap will-change-transform"
-          style={{ width: "max-content" }}
+          className="animate-marquee-right flex items-center gap-3.5 whitespace-nowrap will-change-transform"
         >
-          {[...TRACK_2_ITEMS, ...TRACK_2_ITEMS, ...TRACK_2_ITEMS].map((item, idx) => {
+          {[...TRACK_2_ITEMS, ...TRACK_2_ITEMS].map((item, idx) => {
             const Icon = item.icon;
             return (
               <a
