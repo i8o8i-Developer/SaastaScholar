@@ -1,7 +1,7 @@
 {
-  "name": "NimsWallah · Independent Student Academic Portal",
+  "name": "NimsWallah · Independent Academic Portal | Owned By DurgaAI Solutions",
   "short_name": "NimsWallah",
-  "description": "Standalone Independent Student Organization And Academic Study Resource Portal",
+  "description": "Standalone Independent Academic Resource Repository Owned And Engineered By DurgaAI Solutions",
   "start_url": "https://nimswallah.durgaaisolutions.in/",
   "scope": "https://nimswallah.durgaaisolutions.in/",
   "display": "standalone",
@@ -9,6 +9,10 @@
   "theme_color": "#059669",
   "orientation": "portrait-primary",
   "categories": ["education", "productivity", "utilities"],
+  "developer": {
+    "name": "DurgaAI Solutions",
+    "url": "https://nimswallah.durgaaisolutions.in/"
+  },
   "icons": [
     {
       "src": "/NIMSWallah.png",
