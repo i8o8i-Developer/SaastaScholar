@@ -1,6 +1,6 @@
 # ==============================================================================
 # NimsWallah Production Robots.txt
-# Domain: https://nimswallah.durgaaisolutions.in
+# Target Domain: https://nimswallah.durgaaisolutions.in
 # ==============================================================================
 
 User-agent: *
