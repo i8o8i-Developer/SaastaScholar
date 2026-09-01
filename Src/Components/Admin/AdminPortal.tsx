@@ -2286,6 +2286,210 @@ export function AdminPortal() {
                   </div>
                 </div>
               </div>
+
+              {/* Row 2 Analytics Charts: Timetable Load Area Chart & Student CGPA Distribution */}
+              <div className="grid gap-4 sm:gap-6 lg:grid-cols-12 min-w-0">
+                {/* Chart 3: Weekly Timetable Period Density Curve (7 Cols) */}
+                <div className="lg:col-span-7 rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-4 sm:p-6 shadow-xs space-y-4 min-w-0">
+                  <div className="flex items-center justify-between border-b border-border/60 pb-3 gap-2">
+                    <div className="space-y-0.5 min-w-0">
+                      <h3 className="font-display font-bold text-xs sm:text-base text-foreground flex items-center gap-1.5 sm:gap-2 truncate">
+                        <Clock className="h-4 w-4 text-cyan-500 shrink-0" />
+                        <span className="truncate">Weekly Timetable Density &amp; Lecture Volume</span>
+                      </h3>
+                      <p className="text-[0.68rem] sm:text-xs text-muted-foreground truncate">
+                        6-Day Distribution Of Scheduled Theory Lectures &amp; Practical Labs
+                      </p>
+                    </div>
+                    <span className="rounded-full bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-1 text-[0.65rem] sm:text-xs font-mono font-bold text-cyan-600 dark:text-cyan-400 shrink-0 whitespace-nowrap">
+                      {timetableSlots.length} Total Periods
+                    </span>
+                  </div>
+
+                  <div className="h-60 sm:h-64 w-full pt-2">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart
+                        data={["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => {
+                          const slots = timetableSlots.filter((s) => s.day_of_week === day);
+                          return {
+                            day,
+                            periods: slots.length,
+                            hours: Number((slots.length * 1.5).toFixed(1)),
+                          };
+                        })}
+                        margin={{ top: 15, right: 15, left: -25, bottom: 0 }}
+                      >
+                        <defs>
+                          <linearGradient id="areaGradPeriods" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#06b6d4" stopOpacity={0.4} />
+                            <stop offset="95%" stopColor="#06b6d4" stopOpacity={0.0} />
+                          </linearGradient>
+                          <linearGradient id="areaGradHours" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
+                            <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.12} stroke="currentColor" />
+                        <XAxis
+                          dataKey="day"
+                          tick={{ fontSize: 11, fontWeight: 600, fill: "var(--color-muted-foreground, #888)" }}
+                          tickLine={false}
+                          axisLine={{ stroke: "var(--color-border, #3f3f46)", opacity: 0.4 }}
+                        />
+                        <YAxis
+                          tick={{ fontSize: 10, fill: "var(--color-muted-foreground, #888)" }}
+                          allowDecimals={false}
+                          tickLine={false}
+                          axisLine={false}
+                        />
+                        <Tooltip
+                          cursor={{ stroke: "#06b6d4", strokeWidth: 1.5, strokeDasharray: "4 4" }}
+                          content={({ active, payload }: any) => {
+                            if (active && payload && payload.length > 0 && payload[0]?.payload) {
+                              const d = payload[0].payload;
+                              return (
+                                <div className="rounded-2xl border border-border/80 bg-card/95 p-3.5 shadow-xl backdrop-blur-md space-y-1.5">
+                                  <span className="font-display font-bold text-xs text-foreground block border-b border-border/60 pb-1">
+                                    {d.day} Schedule Breakdown
+                                  </span>
+                                  <div className="flex items-center justify-between gap-4 text-xs font-mono">
+                                    <span className="text-cyan-500 font-bold">{d.periods} Scheduled Periods</span>
+                                    <span className="text-emerald-500 font-bold">{d.hours} Academic Hours</span>
+                                  </div>
+                                </div>
+                              );
+                            }
+                            return null;
+                          }}
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="periods"
+                          stroke="#06b6d4"
+                          strokeWidth={3}
+                          fillOpacity={1}
+                          fill="url(#areaGradPeriods)"
+                          dot={{ r: 4, fill: "#06b6d4", strokeWidth: 2, stroke: "var(--color-card, #18181b)" }}
+                          activeDot={{ r: 6, fill: "#06b6d4", stroke: "#ffffff", strokeWidth: 2 }}
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+
+                  {/* Summary Ticker */}
+                  <div className="grid grid-cols-3 gap-2 pt-2 border-t border-border/60 text-center">
+                    <div className="p-2 rounded-xl bg-surface/60 border border-border/60">
+                      <span className="text-[0.62rem] uppercase font-bold text-muted-foreground block">Peak Volume</span>
+                      <span className="font-mono font-extrabold text-xs text-cyan-600 dark:text-cyan-400 mt-0.5 block">
+                        {Math.max(...["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map(d => timetableSlots.filter(s => s.day_of_week === d).length), 0)} Periods / Day
+                      </span>
+                    </div>
+                    <div className="p-2 rounded-xl bg-surface/60 border border-border/60">
+                      <span className="text-[0.62rem] uppercase font-bold text-muted-foreground block">Weekly Hours</span>
+                      <span className="font-mono font-extrabold text-xs text-emerald-600 dark:text-emerald-400 mt-0.5 block">
+                        {(timetableSlots.length * 1.5).toFixed(1)} Hours
+                      </span>
+                    </div>
+                    <div className="p-2 rounded-xl bg-surface/60 border border-border/60">
+                      <span className="text-[0.62rem] uppercase font-bold text-muted-foreground block">Mapped Sections</span>
+                      <span className="font-mono font-extrabold text-xs text-purple-600 dark:text-purple-400 mt-0.5 block">
+                        {sections.length} Cohorts
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Chart 4: Student CGPA Target Spectrum (5 Cols) */}
+                <div className="lg:col-span-5 rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-4 sm:p-6 shadow-xs space-y-4 flex flex-col justify-between min-w-0">
+                  <div className="flex items-center justify-between border-b border-border/60 pb-3 gap-2">
+                    <div className="space-y-0.5 min-w-0">
+                      <h3 className="font-display font-bold text-xs sm:text-base text-foreground flex items-center gap-1.5 sm:gap-2 truncate">
+                        <Award className="h-4 w-4 text-amber-500 shrink-0" />
+                        <span className="truncate">Student Academic Standing Spectrum</span>
+                      </h3>
+                      <p className="text-[0.68rem] sm:text-xs text-muted-foreground truncate">
+                        Target Semester CGPA Distribution Across Cohorts
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Target CGPA Tiers Distribution */}
+                  <div className="space-y-3.5 py-1">
+                    {[
+                      {
+                        tier: "Gold Medalist Standing",
+                        range: "9.50 – 10.00 CGPA",
+                        count: students.filter((s) => Number(s.target_cgpa || 9.5) >= 9.5).length || 1,
+                        color: "from-amber-400 to-amber-600",
+                        textColor: "text-amber-500",
+                        borderColor: "border-amber-500/30",
+                        bgColor: "bg-amber-500/10",
+                      },
+                      {
+                        tier: "Distinction Honors",
+                        range: "8.50 – 9.49 CGPA",
+                        count: students.filter((s) => Number(s.target_cgpa || 9.5) >= 8.5 && Number(s.target_cgpa || 9.5) < 9.5).length || 0,
+                        color: "from-emerald-400 to-emerald-600",
+                        textColor: "text-emerald-500",
+                        borderColor: "border-emerald-500/30",
+                        bgColor: "bg-emerald-500/10",
+                      },
+                      {
+                        tier: "First Class Standing",
+                        range: "7.50 – 8.49 CGPA",
+                        count: students.filter((s) => Number(s.target_cgpa || 9.5) >= 7.5 && Number(s.target_cgpa || 9.5) < 8.5).length || 0,
+                        color: "from-cyan-400 to-cyan-600",
+                        textColor: "text-cyan-500",
+                        borderColor: "border-cyan-500/30",
+                        bgColor: "bg-cyan-500/10",
+                      },
+                      {
+                        tier: "Standard Academic Foundation",
+                        range: "Under 7.50 CGPA",
+                        count: students.filter((s) => Number(s.target_cgpa || 9.5) < 7.5).length || 0,
+                        color: "from-purple-400 to-purple-600",
+                        textColor: "text-purple-500",
+                        borderColor: "border-purple-500/30",
+                        bgColor: "bg-purple-500/10",
+                      },
+                    ].map((row) => {
+                      const total = students.length || 1;
+                      const pct = Math.round((row.count / total) * 100);
+
+                      return (
+                        <div key={row.tier} className="space-y-1.5 rounded-2xl bg-surface/50 p-3 border border-border/60">
+                          <div className="flex items-center justify-between text-xs">
+                            <div className="flex items-center gap-1.5 min-w-0">
+                              <span className={cn("h-2 w-2 rounded-full shrink-0", row.bgColor, row.borderColor, "border")} />
+                              <span className="font-bold text-foreground truncate">{row.tier}</span>
+                              <span className="text-[0.65rem] text-muted-foreground font-mono">({row.range})</span>
+                            </div>
+                            <span className={cn("font-mono font-extrabold text-xs shrink-0", row.textColor)}>
+                              {row.count} ({pct}%)
+                            </span>
+                          </div>
+
+                          <div className="h-2 w-full overflow-hidden rounded-full bg-surface border border-border/60">
+                            <div
+                              className={cn("h-full rounded-full bg-gradient-to-r transition-all duration-500", row.color)}
+                              style={{ width: `${Math.max(pct, row.count > 0 ? 12 : 0)}%` }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="rounded-2xl bg-surface/70 p-3 border border-border/60 flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground text-[0.72rem]">Institutional Average Target:</span>
+                    <strong className="text-foreground font-mono font-bold text-xs text-primary">
+                      {students.length > 0
+                        ? (students.reduce((acc, s) => acc + Number(s.target_cgpa || 9.5), 0) / students.length).toFixed(2)
+                        : "9.50"} / 10.00 CGPA
+                    </strong>
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 
