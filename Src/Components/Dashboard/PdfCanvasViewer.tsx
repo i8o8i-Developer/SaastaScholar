@@ -1,24 +1,24 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import * as pdfjsLib from "pdfjs-dist";
+import pdfjsWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { Loader2, AlertCircle, RefreshCw, ZoomIn, ZoomOut, RotateCcw, FileText, ArrowRight } from "lucide-react";
 
-//
 if (typeof window !== "undefined") {
   try {
-    const workerVersion = pdfjsLib.version || "4.10.38";
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${workerVersion}/pdf.worker.min.mjs`;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
   } catch {
-    try {
-      pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.mjs`;
-    } catch {
-      //
-      pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs`;
-    }
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs`;
   }
 
   const origWarn = console.warn;
   console.warn = (...args: any[]) => {
-    if (typeof args[0] === "string" && (args[0].includes("Knockout groups") || args[0].includes("knockout") || args[0].includes("fetchStandardFontData"))) {
+    if (
+      typeof args[0] === "string" &&
+      (args[0].includes("Knockout groups") ||
+        args[0].includes("knockout") ||
+        args[0].includes("fetchStandardFontData") ||
+        args[0].includes("Setting up fake worker"))
+    ) {
       return;
     }
     origWarn.apply(console, args);
@@ -82,17 +82,30 @@ export function PdfCanvasViewer({
     setError(null);
 
     let resolvedUrl = fileUrl;
+    // Strip out localhost / 127.0.0.1 in case backend returned raw development host
+    if (resolvedUrl.includes("127.0.0.1") || resolvedUrl.includes("localhost")) {
+      try {
+        const parsed = new URL(resolvedUrl);
+        resolvedUrl = parsed.pathname;
+      } catch {}
+    }
     if (resolvedUrl.startsWith("/")) {
       resolvedUrl = `${window.location.origin}${resolvedUrl}`;
     }
 
     try {
+      const token =
+        typeof window !== "undefined"
+          ? localStorage.getItem("nimswallah_access_token") || sessionStorage.getItem("nimswallah_access_token")
+          : null;
+
       const loadingTask = pdfjsLib.getDocument({
         url: resolvedUrl,
+        httpHeaders: token ? { Authorization: `Bearer ${token}` } : undefined,
+        withCredentials: true,
         cMapUrl: "https://unpkg.com/pdfjs-dist/cmaps/",
         cMapPacked: true,
         standardFontDataUrl: "https://unpkg.com/pdfjs-dist/standard_fonts/",
-        withCredentials: false,
         verbosity: 0,
         stopAtErrors: false,
       });

@@ -174,15 +174,9 @@ class DrmSessionInitView(APIView):
         except Exception:
             pass
 
-        file_url = None
-        if material.file:
-            try:
-                file_url = request.build_absolute_uri(material.file.url)
-            except Exception:
-                file_url = material.file.url
-
-        file_name = material.file.name.split("/")[-1] if material.file else None
-        file_ext = file_name.split(".")[-1].lower() if file_name and "." in file_name else None
+        file_url = f"/api/drm/stream/{material.id}/"
+        file_name = material.file.name.split("/")[-1] if material.file else "Courseware.pdf"
+        file_ext = file_name.split(".")[-1].lower() if file_name and "." in file_name else "pdf"
 
         if material.file and material.pages.count() == 0:
             try:
@@ -252,15 +246,9 @@ class DrmPageView(APIView):
                 status=status.HTTP_404_NOT_FOUND,
             )
         
-        file_url = None
-        if material.file:
-            try:
-                file_url = request.build_absolute_uri(material.file.url)
-            except Exception:
-                file_url = material.file.url
-
-        file_name = material.file.name.split("/")[-1] if material.file else None
-        file_ext = file_name.split(".")[-1].lower() if file_name and "." in file_name else None
+        file_url = f"/api/drm/stream/{material.id}/"
+        file_name = material.file.name.split("/")[-1] if material.file else "Courseware.pdf"
+        file_ext = file_name.split(".")[-1].lower() if file_name and "." in file_name else "pdf"
 
         page = MaterialPage.objects.filter(material=material, page_number=page_number).first()
 
@@ -405,3 +393,45 @@ class AdminDrmIncidentClearView(APIView):
             "message": f"Successfully Cleared {count} DRM Telemetry Records.",
             "deleted_count": count,
         })
+
+from django.http import FileResponse
+
+class DrmDocumentStreamView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request, material_id):
+        material = None
+        try:
+            material = AcademicMaterial.objects.filter(id=material_id).first()
+        except Exception:
+            material = None
+
+        if not material or not material.file:
+            material = AcademicMaterial.objects.filter(file__isnull=False).first()
+
+        if not material or not material.file:
+            return Response({"detail": "No document binary available."}, status=status.HTTP_404_NOT_FOUND)
+
+        try:
+            file_handle = None
+            try:
+                file_path = material.file.path
+                if os.path.exists(file_path):
+                    file_handle = open(file_path, "rb")
+            except Exception:
+                pass
+
+            if not file_handle:
+                file_handle = material.file.open("rb")
+
+            response = FileResponse(file_handle, content_type="application/pdf")
+            file_basename = os.path.basename(material.file.name)
+            response["Content-Disposition"] = f'inline; filename="{file_basename}"'
+            response["Access-Control-Allow-Origin"] = "*"
+            response["Access-Control-Allow-Methods"] = "GET, HEAD, OPTIONS"
+            response["Access-Control-Allow-Headers"] = "*"
+            response["Cache-Control"] = "private, no-cache, no-store, must-revalidate"
+            response["Pragma"] = "no-cache"
+            return response
+        except Exception as e:
+            return Response({"detail": f"Document Stream Error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
