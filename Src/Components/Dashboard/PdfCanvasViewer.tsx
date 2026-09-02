@@ -1,11 +1,10 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import * as pdfjsLib from "pdfjs-dist";
-import pdfjsWorker from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 import { Loader2, AlertCircle, RefreshCw, ZoomIn, ZoomOut, RotateCcw, FileText, ArrowRight } from "lucide-react";
 
 if (typeof window !== "undefined") {
   try {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = pdfjsWorker;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
   } catch {
     pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs`;
   }
@@ -17,7 +16,8 @@ if (typeof window !== "undefined") {
       (args[0].includes("Knockout groups") ||
         args[0].includes("knockout") ||
         args[0].includes("fetchStandardFontData") ||
-        args[0].includes("Setting up fake worker"))
+        args[0].includes("Setting up fake worker") ||
+        args[0].includes("Cannot polyfill"))
     ) {
       return;
     }
@@ -70,7 +70,7 @@ export function PdfCanvasViewer({
     };
   }, []);
 
-  // 1. Load PDF Document with Retry & Sanitization
+  // 1. Load PDF Document with Direct Binary Stream & Retry
   const loadDocument = useCallback(async () => {
     if (!fileUrl) {
       setError("No Document Source URL Provided.");
@@ -99,18 +99,48 @@ export function PdfCanvasViewer({
           ? localStorage.getItem("nimswallah_access_token") || sessionStorage.getItem("nimswallah_access_token")
           : null;
 
-      const loadingTask = pdfjsLib.getDocument({
-        url: resolvedUrl,
-        httpHeaders: token ? { Authorization: `Bearer ${token}` } : undefined,
-        withCredentials: true,
-        cMapUrl: "https://unpkg.com/pdfjs-dist/cmaps/",
-        cMapPacked: true,
-        standardFontDataUrl: "https://unpkg.com/pdfjs-dist/standard_fonts/",
-        verbosity: 0,
-        stopAtErrors: false,
-      });
+      // Direct main-thread binary fetch to avoid worker CORS/network hurdles
+      let binaryData: Uint8Array | null = null;
+      try {
+        const fetchHeaders: Record<string, string> = {};
+        if (token) {
+          fetchHeaders["Authorization"] = `Bearer ${token}`;
+        }
+        const res = await fetch(resolvedUrl, {
+          headers: fetchHeaders,
+          credentials: "include",
+        });
+        if (res.ok) {
+          const ab = await res.arrayBuffer();
+          binaryData = new Uint8Array(ab);
+        }
+      } catch (fErr) {
+        console.warn("Main thread binary fetch fallback:", fErr);
+      }
 
+      const docSource = binaryData
+        ? {
+            data: binaryData,
+            cMapUrl: "https://unpkg.com/pdfjs-dist/cmaps/",
+            cMapPacked: true,
+            standardFontDataUrl: "https://unpkg.com/pdfjs-dist/standard_fonts/",
+            verbosity: 0,
+            stopAtErrors: false,
+          }
+        : {
+            url: resolvedUrl,
+            httpHeaders: token ? { Authorization: `Bearer ${token}` } : undefined,
+            withCredentials: true,
+            cMapUrl: "https://unpkg.com/pdfjs-dist/cmaps/",
+            cMapPacked: true,
+            standardFontDataUrl: "https://unpkg.com/pdfjs-dist/standard_fonts/",
+            verbosity: 0,
+            stopAtErrors: false,
+          };
+
+      const loadingTask = pdfjsLib.getDocument(docSource as any);
       const doc = await loadingTask.promise;
+
       if (isMountedRef.current) {
         setPdfDoc(doc);
         if (onTotalPagesDetected && doc.numPages) {
