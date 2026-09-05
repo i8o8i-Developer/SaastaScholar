@@ -346,18 +346,18 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
                       className={cn(
                         "rounded-full px-2 py-0.5 text-[0.6rem] font-bold tracking-wide transition-all whitespace-nowrap shrink-0 leading-none min-w-fit inline-block",
                         isActive
-                          ? "bg-white/20 text-white"
+                          ? "bg-white/25 text-white font-bold shadow-xs backdrop-blur-xs"
                           : variant === "amber"
-                          ? "bg-amber-500/15 text-amber-600 dark:text-amber-400"
+                          ? "bg-amber-500/15 text-amber-700 dark:text-amber-300"
                           : variant === "purple"
-                          ? "bg-purple-500/15 text-purple-600 dark:text-purple-400"
+                          ? "bg-purple-500/15 text-purple-700 dark:text-purple-300"
                           : variant === "rose"
-                          ? "bg-rose-500/15 text-rose-600 dark:text-rose-400"
+                          ? "bg-rose-500/15 text-rose-700 dark:text-rose-300"
                           : variant === "cyan"
-                          ? "bg-cyan-500/15 text-cyan-600 dark:text-cyan-400"
+                          ? "bg-cyan-500/15 text-cyan-700 dark:text-cyan-300"
                           : variant === "blue"
-                          ? "bg-blue-500/15 text-blue-600 dark:text-blue-400"
-                          : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
+                          ? "bg-blue-500/15 text-blue-700 dark:text-blue-300"
+                          : "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
                       )}
                     >
                       {badgeText}
@@ -400,87 +400,128 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
 
       {/* ===================== Mobile Drawer ===================== */}
       {mobileOpen && (
-        <div className="fixed inset-0 z-50 flex lg:hidden bg-black/60 backdrop-blur-xs">
-          <div className="flex h-full w-[85vw] max-w-xs flex-col justify-between bg-card p-3 xs:p-5 shadow-2xl">
-            <div className="min-w-0">
-              <div className="flex items-center justify-between border-b border-border pb-3">
-                <div className="flex items-center gap-2 min-w-0">
-                  <img
-                    src="/NIMSWallah.png"
-                    onError={(e) => {
-                      e.currentTarget.src = "/favicon.png";
-                    }}
-                    alt="Logo"
-                    className="h-7 w-7 object-contain shrink-0"
-                  />
-                  <span className="font-bold text-sm bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent truncate">
+        <div className="fixed inset-0 z-50 flex lg:hidden">
+          {/* Backdrop overlay with tap to dismiss */}
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+            onClick={() => setMobileOpen(false)}
+            aria-label="Close navigation drawer"
+          />
+
+          {/* Drawer Sheet Panel */}
+          <div className="relative flex h-full w-[85vw] max-w-xs flex-col justify-between bg-card dark:bg-zinc-950 border-r border-border/80 p-3.5 xs:p-5 shadow-2xl z-10 animate-in slide-in-from-left duration-250">
+            {/* Drawer Header */}
+            <div className="flex items-center justify-between border-b border-border/80 pb-3 shrink-0">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <img
+                  src="/NIMSWallah.png"
+                  onError={(e) => {
+                    e.currentTarget.src = "/favicon.png";
+                  }}
+                  alt="Logo"
+                  className="h-7 w-7 object-contain shrink-0"
+                />
+                <div className="min-w-0">
+                  <span className="font-bold text-sm bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent truncate block leading-tight">
                     NimsWallah
                   </span>
+                  <span className="text-[0.62rem] font-bold text-muted-foreground uppercase tracking-wider block">
+                    Academic Engine
+                  </span>
                 </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setMobileOpen(false)}
+                className="rounded-xl p-1.5 hover:bg-surface text-muted-foreground hover:text-foreground cursor-pointer shrink-0 transition-colors active:scale-95"
+                title="Close navigation"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Scrollable Nav Item List */}
+            <div className="flex-1 overflow-y-auto py-2.5 space-y-1 overscroll-contain pr-0.5">
+              {NAV_ITEMS.map((item) => {
+                const Icon = item.icon;
+                const isActive = activeTab === item.id;
+                const dynamicConfig = badgeConfigs[item.id];
+                const badgeText = dynamicConfig !== undefined ? (dynamicConfig.active ? dynamicConfig.text : "") : item.badge;
+                const hasBadge = Boolean(badgeText && badgeText.trim().length > 0);
+                const variant = dynamicConfig?.variant || "emerald";
+
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => handleNavClick(item.id)}
+                    className={cn(
+                      "flex w-full items-center justify-between rounded-xl xs:rounded-2xl px-3 py-2.5 text-xs font-semibold cursor-pointer transition-all active:scale-[0.98]",
+                      isActive
+                        ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-600/25"
+                        : "text-muted-foreground hover:bg-surface hover:text-foreground",
+                    )}
+                  >
+                    <div className="flex items-center gap-2.5 xs:gap-3 min-w-0">
+                      <Icon className="h-4 w-4 shrink-0" />
+                      <span className="truncate">{item.label}</span>
+                    </div>
+                    {hasBadge && (
+                      <span
+                        className={cn(
+                          "rounded-full px-2 py-0.5 text-[0.6rem] font-bold shrink-0 tracking-wide transition-all whitespace-nowrap leading-none min-w-fit inline-block",
+                          isActive
+                            ? "bg-white/25 text-white font-bold shadow-xs backdrop-blur-xs"
+                            : variant === "amber"
+                            ? "bg-amber-500/15 text-amber-700 dark:text-amber-300"
+                            : variant === "purple"
+                            ? "bg-purple-500/15 text-purple-700 dark:text-purple-300"
+                            : variant === "rose"
+                            ? "bg-rose-500/15 text-rose-700 dark:text-rose-300"
+                            : variant === "cyan"
+                            ? "bg-cyan-500/15 text-cyan-700 dark:text-cyan-300"
+                            : variant === "blue"
+                            ? "bg-blue-500/15 text-blue-700 dark:text-blue-300"
+                            : "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+                        )}
+                      >
+                        {badgeText}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Mobile Drawer Footer */}
+            <div className="shrink-0 pt-3 border-t border-border/80 space-y-2.5">
+              <div className="flex items-center justify-between px-1 text-xs">
+                <span className="text-[0.72rem] text-muted-foreground font-semibold">Theme Mode</span>
                 <button
-                  onClick={() => setMobileOpen(false)}
-                  className="rounded-xl p-1.5 hover:bg-surface text-muted-foreground hover:text-foreground cursor-pointer shrink-0"
+                  type="button"
+                  onClick={toggleTheme}
+                  className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl border border-border bg-surface text-foreground hover:bg-card transition-all cursor-pointer text-xs font-semibold active:scale-95 shadow-2xs"
+                  title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
                 >
-                  <X className="h-5 w-5" />
+                  {isDark ? (
+                    <>
+                      <Sun className="h-3.5 w-3.5 text-amber-400 shrink-0" />
+                      <span>Light Mode</span>
+                    </>
+                  ) : (
+                    <>
+                      <Moon className="h-3.5 w-3.5 text-slate-700 dark:text-slate-300 shrink-0" />
+                      <span>Dark Mode</span>
+                    </>
+                  )}
                 </button>
               </div>
 
-              <div className="overflow-y-auto py-3 space-y-1 max-h-[calc(100vh-140px)]">
-                {NAV_ITEMS.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = activeTab === item.id;
-                  const dynamicConfig = badgeConfigs[item.id];
-                  const badgeText = dynamicConfig !== undefined ? (dynamicConfig.active ? dynamicConfig.text : "") : item.badge;
-                  const hasBadge = Boolean(badgeText && badgeText.trim().length > 0);
-                  const variant = dynamicConfig?.variant || "emerald";
-
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => handleNavClick(item.id)}
-                      className={cn(
-                        "flex w-full items-center justify-between rounded-xl xs:rounded-2xl px-2.5 xs:px-3.5 py-2 xs:py-2.5 text-xs font-semibold cursor-pointer transition-all",
-                        isActive
-                          ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-600/25"
-                          : "text-muted-foreground hover:bg-surface hover:text-foreground",
-                      )}
-                    >
-                      <div className="flex items-center gap-2 xs:gap-3 min-w-0">
-                        <Icon className="h-4 w-4 shrink-0" />
-                        <span className="truncate">{item.label}</span>
-                      </div>
-                      {hasBadge && (
-                        <span
-                          className={cn(
-                            "rounded-full px-1.5 xs:px-2 py-0.5 text-[0.55rem] xs:text-[0.6rem] font-bold shrink-0",
-                            variant === "amber"
-                              ? "bg-amber-500/15 text-amber-600 dark:text-amber-400"
-                              : variant === "purple"
-                              ? "bg-purple-500/15 text-purple-600 dark:text-purple-400"
-                              : variant === "rose"
-                              ? "bg-rose-500/15 text-rose-600 dark:text-rose-400"
-                              : variant === "cyan"
-                              ? "bg-cyan-500/15 text-cyan-600 dark:text-cyan-400"
-                              : variant === "blue"
-                              ? "bg-blue-500/15 text-blue-600 dark:text-blue-400"
-                              : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
-                          )}
-                        >
-                          {badgeText}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            <div className="pt-2 xs:pt-3 border-t border-border space-y-2">
               <button
+                type="button"
                 onClick={logout}
-                className="flex w-full items-center justify-center gap-2 rounded-xl xs:rounded-2xl border border-rose-500/20 bg-rose-500/5 p-2 xs:p-2.5 text-xs font-bold text-rose-500 hover:bg-rose-500/10 cursor-pointer transition-all active:scale-95"
+                className="flex w-full items-center justify-center gap-2 rounded-xl xs:rounded-2xl border border-rose-500/25 bg-rose-500/10 dark:bg-rose-950/30 p-2.5 text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-500/15 active:scale-98 transition-all cursor-pointer shadow-2xs"
               >
-                <LogOut className="h-4 w-4" />
+                <LogOut className="h-4 w-4 shrink-0" />
                 <span>Sign Out Of Workspace</span>
               </button>
             </div>
