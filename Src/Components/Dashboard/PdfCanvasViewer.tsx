@@ -1,12 +1,16 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import * as pdfjsLib from "pdfjs-dist";
+// Ensure the worker message handler is loaded directly in the bundle so mobile browsers
+// never fail to initialize the in-memory fallback worker if ES module workers are blocked.
+import "pdfjs-dist/build/pdf.worker.min.mjs";
 import { Loader2, AlertCircle, RefreshCw, ZoomIn, ZoomOut, RotateCcw, FileText, ArrowRight } from "lucide-react";
 
 if (typeof window !== "undefined") {
   try {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.js";
+    const origin = window.location.origin || "";
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `${origin}/pdf.worker.min.mjs`;
   } catch {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs`;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "/pdf.worker.min.mjs";
   }
 
   const origWarn = console.warn;

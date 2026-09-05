@@ -581,28 +581,28 @@ export function Login() {
                             <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
                             <div className="leading-snug">
                               <span className="font-bold text-foreground block">5-Unit Handwritten &amp; Typed Topper Notes</span>
-                              <span className="text-[0.7rem] text-muted-foreground">Formula sheets, derivations &amp; diagrams aligned to NIMS syllabus.</span>
+                              <span className="text-[0.7rem] text-muted-foreground">Formula Sheets, Derivations &amp; Diagrams Aligned To NIMS syllabus.</span>
                             </div>
                           </div>
                           <div className="flex items-start gap-2.5">
                             <FileCheck2 className="h-4 w-4 text-cyan-500 shrink-0 mt-0.5" />
                             <div className="leading-snug">
                               <span className="font-bold text-foreground block">2020–2025 Solved University PYQs</span>
-                              <span className="text-[0.7rem] text-muted-foreground">Step-by-step solved mid-sem and end-sem papers with marking schemes.</span>
+                              <span className="text-[0.7rem] text-muted-foreground">Step-By-Step Solved Mid-Sem And End-Sem Papers With Marking Schemes.</span>
                             </div>
                           </div>
                           <div className="flex items-start gap-2.5">
                             <FlaskConical className="h-4 w-4 text-purple-500 shrink-0 mt-0.5" />
                             <div className="leading-snug">
                               <span className="font-bold text-foreground block">Lab Manuals &amp; 50+ Viva Voce Banks</span>
-                              <span className="text-[0.7rem] text-muted-foreground">Ready-to-run Python, C++, Java, DBMS code and viva question banks.</span>
+                              <span className="text-[0.7rem] text-muted-foreground">Ready-To-Run Python, C++, Java, DBMS Code And Viva Question Banks.</span>
                             </div>
                           </div>
                           <div className="flex items-start gap-2.5">
                             <Zap className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
                             <div className="leading-snug">
                               <span className="font-bold text-foreground block">Real-Time Timetable &amp; Circulars</span>
-                              <span className="text-[0.7rem] text-muted-foreground">Verified department notices, hall tickets, and daily class countdowns.</span>
+                              <span className="text-[0.7rem] text-muted-foreground">Verified Department Notices, Hall Tickets, And Daily Class Countdowns.</span>
                             </div>
                           </div>
                         </>
