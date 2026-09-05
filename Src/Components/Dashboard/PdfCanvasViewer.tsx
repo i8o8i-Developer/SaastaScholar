@@ -1,7 +1,5 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import * as pdfjsLib from "pdfjs-dist";
-// Ensure the worker message handler is loaded directly in the bundle so mobile browsers
-// never fail to initialize the in-memory fallback worker if ES module workers are blocked.
 import "pdfjs-dist/build/pdf.worker.min.mjs";
 import { Loader2, AlertCircle, RefreshCw, ZoomIn, ZoomOut, RotateCcw, FileText, ArrowRight } from "lucide-react";
 

@@ -188,20 +188,20 @@ export function Login() {
 
       <div className="relative mx-auto w-full max-w-4xl min-w-0 space-y-4">
         {/* Top Breadcrumb Bar */}
-        <div className="flex items-center justify-between min-w-0">
+        <div className="flex flex-wrap items-center justify-between gap-2 min-w-0">
           <a
             href="/"
-            className="inline-flex items-center gap-2 rounded-full border border-border bg-card/85 px-4 py-1.5 text-xs font-semibold text-foreground shadow-2xs backdrop-blur-xs transition-all hover:border-primary/50 hover:bg-surface active:scale-95 cursor-pointer"
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/85 px-3 sm:px-4 py-1.5 text-xs font-semibold text-foreground shadow-2xs backdrop-blur-xs transition-all hover:border-primary/50 hover:bg-surface active:scale-95 cursor-pointer shrink-0"
           >
             <ArrowLeft className="h-3.5 w-3.5 text-primary" />
             <span>Return To Home</span>
           </a>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             <button
               type="button"
               onClick={toggleTheme}
-              className="grid h-8 w-8 place-items-center rounded-full border border-border bg-card/85 text-foreground hover:bg-surface cursor-pointer transition-all shadow-2xs"
+              className="grid h-8 w-8 place-items-center rounded-full border border-border bg-card/85 text-foreground hover:bg-surface cursor-pointer transition-all shadow-2xs shrink-0"
               title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
             >
               {isDark ? (
@@ -211,13 +211,21 @@ export function Login() {
               )}
             </button>
 
-            <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 shadow-2xs">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 sm:px-3.5 py-1.5 text-[0.68rem] sm:text-xs font-bold text-emerald-700 dark:text-emerald-300 shadow-2xs shrink-0">
               <span className="relative flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
               </span>
               <span>
-                {authMode === "admin" ? "Academic Administration Console" : "Student Dashboard & DRM Hub"}
+                {authMode === "admin" ? (
+                  <>
+                    <span className="hidden xs:inline">Academic </span>Admin Console
+                  </>
+                ) : (
+                  <>
+                    <span className="hidden sm:inline">Student Dashboard &amp; </span>DRM Hub
+                  </>
+                )}
               </span>
             </div>
           </div>
@@ -226,8 +234,8 @@ export function Login() {
         {/* Main Glassmorphic Card */}
         <div className="overflow-hidden rounded-3xl border border-border/90 bg-card/90 shadow-[0_24px_70px_-25px_color-mix(in_oklab,var(--color-primary-deep)_35%,transparent)] backdrop-blur-md min-w-0">
           {/* Card Top Banner */}
-          <div className="border-b border-border/80 bg-gradient-to-r from-emerald-500/10 via-surface to-teal-500/10 px-6 py-4 sm:px-8 sm:py-5 min-w-0">
-            <div className="flex flex-wrap items-center justify-between gap-3 min-w-0">
+          <div className="border-b border-border/80 bg-gradient-to-r from-emerald-500/10 via-surface to-teal-500/10 px-4 sm:px-8 py-3.5 sm:py-5 min-w-0">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 min-w-0">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-md">
                   {authMode === "admin" ? <ShieldCheck className="h-5 w-5" /> : <GraduationCap className="h-5 w-5" />}
@@ -245,7 +253,7 @@ export function Login() {
               </div>
 
               {/* Segmented Mode Switcher */}
-              <div className="flex items-center gap-1 bg-surface p-1 rounded-2xl border border-border text-xs shadow-2xs">
+              <div className="grid grid-cols-3 sm:flex sm:items-center gap-1 bg-surface p-1 rounded-2xl border border-border text-xs shadow-2xs w-full sm:w-auto shrink-0">
                 <button
                   type="button"
                   onClick={() => {
@@ -253,7 +261,7 @@ export function Login() {
                     setEmail("");
                     setPassword("");
                   }}
-                  className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer text-xs ${
+                  className={`px-2 sm:px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer text-[0.7rem] sm:text-xs text-center ${
                     authMode === "login"
                       ? "bg-primary text-primary-foreground shadow-xs"
                       : "text-muted-foreground hover:text-foreground"
@@ -268,7 +276,7 @@ export function Login() {
                     setEmail("");
                     setPassword("");
                   }}
-                  className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer text-xs ${
+                  className={`px-2 sm:px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer text-[0.7rem] sm:text-xs text-center ${
                     authMode === "register"
                       ? "bg-primary text-primary-foreground shadow-xs"
                       : "text-muted-foreground hover:text-foreground"
@@ -283,7 +291,7 @@ export function Login() {
                     setEmail("");
                     setPassword("");
                   }}
-                  className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer text-xs ${
+                  className={`px-2 sm:px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer text-[0.7rem] sm:text-xs text-center ${
                     authMode === "admin"
                       ? "bg-emerald-600 text-white shadow-xs font-bold"
                       : "text-muted-foreground hover:text-foreground"
@@ -611,7 +619,64 @@ export function Login() {
                   </div>
                 </div>
 
-                {/* 2. Protected DRM Platform Card */}
+                {/* 2. Transparent Student Pricing Tiers Card (Student Modes) */}
+                {authMode !== "admin" && (
+                  <div className="rounded-3xl border border-primary/30 bg-card p-4 sm:p-5 space-y-3 shadow-xs">
+                    <div className="flex items-center justify-between border-b border-border/80 pb-2.5">
+                      <span className="font-bold text-xs sm:text-sm text-foreground flex items-center gap-1.5">
+                        <Award className="h-4 w-4 text-primary" />
+                        <span>Student Access &amp; Pricing Tiers</span>
+                      </span>
+                      <span className="text-[0.65rem] font-bold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                        Pocket Friendly
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2 text-center">
+                      {/* Free Tier */}
+                      <div className="rounded-2xl border border-border/80 bg-surface/60 p-2.5 flex flex-col justify-between">
+                        <div>
+                          <span className="block text-[0.65rem] font-bold text-muted-foreground uppercase">Free Starter</span>
+                          <span className="text-sm font-extrabold text-foreground mt-0.5 block">₹0</span>
+                        </div>
+                        <span className="text-[0.62rem] text-muted-foreground leading-tight mt-1.5 block">
+                          Unit 1 Notes &amp; Timetable
+                        </span>
+                      </div>
+
+                      {/* Semester Topper */}
+                      <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-2.5 flex flex-col justify-between relative shadow-xs">
+                        <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[0.55rem] font-bold bg-emerald-600 text-white px-1.5 py-0.2 rounded-full uppercase">
+                          Popular
+                        </span>
+                        <div>
+                          <span className="block text-[0.65rem] font-bold text-emerald-700 dark:text-emerald-300 uppercase">Topper</span>
+                          <span className="text-sm font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5 block">
+                            ₹499<span className="text-[0.6rem] font-normal text-muted-foreground">/sem</span>
+                          </span>
+                        </div>
+                        <span className="text-[0.62rem] text-emerald-800 dark:text-emerald-200 leading-tight mt-1.5 block">
+                          All 5 Units + Solved PYQs
+                        </span>
+                      </div>
+
+                      {/* VIP Scholar */}
+                      <div className="rounded-2xl border border-border/80 bg-surface/60 p-2.5 flex flex-col justify-between">
+                        <div>
+                          <span className="block text-[0.65rem] font-bold text-muted-foreground uppercase">VIP Access</span>
+                          <span className="text-sm font-extrabold text-foreground mt-0.5 block">
+                            ₹899<span className="text-[0.6rem] font-normal text-muted-foreground">/sem</span>
+                          </span>
+                        </div>
+                        <span className="text-[0.62rem] text-muted-foreground leading-tight mt-1.5 block">
+                          Offline PDFs + 1-on-1 Help
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 3. Protected DRM Platform Card */}
                 <div className="rounded-3xl border border-emerald-500/30 bg-emerald-500/10 p-5 text-xs text-emerald-800 dark:text-emerald-300 space-y-2 shadow-xs">
                   <div className="flex items-center gap-2 font-bold text-sm">
                     <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
