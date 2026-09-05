@@ -115,30 +115,26 @@ export function PdfCanvasViewer({
         if (res.ok) {
           const ab = await res.arrayBuffer();
           binaryData = new Uint8Array(ab);
+        } else {
+          console.warn(`Direct PDF binary stream returned ${res.status}.`);
         }
       } catch (fErr) {
         console.warn("Main thread binary fetch fallback:", fErr);
       }
 
-      const docSource = binaryData
-        ? {
-            data: binaryData,
-            cMapUrl: "https://unpkg.com/pdfjs-dist/cmaps/",
-            cMapPacked: true,
-            standardFontDataUrl: "https://unpkg.com/pdfjs-dist/standard_fonts/",
-            verbosity: 0,
-            stopAtErrors: false,
-          }
-        : {
-            url: resolvedUrl,
-            httpHeaders: token ? { Authorization: `Bearer ${token}` } : undefined,
-            withCredentials: true,
-            cMapUrl: "https://unpkg.com/pdfjs-dist/cmaps/",
-            cMapPacked: true,
-            standardFontDataUrl: "https://unpkg.com/pdfjs-dist/standard_fonts/",
-            verbosity: 0,
-            stopAtErrors: false,
-          };
+      if (!binaryData) {
+        // If binary stream was not reachable directly, attempt fallback or throw clear notice
+        throw new Error("Courseware PDF stream is initializing on server. Switch to Clean Notes Vector for instant reading.");
+      }
+
+      const docSource = {
+        data: binaryData,
+        cMapUrl: "https://unpkg.com/pdfjs-dist/cmaps/",
+        cMapPacked: true,
+        standardFontDataUrl: "https://unpkg.com/pdfjs-dist/standard_fonts/",
+        verbosity: 0,
+        stopAtErrors: false,
+      };
 
       const loadingTask = pdfjsLib.getDocument(docSource as any);
       const doc = await loadingTask.promise;
@@ -165,7 +161,7 @@ export function PdfCanvasViewer({
     loadDocument();
   }, [loadDocument, retryCount]);
 
-  // 2. Render Target Page to HTML5 Canvas (High-DPI Retina Rendering)
+  // 2. Render Target Page to HTML5 Canvas (High-DPI Retina Rendering with iPhone/Mobile Safety)
   useEffect(() => {
     let isCancelled = false;
 
@@ -201,12 +197,26 @@ export function PdfCanvasViewer({
         setNaturalWidth(baseViewport.width);
         setNaturalHeight(baseViewport.height);
 
+        // Detect iPhone / iOS Safari for safe memory rasterization
+        const isIOS =
+          typeof navigator !== "undefined" &&
+          (/iPad|iPhone|iPod/.test(navigator.userAgent) ||
+            (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1));
+
         // High resolution rasterization scale with adaptive memory cap:
-        const dpr = typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1.5;
+        const dpr = typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, isIOS ? 2 : 2.5) : 1.5;
         const targetZoomFactor = zoomLevel / 100;
-        const baseScale = Math.min(Math.max(1.2, targetZoomFactor * 1.25), 2.2);
-        const renderScale = baseScale * Math.min(dpr, 1.5);
-        const viewport = page.getViewport({ scale: renderScale });
+        const baseScale = Math.min(Math.max(1.0, targetZoomFactor * 1.25), isIOS ? 1.8 : 2.2);
+        const renderScale = baseScale * Math.min(dpr, isIOS ? 1.4 : 1.6);
+        const rawViewport = page.getViewport({ scale: renderScale });
+
+        // Clamp max canvas pixel buffer dimensions to prevent iOS Safari crash
+        const maxDimension = isIOS ? 2400 : 3600;
+        let finalScale = renderScale;
+        if (rawViewport.width > maxDimension || rawViewport.height > maxDimension) {
+          finalScale = renderScale * (maxDimension / Math.max(rawViewport.width, rawViewport.height));
+        }
+        const viewport = finalScale !== renderScale ? page.getViewport({ scale: finalScale }) : rawViewport;
 
         // Set internal canvas pixel buffer size
         canvas.width = Math.floor(viewport.width);
