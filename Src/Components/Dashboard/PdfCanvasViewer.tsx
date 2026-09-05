@@ -275,13 +275,13 @@ export function PdfCanvasViewer({
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[50vh] sm:min-h-[60vh] p-6 sm:p-8 text-center bg-card/80 rounded-2xl border border-rose-500/30 space-y-4 max-w-lg mx-auto">
-        <div className="grid h-12 w-12 place-items-center rounded-2xl bg-rose-500/10 text-rose-500">
+      <div className="flex flex-col items-center justify-center min-h-[50vh] sm:min-h-[60vh] p-6 sm:p-8 text-center bg-card/95 dark:bg-zinc-900/95 rounded-2xl border border-rose-500/30 space-y-4 max-w-lg mx-auto shadow-xl">
+        <div className="grid h-12 w-12 place-items-center rounded-2xl bg-rose-500/15 text-rose-500">
           <AlertCircle className="h-6 w-6" />
         </div>
         <div className="space-y-1">
-          <h3 className="font-bold text-sm sm:text-base text-foreground">Document Renderer Notice</h3>
-          <p className="text-xs text-muted-foreground leading-relaxed">
+          <h3 className="font-bold text-sm sm:text-base text-foreground dark:text-zinc-100">Document Renderer Notice</h3>
+          <p className="text-xs text-muted-foreground dark:text-zinc-400 leading-relaxed">
             {error || "Unable to render PDF binary in canvas stream."}
           </p>
         </div>
@@ -290,22 +290,11 @@ export function PdfCanvasViewer({
           <button
             type="button"
             onClick={() => setRetryCount((c) => c + 1)}
-            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:bg-primary-deep active:scale-95 transition-all cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold shadow-md hover:bg-primary-deep active:scale-95 transition-all cursor-pointer"
           >
             <RefreshCw className="h-3.5 w-3.5" />
             <span>Retry Document</span>
           </button>
-
-          {onFallbackToManuscript && (
-            <button
-              type="button"
-              onClick={onFallbackToManuscript}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-border bg-surface text-foreground text-xs font-bold hover:bg-card active:scale-95 transition-all cursor-pointer"
-            >
-              <FileText className="h-3.5 w-3.5 text-primary" />
-              <span>Read Clean Notes Vector</span>
-            </button>
-          )}
         </div>
       </div>
     );
@@ -334,7 +323,7 @@ export function PdfCanvasViewer({
           maxWidth: zoomLevel <= 100 ? `${naturalWidth}px` : "none",
           transformOrigin: "top center",
         }}
-        className="relative shadow-2xl rounded-xl sm:rounded-2xl overflow-hidden border border-border/80 bg-white mx-auto transition-[width] duration-150 shrink-0"
+        className="relative shadow-2xl rounded-xl sm:rounded-2xl overflow-hidden border border-border/80 bg-white dark:bg-zinc-950 mx-auto transition-[width] duration-150 shrink-0"
       >
         <canvas
           ref={canvasRef}

@@ -23,6 +23,7 @@ import { useAuth } from "@/Hooks/UseAuth";
 import { useDrmProtection } from "@/Hooks/UseDrmProtection";
 import { cn } from "@/Lib/Utils";
 import { toast } from "sonner";
+import { useTheme } from "@/Hooks/UseTheme";
 import { PdfCanvasViewer } from "./PdfCanvasViewer";
 
 interface DrmSecureReaderProps {
@@ -129,22 +130,40 @@ const SAMPLE_PAGES: Record<number, DrmPageVector> = {
 
 export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
   const { user } = useAuth();
+  const { isDark } = useTheme();
   const { isScreenBlurred, resumeReading, isAccountBlocked, blockReason, violationsCount, isDrmDisabled, toggleDrm } = useDrmProtection({ materialId });
 
   const [payload, setPayload] = useState<DrmMaterialPayload>(FALLBACK_PAYLOAD);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageData, setPageData] = useState<DrmPageVector>(SAMPLE_PAGES[1]!);
-  const [readerViewMode, setReaderViewMode] = useState<"document" | "manuscript">("manuscript");
   const [zoomLevel, setZoomLevel] = useState<number>(100);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
-  const [readingTheme, setReadingTheme] = useState<"day" | "sepia" | "night">("day");
+  const [readingTheme, setReadingTheme] = useState<"day" | "sepia" | "night">(() => {
+    if (typeof window !== "undefined") {
+      return document.documentElement.classList.contains("dark") ? "night" : "day";
+    }
+    return "day";
+  });
   const [isJumpInputOpen, setIsJumpInputOpen] = useState<boolean>(false);
   const [jumpPageValue, setJumpPageValue] = useState<string>("");
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const isPdfDoc = payload.file_ext === "pdf" || Boolean(payload.file_url?.toLowerCase().endsWith(".pdf")) || Boolean(pageData.file_url?.toLowerCase().endsWith(".pdf"));
+  // Strictly identify if this is a genuine PDF courseware document
+  const isPdfDoc =
+    payload.file_ext === "pdf" ||
+    Boolean(payload.file_url?.toLowerCase().endsWith(".pdf")) ||
+    Boolean(pageData.file_url?.toLowerCase().endsWith(".pdf")) ||
+    Boolean(payload.file_name?.toLowerCase().endsWith(".pdf"));
+
+  // Per user specification: No clean notes functionality for PDF files; render clean notes exclusively for other document types
+  const readerViewMode: "document" | "manuscript" = isPdfDoc ? "document" : "manuscript";
+
+  // Synchronize reading theme with application dark/light theme
+  useEffect(() => {
+    setReadingTheme(isDark ? "night" : "day");
+  }, [isDark]);
 
   // Load Session & Material Info
   useEffect(() => {
@@ -154,11 +173,6 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
         const res = await apiFetch<DrmMaterialPayload>(`/drm/session/${materialId}/`);
         if (res && !isCancelled) {
           setPayload(res);
-          if (res.file_url && res.file_ext === "pdf") {
-            setReaderViewMode("document");
-          } else {
-            setReaderViewMode("manuscript");
-          }
         }
       } catch (err) {
         console.warn("Using Fallback DRM Payload:", err);
@@ -467,40 +481,10 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
           </button>
         </div>
 
-        {/* Right Tools (Mode Toggle, Reading Themes, Zoom, Fullscreen) */}
+        {/* Right Tools (Reading Themes, Zoom, Fullscreen) */}
         <div className="flex items-center gap-1 xs:gap-1.5 shrink-0">
-          {/* Dual-View Mode Switcher */}
-          <div className="flex items-center gap-0.5 bg-surface/80 p-0.5 rounded-xl border border-border/80 text-xs shadow-2xs">
-            <button
-              type="button"
-              onClick={() => setReaderViewMode("document")}
-              className={cn(
-                "px-2 py-1 rounded-lg text-[0.65rem] font-bold transition-all cursor-pointer",
-                readerViewMode === "document"
-                  ? "bg-primary text-primary-foreground shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-              title="PDF Canvas View"
-            >
-              📄 PDF
-            </button>
-            <button
-              type="button"
-              onClick={() => setReaderViewMode("manuscript")}
-              className={cn(
-                "px-2 py-1 rounded-lg text-[0.65rem] font-bold transition-all cursor-pointer",
-                readerViewMode === "manuscript"
-                  ? "bg-primary text-primary-foreground shadow-xs"
-                  : "text-muted-foreground hover:text-foreground"
-              )}
-              title="Clean Vector Notes"
-            >
-              📝 Notes
-            </button>
-          </div>
-
           {/* Reading Color Themes (Day / Sepia / Night) */}
-          <div className="hidden sm:flex items-center gap-0.5 bg-surface/80 p-0.5 rounded-xl border border-border/80 text-xs shadow-2xs">
+          <div className="flex items-center gap-0.5 bg-surface/80 p-0.5 rounded-xl border border-border/80 text-xs shadow-2xs">
             <button
               type="button"
               onClick={() => setReadingTheme("day")}
@@ -593,21 +577,41 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
       </div>
 
       {/* Print Quarantine CSS & Anti-Selection Style Injection */}
-      {!isDrmDisabled && (
-        <style>{`
-          @media print {
-            body * { display: none !important; }
-            body { background: #000000 !important; }
-          }
-          .drm-protected-content, .drm-protected-content * {
-            user-select: none !important;
-            -webkit-user-select: none !important;
-            -moz-user-select: none !important;
-            -ms-user-select: none !important;
-            -webkit-touch-callout: none !important;
-          }
-        `}</style>
-      )}
+      <style>{`
+        @media print {
+          body * { display: none !important; }
+          body { background: #000000 !important; }
+        }
+        .drm-protected-content, .drm-protected-content * {
+          user-select: none !important;
+          -webkit-user-select: none !important;
+          -moz-user-select: none !important;
+          -ms-user-select: none !important;
+          -webkit-touch-callout: none !important;
+        }
+        /* Scoped High-Contrast Typography For Dark & Sepia Themes */
+        .reading-theme-day h1, .reading-theme-day h2, .reading-theme-day h3, .reading-theme-day h4,
+        .reading-theme-day strong {
+          color: #0f172a !important;
+        }
+        .reading-theme-day p, .reading-theme-day span, .reading-theme-day li {
+          color: #334155 !important;
+        }
+        .reading-theme-night h1, .reading-theme-night h2, .reading-theme-night h3, .reading-theme-night h4,
+        .reading-theme-night strong {
+          color: #f4f4f5 !important;
+        }
+        .reading-theme-night p, .reading-theme-night span, .reading-theme-night li {
+          color: #d4d4d8 !important;
+        }
+        .reading-theme-sepia h1, .reading-theme-sepia h2, .reading-theme-sepia h3, .reading-theme-sepia h4,
+        .reading-theme-sepia strong {
+          color: #3c2f1d !important;
+        }
+        .reading-theme-sepia p, .reading-theme-sepia span, .reading-theme-sepia li {
+          color: #534228 !important;
+        }
+      `}</style>
 
       {/* Main Secure Canvas Reading Zone with Dynamic Watermark */}
       <div
@@ -637,22 +641,54 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
         <div
           style={readerViewMode === "document" ? undefined : { transform: `scale(${zoomLevel / 100})`, transformOrigin: "top center" }}
           className={cn(
-            "relative z-10 w-full rounded-2xl sm:rounded-3xl border border-border/80 shadow-lg transition-all duration-200 overflow-hidden select-none min-w-0 mx-auto",
-            readingTheme === "day" && "bg-white text-slate-900 border-border",
-            readingTheme === "sepia" && "bg-[#fbf0d9] text-[#3c2f1d] border-[#e4d6b6]",
-            readingTheme === "night" && "bg-zinc-900 text-zinc-100 border-zinc-800",
+            "relative z-10 w-full rounded-2xl sm:rounded-3xl shadow-2xl transition-all duration-200 overflow-hidden select-none min-w-0 mx-auto",
+            readingTheme === "day" && "bg-white text-slate-900 border border-slate-200 reading-theme-day shadow-xl",
+            readingTheme === "sepia" && "bg-[#fbf0d9] text-[#3c2f1d] border border-[#e4d6b6] reading-theme-sepia shadow-xl",
+            readingTheme === "night" && "bg-zinc-900 text-zinc-100 border border-zinc-800 reading-theme-night shadow-2xl",
             readerViewMode === "document" ? "max-w-5xl p-2 xs:p-4 sm:p-6" : "max-w-4xl p-3 xs:p-5 sm:p-8"
           )}
         >
           {readerViewMode === "document" ? (
             <div className="space-y-3 sm:space-y-4 min-w-0">
-              <div className="border-b border-border/60 pb-2 sm:pb-3 flex flex-wrap items-center justify-between gap-2">
+              <div
+                className={cn(
+                  "border-b pb-2 sm:pb-3 flex flex-wrap items-center justify-between gap-2",
+                  readingTheme === "day" && "border-slate-200",
+                  readingTheme === "sepia" && "border-[#e4d6b6]",
+                  readingTheme === "night" && "border-zinc-800"
+                )}
+              >
                 <div className="min-w-0">
-                  <span className="text-[0.6rem] sm:text-[0.65rem] uppercase tracking-wider font-bold text-emerald-800 dark:text-emerald-400 font-mono bg-emerald-500/10 px-2 py-0.5 rounded-md border border-emerald-500/20">
+                  <span
+                    className={cn(
+                      "text-[0.6rem] sm:text-[0.65rem] uppercase tracking-wider font-bold font-mono px-2 py-0.5 rounded-md border",
+                      readingTheme === "day" && "bg-emerald-50 text-emerald-800 border-emerald-300",
+                      readingTheme === "sepia" && "bg-[#ecdcb9] text-[#4a3b25] border-[#d8c59f]",
+                      readingTheme === "night" && "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
+                    )}
+                  >
                     {payload.subject_code} · PDF CANVAS (PAGE {currentPage}/{payload.total_pages})
                   </span>
-                  <h2 className="text-base sm:text-xl font-bold mt-1 text-foreground truncate">{payload.title}</h2>
-                  <p className="text-[0.65rem] sm:text-[0.7rem] text-muted-foreground truncate">{payload.file_name || "Official Courseware Document"}</p>
+                  <h2
+                    className={cn(
+                      "text-base sm:text-xl font-bold mt-1 truncate",
+                      readingTheme === "day" && "text-slate-900",
+                      readingTheme === "sepia" && "text-[#3c2f1d]",
+                      readingTheme === "night" && "text-zinc-100"
+                    )}
+                  >
+                    {payload.title}
+                  </h2>
+                  <p
+                    className={cn(
+                      "text-[0.65rem] sm:text-[0.7rem] truncate",
+                      readingTheme === "day" && "text-slate-600",
+                      readingTheme === "sepia" && "text-[#6b583e]",
+                      readingTheme === "night" && "text-zinc-400"
+                    )}
+                  >
+                    {payload.file_name || "Official Courseware Document"}
+                  </p>
                 </div>
               </div>
               <PdfCanvasViewer
@@ -661,7 +697,6 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
                 zoomLevel={zoomLevel}
                 watermark={payload.watermark}
                 isDrmDisabled={isDrmDisabled}
-                onFallbackToManuscript={() => setReaderViewMode("manuscript")}
                 onTotalPagesDetected={(p) => {
                   if (p && p !== payload.total_pages) {
                     setPayload((prev) => ({ ...prev, total_pages: p }));
@@ -673,7 +708,12 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
             <div className="relative">
               <div
                 dangerouslySetInnerHTML={{ __html: pageData.content_html }}
-                className="prose prose-sm max-w-none font-sans leading-relaxed select-none min-w-0 overflow-hidden break-words text-xs sm:text-sm"
+                className={cn(
+                  "prose prose-sm max-w-none font-sans leading-relaxed select-none min-w-0 overflow-hidden break-words text-xs sm:text-sm",
+                  readingTheme === "day" && "prose-slate text-slate-800",
+                  readingTheme === "sepia" && "text-[#3c2f1d]",
+                  readingTheme === "night" && "prose-invert text-zinc-200"
+                )}
               />
               {/* Forensic Watermark Floating Over Manuscript */}
               {!isDrmDisabled && (
@@ -693,7 +733,14 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
           )}
 
           {/* Page Footer Security Signature */}
-          <div className="mt-3 sm:mt-4 pt-2 sm:pt-3 border-t border-current/20 flex flex-wrap items-center justify-between text-[0.6rem] sm:text-[0.65rem] font-mono opacity-60 gap-1">
+          <div
+            className={cn(
+              "mt-3 sm:mt-4 pt-2 sm:pt-3 border-t flex flex-wrap items-center justify-between text-[0.6rem] sm:text-[0.65rem] font-mono gap-1",
+              readingTheme === "day" && "border-slate-200 text-slate-500",
+              readingTheme === "sepia" && "border-[#e4d6b6] text-[#785e3a]",
+              readingTheme === "night" && "border-zinc-800 text-zinc-500"
+            )}
+          >
             <span>NimsWallah Academic DRM Pipeline · Page {currentPage} Of {payload.total_pages}</span>
             <span>Student ID: {user?.roll_number || payload.watermark.roll_number}</span>
           </div>
@@ -701,7 +748,14 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
       </div>
 
       {/* Reader Bottom Bar */}
-      <div className="border-t border-border/80 bg-card/90 px-3 sm:px-4 py-2 text-center text-[0.65rem] sm:text-[0.7rem] text-muted-foreground shrink-0 font-medium select-none flex flex-wrap items-center justify-between gap-1">
+      <div
+        className={cn(
+          "border-t px-3 sm:px-4 py-2 text-center text-[0.65rem] sm:text-[0.7rem] shrink-0 font-medium select-none flex flex-wrap items-center justify-between gap-1 transition-colors duration-200",
+          readingTheme === "day" && "bg-white/95 border-slate-200 text-slate-600",
+          readingTheme === "sepia" && "bg-[#ebdcb9]/95 border-[#d8c59f] text-[#6b583e]",
+          readingTheme === "night" && "bg-zinc-950/95 border-zinc-800 text-zinc-400"
+        )}
+      >
         <span className="hidden sm:inline">🔒 Strictly View-Only Protected Academic Record · High-Frequency Forensic Telemetry Active</span>
         <span className="font-mono text-emerald-700 dark:text-emerald-400 font-bold mx-auto sm:mx-0">
           Forensic ID: {user?.roll_number || payload.watermark.roll_number}
