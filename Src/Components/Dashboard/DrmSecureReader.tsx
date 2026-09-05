@@ -139,12 +139,6 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
   const [zoomLevel, setZoomLevel] = useState<number>(100);
   const [isFullscreen, setIsFullscreen] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
-  const [readingTheme, setReadingTheme] = useState<"day" | "sepia" | "night">(() => {
-    if (typeof window !== "undefined") {
-      return document.documentElement.classList.contains("dark") ? "night" : "day";
-    }
-    return "day";
-  });
   const [isJumpInputOpen, setIsJumpInputOpen] = useState<boolean>(false);
   const [jumpPageValue, setJumpPageValue] = useState<string>("");
 
@@ -159,11 +153,6 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
 
   // Per user specification: No clean notes functionality for PDF files; render clean notes exclusively for other document types
   const readerViewMode: "document" | "manuscript" = isPdfDoc ? "document" : "manuscript";
-
-  // Synchronize reading theme with application dark/light theme
-  useEffect(() => {
-    setReadingTheme(isDark ? "night" : "day");
-  }, [isDark]);
 
   // Load Session & Material Info
   useEffect(() => {
@@ -289,9 +278,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
       ref={containerRef}
       className={cn(
         "fixed inset-0 z-[100] flex flex-col select-none overflow-hidden min-w-0 transition-colors duration-200",
-        readingTheme === "day" && "bg-slate-100 dark:bg-zinc-950 text-foreground",
-        readingTheme === "sepia" && "bg-[#f4ecd8] text-[#3c2f1d]",
-        readingTheme === "night" && "bg-black text-zinc-100",
+        isDark ? "bg-black text-zinc-100" : "bg-slate-100 text-foreground",
         isFullscreen ? "fixed inset-0 z-[100]" : ""
       )}
     >
@@ -481,44 +468,9 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
           </button>
         </div>
 
-        {/* Right Tools (Reading Themes, Zoom, Fullscreen) */}
+        {/* Right Tools (Zoom, Fullscreen) */}
         <div className="flex items-center gap-1 xs:gap-1.5 shrink-0">
-          {/* Reading Color Themes (Day / Sepia / Night) */}
-          <div className="flex items-center gap-0.5 bg-surface/80 p-0.5 rounded-xl border border-border/80 text-xs shadow-2xs">
-            <button
-              type="button"
-              onClick={() => setReadingTheme("day")}
-              className={cn(
-                "h-6 w-6 rounded-lg grid place-items-center transition-all cursor-pointer",
-                readingTheme === "day" ? "bg-white text-slate-900 shadow-xs border border-border" : "text-muted-foreground hover:text-foreground"
-              )}
-              title="Day Mode (Crisp White)"
-            >
-              <Sun className="h-3 w-3" />
-            </button>
-            <button
-              type="button"
-              onClick={() => setReadingTheme("sepia")}
-              className={cn(
-                "h-6 w-6 rounded-lg grid place-items-center transition-all cursor-pointer text-[0.65rem] font-bold",
-                readingTheme === "sepia" ? "bg-[#e8dcbf] text-[#3c2f1d] shadow-xs border border-[#d8ccaf]" : "text-muted-foreground hover:text-foreground"
-              )}
-              title="Sepia Mode (Warm Academic)"
-            >
-              Aa
-            </button>
-            <button
-              type="button"
-              onClick={() => setReadingTheme("night")}
-              className={cn(
-                "h-6 w-6 rounded-lg grid place-items-center transition-all cursor-pointer",
-                readingTheme === "night" ? "bg-zinc-900 text-white shadow-xs border border-zinc-700" : "text-muted-foreground hover:text-foreground"
-              )}
-              title="Night Mode (OLED Dark)"
-            >
-              <Moon className="h-3 w-3" />
-            </button>
-          </div>
+          {/* Zoom Controls */}
 
           {/* Zoom Controls */}
           <div className="flex items-center gap-0.5 bg-surface/90 p-0.5 rounded-xl border border-border/80 text-xs shadow-2xs">
@@ -604,13 +556,6 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
         .reading-theme-night p, .reading-theme-night span, .reading-theme-night li {
           color: #d4d4d8 !important;
         }
-        .reading-theme-sepia h1, .reading-theme-sepia h2, .reading-theme-sepia h3, .reading-theme-sepia h4,
-        .reading-theme-sepia strong {
-          color: #3c2f1d !important;
-        }
-        .reading-theme-sepia p, .reading-theme-sepia span, .reading-theme-sepia li {
-          color: #534228 !important;
-        }
       `}</style>
 
       {/* Main Secure Canvas Reading Zone with Dynamic Watermark */}
@@ -642,9 +587,9 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
           style={readerViewMode === "document" ? undefined : { transform: `scale(${zoomLevel / 100})`, transformOrigin: "top center" }}
           className={cn(
             "relative z-10 w-full rounded-2xl sm:rounded-3xl shadow-2xl transition-all duration-200 overflow-hidden select-none min-w-0 mx-auto",
-            readingTheme === "day" && "bg-white text-slate-900 border border-slate-200 reading-theme-day shadow-xl",
-            readingTheme === "sepia" && "bg-[#fbf0d9] text-[#3c2f1d] border border-[#e4d6b6] reading-theme-sepia shadow-xl",
-            readingTheme === "night" && "bg-zinc-900 text-zinc-100 border border-zinc-800 reading-theme-night shadow-2xl",
+            isDark
+              ? "bg-zinc-900 text-zinc-100 border border-zinc-800 reading-theme-night shadow-2xl"
+              : "bg-white text-slate-900 border border-slate-200 reading-theme-day shadow-xl",
             readerViewMode === "document" ? "max-w-5xl p-2 xs:p-4 sm:p-6" : "max-w-4xl p-3 xs:p-5 sm:p-8"
           )}
         >
@@ -653,18 +598,16 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
               <div
                 className={cn(
                   "border-b pb-2 sm:pb-3 flex flex-wrap items-center justify-between gap-2",
-                  readingTheme === "day" && "border-slate-200",
-                  readingTheme === "sepia" && "border-[#e4d6b6]",
-                  readingTheme === "night" && "border-zinc-800"
+                  isDark ? "border-zinc-800" : "border-slate-200"
                 )}
               >
                 <div className="min-w-0">
                   <span
                     className={cn(
                       "text-[0.6rem] sm:text-[0.65rem] uppercase tracking-wider font-bold font-mono px-2 py-0.5 rounded-md border",
-                      readingTheme === "day" && "bg-emerald-50 text-emerald-800 border-emerald-300",
-                      readingTheme === "sepia" && "bg-[#ecdcb9] text-[#4a3b25] border-[#d8c59f]",
-                      readingTheme === "night" && "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
+                      isDark
+                        ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
+                        : "bg-emerald-50 text-emerald-800 border-emerald-300"
                     )}
                   >
                     {payload.subject_code} · PDF CANVAS (PAGE {currentPage}/{payload.total_pages})
@@ -672,9 +615,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
                   <h2
                     className={cn(
                       "text-base sm:text-xl font-bold mt-1 truncate",
-                      readingTheme === "day" && "text-slate-900",
-                      readingTheme === "sepia" && "text-[#3c2f1d]",
-                      readingTheme === "night" && "text-zinc-100"
+                      isDark ? "text-zinc-100" : "text-slate-900"
                     )}
                   >
                     {payload.title}
@@ -682,9 +623,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
                   <p
                     className={cn(
                       "text-[0.65rem] sm:text-[0.7rem] truncate",
-                      readingTheme === "day" && "text-slate-600",
-                      readingTheme === "sepia" && "text-[#6b583e]",
-                      readingTheme === "night" && "text-zinc-400"
+                      isDark ? "text-zinc-400" : "text-slate-600"
                     )}
                   >
                     {payload.file_name || "Official Courseware Document"}
@@ -710,9 +649,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
                 dangerouslySetInnerHTML={{ __html: pageData.content_html }}
                 className={cn(
                   "prose prose-sm max-w-none font-sans leading-relaxed select-none min-w-0 overflow-hidden break-words text-xs sm:text-sm",
-                  readingTheme === "day" && "prose-slate text-slate-800",
-                  readingTheme === "sepia" && "text-[#3c2f1d]",
-                  readingTheme === "night" && "prose-invert text-zinc-200"
+                  isDark ? "prose-invert text-zinc-200" : "prose-slate text-slate-800"
                 )}
               />
               {/* Forensic Watermark Floating Over Manuscript */}
@@ -736,9 +673,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
           <div
             className={cn(
               "mt-3 sm:mt-4 pt-2 sm:pt-3 border-t flex flex-wrap items-center justify-between text-[0.6rem] sm:text-[0.65rem] font-mono gap-1",
-              readingTheme === "day" && "border-slate-200 text-slate-500",
-              readingTheme === "sepia" && "border-[#e4d6b6] text-[#785e3a]",
-              readingTheme === "night" && "border-zinc-800 text-zinc-500"
+              isDark ? "border-zinc-800 text-zinc-500" : "border-slate-200 text-slate-500"
             )}
           >
             <span>NimsWallah Academic DRM Pipeline · Page {currentPage} Of {payload.total_pages}</span>
@@ -751,9 +686,9 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
       <div
         className={cn(
           "border-t px-3 sm:px-4 py-2 text-center text-[0.65rem] sm:text-[0.7rem] shrink-0 font-medium select-none flex flex-wrap items-center justify-between gap-1 transition-colors duration-200",
-          readingTheme === "day" && "bg-white/95 border-slate-200 text-slate-600",
-          readingTheme === "sepia" && "bg-[#ebdcb9]/95 border-[#d8c59f] text-[#6b583e]",
-          readingTheme === "night" && "bg-zinc-950/95 border-zinc-800 text-zinc-400"
+          isDark
+            ? "bg-zinc-950/95 border-zinc-800 text-zinc-400"
+            : "bg-white/95 border-slate-200 text-slate-600"
         )}
       >
         <span className="hidden sm:inline">🔒 Strictly View-Only Protected Academic Record · High-Frequency Forensic Telemetry Active</span>

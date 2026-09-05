@@ -330,34 +330,34 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
                   onClick={() => handleNavClick(item.id)}
                   title={sidebarCollapsed ? item.label : undefined}
                   className={cn(
-                    "flex w-full items-center rounded-2xl text-xs font-semibold cursor-pointer transition-all active:scale-[0.98]",
+                    "flex w-full items-center rounded-2xl text-xs font-bold cursor-pointer transition-all active:scale-[0.98]",
                     sidebarCollapsed ? "justify-center p-2.5" : "justify-between px-3.5 py-2.5",
                     isActive
-                      ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-600/25"
-                      : "text-muted-foreground hover:bg-surface hover:text-foreground",
+                      ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/25"
+                      : "text-slate-900 dark:text-zinc-100 hover:bg-slate-100 dark:hover:bg-zinc-800/70 hover:text-emerald-700 dark:hover:text-emerald-400",
                   )}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <Icon className="h-4 w-4 shrink-0" />
+                    <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-white" : "text-slate-700 dark:text-zinc-300")} />
                     {!sidebarCollapsed && <span className="truncate">{item.label}</span>}
                   </div>
                   {!sidebarCollapsed && hasBadge && (
                     <span
                       className={cn(
-                        "rounded-full px-2 py-0.5 text-[0.6rem] font-bold tracking-wide transition-all whitespace-nowrap shrink-0 leading-none min-w-fit inline-block",
+                        "rounded-full px-2 py-0.5 text-[0.62rem] font-bold tracking-wide transition-all whitespace-nowrap shrink-0 leading-none min-w-fit inline-block",
                         isActive
-                          ? "bg-white/25 text-white font-bold shadow-xs backdrop-blur-xs"
+                          ? "bg-white text-emerald-950 shadow-sm ring-1 ring-white/60"
                           : variant === "amber"
-                          ? "bg-amber-500/15 text-amber-700 dark:text-amber-300"
+                          ? "bg-amber-100 text-amber-950 dark:bg-amber-950/80 dark:text-amber-200 border border-amber-300 dark:border-amber-700/60"
                           : variant === "purple"
-                          ? "bg-purple-500/15 text-purple-700 dark:text-purple-300"
+                          ? "bg-purple-100 text-purple-950 dark:bg-purple-950/80 dark:text-purple-200 border border-purple-300 dark:border-purple-700/60"
                           : variant === "rose"
-                          ? "bg-rose-500/15 text-rose-700 dark:text-rose-300"
+                          ? "bg-rose-100 text-rose-950 dark:bg-rose-950/80 dark:text-rose-200 border border-rose-300 dark:border-rose-700/60"
                           : variant === "cyan"
-                          ? "bg-cyan-500/15 text-cyan-700 dark:text-cyan-300"
+                          ? "bg-cyan-100 text-cyan-950 dark:bg-cyan-950/80 dark:text-cyan-200 border border-cyan-300 dark:border-cyan-700/60"
                           : variant === "blue"
-                          ? "bg-blue-500/15 text-blue-700 dark:text-blue-300"
-                          : "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+                          ? "bg-blue-100 text-blue-950 dark:bg-blue-950/80 dark:text-blue-200 border border-blue-300 dark:border-blue-700/60"
+                          : "bg-emerald-100 text-emerald-950 dark:bg-emerald-950/80 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700/60",
                       )}
                     >
                       {badgeText}
@@ -425,7 +425,7 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
                   <span className="font-bold text-sm bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent truncate block leading-tight">
                     NimsWallah
                   </span>
-                  <span className="text-[0.62rem] font-bold text-muted-foreground uppercase tracking-wider block">
+                  <span className="text-[0.62rem] font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider block">
                     Academic Engine
                   </span>
                 </div>
@@ -433,7 +433,7 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
               <button
                 type="button"
                 onClick={() => setMobileOpen(false)}
-                className="rounded-xl p-1.5 hover:bg-surface text-muted-foreground hover:text-foreground cursor-pointer shrink-0 transition-colors active:scale-95"
+                className="rounded-xl p-1.5 hover:bg-slate-100 dark:hover:bg-zinc-800 text-slate-700 dark:text-zinc-300 hover:text-slate-900 dark:hover:text-white cursor-pointer shrink-0 transition-colors active:scale-95"
                 title="Close navigation"
               >
                 <X className="h-5 w-5" />
@@ -455,33 +455,33 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
                     key={item.id}
                     onClick={() => handleNavClick(item.id)}
                     className={cn(
-                      "flex w-full items-center justify-between rounded-xl xs:rounded-2xl px-3 py-2.5 text-xs font-semibold cursor-pointer transition-all active:scale-[0.98]",
+                      "flex w-full items-center justify-between rounded-xl xs:rounded-2xl px-3 py-2.5 text-xs font-bold cursor-pointer transition-all active:scale-[0.98]",
                       isActive
-                        ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-600/25"
-                        : "text-muted-foreground hover:bg-surface hover:text-foreground",
+                        ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/25"
+                        : "text-slate-900 dark:text-zinc-100 hover:bg-slate-100 dark:hover:bg-zinc-800/70 hover:text-emerald-700 dark:hover:text-emerald-400",
                     )}
                   >
                     <div className="flex items-center gap-2.5 xs:gap-3 min-w-0">
-                      <Icon className="h-4 w-4 shrink-0" />
+                      <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-white" : "text-slate-700 dark:text-zinc-300")} />
                       <span className="truncate">{item.label}</span>
                     </div>
                     {hasBadge && (
                       <span
                         className={cn(
-                          "rounded-full px-2 py-0.5 text-[0.6rem] font-bold shrink-0 tracking-wide transition-all whitespace-nowrap leading-none min-w-fit inline-block",
+                          "rounded-full px-2 py-0.5 text-[0.62rem] font-bold shrink-0 tracking-wide transition-all whitespace-nowrap leading-none min-w-fit inline-block",
                           isActive
-                            ? "bg-white/25 text-white font-bold shadow-xs backdrop-blur-xs"
+                            ? "bg-white text-emerald-950 shadow-sm ring-1 ring-white/60"
                             : variant === "amber"
-                            ? "bg-amber-500/15 text-amber-700 dark:text-amber-300"
+                            ? "bg-amber-100 text-amber-950 dark:bg-amber-950/80 dark:text-amber-200 border border-amber-300 dark:border-amber-700/60"
                             : variant === "purple"
-                            ? "bg-purple-500/15 text-purple-700 dark:text-purple-300"
+                            ? "bg-purple-100 text-purple-950 dark:bg-purple-950/80 dark:text-purple-200 border border-purple-300 dark:border-purple-700/60"
                             : variant === "rose"
-                            ? "bg-rose-500/15 text-rose-700 dark:text-rose-300"
+                            ? "bg-rose-100 text-rose-950 dark:bg-rose-950/80 dark:text-rose-200 border border-rose-300 dark:border-rose-700/60"
                             : variant === "cyan"
-                            ? "bg-cyan-500/15 text-cyan-700 dark:text-cyan-300"
+                            ? "bg-cyan-100 text-cyan-950 dark:bg-cyan-950/80 dark:text-cyan-200 border border-cyan-300 dark:border-cyan-700/60"
                             : variant === "blue"
-                            ? "bg-blue-500/15 text-blue-700 dark:text-blue-300"
-                            : "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300",
+                            ? "bg-blue-100 text-blue-950 dark:bg-blue-950/80 dark:text-blue-200 border border-blue-300 dark:border-blue-700/60"
+                            : "bg-emerald-100 text-emerald-950 dark:bg-emerald-950/80 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700/60",
                         )}
                       >
                         {badgeText}
@@ -495,11 +495,11 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
             {/* Mobile Drawer Footer */}
             <div className="shrink-0 pt-3 border-t border-border/80 space-y-2.5">
               <div className="flex items-center justify-between px-1 text-xs">
-                <span className="text-[0.72rem] text-muted-foreground font-semibold">Theme Mode</span>
+                <span className="text-[0.72rem] text-slate-800 dark:text-zinc-200 font-bold">Theme Mode</span>
                 <button
                   type="button"
                   onClick={toggleTheme}
-                  className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl border border-border bg-surface text-foreground hover:bg-card transition-all cursor-pointer text-xs font-semibold active:scale-95 shadow-2xs"
+                  className="flex items-center gap-2 px-2.5 py-1.5 rounded-xl border border-slate-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 text-slate-900 dark:text-zinc-100 hover:bg-slate-50 dark:hover:bg-zinc-800 transition-all cursor-pointer text-xs font-bold active:scale-95 shadow-2xs"
                   title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
                 >
                   {isDark ? (
@@ -519,7 +519,7 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
               <button
                 type="button"
                 onClick={logout}
-                className="flex w-full items-center justify-center gap-2 rounded-xl xs:rounded-2xl border border-rose-500/25 bg-rose-500/10 dark:bg-rose-950/30 p-2.5 text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-500/15 active:scale-98 transition-all cursor-pointer shadow-2xs"
+                className="flex w-full items-center justify-center gap-2 rounded-xl xs:rounded-2xl border border-rose-300 dark:border-rose-900/60 bg-rose-50 dark:bg-rose-950/40 p-2.5 text-xs font-bold text-rose-700 dark:text-rose-300 hover:bg-rose-100 dark:hover:bg-rose-900/60 active:scale-98 transition-all cursor-pointer shadow-2xs"
               >
                 <LogOut className="h-4 w-4 shrink-0" />
                 <span>Sign Out Of Workspace</span>
