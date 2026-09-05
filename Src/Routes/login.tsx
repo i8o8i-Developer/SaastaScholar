@@ -619,8 +619,8 @@ export function Login() {
                   </div>
                 </div>
 
-                {/* 2. Transparent Student Pricing Tiers Card (Student Modes) */}
-                {authMode !== "admin" && (
+                {/* 2. Transparent Student Pricing Tiers Card (Only On New Student Registration) */}
+                {authMode === "register" && (
                   <div className="rounded-3xl border border-primary/30 bg-card p-4 sm:p-5 space-y-3 shadow-xs">
                     <div className="flex items-center justify-between border-b border-border/80 pb-2.5">
                       <span className="font-bold text-xs sm:text-sm text-foreground flex items-center gap-1.5">
