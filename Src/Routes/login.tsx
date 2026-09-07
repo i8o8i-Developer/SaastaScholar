@@ -59,7 +59,7 @@ export function Login() {
   const [selectedDeptId, setSelectedDeptId] = useState<string>("");
   const [selectedProgramId, setSelectedProgramId] = useState<string>("");
   const [semester, setSemester] = useState<number>(1);
-  const [section, setSection] = useState<string>("");
+  const [section, setSection] = useState<string>("A");
   const [rollNumber, setRollNumber] = useState<string>("");
   const [targetCgpa, setTargetCgpa] = useState<string>("");
   const [currentCgpa, setCurrentCgpa] = useState<string>("");
@@ -84,13 +84,15 @@ export function Login() {
       if (depts.length > 0) {
         setSelectedDeptId((prev) => {
           const currentValid = depts.some((d: any) => d.id === prev);
-          return currentValid ? prev : depts[0].id;
-        });
-      }
-      if (progs.length > 0) {
-        setSelectedProgramId((prev) => {
-          const currentValid = progs.some((p: any) => p.id === prev);
-          return currentValid ? prev : progs[0].id;
+          const chosenDept = currentValid ? prev : depts[0].id;
+          const matching = progs.filter((p: any) => p.department === chosenDept);
+          if (matching.length > 0) {
+            setSelectedProgramId((prevProg) => {
+              const progValid = matching.some((p: any) => p.id === prevProg);
+              return progValid ? prevProg : matching[0].id;
+            });
+          }
+          return chosenDept;
         });
       }
     } catch (err) {
@@ -130,11 +132,12 @@ export function Login() {
     setLoading(true);
     try {
       if (authMode === "register") {
-        const deptName = selectedDeptObj?.name || "Department Of Computer Science & Engineering";
-        const progName = selectedProgramObj?.name || "B.Tech Computer Science & Engineering";
+        const deptName = selectedDeptObj?.name || (departments.find((d) => d.id === selectedDeptId)?.name) || "Department Of Computer Science & Engineering";
+        const progName = selectedProgramObj?.name || (programs.find((p) => p.id === selectedProgramId)?.name) || "B.Tech Computer Science & Engineering";
         const studentName: string = (fullName && fullName.trim()) ? fullName.trim() : (email ? (email.split("@")[0] || "Scholar") : "Scholar");
-        const studentRoll: string = rollNumber.trim() ? rollNumber.trim() : `25${selectedProgramObj?.code || "CSE"}001`;
-        const studentSection: string = section.trim() ? section.trim() : "A";
+        const progCode = (selectedProgramObj?.code || "STU").replace(/[^A-Za-z0-9]/g, "").slice(0, 4).toUpperCase();
+        const studentRoll: string = rollNumber.trim() ? rollNumber.trim() : `26${progCode}001`;
+        const studentSection: string = (section && section.trim()) ? section.trim().toUpperCase() : "A";
         const studentTarget: string = targetCgpa.trim() ? targetCgpa.trim() : "9.50";
         const studentCurrent: string = currentCgpa.trim() ? currentCgpa.trim() : "9.00";
 
@@ -409,28 +412,41 @@ export function Login() {
                                 ))}
                               </select>
 
-                              {availableSections.length > 0 ? (
-                                <select
-                                  value={section}
-                                  onChange={(e) => setSection(e.target.value)}
-                                  className="h-11 w-1/2 rounded-2xl border border-border bg-background px-2.5 text-xs font-semibold focus:border-primary focus:outline-none"
-                                >
-                                  {availableSections.map((sec) => (
-                                    <option key={sec.id} value={sec.section || sec.section_name || "A"}>
-                                      Sec {sec.section || sec.section_name || "A"}
-                                    </option>
-                                  ))}
-                                </select>
-                              ) : (
+                              {/* Dynamic Standard & Database Section Selector */}
+                              <select
+                                value={["A", "B", "C", "D", "E", "F"].includes(section) ? section : "CUSTOM"}
+                                onChange={(e) => {
+                                  if (e.target.value === "CUSTOM") {
+                                    setSection("");
+                                  } else {
+                                    setSection(e.target.value);
+                                  }
+                                }}
+                                className="h-11 w-1/2 rounded-2xl border border-border bg-background px-2.5 text-xs font-semibold focus:border-primary focus:outline-none"
+                              >
+                                {Array.from(new Set([
+                                  "A", "B", "C", "D", "E", "F",
+                                  ...availableSections.map((s) => (s.section || s.section_name || "").toUpperCase()).filter(Boolean),
+                                ])).sort().map((secOpt) => (
+                                  <option key={secOpt} value={secOpt}>
+                                    Section {secOpt}
+                                  </option>
+                                ))}
+                                <option value="CUSTOM">Custom Section...</option>
+                              </select>
+                            </div>
+                            {(!["A", "B", "C", "D", "E", "F"].includes(section) || section === "") && (
+                              <div className="mt-2">
                                 <input
                                   type="text"
                                   value={section}
                                   onChange={(e) => setSection(e.target.value.toUpperCase())}
-                                  placeholder="Sec (E.g. A)"
-                                  className="h-11 w-1/2 rounded-2xl border border-border bg-background px-3 text-xs text-center uppercase font-bold focus:border-primary focus:outline-none"
+                                  placeholder="Type Custom Section (e.g. G, H, Honors)"
+                                  maxLength={10}
+                                  className="h-10 w-full rounded-xl border border-primary/40 bg-background px-3 text-xs uppercase font-bold focus:border-primary focus:outline-none"
                                 />
-                              )}
-                            </div>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>

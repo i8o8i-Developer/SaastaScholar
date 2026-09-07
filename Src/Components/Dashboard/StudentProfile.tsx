@@ -24,7 +24,7 @@ import {
   Zap,
 } from "lucide-react";
 import { useAuth } from "@/Hooks/UseAuth";
-import { apiFetch, toTitleCase } from "@/Lib/Api";
+import { apiFetch, toTitleCase, Department, ProgramSpecialization, SectionBatch } from "@/Lib/Api";
 import { toast } from "sonner";
 import { cn } from "@/Lib/Utils";
 
@@ -55,11 +55,44 @@ export function StudentProfile() {
   const [bio, setBio] = useState<string>(user?.bio || "");
   const [academicFocus, setAcademicFocus] = useState<string>(user?.academic_focus || "");
   const [careerGoal, setCareerGoal] = useState<string>(user?.career_goal || "");
+  const [department, setDepartment] = useState<string>(user?.department || "");
+  const [program, setProgram] = useState<string>(user?.program || "");
   const [semester, setSemester] = useState<number>(user?.semester || 1);
   const [section, setSection] = useState<string>(user?.section || "A");
+  const [departmentsList, setDepartmentsList] = useState<Department[]>([]);
+  const [programsList, setProgramsList] = useState<ProgramSpecialization[]>([]);
+  const [sectionsList, setSectionsList] = useState<SectionBatch[]>([]);
   const [isEditingAcademicRecord, setIsEditingAcademicRecord] = useState<boolean>(false);
   const [uploadingAvatar, setUploadingAvatar] = useState<boolean>(false);
   const [saving, setSaving] = useState<boolean>(false);
+  const [savingAcademic, setSavingAcademic] = useState<boolean>(false);
+
+  useEffect(() => {
+    async function loadAcademicCatalogue() {
+      try {
+        const [deptsRes, progsRes, secsRes] = await Promise.allSettled([
+          apiFetch<Department[]>("/academic/departments/"),
+          apiFetch<ProgramSpecialization[]>("/academic/programs/"),
+          apiFetch<SectionBatch[]>("/academic/sections/"),
+        ]);
+        if (deptsRes.status === "fulfilled") {
+          const d = deptsRes.value;
+          setDepartmentsList(Array.isArray(d) ? d : ((d as any)?.results || []));
+        }
+        if (progsRes.status === "fulfilled") {
+          const p = progsRes.value;
+          setProgramsList(Array.isArray(p) ? p : ((p as any)?.results || []));
+        }
+        if (secsRes.status === "fulfilled") {
+          const s = secsRes.value;
+          setSectionsList(Array.isArray(s) ? s : ((s as any)?.results || []));
+        }
+      } catch (err) {
+        // Handled gracefully
+      }
+    }
+    loadAcademicCatalogue();
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -69,10 +102,39 @@ export function StudentProfile() {
       setBio(user.bio || "");
       setAcademicFocus(user.academic_focus || "");
       setCareerGoal(user.career_goal || "");
+      setDepartment(user.department || "");
+      setProgram(user.program || "");
       setSemester(user.semester || 1);
       setSection(user.section || "A");
     }
   }, [user]);
+
+  const handleSaveAcademicRecord = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    setSavingAcademic(true);
+    try {
+      const cleanSection = (section && section.trim()) ? section.trim().toUpperCase() : "A";
+      const cleanDept = (department || user?.department || "").trim();
+      const cleanProg = (program || user?.program || "").trim();
+      const cleanSem = Number(semester) || 1;
+
+      const ok = await updateProfile({
+        department: cleanDept,
+        program: cleanProg,
+        semester: cleanSem,
+        section: cleanSection,
+      });
+
+      if (ok) {
+        setIsEditingAcademicRecord(false);
+        toast.success(`Academic record updated to ${cleanProg} · Sem ${cleanSem} · Sec ${cleanSection}!`);
+      }
+    } catch (err: any) {
+      toast.error(toTitleCase(err.message || "Failed To Update Academic Cohort Record."));
+    } finally {
+      setSavingAcademic(false);
+    }
+  };
 
   const handleToggleDrm = () => {
     const nextState = !isDrmDisabled;
@@ -261,84 +323,200 @@ export function StudentProfile() {
               </div>
             </div>
 
-            <div className="space-y-2.5 text-xs">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 p-3 rounded-2xl bg-surface/60 border border-border/60">
-                <span className="text-muted-foreground font-medium shrink-0">University Campus</span>
-                <span className="font-bold text-foreground sm:text-right">{user?.university || "NIMS University, Rajasthan"}</span>
-              </div>
-
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 p-3 rounded-2xl bg-surface/60 border border-border/60">
-                <span className="text-muted-foreground font-medium shrink-0">Department</span>
-                <span className="font-bold text-foreground sm:text-right">
-                  {user?.department || "Registered Department"}
-                </span>
-              </div>
-
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 p-3 rounded-2xl bg-surface/60 border border-border/60">
-                <span className="text-muted-foreground font-medium shrink-0">Degree Program</span>
-                <span className="font-bold text-foreground sm:text-right">{user?.program || "Registered Program"}</span>
-              </div>
-
-              {/* Semester & Section with Inline Edit Toggle */}
-              {isEditingAcademicRecord ? (
-                <div className="p-3.5 rounded-2xl bg-primary/5 border border-primary/30 space-y-3">
-                  <span className="text-xs font-bold text-foreground block">Update Semester &amp; Section</span>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block text-[0.68rem] font-bold text-muted-foreground mb-1">Semester</label>
-                      <select
-                        value={semester}
-                        onChange={(e) => setSemester(Number(e.target.value))}
-                        className="h-9 w-full rounded-xl border border-border bg-background px-2.5 text-xs font-bold focus:border-primary focus:outline-none"
-                      >
-                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((sem) => (
-                          <option key={sem} value={sem}>
-                            Semester {sem}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-
-                    <div>
-                      <label className="block text-[0.68rem] font-bold text-muted-foreground mb-1">Section Batch</label>
-                      <input
-                        type="text"
-                        value={section}
-                        onChange={(e) => setSection(e.target.value.toUpperCase())}
-                        placeholder="E.g. A"
-                        maxLength={5}
-                        className="h-9 w-full rounded-xl border border-border bg-background px-2.5 text-xs font-bold focus:border-primary focus:outline-none uppercase"
-                      />
-                    </div>
-                  </div>
+            {isEditingAcademicRecord ? (
+              <div className="p-4 rounded-2xl bg-primary/5 border border-primary/30 space-y-4 text-xs">
+                <div className="flex items-center justify-between border-b border-border/60 pb-2">
+                  <span className="font-bold text-foreground flex items-center gap-1.5 text-sm">
+                    <GraduationCap className="h-4 w-4 text-primary" />
+                    <span>Update Academic Cohort &amp; Section</span>
+                  </span>
                   <button
                     type="button"
-                    onClick={handleSave}
-                    disabled={saving}
-                    className="h-8 px-4 rounded-xl bg-primary text-xs font-bold text-primary-foreground hover:bg-primary-deep cursor-pointer"
+                    onClick={() => setIsEditingAcademicRecord(false)}
+                    className="text-xs text-muted-foreground hover:text-foreground cursor-pointer"
                   >
-                    {saving ? "Saving..." : "Apply Academic Changes"}
+                    Cancel
                   </button>
                 </div>
-              ) : (
-                <div className="flex items-center justify-between p-3 rounded-2xl bg-surface/60 border border-border/60">
-                  <span className="text-muted-foreground font-medium shrink-0">Semester &amp; Section</span>
-                  <span className="font-bold text-foreground">
-                    Semester {user?.semester || 1} · Section {user?.section || "A"}
+
+                {/* Department Dropdown */}
+                <div>
+                  <label className="block text-[0.68rem] font-bold text-muted-foreground mb-1">Academic Department</label>
+                  <select
+                    value={department}
+                    onChange={(e) => {
+                      const newDept = e.target.value;
+                      setDepartment(newDept);
+                      const matching = programsList.filter(
+                        (p) => p.department_name === newDept || p.department === newDept || p.department === departmentsList.find((d) => d.name === newDept)?.id
+                      );
+                      if (matching.length > 0 && matching[0]?.name) {
+                        setProgram(matching[0].name);
+                      }
+                    }}
+                    className="h-10 w-full rounded-xl border border-border bg-background px-2.5 text-xs font-semibold focus:border-primary focus:outline-none"
+                  >
+                    {departmentsList.length > 0 ? (
+                      departmentsList.map((d) => (
+                        <option key={d.id} value={d.name}>
+                          {d.name} ({d.code})
+                        </option>
+                      ))
+                    ) : (
+                      <option value={department}>{department || "Department Of Computer Science & Engineering"}</option>
+                    )}
+                  </select>
+                </div>
+
+                {/* Degree Program / Specialization Dropdown */}
+                <div>
+                  <label className="block text-[0.68rem] font-bold text-muted-foreground mb-1">Degree Program / Specialization</label>
+                  <select
+                    value={program}
+                    onChange={(e) => setProgram(e.target.value)}
+                    className="h-10 w-full rounded-xl border border-border bg-background px-2.5 text-xs font-semibold focus:border-primary focus:outline-none"
+                  >
+                    {programsList.length > 0 ? (
+                      programsList
+                        .filter(
+                          (p) =>
+                            !department ||
+                            p.department_name === department ||
+                            p.department === department ||
+                            p.department === departmentsList.find((d) => d.name === department)?.id
+                        )
+                        .map((p) => (
+                          <option key={p.id} value={p.name}>
+                            {p.name} ({p.code})
+                          </option>
+                        ))
+                    ) : (
+                      <option value={program}>{program || "B.Tech Computer Science & Engineering"}</option>
+                    )}
+                  </select>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  {/* Semester */}
+                  <div>
+                    <label className="block text-[0.68rem] font-bold text-muted-foreground mb-1">Enrolled Semester</label>
+                    <select
+                      value={semester}
+                      onChange={(e) => setSemester(Number(e.target.value))}
+                      className="h-10 w-full rounded-xl border border-border bg-background px-2.5 text-xs font-bold focus:border-primary focus:outline-none"
+                    >
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((sem) => (
+                        <option key={sem} value={sem}>
+                          Semester {sem}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Section Input */}
+                  <div>
+                    <label className="block text-[0.68rem] font-bold text-muted-foreground mb-1">Section Cohort</label>
+                    <input
+                      type="text"
+                      value={section}
+                      onChange={(e) => setSection(e.target.value.toUpperCase())}
+                      placeholder="E.g. A"
+                      maxLength={10}
+                      className="h-10 w-full rounded-xl border border-border bg-background px-3 text-xs font-mono font-bold focus:border-primary focus:outline-none uppercase"
+                    />
+                  </div>
+                </div>
+
+                {/* Quick Section Switcher Pills */}
+                <div>
+                  <label className="block text-[0.68rem] font-bold text-muted-foreground mb-1.5">
+                    Quick Select Cohort Section
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {["A", "B", "C", "D", "E", "F"].map((secPill) => (
+                      <button
+                        key={secPill}
+                        type="button"
+                        onClick={() => setSection(secPill)}
+                        className={cn(
+                          "h-8 px-3 rounded-xl font-bold font-mono text-xs transition-all cursor-pointer shadow-2xs",
+                          section === secPill
+                            ? "bg-primary text-primary-foreground scale-105 shadow-xs"
+                            : "bg-surface/90 border border-border text-foreground hover:bg-card hover:border-primary/40"
+                        )}
+                      >
+                        Sec {secPill}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex items-center gap-2 pt-2 border-t border-border/60">
+                  <button
+                    type="button"
+                    onClick={handleSaveAcademicRecord}
+                    disabled={savingAcademic}
+                    className="inline-flex items-center gap-2 h-9 px-4 rounded-xl bg-primary text-xs font-bold text-primary-foreground hover:bg-primary-deep cursor-pointer shadow-xs disabled:opacity-50"
+                  >
+                    {savingAcademic ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+                    <span>{savingAcademic ? "Updating Cohort..." : "Apply Academic &amp; Section Changes"}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingAcademicRecord(false)}
+                    className="h-9 px-3.5 rounded-xl border border-border bg-surface text-xs font-semibold text-muted-foreground hover:text-foreground cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2.5 text-xs">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 p-3 rounded-2xl bg-surface/60 border border-border/60">
+                  <span className="text-muted-foreground font-medium shrink-0">University Campus</span>
+                  <span className="font-bold text-foreground sm:text-right">{user?.university || "NIMS University, Rajasthan"}</span>
+                </div>
+
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 p-3 rounded-2xl bg-surface/60 border border-border/60">
+                  <span className="text-muted-foreground font-medium shrink-0">Department</span>
+                  <span className="font-bold text-foreground sm:text-right">
+                    {user?.department || "Registered Department"}
                   </span>
                 </div>
-              )}
 
-              <div className="flex items-center justify-between p-3 rounded-2xl bg-surface/60 border border-border/60">
-                <span className="text-muted-foreground font-medium shrink-0">Student ID</span>
-                <span className="font-mono font-bold text-foreground">{user?.roll_number || "STU01"}</span>
-              </div>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 p-3 rounded-2xl bg-surface/60 border border-border/60">
+                  <span className="text-muted-foreground font-medium shrink-0">Degree Program</span>
+                  <span className="font-bold text-foreground sm:text-right">{user?.program || "Registered Program"}</span>
+                </div>
 
-              <div className="flex items-center justify-between p-3 rounded-2xl bg-surface/60 border border-border/60">
-                <span className="text-muted-foreground font-medium shrink-0">Official Enrollment ID</span>
-                <span className="font-mono font-bold text-foreground">{user?.enrollment_no || "NIMS-ENR-2026"}</span>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3 rounded-2xl bg-surface/60 border border-border/60">
+                  <span className="text-muted-foreground font-medium shrink-0">Semester &amp; Section</span>
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-foreground font-mono">
+                      Semester {user?.semester || 1} · Section {user?.section || "A"}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingAcademicRecord(true)}
+                      className="inline-flex items-center gap-1 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary px-2.5 py-1 text-[0.68rem] font-bold transition-all cursor-pointer shadow-2xs"
+                    >
+                      <span>Change Section / Cohort</span>
+                    </button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between p-3 rounded-2xl bg-surface/60 border border-border/60">
+                  <span className="text-muted-foreground font-medium shrink-0">Student ID</span>
+                  <span className="font-mono font-bold text-foreground">{user?.roll_number || "STU01"}</span>
+                </div>
+
+                <div className="flex items-center justify-between p-3 rounded-2xl bg-surface/60 border border-border/60">
+                  <span className="text-muted-foreground font-medium shrink-0">Official Enrollment ID</span>
+                  <span className="font-mono font-bold text-foreground">{user?.enrollment_no || "NIMS-ENR-2026"}</span>
+                </div>
               </div>
-            </div>
+            )}
           </div>
 
           <div className="pt-2 space-y-3">

@@ -75,6 +75,16 @@ class CurrentUserView(generics.RetrieveUpdateAPIView):
             user.save(update_fields=["is_drm_blocked", "block_reason", "security_warning_note", "cooldown_until"])
         return user
 
+    def perform_update(self, serializer):
+        user = serializer.save()
+        from Apps.Academic.cache_utils import invalidate_redis_pattern
+        try:
+            invalidate_redis_pattern(f"planner:timetable:{user.program}*")
+            invalidate_redis_pattern(f"academic:subjects:{user.id}*")
+            invalidate_redis_pattern(f"academic:materials:{user.id}*")
+        except Exception:
+            pass
+
 class AcknowledgeWarningView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 

@@ -569,14 +569,24 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
               <Menu className="h-4 w-4" />
             </button>
 
-            {/* Program & Semester Badge */}
+            {/* Program & Semester Badge with Quick Section Switcher Action */}
             <div className="hidden sm:flex items-center gap-2 rounded-full border border-border/70 bg-surface/80 px-3 py-1 text-xs">
               <GraduationCap className="h-3.5 w-3.5 text-primary" />
               <span className="font-bold text-foreground">{getDisplayProgram(user)}</span>
               <span className="text-muted-foreground">·</span>
-              <span className="font-semibold text-muted-foreground">Semester {user?.semester || 1}</span>
+              <span className="font-semibold text-muted-foreground">Sem {user?.semester || 1}</span>
               <span className="text-muted-foreground">·</span>
-              <span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold">Sec {user?.section || "A"}</span>
+              <button
+                type="button"
+                onClick={() => onSelectTab("profile")}
+                className="font-mono text-emerald-600 dark:text-emerald-400 font-bold hover:underline cursor-pointer inline-flex items-center gap-1 group/sec"
+                title="Change Section In Student Profile"
+              >
+                <span>Sec {user?.section || "A"}</span>
+                <span className="text-[0.62rem] text-primary underline font-sans font-normal opacity-70 group-hover/sec:opacity-100">
+                  (Change)
+                </span>
+              </button>
             </div>
           </div>
 
