@@ -111,7 +111,15 @@ export function Login() {
 
   // Filtered Sections for selected Program and Semester
   const availableSections = sections.filter(
-    (s) => (!selectedProgramId || s.program === selectedProgramId) && s.semester === semester,
+    (s) => (!selectedProgramId || s.program === selectedProgramId) && Number(s.semester) === Number(semester),
+  );
+
+  const distinctListedSections = Array.from(
+    new Set(
+      availableSections
+        .map((s) => (s.section || s.section_name || "").trim().toUpperCase())
+        .filter(Boolean),
+    ),
   );
 
   const selectedProgramObj = programs.find((p) => p.id === selectedProgramId);
@@ -348,17 +356,26 @@ export function Login() {
                         />
                       </div>
 
-                      {/* Dynamic Academic Blueprint Selectors */}
+                      {/* Cascading Academic Blueprint Selectors: Department -> Program -> Semester -> Listed Sections */}
                       <div className="space-y-3">
+                        {/* Step 1: Academic Department */}
                         <div>
                           <label className="block text-xs font-bold text-foreground mb-1">Academic Department</label>
                           <select
                             value={selectedDeptId}
                             onChange={(e) => {
-                              setSelectedDeptId(e.target.value);
-                              const matchingProgs = programs.filter((p) => p.department === e.target.value);
+                              const newDeptId = e.target.value;
+                              setSelectedDeptId(newDeptId);
+                              const matchingProgs = programs.filter((p) => p.department === newDeptId);
                               if (matchingProgs.length > 0 && matchingProgs[0]?.id) {
-                                setSelectedProgramId(matchingProgs[0].id);
+                                const newProgId = matchingProgs[0].id;
+                                setSelectedProgramId(newProgId);
+                                const matchingSecs = sections.filter(
+                                  (s) => s.program === newProgId && Number(s.semester) === Number(semester)
+                                );
+                                if (matchingSecs.length > 0 && matchingSecs[0]) {
+                                  setSection((matchingSecs[0]?.section || matchingSecs[0]?.section_name || "A").toUpperCase());
+                                }
                               } else {
                                 setSelectedProgramId("");
                               }
@@ -377,78 +394,120 @@ export function Login() {
                           </select>
                         </div>
 
+                        {/* Step 2: Degree Program / Specialization */}
+                        <div>
+                          <label className="block text-xs font-bold text-foreground mb-1">Degree Program / Specialization</label>
+                          <select
+                            value={selectedProgramId}
+                            onChange={(e) => {
+                              const newProgId = e.target.value;
+                              setSelectedProgramId(newProgId);
+                              const matchingSecs = sections.filter(
+                                (s) => s.program === newProgId && Number(s.semester) === Number(semester)
+                              );
+                              if (matchingSecs.length > 0 && matchingSecs[0]) {
+                                setSection((matchingSecs[0]?.section || matchingSecs[0]?.section_name || "A").toUpperCase());
+                              }
+                            }}
+                            className="h-11 w-full rounded-2xl border border-border bg-background px-3 text-xs sm:text-sm font-semibold focus:border-primary focus:outline-none transition-colors"
+                          >
+                            {availablePrograms.length === 0 ? (
+                              <option value="">Select Specialization...</option>
+                            ) : (
+                              availablePrograms.map((p) => (
+                                <option key={p.id} value={p.id}>
+                                  {p.name} ({p.code})
+                                </option>
+                              ))
+                            )}
+                          </select>
+                        </div>
+
+                        {/* Step 3 & 4: Semester & Listed Sections for Selected Program */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div>
-                            <label className="block text-xs font-bold text-foreground mb-1">Degree Program / Specialization</label>
+                            <label className="block text-xs font-bold text-foreground mb-1">Enrolled Semester</label>
                             <select
-                              value={selectedProgramId}
-                              onChange={(e) => setSelectedProgramId(e.target.value)}
-                              className="h-11 w-full rounded-2xl border border-border bg-background px-3 text-xs sm:text-sm font-semibold focus:border-primary focus:outline-none transition-colors"
+                              value={semester}
+                              onChange={(e) => {
+                                const newSem = Number(e.target.value);
+                                setSemester(newSem);
+                                const matchingSecs = sections.filter(
+                                  (s) => (!selectedProgramId || s.program === selectedProgramId) && Number(s.semester) === newSem
+                                );
+                                if (matchingSecs.length > 0 && matchingSecs[0]) {
+                                  setSection((matchingSecs[0]?.section || matchingSecs[0]?.section_name || "A").toUpperCase());
+                                }
+                              }}
+                              className="h-11 w-full rounded-2xl border border-border bg-background px-3 text-xs sm:text-sm font-semibold focus:border-primary focus:outline-none"
                             >
-                              {availablePrograms.length === 0 ? (
-                                <option value="">Select Specialization...</option>
-                              ) : (
-                                availablePrograms.map((p) => (
-                                  <option key={p.id} value={p.id}>
-                                    {p.name} ({p.code})
-                                  </option>
-                                ))
-                              )}
+                              {Array.from({ length: selectedProgramObj?.total_semesters || 8 }, (_, i) => i + 1).map((s) => (
+                                <option key={s} value={s}>
+                                  Semester {s}
+                                </option>
+                              ))}
                             </select>
                           </div>
 
                           <div>
-                            <label className="block text-xs font-bold text-foreground mb-1">Semester &amp; Cohort Section</label>
-                            <div className="flex gap-2">
-                              <select
-                                value={semester}
-                                onChange={(e) => setSemester(Number(e.target.value))}
-                                className="h-11 w-1/2 rounded-2xl border border-border bg-background px-2.5 text-xs font-semibold focus:border-primary focus:outline-none"
-                              >
-                                {Array.from({ length: selectedProgramObj?.total_semesters || 8 }, (_, i) => i + 1).map((s) => (
-                                  <option key={s} value={s}>
-                                    Semester {s}
-                                  </option>
-                                ))}
-                              </select>
-
-                              {/* Dynamic Standard & Database Section Selector */}
-                              <select
-                                value={["A", "B", "C", "D", "E", "F"].includes(section) ? section : "CUSTOM"}
-                                onChange={(e) => {
-                                  if (e.target.value === "CUSTOM") {
-                                    setSection("");
-                                  } else {
-                                    setSection(e.target.value);
-                                  }
-                                }}
-                                className="h-11 w-1/2 rounded-2xl border border-border bg-background px-2.5 text-xs font-semibold focus:border-primary focus:outline-none"
-                              >
-                                {Array.from(new Set([
-                                  "A", "B", "C", "D", "E", "F",
-                                  ...availableSections.map((s) => (s.section || s.section_name || "").toUpperCase()).filter(Boolean),
-                                ])).sort().map((secOpt) => (
-                                  <option key={secOpt} value={secOpt}>
-                                    Section {secOpt}
-                                  </option>
-                                ))}
-                                <option value="CUSTOM">Custom Section...</option>
-                              </select>
+                            <div className="flex items-center justify-between mb-1">
+                              <label className="block text-xs font-bold text-foreground">
+                                Listed Cohort Section
+                              </label>
+                              <span className="text-[0.65rem] font-mono font-bold text-primary">
+                                {distinctListedSections.length > 0
+                                  ? `${distinctListedSections.length} Listed Sections`
+                                  : "Standard Sections"}
+                              </span>
                             </div>
-                            {(!["A", "B", "C", "D", "E", "F"].includes(section) || section === "") && (
-                              <div className="mt-2">
-                                <input
-                                  type="text"
-                                  value={section}
-                                  onChange={(e) => setSection(e.target.value.toUpperCase())}
-                                  placeholder="Type Custom Section (e.g. G, H, Honors)"
-                                  maxLength={10}
-                                  className="h-10 w-full rounded-xl border border-primary/40 bg-background px-3 text-xs uppercase font-bold focus:border-primary focus:outline-none"
-                                />
-                              </div>
-                            )}
+
+                            <select
+                              value={section}
+                              onChange={(e) => setSection(e.target.value)}
+                              className="h-11 w-full rounded-2xl border border-border bg-background px-3 text-xs sm:text-sm font-semibold focus:border-primary focus:outline-none"
+                            >
+                              {distinctListedSections.length > 0 ? (
+                                <>
+                                  {availableSections.map((sec) => {
+                                    const secVal = (sec.section || sec.section_name || "A").toUpperCase();
+                                    return (
+                                      <option key={sec.id} value={secVal}>
+                                        Section {secVal} {sec.batch_code ? `(${sec.batch_code})` : ""} {sec.max_capacity ? `· Cap: ${sec.max_capacity}` : ""}
+                                      </option>
+                                    );
+                                  })}
+                                  <option value="CUSTOM">Custom / Unlisted Section...</option>
+                                </>
+                              ) : (
+                                <>
+                                  {["A", "B", "C", "D", "E"].map((secVal) => (
+                                    <option key={secVal} value={secVal}>
+                                      Section {secVal}
+                                    </option>
+                                  ))}
+                                  <option value="CUSTOM">Custom / Unlisted Section...</option>
+                                </>
+                              )}
+                            </select>
                           </div>
                         </div>
+
+                        {/* Custom Section Input if Unlisted Section Chosen */}
+                        {(section === "CUSTOM" || (!distinctListedSections.includes(section) && !["A", "B", "C", "D", "E"].includes(section))) && (
+                          <div>
+                            <label className="block text-xs font-bold text-foreground mb-1">
+                              Enter Custom Section Name
+                            </label>
+                            <input
+                              type="text"
+                              value={section === "CUSTOM" ? "" : section}
+                              onChange={(e) => setSection(e.target.value.toUpperCase())}
+                              placeholder="e.g. G, H, Honors, Batch-B"
+                              maxLength={10}
+                              className="h-11 w-full rounded-2xl border border-primary/50 bg-background px-3 text-xs uppercase font-mono font-bold focus:border-primary focus:outline-none"
+                            />
+                          </div>
+                        )}
                       </div>
 
                       <div className="grid grid-cols-3 gap-3">

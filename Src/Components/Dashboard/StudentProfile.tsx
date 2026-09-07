@@ -351,7 +351,14 @@ export function StudentProfile() {
                         (p) => p.department_name === newDept || p.department === newDept || p.department === departmentsList.find((d) => d.name === newDept)?.id
                       );
                       if (matching.length > 0 && matching[0]?.name) {
-                        setProgram(matching[0].name);
+                        const newProg = matching[0];
+                        setProgram(newProg.name);
+                        const matchingSecs = sectionsList.filter(
+                          (s) => (s.program === newProg.id || s.program_name === newProg.name || s.program_code === newProg.code) && Number(s.semester) === Number(semester)
+                        );
+                        if (matchingSecs.length > 0 && matchingSecs[0]) {
+                          setSection((matchingSecs[0]?.section || matchingSecs[0]?.section_name || "A").toUpperCase());
+                        }
                       }
                     }}
                     className="h-10 w-full rounded-xl border border-border bg-background px-2.5 text-xs font-semibold focus:border-primary focus:outline-none"
@@ -373,7 +380,17 @@ export function StudentProfile() {
                   <label className="block text-[0.68rem] font-bold text-muted-foreground mb-1">Degree Program / Specialization</label>
                   <select
                     value={program}
-                    onChange={(e) => setProgram(e.target.value)}
+                    onChange={(e) => {
+                      const newProgName = e.target.value;
+                      setProgram(newProgName);
+                      const newProg = programsList.find((p) => p.name === newProgName);
+                      const matchingSecs = sectionsList.filter(
+                        (s) => (!newProg || s.program === newProg.id || s.program_name === newProg.name || s.program_code === newProg.code) && Number(s.semester) === Number(semester)
+                      );
+                      if (matchingSecs.length > 0 && matchingSecs[0]) {
+                        setSection((matchingSecs[0]?.section || matchingSecs[0]?.section_name || "A").toUpperCase());
+                      }
+                    }}
                     className="h-10 w-full rounded-xl border border-border bg-background px-2.5 text-xs font-semibold focus:border-primary focus:outline-none"
                   >
                     {programsList.length > 0 ? (
@@ -396,60 +413,123 @@ export function StudentProfile() {
                   </select>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  {/* Semester */}
-                  <div>
-                    <label className="block text-[0.68rem] font-bold text-muted-foreground mb-1">Enrolled Semester</label>
-                    <select
-                      value={semester}
-                      onChange={(e) => setSemester(Number(e.target.value))}
-                      className="h-10 w-full rounded-xl border border-border bg-background px-2.5 text-xs font-bold focus:border-primary focus:outline-none"
-                    >
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((sem) => (
-                        <option key={sem} value={sem}>
-                          Semester {sem}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                {/* Semester & Listed Sections (Cascading from Department & Program) */}
+                {(() => {
+                  const selectedProgObj = programsList.find(
+                    (p) => p.name === program || p.id === program || p.code === program
+                  );
+                  const availableSectionsForProfile = sectionsList.filter(
+                    (s) =>
+                      (!selectedProgObj ||
+                        s.program === selectedProgObj.id ||
+                        s.program_name === selectedProgObj.name ||
+                        s.program_code === selectedProgObj.code) &&
+                      Number(s.semester) === Number(semester)
+                  );
+                  const distinctListedSections = Array.from(
+                    new Set(
+                      availableSectionsForProfile
+                        .map((s) => (s.section || s.section_name || "").trim().toUpperCase())
+                        .filter(Boolean)
+                    )
+                  );
 
-                  {/* Section Input */}
-                  <div>
-                    <label className="block text-[0.68rem] font-bold text-muted-foreground mb-1">Section Cohort</label>
-                    <input
-                      type="text"
-                      value={section}
-                      onChange={(e) => setSection(e.target.value.toUpperCase())}
-                      placeholder="E.g. A"
-                      maxLength={10}
-                      className="h-10 w-full rounded-xl border border-border bg-background px-3 text-xs font-mono font-bold focus:border-primary focus:outline-none uppercase"
-                    />
-                  </div>
-                </div>
+                  return (
+                    <div className="space-y-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {/* Semester */}
+                        <div>
+                          <label className="block text-[0.68rem] font-bold text-muted-foreground mb-1">Enrolled Semester</label>
+                          <select
+                            value={semester}
+                            onChange={(e) => {
+                              const newSem = Number(e.target.value);
+                              setSemester(newSem);
+                              const semSections = sectionsList.filter(
+                                (s) =>
+                                  (!selectedProgObj ||
+                                    s.program === selectedProgObj.id ||
+                                    s.program_name === selectedProgObj.name ||
+                                    s.program_code === selectedProgObj.code) &&
+                                  Number(s.semester) === newSem
+                              );
+                              if (semSections.length > 0 && semSections[0]) {
+                                setSection((semSections[0]?.section || semSections[0]?.section_name || "A").toUpperCase());
+                              }
+                            }}
+                            className="h-10 w-full rounded-xl border border-border bg-background px-2.5 text-xs font-bold focus:border-primary focus:outline-none"
+                          >
+                            {Array.from({ length: selectedProgObj?.total_semesters || 8 }, (_, i) => i + 1).map((sem) => (
+                              <option key={sem} value={sem}>
+                                Semester {sem}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
 
-                {/* Quick Section Switcher Pills */}
-                <div>
-                  <label className="block text-[0.68rem] font-bold text-muted-foreground mb-1.5">
-                    Quick Select Cohort Section
-                  </label>
-                  <div className="flex flex-wrap gap-2">
-                    {["A", "B", "C", "D", "E", "F"].map((secPill) => (
-                      <button
-                        key={secPill}
-                        type="button"
-                        onClick={() => setSection(secPill)}
-                        className={cn(
-                          "h-8 px-3 rounded-xl font-bold font-mono text-xs transition-all cursor-pointer shadow-2xs",
-                          section === secPill
-                            ? "bg-primary text-primary-foreground scale-105 shadow-xs"
-                            : "bg-surface/90 border border-border text-foreground hover:bg-card hover:border-primary/40"
-                        )}
-                      >
-                        Sec {secPill}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                        {/* Listed Sections Selector for this Department -> Program -> Semester */}
+                        <div>
+                          <div className="flex items-center justify-between mb-1">
+                            <label className="block text-[0.68rem] font-bold text-muted-foreground">
+                              Cohort Section
+                            </label>
+                            <span className="text-[0.62rem] font-mono font-bold text-primary">
+                              {distinctListedSections.length > 0
+                                ? `${distinctListedSections.length} Listed Sections`
+                                : "Standard Sections"}
+                            </span>
+                          </div>
+
+                          <select
+                            value={section}
+                            onChange={(e) => setSection(e.target.value)}
+                            className="h-10 w-full rounded-xl border border-border bg-background px-2.5 text-xs font-semibold focus:border-primary focus:outline-none"
+                          >
+                            {distinctListedSections.length > 0 ? (
+                              <>
+                                {availableSectionsForProfile.map((sec) => {
+                                  const secVal = (sec.section || sec.section_name || "A").toUpperCase();
+                                  return (
+                                    <option key={sec.id} value={secVal}>
+                                      Section {secVal} {sec.batch_code ? `(${sec.batch_code})` : ""} {sec.max_capacity ? `· Cap: ${sec.max_capacity}` : ""}
+                                    </option>
+                                  );
+                                })}
+                                <option value="CUSTOM">Custom / Unlisted Section...</option>
+                              </>
+                            ) : (
+                              <>
+                                {["A", "B", "C", "D", "E"].map((secVal) => (
+                                  <option key={secVal} value={secVal}>
+                                    Section {secVal}
+                                  </option>
+                                ))}
+                                <option value="CUSTOM">Custom / Unlisted Section...</option>
+                              </>
+                            )}
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Custom Section Input if CUSTOM is selected or typed */}
+                      {(section === "CUSTOM" || (!distinctListedSections.includes(section) && !["A", "B", "C", "D", "E"].includes(section))) && (
+                        <div>
+                          <label className="block text-[0.68rem] font-bold text-muted-foreground mb-1">
+                            Enter Custom Section Name
+                          </label>
+                          <input
+                            type="text"
+                            value={section === "CUSTOM" ? "" : section}
+                            onChange={(e) => setSection(e.target.value.toUpperCase())}
+                            placeholder="e.g. G, H, Honors, Batch-B"
+                            maxLength={10}
+                            className="h-10 w-full rounded-xl border border-primary/50 bg-background px-3 text-xs font-mono font-bold uppercase focus:border-primary focus:outline-none"
+                          />
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
 
                 {/* Action Buttons */}
                 <div className="flex items-center gap-2 pt-2 border-t border-border/60">
