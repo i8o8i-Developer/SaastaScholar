@@ -26,7 +26,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
   const [isAccountBlocked, setIsAccountBlocked] = useState(false);
   const [blockReason, setBlockReason] = useState("");
   const [violationsCount, setViolationsCount] = useState(0);
-  const alertTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const alertTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     // 1. Fetch Global Server-Side DRM Configuration
@@ -346,7 +346,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
     };
 
     // 6. Mobile Touch & 3+ Finger Gesture Detection (Passive & Fluid iOS Scrolling)
-    let touchTimer: NodeJS.Timeout | null = null;
+    let touchTimer: ReturnType<typeof setTimeout> | null = null;
     const handleTouchStart = (e: TouchEvent) => {
       if (touchTimer) clearTimeout(touchTimer);
 

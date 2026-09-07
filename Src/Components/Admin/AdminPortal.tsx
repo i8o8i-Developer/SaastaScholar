@@ -276,6 +276,8 @@ export function AdminPortal() {
 
   // Academic Architecture Folder Explorer States
   const [programFolderDeptId, setProgramFolderDeptId] = useState<string | null>(null);
+  const [sectionFolderProgramId, setSectionFolderProgramId] = useState<string | null>(null);
+  const [sectionFolderSemesterFilter, setSectionFolderSemesterFilter] = useState<number | "all">("all");
   const [subjectFolderProgramId, setSubjectFolderProgramId] = useState<string | null>(null);
   const [subjectFolderSemesterFilter, setSubjectFolderSemesterFilter] = useState<number | "all">("all");
   const [academicFolderViewMode, setAcademicFolderViewMode] = useState<"folders" | "flat">("folders");
@@ -3121,84 +3123,368 @@ export function AdminPortal() {
                 );
               })()}
 
-              {/* Sections Sub-View */}
-              {structureSubTab === "sections" && (
-                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-                  {sections.length === 0 ? (
-                    <div className="col-span-full rounded-3xl border border-dashed border-border bg-card/60 p-12 text-center space-y-3">
-                      <Layers className="h-10 w-10 mx-auto text-muted-foreground/40" />
-                      <h3 className="font-display font-bold text-base text-foreground">No Sections Configured Yet</h3>
-                      <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                        Configure Semester Cohorts And Section Batches (E.g. Semester 1, Section A).
-                      </p>
-                    </div>
-                  ) : (
-                    sections.map((sec) => (
-                      <div
-                        key={sec.id}
-                        className="group relative rounded-3xl border border-border/80 bg-gradient-to-b from-card via-card to-surface/40 p-5 shadow-xs hover:shadow-lg hover:border-emerald-500/50 transition-all flex flex-col justify-between space-y-4"
-                      >
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between border-b border-border/60 pb-3">
-                            <div className="flex items-center gap-2">
-                              <div className="grid h-8 w-8 place-items-center rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-mono font-bold text-xs shadow-xs">
-                                {sec.section || sec.section_name || "A"}
-                              </div>
-                              <div>
-                                <span className="text-[0.65rem] font-bold text-muted-foreground block uppercase tracking-wider">Cohort Section</span>
-                                <span className="font-mono font-bold text-foreground text-xs">Section {sec.section || sec.section_name || "A"}</span>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <button
-                                onClick={() => handleEditSection(sec)}
-                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
-                                title="Edit Section Cohort"
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteItem("/academic/admin/sections/", sec.id, `Section ${sec.section || sec.section_name || "A"}`, loadAdminData)}
-                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer transition-colors"
-                                title="Delete Section Cohort"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </button>
-                            </div>
-                          </div>
+              {/* Sections Sub-View with Folder Explorer */}
+              {structureSubTab === "sections" && (() => {
+                const query = academicSearchQuery.trim().toLowerCase();
 
-                          <div>
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 text-[0.65rem] font-bold text-emerald-600 dark:text-emerald-400">
-                                Semester {sec.semester}
+                const isSectionInProgram = (sec: SectionBatch, prog: ProgramSpecialization) => {
+                  if (sec.program === prog.id) return true;
+                  if (sec.program_code && (sec.program_code === prog.code || sec.program_code === prog.name)) return true;
+                  if (sec.program_name && sec.program_name === prog.name) return true;
+                  return false;
+                };
+
+                const filteredSections = sections.filter((sec) => {
+                  if (!query) return true;
+                  return (
+                    (sec.section && sec.section.toLowerCase().includes(query)) ||
+                    (sec.section_name && sec.section_name.toLowerCase().includes(query)) ||
+                    (sec.program_code && sec.program_code.toLowerCase().includes(query)) ||
+                    (sec.program_name && sec.program_name.toLowerCase().includes(query)) ||
+                    (sec.academic_year && sec.academic_year.toLowerCase().includes(query))
+                  );
+                });
+
+                const currentProgram = programs.find((p) => p.id === sectionFolderProgramId);
+                const isUnassignedFolder = sectionFolderProgramId === "__unassigned__";
+
+                let activeFolderSections = filteredSections;
+                if (sectionFolderProgramId) {
+                  if (isUnassignedFolder) {
+                    activeFolderSections = filteredSections.filter((sec) => !programs.some((p) => isSectionInProgram(sec, p)));
+                  } else if (currentProgram) {
+                    activeFolderSections = filteredSections.filter((sec) => isSectionInProgram(sec, currentProgram));
+                  }
+                }
+
+                const displayedSections = sectionFolderSemesterFilter === "all"
+                  ? activeFolderSections
+                  : activeFolderSections.filter((sec) => sec.semester === sectionFolderSemesterFilter);
+
+                const unassignedSections = filteredSections.filter((sec) => !programs.some((p) => isSectionInProgram(sec, p)));
+
+                return (
+                  <div className="space-y-4">
+                    {/* Top Folder Controls Bar */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl sm:rounded-3xl border border-border/80 bg-surface/60 p-3 sm:p-4 shadow-2xs">
+                      <div className="flex flex-wrap items-center gap-2 text-xs">
+                        {sectionFolderProgramId ? (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => { setSectionFolderProgramId(null); setSectionFolderSemesterFilter("all"); }}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-card border border-border text-foreground hover:bg-surface font-bold transition-all cursor-pointer shadow-2xs active:scale-95"
+                            >
+                              <ArrowLeft className="h-3.5 w-3.5" />
+                              <span>All Program Folders</span>
+                            </button>
+                            <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-teal-500/10 text-teal-600 dark:text-teal-400 font-bold border border-teal-500/20 shadow-2xs">
+                              <FolderOpen className="h-3.5 w-3.5" />
+                              <span className="truncate max-w-[200px] sm:max-w-xs">
+                                {isUnassignedFolder ? "General Cohorts" : currentProgram?.name || "Program"}
                               </span>
-                              {sec.program_code && (
-                                <span className="rounded-full bg-surface border border-border px-2 py-0.5 text-[0.65rem] font-mono font-bold text-muted-foreground">
-                                  {sec.program_code}
-                                </span>
-                              )}
+                              <span className="rounded-full bg-teal-500/20 px-1.5 py-0.2 text-[0.62rem] font-mono">
+                                {activeFolderSections.length}
+                              </span>
                             </div>
-                            <h3 className="font-display font-bold text-sm text-foreground leading-snug group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                              {sec.program_name || "Academic Specialization Cohort"}
-                            </h3>
+                          </>
+                        ) : (
+                          <div className="inline-flex items-center gap-2 font-bold text-foreground">
+                            <Folder className="h-4 w-4 text-teal-500 fill-teal-500/20" />
+                            <span>Program Section Folders ({programs.length} Programs · {sections.length} Sections)</span>
                           </div>
+                        )}
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2">
+                        <div className="relative flex-1 sm:flex-none">
+                          <Search className="h-3.5 w-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                          <input
+                            type="text"
+                            value={academicSearchQuery}
+                            onChange={(e) => setAcademicSearchQuery(e.target.value)}
+                            placeholder="Filter sections..."
+                            className="h-8.5 pl-8.5 pr-3 text-xs rounded-xl border border-border bg-background focus:outline-none focus:border-primary w-full sm:w-44"
+                          />
                         </div>
 
-                        <div className="space-y-2 pt-2 border-t border-border/60">
-                          <div className="flex items-center justify-between text-xs font-mono">
-                            <span className="text-muted-foreground text-[0.68rem]">Batch / Academic Year</span>
-                            <span className="font-bold text-foreground text-[0.7rem]">{sec.academic_year || "2026-2027"}</span>
-                          </div>
-                          <div className="flex items-center justify-between rounded-xl bg-surface/80 px-2.5 py-1.5 text-xs font-mono">
-                            <span className="text-muted-foreground text-[0.68rem]">Capacity Limit</span>
-                            <span className="font-bold text-primary text-[0.72rem]">{sec.max_capacity || 60} Scholars</span>
-                          </div>
+                        <div className="inline-flex items-center p-0.5 rounded-xl border border-border bg-card">
+                          <button
+                            type="button"
+                            onClick={() => { setAcademicFolderViewMode("folders"); setSectionFolderProgramId(null); }}
+                            className={cn(
+                              "px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1",
+                              academicFolderViewMode === "folders"
+                                ? "bg-primary text-primary-foreground shadow-2xs"
+                                : "text-muted-foreground hover:text-foreground"
+                            )}
+                            title="Folder View"
+                          >
+                            <Folder className="h-3.5 w-3.5" />
+                            <span>Folders</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setAcademicFolderViewMode("flat")}
+                            className={cn(
+                              "px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1",
+                              academicFolderViewMode === "flat"
+                                ? "bg-primary text-primary-foreground shadow-2xs"
+                                : "text-muted-foreground hover:text-foreground"
+                            )}
+                            title="Flat Grid View"
+                          >
+                            <Layers className="h-3.5 w-3.5" />
+                            <span>Grid</span>
+                          </button>
                         </div>
                       </div>
-                    ))
-                  )}
-                </div>
-              )}
+                    </div>
+
+                    {/* FOLDER VIEW: Top-level Program Folders for Sections */}
+                    {academicFolderViewMode === "folders" && !sectionFolderProgramId && (
+                      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                        {programs.map((prog) => {
+                          const progSections = filteredSections.filter((s) => isSectionInProgram(s, prog));
+                          const totalCapacity = progSections.reduce((sum, s) => sum + (Number(s.max_capacity) || 0), 0);
+
+                          return (
+                            <div
+                              key={prog.id}
+                              onClick={() => {
+                                setSectionFolderProgramId(prog.id);
+                                setSectionFolderSemesterFilter("all");
+                              }}
+                              className="group relative rounded-3xl border border-border/80 bg-gradient-to-b from-card via-card to-surface/40 p-5 shadow-xs hover:shadow-lg hover:border-teal-500/50 transition-all cursor-pointer flex flex-col justify-between space-y-4"
+                            >
+                              <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                  <div className="grid h-12 w-12 place-items-center rounded-2xl bg-teal-500/10 border border-teal-500/20 text-teal-500 group-hover:scale-110 transition-transform">
+                                    <Folder className="h-6 w-6 fill-teal-500/20" />
+                                  </div>
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="rounded-full bg-teal-500/10 border border-teal-500/20 px-2.5 py-0.5 text-xs font-bold font-mono text-teal-600 dark:text-teal-400">
+                                      {prog.code}
+                                    </span>
+                                    {prog.degree_level && (
+                                      <span className="rounded-full bg-surface border border-border px-2 py-0.5 text-[0.62rem] font-semibold text-muted-foreground">
+                                        {prog.degree_level}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                                <div>
+                                  <h3 className="font-display text-base font-bold text-foreground group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
+                                    {prog.name}
+                                  </h3>
+                                  <p className="mt-1 text-xs text-muted-foreground line-clamp-1 font-semibold">
+                                    {prog.department_name || "Degree Cohort Sections"}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs font-mono">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-bold text-foreground">{progSections.length} Sections</span>
+                                  <span className="text-teal-600 dark:text-teal-400 font-bold">· {totalCapacity} Capacity</span>
+                                </div>
+                                <span className="text-muted-foreground group-hover:text-foreground font-semibold flex items-center gap-1 transition-colors">
+                                  Open Folder <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+
+                        {/* Unassigned Cohorts Folder if any exist */}
+                        {unassignedSections.length > 0 && (
+                          <div
+                            onClick={() => {
+                              setSectionFolderProgramId("__unassigned__");
+                              setSectionFolderSemesterFilter("all");
+                            }}
+                            className="group relative rounded-3xl border border-dashed border-border/80 bg-surface/40 p-5 shadow-xs hover:shadow-md hover:border-primary/50 transition-all cursor-pointer flex flex-col justify-between space-y-4"
+                          >
+                            <div className="space-y-3">
+                              <div className="flex items-center justify-between">
+                                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-primary/10 border border-primary/20 text-primary group-hover:scale-110 transition-transform">
+                                  <Folder className="h-6 w-6 fill-primary/20" />
+                                </div>
+                                <span className="rounded-full bg-surface border border-border px-2.5 py-0.5 text-xs font-mono font-bold text-muted-foreground">
+                                  CORE
+                                </span>
+                              </div>
+                              <div>
+                                <h3 className="font-display text-base font-bold text-foreground group-hover:text-primary transition-colors">
+                                  General &amp; Unassigned Sections
+                                </h3>
+                                <p className="mt-1 text-xs text-muted-foreground line-clamp-1 font-semibold">
+                                  Cohort sections not mapped to a specific specialization
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs font-mono">
+                              <span className="font-bold text-foreground">{unassignedSections.length} Sections</span>
+                              <span className="text-muted-foreground group-hover:text-foreground font-semibold flex items-center gap-1 transition-colors">
+                                Open Folder <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* INSIDE PROGRAM FOLDER: Semester Sub-Filters + Section Cards */}
+                    {(academicFolderViewMode === "flat" || sectionFolderProgramId !== null) && (
+                      <div className="space-y-4">
+                        {sectionFolderProgramId && (
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-card border border-border">
+                            <div>
+                              <h4 className="font-display font-bold text-sm text-foreground">
+                                {isUnassignedFolder ? "General Cohort Batches" : currentProgram?.name}
+                              </h4>
+                              <p className="text-xs text-muted-foreground">
+                                {isUnassignedFolder ? "Unassigned Sections" : `${currentProgram?.degree_level} · ${currentProgram?.duration_years} Years (${currentProgram?.total_semesters} Semesters)`}
+                              </p>
+                            </div>
+
+                            {/* Semester Quick Pills */}
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => setSectionFolderSemesterFilter("all")}
+                                className={cn(
+                                  "px-2.5 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer",
+                                  sectionFolderSemesterFilter === "all"
+                                    ? "bg-primary text-primary-foreground shadow-2xs"
+                                    : "bg-surface border border-border text-muted-foreground hover:text-foreground"
+                                )}
+                              >
+                                All ({activeFolderSections.length})
+                              </button>
+                              {Array.from({ length: currentProgram?.total_semesters || 8 }).map((_, idx) => {
+                                const semNum = idx + 1;
+                                const semCount = activeFolderSections.filter((s) => s.semester === semNum).length;
+                                if (semCount === 0 && sectionFolderSemesterFilter !== semNum) return null;
+                                return (
+                                  <button
+                                    key={semNum}
+                                    type="button"
+                                    onClick={() => setSectionFolderSemesterFilter(semNum)}
+                                    className={cn(
+                                      "px-2.5 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer",
+                                      sectionFolderSemesterFilter === semNum
+                                        ? "bg-teal-600 text-white shadow-2xs"
+                                        : "bg-surface border border-border text-muted-foreground hover:text-foreground"
+                                    )}
+                                  >
+                                    Sem {semNum} ({semCount})
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                          {displayedSections.length === 0 ? (
+                            <div className="col-span-full rounded-3xl border border-dashed border-border bg-card/60 p-12 text-center space-y-3">
+                              <Layers className="h-10 w-10 mx-auto text-muted-foreground/40" />
+                              <h3 className="font-display font-bold text-base text-foreground">
+                                {sectionFolderProgramId ? "No Sections Configured In This Program / Semester" : "No Sections Configured Yet"}
+                              </h3>
+                              <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                                Configure Semester Cohorts And Section Batches (E.g. Semester 1, Section A).
+                              </p>
+                              {currentProgram && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setNewSection({
+                                      ...newSection,
+                                      program: currentProgram.id,
+                                      semester: typeof sectionFolderSemesterFilter === "number" ? sectionFolderSemesterFilter : 1,
+                                    });
+                                    setShowSectionModal(true);
+                                  }}
+                                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-primary text-primary-foreground text-xs font-bold shadow-md cursor-pointer"
+                                >
+                                  <Plus className="h-3.5 w-3.5" />
+                                  <span>Add Section In {currentProgram.code}</span>
+                                </button>
+                              )}
+                            </div>
+                          ) : (
+                            displayedSections.map((sec) => (
+                              <div
+                                key={sec.id}
+                                className="group relative rounded-3xl border border-border/80 bg-gradient-to-b from-card via-card to-surface/40 p-5 shadow-xs hover:shadow-lg hover:border-teal-500/50 transition-all flex flex-col justify-between space-y-4"
+                              >
+                                <div className="space-y-3">
+                                  <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                                    <div className="flex items-center gap-2">
+                                      <div className="grid h-8 w-8 place-items-center rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 text-white font-mono font-bold text-xs shadow-xs">
+                                        {sec.section || sec.section_name || "A"}
+                                      </div>
+                                      <div>
+                                        <span className="text-[0.65rem] font-bold text-muted-foreground block uppercase tracking-wider">Cohort Section</span>
+                                        <span className="font-mono font-bold text-foreground text-xs">Section {sec.section || sec.section_name || "A"}</span>
+                                      </div>
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <button
+                                        onClick={() => handleEditSection(sec)}
+                                        className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
+                                        title="Edit Section Cohort"
+                                      >
+                                        <Pencil className="h-4 w-4" />
+                                      </button>
+                                      <button
+                                        onClick={() => handleDeleteItem("/academic/admin/sections/", sec.id, `Section ${sec.section || sec.section_name || "A"}`, loadAdminData)}
+                                        className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer transition-colors"
+                                        title="Delete Section Cohort"
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </button>
+                                    </div>
+                                  </div>
+
+                                  <div>
+                                    <div className="flex items-center gap-2 mb-1">
+                                      <span className="rounded-full bg-teal-500/10 border border-teal-500/20 px-2.5 py-0.5 text-[0.65rem] font-bold text-teal-600 dark:text-teal-400">
+                                        Semester {sec.semester}
+                                      </span>
+                                      {sec.program_code && (
+                                        <span className="rounded-full bg-surface border border-border px-2 py-0.5 text-[0.65rem] font-mono font-bold text-muted-foreground">
+                                          {sec.program_code}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <h3 className="font-display font-bold text-sm text-foreground leading-snug group-hover:text-teal-600 dark:group-hover:text-teal-400 transition-colors">
+                                      {sec.program_name || "Academic Specialization Cohort"}
+                                    </h3>
+                                  </div>
+                                </div>
+
+                                <div className="space-y-2 pt-2 border-t border-border/60">
+                                  <div className="flex items-center justify-between text-xs font-mono">
+                                    <span className="text-muted-foreground text-[0.68rem]">Batch / Academic Year</span>
+                                    <span className="font-bold text-foreground text-[0.7rem]">{sec.academic_year || "2026-2027"}</span>
+                                  </div>
+                                  <div className="flex items-center justify-between rounded-xl bg-surface/80 px-2.5 py-1.5 text-xs font-mono">
+                                    <span className="text-muted-foreground text-[0.68rem]">Capacity Limit</span>
+                                    <span className="font-bold text-primary text-[0.72rem]">{sec.max_capacity || 60} Scholars</span>
+                                  </div>
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* Subjects Sub-View with Folder Explorer */}
               {structureSubTab === "subjects" && (() => {
