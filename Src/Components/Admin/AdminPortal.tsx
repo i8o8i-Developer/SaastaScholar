@@ -12,12 +12,16 @@ import {
   ChevronRight,
   Clock,
   Code2,
+  ArrowLeft,
   Database,
   Edit3,
   FileCheck2,
   FileText,
   Filter,
   FlaskConical,
+  Folder,
+  FolderOpen,
+  FolderPlus,
   GraduationCap,
   HelpCircle,
   Pin,
@@ -269,6 +273,13 @@ export function AdminPortal() {
   const [previewMaterialId, setPreviewMaterialId] = useState<string | null>(null);
   const [viewingNotice, setViewingNotice] = useState<DepartmentNotice | null>(null);
   const [viewingBanner, setViewingBanner] = useState<SiteBanner | null>(null);
+
+  // Academic Architecture Folder Explorer States
+  const [programFolderDeptId, setProgramFolderDeptId] = useState<string | null>(null);
+  const [subjectFolderProgramId, setSubjectFolderProgramId] = useState<string | null>(null);
+  const [subjectFolderSemesterFilter, setSubjectFolderSemesterFilter] = useState<number | "all">("all");
+  const [academicFolderViewMode, setAcademicFolderViewMode] = useState<"folders" | "flat">("folders");
+  const [academicSearchQuery, setAcademicSearchQuery] = useState<string>("");
 
   // Form State Containers
   const [newDept, setNewDept] = useState({ name: "", code: "", description: "", head_of_department: "" });
@@ -2883,70 +2894,232 @@ export function AdminPortal() {
                 </div>
               )}
 
-              {/* Programs / Specializations Sub-View */}
-              {structureSubTab === "programs" && (
-                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                  {programs.length === 0 ? (
-                    <div className="col-span-full rounded-3xl border border-dashed border-border bg-card/60 p-12 text-center space-y-3">
-                      <GraduationCap className="h-10 w-10 mx-auto text-muted-foreground/40" />
-                      <h3 className="font-display font-bold text-base text-foreground">No Specializations Added Yet</h3>
-                      <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                        Add Degree Programs Under Departments (E.g. B.Tech Artificial Intelligence &amp; Machine Learning).
-                      </p>
-                    </div>
-                  ) : (
-                    programs.map((prog) => (
-                      <div
-                        key={prog.id}
-                        className="group relative rounded-3xl border border-border/80 bg-gradient-to-b from-card via-card to-surface/40 p-5 shadow-xs hover:shadow-md hover:border-cyan-500/50 transition-all flex flex-col justify-between space-y-4"
-                      >
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between border-b border-border/60 pb-3">
-                            <div className="flex items-center gap-2">
-                              <span className="rounded-full bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-0.5 text-xs font-bold font-mono text-cyan-600 dark:text-cyan-400">
-                                {prog.code}
+              {/* Programs / Specializations Sub-View with Folder Explorer */}
+              {structureSubTab === "programs" && (() => {
+                const query = academicSearchQuery.trim().toLowerCase();
+                const filteredPrograms = programs.filter((p) => {
+                  if (!query) return true;
+                  return (
+                    p.name.toLowerCase().includes(query) ||
+                    p.code.toLowerCase().includes(query) ||
+                    (p.department_name && p.department_name.toLowerCase().includes(query)) ||
+                    (p.degree_level && p.degree_level.toLowerCase().includes(query))
+                  );
+                });
+
+                const currentDept = departments.find((d) => d.id === programFolderDeptId);
+                const deptPrograms = programFolderDeptId
+                  ? filteredPrograms.filter((p) => p.department === programFolderDeptId || p.department_name === currentDept?.name)
+                  : filteredPrograms;
+
+                return (
+                  <div className="space-y-4">
+                    {/* Top Folder Controls Bar */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl sm:rounded-3xl border border-border/80 bg-surface/60 p-3 sm:p-4 shadow-2xs">
+                      <div className="flex flex-wrap items-center gap-2 text-xs">
+                        {programFolderDeptId ? (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => setProgramFolderDeptId(null)}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-card border border-border text-foreground hover:bg-surface font-bold transition-all cursor-pointer shadow-2xs active:scale-95"
+                            >
+                              <ArrowLeft className="h-3.5 w-3.5" />
+                              <span>All Department Folders</span>
+                            </button>
+                            <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 font-bold border border-cyan-500/20 shadow-2xs">
+                              <FolderOpen className="h-3.5 w-3.5" />
+                              <span className="truncate max-w-[200px] sm:max-w-xs">{currentDept?.name || "Department"}</span>
+                              <span className="rounded-full bg-cyan-500/20 px-1.5 py-0.2 text-[0.62rem] font-mono">
+                                {deptPrograms.length}
                               </span>
-                              {prog.degree_level && (
-                                <span className="rounded-full bg-surface border border-border px-2 py-0.5 text-[0.62rem] font-semibold text-muted-foreground">
-                                  {prog.degree_level}
-                                </span>
-                              )}
                             </div>
-                            <div className="flex items-center gap-1">
-                              <button
-                                onClick={() => handleEditProgram(prog)}
-                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-cyan-500/10 hover:text-cyan-500 cursor-pointer transition-colors"
-                                title="Edit Specialization"
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteItem("/academic/admin/programs/", prog.id, prog.name, loadAdminData)}
-                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer transition-colors"
-                                title="Delete Specialization"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </button>
-                            </div>
+                          </>
+                        ) : (
+                          <div className="inline-flex items-center gap-2 font-bold text-foreground">
+                            <Folder className="h-4 w-4 text-cyan-500 fill-cyan-500/20" />
+                            <span>Department Program Folders ({departments.length} Folders)</span>
                           </div>
-                          <div>
-                            <h3 className="font-display text-base font-bold text-foreground leading-snug group-hover:text-cyan-600 transition-colors">
-                              {prog.name}
-                            </h3>
-                            <p className="mt-1 text-xs text-muted-foreground font-semibold">
-                              {prog.department_name || "Degree Program Specialization"}
-                            </p>
-                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2">
+                        <div className="relative flex-1 sm:flex-none">
+                          <Search className="h-3.5 w-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                          <input
+                            type="text"
+                            value={academicSearchQuery}
+                            onChange={(e) => setAcademicSearchQuery(e.target.value)}
+                            placeholder="Filter programs..."
+                            className="h-8.5 pl-8.5 pr-3 text-xs rounded-xl border border-border bg-background focus:outline-none focus:border-primary w-full sm:w-44"
+                          />
                         </div>
-                        <div className="rounded-2xl border border-border/60 bg-surface/70 p-3 flex items-center justify-between text-xs font-mono">
-                          <span className="text-muted-foreground font-semibold">Duration: {prog.duration_years} Years</span>
-                          <span className="font-bold text-primary">{prog.total_semesters} Semesters</span>
+
+                        <div className="inline-flex items-center p-0.5 rounded-xl border border-border bg-card">
+                          <button
+                            type="button"
+                            onClick={() => { setAcademicFolderViewMode("folders"); setProgramFolderDeptId(null); }}
+                            className={cn(
+                              "px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1",
+                              academicFolderViewMode === "folders"
+                                ? "bg-primary text-primary-foreground shadow-2xs"
+                                : "text-muted-foreground hover:text-foreground"
+                            )}
+                            title="Folder View"
+                          >
+                            <Folder className="h-3.5 w-3.5" />
+                            <span>Folders</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setAcademicFolderViewMode("flat")}
+                            className={cn(
+                              "px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1",
+                              academicFolderViewMode === "flat"
+                                ? "bg-primary text-primary-foreground shadow-2xs"
+                                : "text-muted-foreground hover:text-foreground"
+                            )}
+                            title="Flat Grid View"
+                          >
+                            <Layers className="h-3.5 w-3.5" />
+                            <span>Grid</span>
+                          </button>
                         </div>
                       </div>
-                    ))
-                  )}
-                </div>
-              )}
+                    </div>
+
+                    {/* FOLDER VIEW: Top-level Department Folders */}
+                    {academicFolderViewMode === "folders" && !programFolderDeptId && (
+                      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                        {departments.map((dept) => {
+                          const progsInDept = filteredPrograms.filter((p) => p.department === dept.id || p.department_name === dept.name);
+                          return (
+                            <div
+                              key={dept.id}
+                              onClick={() => setProgramFolderDeptId(dept.id)}
+                              className="group relative rounded-3xl border border-border/80 bg-gradient-to-b from-card via-card to-surface/40 p-5 shadow-xs hover:shadow-lg hover:border-cyan-500/50 transition-all cursor-pointer flex flex-col justify-between space-y-4"
+                            >
+                              <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                  <div className="grid h-12 w-12 place-items-center rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-500 group-hover:scale-110 transition-transform">
+                                    <Folder className="h-6 w-6 fill-cyan-500/20" />
+                                  </div>
+                                  <span className="rounded-full bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-0.5 text-xs font-bold font-mono text-cyan-600 dark:text-cyan-400">
+                                    {dept.code}
+                                  </span>
+                                </div>
+                                <div>
+                                  <h3 className="font-display text-base font-bold text-foreground group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+                                    {dept.name}
+                                  </h3>
+                                  <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+                                    {dept.description || "Academic Department Specializations."}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs font-mono">
+                                <span className="font-bold text-cyan-600 dark:text-cyan-400">
+                                  {progsInDept.length} Specializations
+                                </span>
+                                <span className="text-muted-foreground group-hover:text-foreground font-semibold flex items-center gap-1 transition-colors">
+                                  Open Folder <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* FOLDER VIEW: Inside a Selected Department Folder OR FLAT VIEW */}
+                    {(academicFolderViewMode === "flat" || programFolderDeptId !== null) && (
+                      <div className="space-y-3">
+                        {programFolderDeptId && currentDept && (
+                          <div className="flex flex-wrap items-center justify-between gap-2 px-1">
+                            <span className="text-xs font-semibold text-muted-foreground">
+                              Showing {deptPrograms.length} degree specializations in {currentDept.name}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setNewProgram({ ...newProgram, department: currentDept.id });
+                                setShowProgramModal(true);
+                              }}
+                              className="inline-flex items-center gap-1.5 text-xs font-bold text-cyan-600 dark:text-cyan-400 hover:underline cursor-pointer"
+                            >
+                              <Plus className="h-3.5 w-3.5" />
+                              <span>Add Specialization Here</span>
+                            </button>
+                          </div>
+                        )}
+
+                        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                          {deptPrograms.length === 0 ? (
+                            <div className="col-span-full rounded-3xl border border-dashed border-border bg-card/60 p-12 text-center space-y-3">
+                              <GraduationCap className="h-10 w-10 mx-auto text-muted-foreground/40" />
+                              <h3 className="font-display font-bold text-base text-foreground">No Specializations In This Folder</h3>
+                              <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                                Add Degree Programs Under This Department (E.g. B.Tech Artificial Intelligence &amp; Machine Learning).
+                              </p>
+                            </div>
+                          ) : (
+                            deptPrograms.map((prog) => (
+                              <div
+                                key={prog.id}
+                                className="group relative rounded-3xl border border-border/80 bg-gradient-to-b from-card via-card to-surface/40 p-5 shadow-xs hover:shadow-md hover:border-cyan-500/50 transition-all flex flex-col justify-between space-y-4"
+                              >
+                                <div className="space-y-3">
+                                  <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                                    <div className="flex items-center gap-2">
+                                      <span className="rounded-full bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-0.5 text-xs font-bold font-mono text-cyan-600 dark:text-cyan-400">
+                                        {prog.code}
+                                      </span>
+                                      {prog.degree_level && (
+                                        <span className="rounded-full bg-surface border border-border px-2 py-0.5 text-[0.62rem] font-semibold text-muted-foreground">
+                                          {prog.degree_level}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <button
+                                        onClick={() => handleEditProgram(prog)}
+                                        className="rounded-xl p-1.5 text-muted-foreground hover:bg-cyan-500/10 hover:text-cyan-500 cursor-pointer transition-colors"
+                                        title="Edit Specialization"
+                                      >
+                                        <Pencil className="h-4 w-4" />
+                                      </button>
+                                      <button
+                                        onClick={() => handleDeleteItem("/academic/admin/programs/", prog.id, prog.name, loadAdminData)}
+                                        className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer transition-colors"
+                                        title="Delete Specialization"
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </button>
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <h3 className="font-display text-base font-bold text-foreground leading-snug group-hover:text-cyan-600 transition-colors">
+                                      {prog.name}
+                                    </h3>
+                                    <p className="mt-1 text-xs text-muted-foreground font-semibold">
+                                      {prog.department_name || "Degree Program Specialization"}
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="rounded-2xl border border-border/60 bg-surface/70 p-3 flex items-center justify-between text-xs font-mono">
+                                  <span className="text-muted-foreground font-semibold">Duration: {prog.duration_years} Years</span>
+                                  <span className="font-bold text-primary">{prog.total_semesters} Semesters</span>
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
 
               {/* Sections Sub-View */}
               {structureSubTab === "sections" && (
@@ -3027,114 +3200,406 @@ export function AdminPortal() {
                 </div>
               )}
 
-              {/* Subjects Sub-View */}
-              {structureSubTab === "subjects" && (
-                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                  {subjects.length === 0 ? (
-                    <div className="col-span-full rounded-3xl border border-dashed border-border bg-card/60 p-12 text-center space-y-3">
-                      <BookOpen className="h-10 w-10 mx-auto text-muted-foreground/40" />
-                      <h3 className="font-display font-bold text-base text-foreground">No Subjects Registered Yet</h3>
-                      <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                        Add Subjects And Course Modules To Your Curriculum.
-                      </p>
-                    </div>
-                  ) : (
-                    subjects.map((sub) => (
-                      <div
-                        key={sub.id}
-                        className="group relative rounded-3xl border border-border/80 bg-gradient-to-b from-card via-card to-surface/40 p-5.5 shadow-xs hover:shadow-lg hover:border-primary/50 transition-all duration-200 flex flex-col justify-between space-y-4"
-                      >
-                        <div className="space-y-3.5">
-                          {/* Card Header: Subject Code & Short Name Badges + Actions */}
-                          <div className="flex items-center justify-between border-b border-border/60 pb-3">
-                            <div className="flex flex-wrap items-center gap-1.5">
-                              <span className="rounded-xl bg-primary/10 border border-primary/20 px-2.5 py-1 text-xs font-bold font-mono text-primary shadow-2xs">
-                                {sub.code}
+              {/* Subjects Sub-View with Folder Explorer */}
+              {structureSubTab === "subjects" && (() => {
+                const query = academicSearchQuery.trim().toLowerCase();
+
+                const isSubjectInProgram = (sub: Subject, prog: ProgramSpecialization) => {
+                  if (sub.program === prog.id) return true;
+                  if (sub.programs && Array.isArray(sub.programs) && sub.programs.includes(prog.id)) return true;
+                  if (sub.program_ids && Array.isArray(sub.program_ids) && sub.program_ids.includes(prog.id)) return true;
+                  if (sub.program_codes && Array.isArray(sub.program_codes) && (sub.program_codes.includes(prog.code) || sub.program_codes.includes(prog.name))) return true;
+                  if (sub.program_name === prog.name) return true;
+                  return false;
+                };
+
+                const filteredSubjects = subjects.filter((s) => {
+                  if (!query) return true;
+                  return (
+                    s.name.toLowerCase().includes(query) ||
+                    s.code.toLowerCase().includes(query) ||
+                    (s.short_name && s.short_name.toLowerCase().includes(query)) ||
+                    (s.faculty_name && s.faculty_name.toLowerCase().includes(query)) ||
+                    (s.program_codes && s.program_codes.some((c) => c.toLowerCase().includes(query)))
+                  );
+                });
+
+                const currentProgram = programs.find((p) => p.id === subjectFolderProgramId);
+                const isUnassignedFolder = subjectFolderProgramId === "__unassigned__";
+
+                let activeFolderSubjects = filteredSubjects;
+                if (subjectFolderProgramId) {
+                  if (isUnassignedFolder) {
+                    activeFolderSubjects = filteredSubjects.filter((s) => !programs.some((p) => isSubjectInProgram(s, p)));
+                  } else if (currentProgram) {
+                    activeFolderSubjects = filteredSubjects.filter((s) => isSubjectInProgram(s, currentProgram));
+                  }
+                }
+
+                const displayedSubjects = subjectFolderSemesterFilter === "all"
+                  ? activeFolderSubjects
+                  : activeFolderSubjects.filter((s) => s.semester === subjectFolderSemesterFilter);
+
+                const unassignedSubjects = filteredSubjects.filter((s) => !programs.some((p) => isSubjectInProgram(s, p)));
+
+                return (
+                  <div className="space-y-4">
+                    {/* Top Folder Controls Bar */}
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl sm:rounded-3xl border border-border/80 bg-surface/60 p-3 sm:p-4 shadow-2xs">
+                      <div className="flex flex-wrap items-center gap-2 text-xs">
+                        {subjectFolderProgramId ? (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => { setSubjectFolderProgramId(null); setSubjectFolderSemesterFilter("all"); }}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-card border border-border text-foreground hover:bg-surface font-bold transition-all cursor-pointer shadow-2xs active:scale-95"
+                            >
+                              <ArrowLeft className="h-3.5 w-3.5" />
+                              <span>All Program Folders</span>
+                            </button>
+                            <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+                            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-bold border border-emerald-500/20 shadow-2xs">
+                              <FolderOpen className="h-3.5 w-3.5" />
+                              <span className="truncate max-w-[200px] sm:max-w-xs">
+                                {isUnassignedFolder ? "General & Core Modules" : currentProgram?.name || "Program"}
                               </span>
-                              {sub.short_name && (
-                                <span className="rounded-xl bg-violet-500/10 border border-violet-500/20 px-2.5 py-1 text-xs font-bold font-mono text-violet-600 dark:text-violet-400">
-                                  {sub.short_name}
-                                </span>
-                              )}
+                              <span className="rounded-full bg-emerald-500/20 px-1.5 py-0.2 text-[0.62rem] font-mono">
+                                {activeFolderSubjects.length}
+                              </span>
                             </div>
-                            <div className="flex items-center gap-1">
-                              <button
-                                onClick={() => handleEditSubject(sub)}
-                                className="rounded-xl p-2 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
-                                title="Edit Course Subject"
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteItem("/academic/admin/subjects/", sub.id, sub.name, loadAdminData)}
-                                className="rounded-xl p-2 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer transition-colors"
-                                title="Delete Subject"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </button>
-                            </div>
+                          </>
+                        ) : (
+                          <div className="inline-flex items-center gap-2 font-bold text-foreground">
+                            <Folder className="h-4 w-4 text-emerald-500 fill-emerald-500/20" />
+                            <span>Program Curriculum Folders ({programs.length} Programs · {subjects.length} Modules)</span>
                           </div>
+                        )}
+                      </div>
 
-                          {/* Subject Name & Faculty */}
-                          <div className="space-y-2">
-                            <h3 className="font-display text-base font-bold text-foreground leading-snug group-hover:text-primary transition-colors">
-                              {sub.name}
-                            </h3>
-
-                            {/* Faculty Instructor Tag */}
-                            {sub.faculty_name && (
-                              <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-surface border border-border text-xs font-semibold text-foreground/90">
-                                <GraduationCap className="h-3.5 w-3.5 text-primary shrink-0" />
-                                <span className="truncate">{sub.faculty_name}</span>
-                              </div>
-                            )}
-
-                            {/* Linked Degree Programs Badges */}
-                            <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                              {sub.program_codes && sub.program_codes.length > 0 ? (
-                                sub.program_codes.map((code, cIdx) => (
-                                  <span
-                                    key={cIdx}
-                                    className="rounded-lg bg-surface/80 border border-border/80 px-2 py-0.5 text-[0.68rem] font-mono font-bold text-muted-foreground"
-                                  >
-                                    {code}
-                                  </span>
-                                ))
-                              ) : sub.program_name ? (
-                                <span className="rounded-lg bg-surface/80 border border-border/80 px-2 py-0.5 text-[0.68rem] font-semibold text-muted-foreground">
-                                  {sub.program_name}
-                                </span>
-                              ) : (
-                                <span className="text-xs text-muted-foreground font-semibold">
-                                  {sub.department_name || "All Specializations"}
-                                </span>
-                              )}
-                            </div>
-                          </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <div className="relative flex-1 sm:flex-none">
+                          <Search className="h-3.5 w-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                          <input
+                            type="text"
+                            value={academicSearchQuery}
+                            onChange={(e) => setAcademicSearchQuery(e.target.value)}
+                            placeholder="Filter modules..."
+                            className="h-8.5 pl-8.5 pr-3 text-xs rounded-xl border border-border bg-background focus:outline-none focus:border-primary w-full sm:w-44"
+                          />
                         </div>
 
-                        {/* Card Footer: Semester, Credits, & Content Stats */}
-                        <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs font-mono">
-                          <span className="rounded-lg bg-surface px-2 py-0.5 text-[0.7rem] font-bold text-muted-foreground">
-                            Semester {sub.semester}
-                          </span>
-                          <div className="flex items-center gap-2">
-                            {Number(sub.materials_count) > 0 && (
-                              <span className="text-[0.68rem] text-muted-foreground">
-                                {sub.materials_count} Notes
-                              </span>
+                        <div className="inline-flex items-center p-0.5 rounded-xl border border-border bg-card">
+                          <button
+                            type="button"
+                            onClick={() => { setAcademicFolderViewMode("folders"); setSubjectFolderProgramId(null); }}
+                            className={cn(
+                              "px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1",
+                              academicFolderViewMode === "folders"
+                                ? "bg-primary text-primary-foreground shadow-2xs"
+                                : "text-muted-foreground hover:text-foreground"
                             )}
-                            <span className="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-2 py-0.5 font-bold text-primary text-[0.72rem]">
-                              <Sparkles className="h-3 w-3" />
-                              {sub.credits} Credits
-                            </span>
-                          </div>
+                            title="Folder View"
+                          >
+                            <Folder className="h-3.5 w-3.5" />
+                            <span>Folders</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setAcademicFolderViewMode("flat")}
+                            className={cn(
+                              "px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1",
+                              academicFolderViewMode === "flat"
+                                ? "bg-primary text-primary-foreground shadow-2xs"
+                                : "text-muted-foreground hover:text-foreground"
+                            )}
+                            title="Flat Grid View"
+                          >
+                            <Layers className="h-3.5 w-3.5" />
+                            <span>Grid</span>
+                          </button>
                         </div>
                       </div>
-                    ))
-                  )}
-                </div>
-              )}
+                    </div>
+
+                    {/* FOLDER VIEW: Top-level Program Specialization Folders */}
+                    {academicFolderViewMode === "folders" && !subjectFolderProgramId && (
+                      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                        {programs.map((prog) => {
+                          const progSubjects = filteredSubjects.filter((s) => isSubjectInProgram(s, prog));
+                          const totalCredits = progSubjects.reduce((sum, s) => sum + (Number(s.credits) || 0), 0);
+
+                          return (
+                            <div
+                              key={prog.id}
+                              onClick={() => {
+                                setSubjectFolderProgramId(prog.id);
+                                setSubjectFolderSemesterFilter("all");
+                              }}
+                              className="group relative rounded-3xl border border-border/80 bg-gradient-to-b from-card via-card to-surface/40 p-5 shadow-xs hover:shadow-lg hover:border-emerald-500/50 transition-all cursor-pointer flex flex-col justify-between space-y-4"
+                            >
+                              <div className="space-y-3">
+                                <div className="flex items-center justify-between">
+                                  <div className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 group-hover:scale-110 transition-transform">
+                                    <Folder className="h-6 w-6 fill-emerald-500/20" />
+                                  </div>
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 text-xs font-bold font-mono text-emerald-600 dark:text-emerald-400">
+                                      {prog.code}
+                                    </span>
+                                    {prog.degree_level && (
+                                      <span className="rounded-full bg-surface border border-border px-2 py-0.5 text-[0.62rem] font-semibold text-muted-foreground">
+                                        {prog.degree_level}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                                <div>
+                                  <h3 className="font-display text-base font-bold text-foreground group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                                    {prog.name}
+                                  </h3>
+                                  <p className="mt-1 text-xs text-muted-foreground line-clamp-1 font-semibold">
+                                    {prog.department_name || "Specialization Curriculum"}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs font-mono">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-bold text-foreground">{progSubjects.length} Modules</span>
+                                  <span className="text-emerald-600 dark:text-emerald-400 font-bold">· {totalCredits} Credits</span>
+                                </div>
+                                <span className="text-muted-foreground group-hover:text-foreground font-semibold flex items-center gap-1 transition-colors">
+                                  Open Folder <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })}
+
+                        {/* Unassigned / Shared Modules Folder if any exist */}
+                        {unassignedSubjects.length > 0 && (
+                          <div
+                            onClick={() => {
+                              setSubjectFolderProgramId("__unassigned__");
+                              setSubjectFolderSemesterFilter("all");
+                            }}
+                            className="group relative rounded-3xl border border-dashed border-border/80 bg-surface/40 p-5 shadow-xs hover:shadow-md hover:border-primary/50 transition-all cursor-pointer flex flex-col justify-between space-y-4"
+                          >
+                            <div className="space-y-3">
+                              <div className="flex items-center justify-between">
+                                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-primary/10 border border-primary/20 text-primary group-hover:scale-110 transition-transform">
+                                  <Folder className="h-6 w-6 fill-primary/20" />
+                                </div>
+                                <span className="rounded-full bg-surface border border-border px-2.5 py-0.5 text-xs font-mono font-bold text-muted-foreground">
+                                  CORE
+                                </span>
+                              </div>
+                              <div>
+                                <h3 className="font-display text-base font-bold text-foreground group-hover:text-primary transition-colors">
+                                  General &amp; Multidisciplinary Modules
+                                </h3>
+                                <p className="mt-1 text-xs text-muted-foreground line-clamp-1 font-semibold">
+                                  Subjects not strictly bound to a single program
+                                </p>
+                              </div>
+                            </div>
+                            <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs font-mono">
+                              <span className="font-bold text-foreground">{unassignedSubjects.length} Modules</span>
+                              <span className="text-muted-foreground group-hover:text-foreground font-semibold flex items-center gap-1 transition-colors">
+                                Open Folder <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* INSIDE PROGRAM FOLDER: Semester Sub-Filters + Subject Cards */}
+                    {(academicFolderViewMode === "flat" || subjectFolderProgramId !== null) && (
+                      <div className="space-y-4">
+                        {subjectFolderProgramId && (
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-card border border-border">
+                            <div>
+                              <h4 className="font-display font-bold text-sm text-foreground">
+                                {isUnassignedFolder ? "General Course Modules" : currentProgram?.name}
+                              </h4>
+                              <p className="text-xs text-muted-foreground">
+                                {isUnassignedFolder ? "Common University Curriculum" : `${currentProgram?.degree_level} · ${currentProgram?.duration_years} Years (${currentProgram?.total_semesters} Semesters)`}
+                              </p>
+                            </div>
+
+                            {/* Semester Quick Pills */}
+                            <div className="flex flex-wrap items-center gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => setSubjectFolderSemesterFilter("all")}
+                                className={cn(
+                                  "px-2.5 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer",
+                                  subjectFolderSemesterFilter === "all"
+                                    ? "bg-primary text-primary-foreground shadow-2xs"
+                                    : "bg-surface border border-border text-muted-foreground hover:text-foreground"
+                                )}
+                              >
+                                All ({activeFolderSubjects.length})
+                              </button>
+                              {Array.from({ length: currentProgram?.total_semesters || 8 }).map((_, idx) => {
+                                const semNum = idx + 1;
+                                const semCount = activeFolderSubjects.filter((s) => s.semester === semNum).length;
+                                if (semCount === 0 && subjectFolderSemesterFilter !== semNum) return null;
+                                return (
+                                  <button
+                                    key={semNum}
+                                    type="button"
+                                    onClick={() => setSubjectFolderSemesterFilter(semNum)}
+                                    className={cn(
+                                      "px-2.5 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer",
+                                      subjectFolderSemesterFilter === semNum
+                                        ? "bg-emerald-600 text-white shadow-2xs"
+                                        : "bg-surface border border-border text-muted-foreground hover:text-foreground"
+                                    )}
+                                  >
+                                    Sem {semNum} ({semCount})
+                                  </button>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+
+                        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                          {displayedSubjects.length === 0 ? (
+                            <div className="col-span-full rounded-3xl border border-dashed border-border bg-card/60 p-12 text-center space-y-3">
+                              <BookOpen className="h-10 w-10 mx-auto text-muted-foreground/40" />
+                              <h3 className="font-display font-bold text-base text-foreground">
+                                {subjectFolderProgramId ? "No Subjects In This Program / Semester" : "No Subjects Registered Yet"}
+                              </h3>
+                              <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                                Register Course Modules To Add Lecture Notes, Question Papers, And Practical Guides.
+                              </p>
+                              {currentProgram && (
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setEditingSubjectId(null);
+                                    setNewSubject({
+                                      programs: [currentProgram.id],
+                                      semester: typeof subjectFolderSemesterFilter === "number" ? subjectFolderSemesterFilter : 1,
+                                      name: "",
+                                      code: "",
+                                      short_name: "",
+                                      faculty_name: "",
+                                      credits: 4,
+                                      syllabus_summary: "",
+                                    });
+                                    setShowSubjectModal(true);
+                                  }}
+                                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-primary text-primary-foreground text-xs font-bold shadow-md cursor-pointer"
+                                >
+                                  <Plus className="h-3.5 w-3.5" />
+                                  <span>Register Subject In {currentProgram.code}</span>
+                                </button>
+                              )}
+                            </div>
+                          ) : (
+                            displayedSubjects.map((sub) => (
+                              <div
+                                key={sub.id}
+                                className="group relative rounded-3xl border border-border/80 bg-gradient-to-b from-card via-card to-surface/40 p-5.5 shadow-xs hover:shadow-lg hover:border-primary/50 transition-all duration-200 flex flex-col justify-between space-y-4"
+                              >
+                                <div className="space-y-3.5">
+                                  {/* Card Header: Subject Code & Short Name Badges + Actions */}
+                                  <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                                    <div className="flex flex-wrap items-center gap-1.5">
+                                      <span className="rounded-xl bg-primary/10 border border-primary/20 px-2.5 py-1 text-xs font-bold font-mono text-primary shadow-2xs">
+                                        {sub.code}
+                                      </span>
+                                      {sub.short_name && (
+                                        <span className="rounded-xl bg-violet-500/10 border border-violet-500/20 px-2.5 py-1 text-xs font-bold font-mono text-violet-600 dark:text-violet-400">
+                                          {sub.short_name}
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <button
+                                        onClick={() => handleEditSubject(sub)}
+                                        className="rounded-xl p-2 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
+                                        title="Edit Course Subject"
+                                      >
+                                        <Pencil className="h-4 w-4" />
+                                      </button>
+                                      <button
+                                        onClick={() => handleDeleteItem("/academic/admin/subjects/", sub.id, sub.name, loadAdminData)}
+                                        className="rounded-xl p-2 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer transition-colors"
+                                        title="Delete Subject"
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </button>
+                                    </div>
+                                  </div>
+
+                                  {/* Subject Name & Faculty */}
+                                  <div className="space-y-2">
+                                    <h3 className="font-display text-base font-bold text-foreground leading-snug group-hover:text-primary transition-colors">
+                                      {sub.name}
+                                    </h3>
+
+                                    {/* Faculty Instructor Tag */}
+                                    {sub.faculty_name && (
+                                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-surface border border-border text-xs font-semibold text-foreground/90">
+                                        <GraduationCap className="h-3.5 w-3.5 text-primary shrink-0" />
+                                        <span className="truncate">{sub.faculty_name}</span>
+                                      </div>
+                                    )}
+
+                                    {/* Linked Degree Programs Badges */}
+                                    <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                                      {sub.program_codes && sub.program_codes.length > 0 ? (
+                                        sub.program_codes.map((code, cIdx) => (
+                                          <span
+                                            key={cIdx}
+                                            className="rounded-lg bg-surface/80 border border-border/80 px-2 py-0.5 text-[0.68rem] font-mono font-bold text-muted-foreground"
+                                          >
+                                            {code}
+                                          </span>
+                                        ))
+                                      ) : sub.program_name ? (
+                                        <span className="rounded-lg bg-surface/80 border border-border/80 px-2 py-0.5 text-[0.68rem] font-semibold text-muted-foreground">
+                                          {sub.program_name}
+                                        </span>
+                                      ) : (
+                                        <span className="text-xs text-muted-foreground font-semibold">
+                                          {sub.department_name || "All Specializations"}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Card Footer: Semester, Credits, & Content Stats */}
+                                <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs font-mono">
+                                  <span className="rounded-lg bg-surface px-2 py-0.5 text-[0.7rem] font-bold text-muted-foreground">
+                                    Semester {sub.semester}
+                                  </span>
+                                  <div className="flex items-center gap-2">
+                                    {Number(sub.materials_count) > 0 && (
+                                      <span className="text-[0.68rem] text-muted-foreground">
+                                        {sub.materials_count} Notes
+                                      </span>
+                                    )}
+                                    <span className="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-2 py-0.5 font-bold text-primary text-[0.72rem]">
+                                      <Sparkles className="h-3 w-3" />
+                                      {sub.credits} Credits
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           )}
 
