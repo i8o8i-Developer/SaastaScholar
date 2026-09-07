@@ -11,7 +11,15 @@ class StudentAssignmentListCreateView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        return StudentAssignment.objects.filter(user=self.request.user).select_related("subject")
+        user = self.request.user
+        from django.db.models import Q
+        from Apps.Academic.views import build_student_academic_filter
+        if user.is_authenticated and not user.is_staff and not user.is_superuser:
+            student_filter = build_student_academic_filter(user, subject_prefix="subject")
+            return StudentAssignment.objects.filter(
+                Q(user=user) | (Q(user__is_staff=True) & student_filter)
+            ).select_related("subject").distinct()
+        return StudentAssignment.objects.filter(user=user).select_related("subject")
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)

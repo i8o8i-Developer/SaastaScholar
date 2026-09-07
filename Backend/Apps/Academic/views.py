@@ -76,6 +76,36 @@ class SectionBatchListView(generics.ListAPIView):
         data = get_or_set_redis_cache(cache_key, _fetch, timeout=900)
         return Response(data)
 
+def build_student_academic_filter(user, subject_prefix=""):
+    if not user or not user.is_authenticated or getattr(user, "is_staff", False) or getattr(user, "is_superuser", False):
+        return Q()
+
+    user_prog = (getattr(user, "program", "") or "").strip()
+    user_dept = (getattr(user, "department", "") or "").strip()
+    user_sem = getattr(user, "semester", None)
+
+    q = Q()
+    prefix = f"{subject_prefix}__" if subject_prefix else ""
+
+    if user_prog or user_dept:
+        prog_dept_q = Q()
+        if user_prog:
+            prog_dept_q |= Q(**{f"{prefix}programs__name__iexact": user_prog})
+            prog_dept_q |= Q(**{f"{prefix}programs__code__iexact": user_prog})
+            prog_dept_q |= Q(**{f"{prefix}programs__name__icontains": user_prog})
+        if user_dept:
+            prog_dept_q |= Q(**{f"{prefix}department__name__iexact": user_dept})
+            prog_dept_q |= Q(**{f"{prefix}department__code__iexact": user_dept})
+            prog_dept_q |= Q(**{f"{prefix}department__name__icontains": user_dept})
+
+        prog_dept_q |= Q(**{f"{prefix}programs__isnull": True})
+        q &= prog_dept_q
+
+    if user_sem:
+        q &= Q(**{f"{prefix}semester": user_sem})
+
+    return q
+
 class SubjectListView(generics.ListAPIView):
     serializer_class = SubjectSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -85,6 +115,7 @@ class SubjectListView(generics.ListAPIView):
             materials_count=Count("materials", distinct=True),
             experiments_count=Count("experiments", distinct=True),
         )
+        user = self.request.user
         semester = self.request.query_params.get("semester")
         department = self.request.query_params.get("department")
         program = self.request.query_params.get("program")
@@ -94,10 +125,19 @@ class SubjectListView(generics.ListAPIView):
             qs = qs.filter(department__code=department)
         if program:
             qs = qs.filter(Q(programs__id=program) | Q(programs__code=program) | Q(programs__isnull=True)).distinct()
+
+        if user.is_authenticated and not user.is_staff and not user.is_superuser:
+            if not department and not program:
+                student_filter = build_student_academic_filter(user)
+                qs = qs.filter(student_filter).distinct()
         return qs
 
     def list(self, request, *args, **kwargs):
-        cache_key = make_cache_key("academic:subjects", **request.query_params.dict())
+        user = request.user
+        cache_key = make_cache_key(
+            f"academic:subjects:{getattr(user, 'id', 'anon')}:{getattr(user, 'program', '')}:{getattr(user, 'semester', '')}",
+            **request.query_params.dict()
+        )
         def _fetch():
             response = super(SubjectListView, self).list(request, *args, **kwargs)
             return response.data
@@ -110,6 +150,7 @@ class AcademicMaterialListView(generics.ListAPIView):
 
     def get_queryset(self):
         qs = AcademicMaterial.objects.select_related("subject", "subject__department")
+        user = self.request.user
         mat_type = self.request.query_params.get("type")
         subject_id = self.request.query_params.get("subject")
         subject_code = self.request.query_params.get("subject_code")
@@ -134,10 +175,18 @@ class AcademicMaterialListView(generics.ListAPIView):
                 | Q(subject__name__icontains=search)
                 | Q(subject__code__icontains=search)
             )
+
+        if user.is_authenticated and not user.is_staff and not user.is_superuser:
+            student_filter = build_student_academic_filter(user, subject_prefix="subject")
+            qs = qs.filter(student_filter).distinct()
         return qs
 
     def list(self, request, *args, **kwargs):
-        cache_key = make_cache_key("academic:materials", **request.query_params.dict())
+        user = request.user
+        cache_key = make_cache_key(
+            f"academic:materials:{getattr(user, 'id', 'anon')}:{getattr(user, 'program', '')}:{getattr(user, 'semester', '')}",
+            **request.query_params.dict()
+        )
         def _fetch():
             response = super(AcademicMaterialListView, self).list(request, *args, **kwargs)
             return response.data
@@ -166,9 +215,14 @@ class LabExperimentListView(generics.ListAPIView):
 
     def get_queryset(self):
         qs = LabExperiment.objects.select_related("subject")
+        user = self.request.user
         subject_code = self.request.query_params.get("subject_code")
         if subject_code:
             qs = qs.filter(subject__code=subject_code)
+
+        if user.is_authenticated and not user.is_staff and not user.is_superuser:
+            student_filter = build_student_academic_filter(user, subject_prefix="subject")
+            qs = qs.filter(student_filter).distinct()
         return qs
 
 class LabExperimentDetailView(generics.RetrieveAPIView):
@@ -191,12 +245,12 @@ class DepartmentNoticeListView(generics.ListAPIView):
         user_sem = getattr(user, "semester", None)
         user_sec = (getattr(user, "section", "") or "").strip()
 
-        # 1. Campus-wide universal announcements
+        # 
         campus_filter = Q(is_broadcast_all=True) & (
             Q(target_semester__isnull=True) | Q(target_semester=user_sem)
         )
 
-        # 2. Dynamic Department scoping
+        # 
         dept_filter = Q()
         if user_dept:
             dept_match = (
