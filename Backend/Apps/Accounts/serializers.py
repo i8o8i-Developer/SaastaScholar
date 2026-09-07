@@ -83,10 +83,9 @@ class StudentUserSerializer(serializers.ModelSerializer):
         except Exception:
             pass
 
-        #
         import re
         tokens = re.findall(r'[A-Za-z0-9]+', p)
-        #
+        substantive = [t for t in tokens if t.lower() not in ["in", "and", "of", "the", "hons", "honours"]]
         if substantive:
             if len(substantive) == 1:
                 return substantive[0].upper()[:8]
