@@ -444,6 +444,7 @@ class DepartmentNoticeSerializer(serializers.ModelSerializer):
     department_name = serializers.CharField(source="department.name", read_only=True)
     department_code = serializers.CharField(source="department.code", read_only=True)
     program_name = serializers.CharField(source="program.name", read_only=True)
+    program_code = serializers.CharField(source="program.code", read_only=True)
 
     class Meta:
         model = DepartmentNotice
@@ -454,6 +455,7 @@ class DepartmentNoticeSerializer(serializers.ModelSerializer):
             "department_code",
             "program",
             "program_name",
+            "program_code",
             "title",
             "content",
             "category",

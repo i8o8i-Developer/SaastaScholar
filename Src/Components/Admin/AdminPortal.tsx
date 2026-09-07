@@ -376,13 +376,17 @@ export function AdminPortal() {
     tag: "Term 1",
   });
 
+  const [noticeFilterScope, setNoticeFilterScope] = useState<"context" | "all">("context");
+
   const [newNotice, setNewNotice] = useState({
     title: "",
     content: "",
     category: "Examination",
     priority: "HIGH",
-    target_department: "",
-    target_semester: 1,
+    department: "",
+    program: "",
+    target_semester: null as number | null,
+    target_section: "",
     is_broadcast_all: true,
   });
 
@@ -666,10 +670,33 @@ export function AdminPortal() {
     return true;
   });
 
-  // Filtered Notices
+  // Filtered Notices with Cascading Curriculum Context Logic
   const filteredNotices = notices.filter((n) => {
-    if (selectedDeptId && n.target_department && n.target_department !== selectedDeptId) return false;
-    if (selectedSemester && !n.is_broadcast_all && n.target_semester !== selectedSemester) return false;
+    if (noticeFilterScope === "all") return true;
+
+    // 1. Department Cascading Match
+    if (selectedDeptId) {
+      // If notice belongs to another department, exclude
+      if (n.department && n.department !== selectedDeptId) return false;
+      const deptObj = departments.find((d) => d.id === selectedDeptId);
+      if (deptObj && n.department_code && n.department_code !== deptObj.code) return false;
+    }
+
+    // 2. Specialization / Program Cascading Match
+    if (selectedProgramId) {
+      if (n.program && n.program !== selectedProgramId) return false;
+    }
+
+    // 3. Semester Cascading Match
+    if (selectedSemester) {
+      if (n.target_semester && n.target_semester !== selectedSemester) return false;
+    }
+
+    // In Context mode, if a specific department/specialization is chosen, hide generic campus broadcasts to show only targeted circulars
+    if ((selectedDeptId || selectedProgramId) && n.is_broadcast_all && !n.department && !n.program && noticeFilterScope === "context") {
+      return false;
+    }
+
     return true;
   });
 
@@ -866,9 +893,11 @@ export function AdminPortal() {
       content: notice.content || "",
       category: notice.category || "Examination",
       priority: notice.priority || "HIGH",
-      target_department: notice.target_department || "",
-      target_semester: notice.target_semester || 1,
-      is_broadcast_all: notice.is_broadcast_all ?? true,
+      department: notice.department || "",
+      program: notice.program || "",
+      target_semester: notice.target_semester ?? null,
+      target_section: notice.target_section || "",
+      is_broadcast_all: notice.is_broadcast_all ?? (!notice.department && !notice.program),
     });
     setShowNoticeModal(true);
   };
@@ -1307,10 +1336,17 @@ export function AdminPortal() {
   const handleSaveNotice = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const isBroadcast = Boolean(newNotice.is_broadcast_all);
       const payload = {
-        ...newNotice,
-        target_department: selectedDeptId || null,
-        target_semester: selectedSemester || 1,
+        title: newNotice.title.trim(),
+        content: newNotice.content.trim(),
+        category: newNotice.category,
+        priority: newNotice.priority,
+        department: isBroadcast ? null : (newNotice.department || selectedDeptId || null),
+        program: isBroadcast ? null : (newNotice.program || selectedProgramId || null),
+        target_semester: isBroadcast ? null : (newNotice.target_semester ? Number(newNotice.target_semester) : (selectedSemester || null)),
+        target_section: isBroadcast ? "" : (newNotice.target_section || ""),
+        is_broadcast_all: isBroadcast,
       };
       if (editingNoticeId) {
         await apiFetch(`/academic/admin/notices/${editingNoticeId}/`, {
@@ -1332,8 +1368,10 @@ export function AdminPortal() {
         content: "",
         category: "Examination",
         priority: "HIGH",
-        target_department: "",
-        target_semester: 1,
+        department: "",
+        program: "",
+        target_semester: null,
+        target_section: "",
         is_broadcast_all: true,
       });
       loadAdminData();
@@ -4697,34 +4735,66 @@ export function AdminPortal() {
                     Broadcast Institutional Notices And Examination Schedules.
                   </p>
                 </div>
-                <button
-                  onClick={() => {
-                    setEditingNoticeId(null);
-                    setNewNotice({
-                      title: "",
-                      content: "",
-                      category: "Examination",
-                      priority: "HIGH",
-                      target_department: selectedDeptId || "",
-                      target_semester: selectedSemester || 1,
-                      is_broadcast_all: true,
-                    });
-                    setShowNoticeModal(true);
-                  }}
-                  className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer"
-                >
-                  <Plus className="h-4 w-4" />
-                  <span>Broadcast New Notice</span>
-                </button>
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="flex items-center gap-1 bg-surface p-1 rounded-2xl border border-border text-xs shadow-2xs">
+                    <button
+                      type="button"
+                      onClick={() => setNoticeFilterScope("context")}
+                      className={cn(
+                        "px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer",
+                        noticeFilterScope === "context"
+                          ? "bg-primary text-primary-foreground shadow-xs"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      🎯 Context Filtered ({filteredNotices.length})
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setNoticeFilterScope("all")}
+                      className={cn(
+                        "px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer",
+                        noticeFilterScope === "all"
+                          ? "bg-primary text-primary-foreground shadow-xs"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      🌐 All Campus ({notices.length})
+                    </button>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setEditingNoticeId(null);
+                      setNewNotice({
+                        title: "",
+                        content: "",
+                        category: "Examination",
+                        priority: "HIGH",
+                        department: selectedDeptId || "",
+                        program: selectedProgramId || "",
+                        target_semester: selectedSemester || null,
+                        target_section: "",
+                        is_broadcast_all: !selectedDeptId && !selectedProgramId,
+                      });
+                      setShowNoticeModal(true);
+                    }}
+                    className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer"
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span>Broadcast New Notice</span>
+                  </button>
+                </div>
               </div>
 
               {/* Notices List */}
               {filteredNotices.length === 0 ? (
                 <div className="rounded-3xl border border-dashed border-border bg-card/60 p-12 text-center space-y-3">
                   <Megaphone className="h-10 w-10 mx-auto text-muted-foreground/40" />
-                  <h3 className="font-display font-bold text-base text-foreground">No Official Circulars Dispatched Yet</h3>
+                  <h3 className="font-display font-bold text-base text-foreground">No Official Circulars In This Scope</h3>
                   <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                    Broadcast Examination Notifications And Department Updates To Student Dashboards.
+                    {noticeFilterScope === "context"
+                      ? "No notices currently targeted to this specific Department / Specialization. Switch to 'All Campus' or broadcast a new notice."
+                      : "Broadcast Examination Notifications And Department Updates To Student Dashboards."}
                   </p>
                 </div>
               ) : (
@@ -4790,9 +4860,39 @@ export function AdminPortal() {
                           </button>
                         </div>
 
-                        <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs text-muted-foreground mt-4">
-                          <span>Target: {n.is_broadcast_all ? "All Students" : `Sem ${n.target_semester}`}</span>
-                          <span className="font-mono text-[0.65rem]">{n.priority}</span>
+                        <div className="flex flex-wrap items-center justify-between gap-2 border-t border-border/60 pt-3 text-xs text-muted-foreground mt-4">
+                          <div className="flex flex-wrap items-center gap-1.5 font-medium">
+                            <span className="font-semibold text-foreground text-[0.68rem]">Target:</span>
+                            {n.is_broadcast_all ? (
+                              <span className="inline-flex items-center gap-1 rounded-lg bg-emerald-500/10 px-2 py-0.5 text-[0.68rem] font-bold text-emerald-600 dark:text-emerald-400">
+                                🌐 Universal All
+                              </span>
+                            ) : (
+                              <>
+                                {(n.department_code || n.department_name) && (
+                                  <span className="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-2 py-0.5 text-[0.68rem] font-bold text-primary">
+                                    🏢 {n.department_code || n.department_name}
+                                  </span>
+                                )}
+                                {n.program_name && (
+                                  <span className="inline-flex items-center gap-1 rounded-lg bg-surface border border-border px-2 py-0.5 text-[0.68rem] font-bold text-foreground truncate max-w-[150px]">
+                                    🎓 {n.program_name}
+                                  </span>
+                                )}
+                                {n.target_semester && (
+                                  <span className="inline-flex items-center rounded-lg bg-surface border border-border px-2 py-0.5 text-[0.68rem] font-bold text-foreground">
+                                    Sem {n.target_semester}
+                                  </span>
+                                )}
+                                {n.target_section && (
+                                  <span className="inline-flex items-center rounded-lg bg-surface border border-border px-2 py-0.5 text-[0.68rem] font-bold text-foreground">
+                                    Sec {n.target_section}
+                                  </span>
+                                )}
+                              </>
+                            )}
+                          </div>
+                          <span className="font-mono text-[0.65rem] font-bold px-1.5 py-0.5 rounded bg-surface border border-border">{n.priority}</span>
                         </div>
                       </div>
                     );
@@ -7833,6 +7933,120 @@ export function AdminPortal() {
                     <option value="STANDARD">Standard Notice</option>
                   </select>
                 </div>
+              </div>
+
+              {/* Cascading Audience Target Controls */}
+              <div className="rounded-2xl border border-border bg-surface/50 p-3.5 space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="font-bold text-foreground flex items-center gap-1.5">
+                    <Megaphone className="h-3.5 w-3.5 text-primary" />
+                    <span>Target Audience &amp; Dispatch Scope</span>
+                  </label>
+                  <div className="flex items-center gap-1 bg-card p-0.5 rounded-xl border border-border text-[0.68rem]">
+                    <button
+                      type="button"
+                      onClick={() => setNewNotice({ ...newNotice, is_broadcast_all: false, department: newNotice.department || selectedDeptId || (departments[0]?.id ?? "") })}
+                      className={cn(
+                        "px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer",
+                        !newNotice.is_broadcast_all
+                          ? "bg-primary text-primary-foreground shadow-2xs"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      🎯 Scoped Context
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setNewNotice({ ...newNotice, is_broadcast_all: true })}
+                      className={cn(
+                        "px-2.5 py-1 rounded-lg font-bold transition-all cursor-pointer",
+                        newNotice.is_broadcast_all
+                          ? "bg-primary text-primary-foreground shadow-2xs"
+                          : "text-muted-foreground hover:text-foreground"
+                      )}
+                    >
+                      🌐 Campus-Wide
+                    </button>
+                  </div>
+                </div>
+
+                {!newNotice.is_broadcast_all ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    <div>
+                      <label className="block font-bold mb-1 text-muted-foreground text-[0.68rem]">Department</label>
+                      <select
+                        value={newNotice.department || selectedDeptId}
+                        onChange={(e) => {
+                          const deptVal = e.target.value;
+                          const deptProgs = programs.filter((p) => p.department === deptVal);
+                          setNewNotice({
+                            ...newNotice,
+                            department: deptVal,
+                            program: deptProgs[0]?.id || "",
+                          });
+                        }}
+                        className="h-9 w-full rounded-xl border border-border bg-background px-2.5 text-xs focus:border-primary focus:outline-none"
+                      >
+                        <option value="">Select Department</option>
+                        {departments.map((d) => (
+                          <option key={d.id} value={d.id}>
+                            {d.name} ({d.code})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block font-bold mb-1 text-muted-foreground text-[0.68rem]">Specialization / Program</label>
+                      <select
+                        value={newNotice.program || selectedProgramId}
+                        onChange={(e) => setNewNotice({ ...newNotice, program: e.target.value })}
+                        className="h-9 w-full rounded-xl border border-border bg-background px-2.5 text-xs focus:border-primary focus:outline-none"
+                      >
+                        <option value="">All Programs In Department</option>
+                        {programs
+                          .filter((p) => !newNotice.department || p.department === newNotice.department)
+                          .map((p) => (
+                            <option key={p.id} value={p.id}>
+                              {p.name} ({p.code})
+                            </option>
+                          ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block font-bold mb-1 text-muted-foreground text-[0.68rem]">Target Semester</label>
+                      <select
+                        value={newNotice.target_semester ?? ""}
+                        onChange={(e) => setNewNotice({ ...newNotice, target_semester: e.target.value ? Number(e.target.value) : null })}
+                        className="h-9 w-full rounded-xl border border-border bg-background px-2.5 text-xs focus:border-primary focus:outline-none"
+                      >
+                        <option value="">All Semesters</option>
+                        {[1, 2, 3, 4, 5, 6, 7, 8].map((sem) => (
+                          <option key={sem} value={sem}>
+                            Semester {sem}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block font-bold mb-1 text-muted-foreground text-[0.68rem]">Target Section (Optional)</label>
+                      <input
+                        type="text"
+                        value={newNotice.target_section || ""}
+                        onChange={(e) => setNewNotice({ ...newNotice, target_section: e.target.value.toUpperCase() })}
+                        placeholder="e.g. A or blank for All"
+                        maxLength={5}
+                        className="h-9 w-full rounded-xl border border-border bg-background px-2.5 text-xs font-mono uppercase focus:border-primary focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-[0.68rem] text-muted-foreground italic">
+                    Universal broadcast will be dispatched to all student dashboards across all departments, specializations, and semesters.
+                  </p>
+                )}
               </div>
 
               {/* Markdown Content Field with Toolbar and Live Preview Toggle */}

@@ -64,25 +64,36 @@ class StudentUserSerializer(serializers.ModelSerializer):
         p = obj.program.strip()
         try:
             from Apps.Academic.models import ProgramSpecialization
-            prog = ProgramSpecialization.objects.filter(name__iexact=p).first()
+            from django.db.models import Q
+            
+            prog = ProgramSpecialization.objects.filter(Q(name__iexact=p) | Q(code__iexact=p)).first()
             if not prog:
-                prog = ProgramSpecialization.objects.filter(code__iexact=p).first()
-            if prog:
+                prog = ProgramSpecialization.objects.filter(Q(name__icontains=p) | Q(code__icontains=p)).first()
+            if not prog:
+                #
+                p_lower = p.lower()
+                for candidate in ProgramSpecialization.objects.all():
+                    c_name = candidate.name.lower()
+                    c_code = candidate.code.lower()
+                    if c_name in p_lower or p_lower in c_name or c_code in p_lower:
+                        prog = candidate
+                        break
+            if prog and prog.code:
                 return prog.code
         except Exception:
             pass
-        p_lower = p.lower()
-        if "forensic" in p_lower:
-            return "BSC-FS"
-        if "artificial intelligence" in p_lower or "aiml" in p_lower:
-            return "BTECH-AIML"
-        if "computer science" in p_lower or "cse" in p_lower:
-            return "BTECH-CSE"
-        if "biotechnology" in p_lower or "biotech" in p_lower:
-            return "BTECH-BT"
-        if len(p) <= 12:
-            return p
-        return p[:10]
+
+        #
+        import re
+        tokens = re.findall(r'[A-Za-z0-9]+', p)
+        #
+        if substantive:
+            if len(substantive) == 1:
+                return substantive[0].upper()[:8]
+            prefix = substantive[0].upper()
+            suffix = "".join(t[0].upper() for t in substantive[1:])
+            return f"{prefix}-{suffix}" if suffix else prefix
+        return p[:10].upper()
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=6)

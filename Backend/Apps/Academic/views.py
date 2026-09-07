@@ -177,21 +177,64 @@ class LabExperimentDetailView(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
 class DepartmentNoticeListView(generics.ListAPIView):
-    queryset = DepartmentNotice.objects.all()
     serializer_class = DepartmentNoticeSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         user = self.request.user
-        qs = DepartmentNotice.objects.all()
-        # Filter by user's department/semester/section if applicable, or broadcast
-        if user and user.is_authenticated:
-            qs = qs.filter(
-                Q(is_broadcast_all=True)
-                | Q(target_semester__isnull=True)
-                | Q(target_semester=user.semester)
+        qs = DepartmentNotice.objects.select_related("department", "program").all()
+        if not user or not user.is_authenticated:
+            return qs.filter(is_broadcast_all=True)
+
+        user_dept = (getattr(user, "department", "") or "").strip()
+        user_prog = (getattr(user, "program", "") or "").strip()
+        user_sem = getattr(user, "semester", None)
+        user_sec = (getattr(user, "section", "") or "").strip()
+
+        # 1. Campus-wide universal announcements
+        campus_filter = Q(is_broadcast_all=True) & (
+            Q(target_semester__isnull=True) | Q(target_semester=user_sem)
+        )
+
+        # 2. Dynamic Department scoping
+        dept_filter = Q()
+        if user_dept:
+            dept_match = (
+                Q(department__name__iexact=user_dept)
+                | Q(department__code__iexact=user_dept)
+                | Q(department__name__icontains=user_dept)
             )
-        return qs
+            prog_match = Q()
+            if user_prog:
+                prog_match = (
+                    Q(program__name__iexact=user_prog)
+                    | Q(program__code__iexact=user_prog)
+                    | Q(program__name__icontains=user_prog)
+                )
+
+            dept_filter = dept_match & (
+                Q(program__isnull=True) | prog_match
+            ) & (
+                Q(target_semester__isnull=True) | Q(target_semester=user_sem)
+            ) & (
+                Q(target_section="") | Q(target_section__isnull=True) | Q(target_section__iexact=user_sec)
+            )
+
+        # 3. Direct Program/Specialization scoping
+        prog_filter = Q()
+        if user_prog:
+            prog_direct = (
+                Q(program__name__iexact=user_prog)
+                | Q(program__code__iexact=user_prog)
+                | Q(program__name__icontains=user_prog)
+            )
+            prog_filter = prog_direct & (
+                Q(target_semester__isnull=True) | Q(target_semester=user_sem)
+            ) & (
+                Q(target_section="") | Q(target_section__isnull=True) | Q(target_section__iexact=user_sec)
+            )
+
+        return qs.filter(campus_filter | dept_filter | prog_filter).distinct()
 
 # ==============================================================================
 # ADMIN PORTAL CONTROLLERS: DEPARTMENTS, SPECIALIZATIONS, SECTIONS & NOTICES
@@ -231,10 +274,26 @@ class AdminSectionDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAdminUser]
 
 class AdminNoticeListCreateView(generics.ListCreateAPIView):
-    queryset = DepartmentNotice.objects.select_related("department", "program").all()
     serializer_class = DepartmentNoticeSerializer
     permission_classes = [permissions.IsAdminUser]
     pagination_class = None
+
+    def get_queryset(self):
+        qs = DepartmentNotice.objects.select_related("department", "program").all()
+        dept = self.request.query_params.get("department")
+        prog = self.request.query_params.get("program")
+        sem = self.request.query_params.get("semester")
+        show_all = self.request.query_params.get("all", "").lower() == "true"
+
+        if show_all:
+            return qs
+        if dept:
+            qs = qs.filter(Q(department_id=dept) | Q(department__code=dept) | Q(is_broadcast_all=True))
+        if prog:
+            qs = qs.filter(Q(program_id=prog) | Q(program__code=prog) | Q(program__isnull=True) | Q(is_broadcast_all=True))
+        if sem:
+            qs = qs.filter(Q(target_semester=sem) | Q(target_semester__isnull=True))
+        return qs
 
 class AdminNoticeDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = DepartmentNotice.objects.all()

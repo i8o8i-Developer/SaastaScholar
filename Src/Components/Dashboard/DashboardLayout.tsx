@@ -81,16 +81,11 @@ export const getDisplayProgram = (user: any): string => {
     return user.program_code.trim();
   }
   if (user.program && typeof user.program === "string" && user.program.trim()) {
-    const p = user.program.trim();
-    if (p.length <= 12) return p;
-    const pLower = p.toLowerCase();
-    if (pLower.includes("forensic")) return "B.Sc (FS)";
-    if (pLower.includes("artificial intelligence") || pLower.includes("aiml")) return "B.Tech (AIML)";
-    if (pLower.includes("computer science") || pLower.includes("cse")) return "B.Tech (CSE)";
-    if (pLower.includes("biotechnology") || pLower.includes("biotech")) return "B.Tech (BT)";
-    if (pLower.includes("cyber")) return "B.Tech (Cyber)";
-    const words = p.split(/\s+/);
-    return words.slice(0, 2).join(" ");
+    const p = user.program.replace(/[\[\]]/g, "").trim();
+    if (p.length <= 14) return p;
+    const words = p.split(/\s+/).filter(Boolean);
+    const initials = words.slice(1).filter((w: string) => !["in", "and", "of", "the", "hons", "honours"].includes(w.toLowerCase())).map((w: string) => (w[0] ? w[0].toUpperCase() : "")).join("");
+    return initials ? `${words[0]} (${initials})` : (words.slice(0, 2).join(" ") || p);
   }
   return "Academic";
 };
