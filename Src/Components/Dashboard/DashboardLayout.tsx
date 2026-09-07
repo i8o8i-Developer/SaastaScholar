@@ -75,6 +75,26 @@ const NAV_ITEMS = [
   { id: "profile", label: "Academic Profile", icon: User, badge: null },
 ];
 
+export const getDisplayProgram = (user: any): string => {
+  if (!user) return "Academic";
+  if (user.program_code && typeof user.program_code === "string" && user.program_code.trim()) {
+    return user.program_code.trim();
+  }
+  if (user.program && typeof user.program === "string" && user.program.trim()) {
+    const p = user.program.trim();
+    if (p.length <= 12) return p;
+    const pLower = p.toLowerCase();
+    if (pLower.includes("forensic")) return "B.Sc (FS)";
+    if (pLower.includes("artificial intelligence") || pLower.includes("aiml")) return "B.Tech (AIML)";
+    if (pLower.includes("computer science") || pLower.includes("cse")) return "B.Tech (CSE)";
+    if (pLower.includes("biotechnology") || pLower.includes("biotech")) return "B.Tech (BT)";
+    if (pLower.includes("cyber")) return "B.Tech (Cyber)";
+    const words = p.split(/\s+/);
+    return words.slice(0, 2).join(" ");
+  }
+  return "Academic";
+};
+
 export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader }: DashboardLayoutProps) {
   const { user, logout } = useAuth();
   const { theme, isDark, toggleTheme } = useTheme();
@@ -282,7 +302,7 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
                   {user?.full_name || "Scholar Portal"}
                 </h4>
                 <p className="text-[0.65rem] text-muted-foreground font-mono truncate">
-                  {(user as any)?.program_code || "B.Tech"} · Sem {user?.semester || 1}
+                  {getDisplayProgram(user)} · Sem {user?.semester || 1}
                 </p>
               </div>
 
@@ -557,7 +577,7 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
             {/* Program & Semester Badge */}
             <div className="hidden sm:flex items-center gap-2 rounded-full border border-border/70 bg-surface/80 px-3 py-1 text-xs">
               <GraduationCap className="h-3.5 w-3.5 text-primary" />
-              <span className="font-bold text-foreground">{(user as any)?.program_code || "B.Tech"}</span>
+              <span className="font-bold text-foreground">{getDisplayProgram(user)}</span>
               <span className="text-muted-foreground">·</span>
               <span className="font-semibold text-muted-foreground">Semester {user?.semester || 1}</span>
               <span className="text-muted-foreground">·</span>

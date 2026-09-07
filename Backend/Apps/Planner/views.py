@@ -14,16 +14,34 @@ class TimetableScheduleView(APIView):
     def get(self, request):
         user = request.user
         day = request.query_params.get("day")
-        cache_key = f"planner:timetable:{user.semester}:{user.section}:{day or 'all'}"
+        cache_key = f"planner:timetable:{user.program}:{user.semester}:{user.section}:{day or 'all'}"
         
         def _fetch():
+            from django.db.models import Q
             qs = TimetableSlot.objects.filter(semester=user.semester)
             if user.section:
-                sec_qs = qs.filter(section__iexact=user.section)
-                if sec_qs.exists():
-                    qs = sec_qs
-            if not qs.exists():
-                qs = TimetableSlot.objects.all()
+                qs = qs.filter(section__iexact=user.section)
+
+            if user.program or user.department:
+                prog_q = Q()
+                if user.program:
+                    prog_q |= Q(subject__programs__name__iexact=user.program)
+                    prog_q |= Q(subject__programs__code__iexact=user.program)
+                    prog_q |= Q(subject__programs__name__icontains=user.program)
+                    prog_q |= Q(title__icontains=user.program)
+                if user.department:
+                    prog_q |= Q(subject__department__name__iexact=user.department)
+                    prog_q |= Q(subject__department__code__iexact=user.department)
+                    prog_q |= Q(subject__department__name__icontains=user.department)
+                
+                prog_q |= Q(subject__programs__isnull=True)
+
+                matching_qs = qs.filter(prog_q).distinct()
+                if matching_qs.exists():
+                    qs = matching_qs
+                else:
+                    # Do not show other programs' timetables!
+                    qs = TimetableSlot.objects.none()
 
             if day and day != "All":
                 qs = qs.filter(day_of_week__iexact=day)

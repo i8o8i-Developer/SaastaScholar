@@ -159,13 +159,33 @@ class DashboardSummaryView(APIView):
         today_code = day_map.get(current_weekday_num, "Mon")
         current_time_str = now_ist.strftime("%H:%M")
 
+        # 
+        from django.db.models import Q
         user_slots = TimetableSlot.objects.filter(semester=user.semester)
         if user.section:
-            sec_slots = user_slots.filter(section__iexact=user.section)
-            if sec_slots.exists():
-                user_slots = sec_slots
-        if not user_slots.exists():
-            user_slots = TimetableSlot.objects.all()
+            user_slots = user_slots.filter(section__iexact=user.section)
+
+        if user.program or user.department:
+            prog_q = Q()
+            if user.program:
+                prog_q |= Q(subject__programs__name__iexact=user.program)
+                prog_q |= Q(subject__programs__code__iexact=user.program)
+                prog_q |= Q(subject__programs__name__icontains=user.program)
+                prog_q |= Q(title__icontains=user.program)
+            if user.department:
+                prog_q |= Q(subject__department__name__iexact=user.department)
+                prog_q |= Q(subject__department__code__iexact=user.department)
+                prog_q |= Q(subject__department__name__icontains=user.department)
+            
+            
+            prog_q |= Q(subject__programs__isnull=True)
+
+            matching_slots = user_slots.filter(prog_q).distinct()
+            if matching_slots.exists():
+                user_slots = matching_slots
+            else:
+                # 
+                user_slots = TimetableSlot.objects.none()
 
         today_slots = user_slots.filter(day_of_week=today_code).order_by("start_time")
         today_has_slots = today_slots.exists()
@@ -233,7 +253,9 @@ class DashboardSummaryView(APIView):
         return Response({
             "user_name": user.full_name or user.username,
             "roll_number": user.roll_number,
+            "department": user.department,
             "program": user.program,
+            "program_code": getattr(user, "program_code", None) or ("BSC-FS" if "forensic" in (user.program or "").lower() else ("BTECH-AIML" if "aiml" in (user.program or "").lower() else ("BTECH-CSE" if "computer" in (user.program or "").lower() else (user.program[:12] if user.program else "Academic")))),
             "semester": user.semester,
             "section": user.section,
             "access_tier": user.access_tier,

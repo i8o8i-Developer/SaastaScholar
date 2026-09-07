@@ -6,6 +6,7 @@ from .models import StudentUser, SecuritySession, AdminAuditLog
 class StudentUserSerializer(serializers.ModelSerializer):
     avatar_url = serializers.SerializerMethodField()
     active_sessions_count = serializers.SerializerMethodField()
+    program_code = serializers.SerializerMethodField()
 
     class Meta:
         model = StudentUser
@@ -21,6 +22,7 @@ class StudentUserSerializer(serializers.ModelSerializer):
             "university",
             "department",
             "program",
+            "program_code",
             "semester",
             "section",
             "roll_number",
@@ -55,6 +57,32 @@ class StudentUserSerializer(serializers.ModelSerializer):
 
     def get_active_sessions_count(self, obj):
         return obj.security_sessions.filter(is_revoked=False).count()
+
+    def get_program_code(self, obj):
+        if not obj.program:
+            return "Academic"
+        p = obj.program.strip()
+        try:
+            from Apps.Academic.models import ProgramSpecialization
+            prog = ProgramSpecialization.objects.filter(name__iexact=p).first()
+            if not prog:
+                prog = ProgramSpecialization.objects.filter(code__iexact=p).first()
+            if prog:
+                return prog.code
+        except Exception:
+            pass
+        p_lower = p.lower()
+        if "forensic" in p_lower:
+            return "BSC-FS"
+        if "artificial intelligence" in p_lower or "aiml" in p_lower:
+            return "BTECH-AIML"
+        if "computer science" in p_lower or "cse" in p_lower:
+            return "BTECH-CSE"
+        if "biotechnology" in p_lower or "biotech" in p_lower:
+            return "BTECH-BT"
+        if len(p) <= 12:
+            return p
+        return p[:10]
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=6)
