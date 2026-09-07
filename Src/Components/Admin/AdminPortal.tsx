@@ -272,7 +272,7 @@ export function AdminPortal() {
 
   // Form State Containers
   const [newDept, setNewDept] = useState({ name: "", code: "", description: "", head_of_department: "" });
-  const [newProgram, setNewProgram] = useState({ department: "", name: "", code: "", degree_level: "Undergraduate (B.Tech)", duration_years: 4, total_semesters: 8 });
+  const [newProgram, setNewProgram] = useState({ department: "", name: "", code: "", degree_level: "Undergraduate", duration_years: 4, total_semesters: 8 });
   const [newSection, setNewSection] = useState({ program: "", semester: 1, section: "A", academic_year: "2026-2027", max_capacity: 60 });
   const [newSubject, setNewSubject] = useState<{
     programs: string[];
@@ -699,11 +699,17 @@ export function AdminPortal() {
 
   const handleEditProgram = (prog: ProgramSpecialization) => {
     setEditingProgramId(prog.id);
+    let dl = prog.degree_level || "Undergraduate";
+    if (dl.includes("Undergraduate")) dl = "Undergraduate";
+    else if (dl.includes("Postgraduate")) dl = "Postgraduate";
+    else if (dl.includes("Diploma")) dl = "Diploma";
+    else if (dl.includes("Doctoral") || dl.includes("Ph.D")) dl = "Doctoral";
+
     setNewProgram({
       department: prog.department || selectedDeptId || "",
       name: prog.name,
       code: prog.code,
-      degree_level: prog.degree_level || "Undergraduate (B.Tech)",
+      degree_level: dl,
       duration_years: prog.duration_years || 4,
       total_semesters: prog.total_semesters || 8,
     });
@@ -898,7 +904,7 @@ export function AdminPortal() {
       }
       setShowProgramModal(false);
       setEditingProgramId(null);
-      setNewProgram({ department: selectedDeptId || "", name: "", code: "", degree_level: "Undergraduate (B.Tech)", duration_years: 4, total_semesters: 8 });
+      setNewProgram({ department: selectedDeptId || "", name: "", code: "", degree_level: "Undergraduate", duration_years: 4, total_semesters: 8 });
       loadAdminData();
     } catch (err: any) {
       toast.error(err.message || "Failed To Save Program.");
@@ -5707,7 +5713,7 @@ export function AdminPortal() {
                   type="text"
                   value={newProgram.name}
                   onChange={(e) => setNewProgram({ ...newProgram, name: e.target.value })}
-                  placeholder="B.Tech Artificial Intelligence & Machine Learning"
+                  placeholder="e.g. B.Sc Forensic Science / B.Tech Computer Science"
                   required
                   className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
                 />
@@ -5719,10 +5725,14 @@ export function AdminPortal() {
                   onChange={(e) => setNewProgram({ ...newProgram, degree_level: e.target.value })}
                   className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-semibold focus:border-primary focus:outline-none"
                 >
-                  <option value="Undergraduate (B.Tech)">Undergraduate (B.Tech)</option>
-                  <option value="Postgraduate (M.Tech / MCA / M.Sc)">Postgraduate (M.Tech / MCA / M.Sc)</option>
-                  <option value="Diploma / Polytechnic">Diploma / Polytechnic</option>
-                  <option value="Doctoral (Ph.D)">Doctoral (Ph.D)</option>
+                  <option value="Undergraduate">Undergraduate</option>
+                  <option value="Postgraduate">Postgraduate</option>
+                  <option value="Diploma">Diploma</option>
+                  <option value="Doctoral">Doctoral</option>
+                  <option value="Certificate">Certificate</option>
+                  {!["Undergraduate", "Postgraduate", "Diploma", "Doctoral", "Certificate"].includes(newProgram.degree_level) && (
+                    <option value={newProgram.degree_level}>{newProgram.degree_level}</option>
+                  )}
                 </select>
               </div>
               <div className="grid grid-cols-3 gap-3">
@@ -5732,7 +5742,7 @@ export function AdminPortal() {
                     type="text"
                     value={newProgram.code}
                     onChange={(e) => setNewProgram({ ...newProgram, code: e.target.value.toUpperCase() })}
-                    placeholder="BTECH-AIML"
+                    placeholder="e.g. BSC-FS / BTECH-CSE"
                     required
                     className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-mono focus:border-primary focus:outline-none"
                   />
