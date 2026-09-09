@@ -114,13 +114,31 @@ export function Login() {
     (s) => (!selectedProgramId || s.program === selectedProgramId) && Number(s.semester) === Number(semester),
   );
 
-  const distinctListedSections = Array.from(
-    new Set(
-      availableSections
-        .map((s) => (s.section || s.section_name || "").trim().toUpperCase())
-        .filter(Boolean),
-    ),
-  );
+  const dbSectionMap = new Map<string, SectionBatch>();
+  availableSections.forEach((sec) => {
+    const code = (sec.section || sec.section_name || "").trim().toUpperCase();
+    if (code) dbSectionMap.set(code, sec);
+  });
+
+  const standardAlphabetSections = [
+    "A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
+    "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T"
+  ];
+
+  const allUniqueSectionCodes = Array.from(
+    new Set([
+      ...Array.from(dbSectionMap.keys()),
+      ...standardAlphabetSections,
+      ...(section && section !== "CUSTOM" ? [section.trim().toUpperCase()] : []),
+    ])
+  ).sort((a, b) => {
+    if (a.length === 1 && b.length === 1) return a.localeCompare(b);
+    if (a.length === 1) return -1;
+    if (b.length === 1) return 1;
+    return a.localeCompare(b);
+  });
+
+  const isCustomMode = section === "CUSTOM" || (!allUniqueSectionCodes.includes(section) && section !== "");
 
   const selectedProgramObj = programs.find((p) => p.id === selectedProgramId);
   const selectedDeptObj = departments.find((d) => d.id === selectedDeptId);
@@ -373,7 +391,7 @@ export function Login() {
                                 const matchingSecs = sections.filter(
                                   (s) => s.program === newProgId && Number(s.semester) === Number(semester)
                                 );
-                                if (matchingSecs.length > 0 && matchingSecs[0]) {
+                                if (!section && matchingSecs.length > 0 && matchingSecs[0]) {
                                   setSection((matchingSecs[0]?.section || matchingSecs[0]?.section_name || "A").toUpperCase());
                                 }
                               } else {
@@ -405,7 +423,7 @@ export function Login() {
                               const matchingSecs = sections.filter(
                                 (s) => s.program === newProgId && Number(s.semester) === Number(semester)
                               );
-                              if (matchingSecs.length > 0 && matchingSecs[0]) {
+                              if (!section && matchingSecs.length > 0 && matchingSecs[0]) {
                                 setSection((matchingSecs[0]?.section || matchingSecs[0]?.section_name || "A").toUpperCase());
                               }
                             }}
@@ -435,7 +453,7 @@ export function Login() {
                                 const matchingSecs = sections.filter(
                                   (s) => (!selectedProgramId || s.program === selectedProgramId) && Number(s.semester) === newSem
                                 );
-                                if (matchingSecs.length > 0 && matchingSecs[0]) {
+                                if (!section && matchingSecs.length > 0 && matchingSecs[0]) {
                                   setSection((matchingSecs[0]?.section || matchingSecs[0]?.section_name || "A").toUpperCase());
                                 }
                               }}
@@ -455,45 +473,40 @@ export function Login() {
                                 Listed Cohort Section
                               </label>
                               <span className="text-[0.65rem] font-mono font-bold text-primary">
-                                {distinctListedSections.length > 0
-                                  ? `${distinctListedSections.length} Listed Sections`
-                                  : "Standard Sections"}
+                                {dbSectionMap.size > 0
+                                  ? `${dbSectionMap.size} Listed In DB`
+                                  : "Standard Cohorts"}
                               </span>
                             </div>
 
                             <select
-                              value={section}
-                              onChange={(e) => setSection(e.target.value)}
+                              value={isCustomMode ? "CUSTOM" : section}
+                              onChange={(e) => {
+                                if (e.target.value === "CUSTOM") {
+                                  setSection("CUSTOM");
+                                } else {
+                                  setSection(e.target.value);
+                                }
+                              }}
                               className="h-11 w-full rounded-2xl border border-border bg-background px-3 text-xs sm:text-sm font-semibold focus:border-primary focus:outline-none"
                             >
-                              {distinctListedSections.length > 0 ? (
-                                <>
-                                  {availableSections.map((sec) => {
-                                    const secVal = (sec.section || sec.section_name || "A").toUpperCase();
-                                    return (
-                                      <option key={sec.id} value={secVal}>
-                                        Section {secVal} {sec.batch_code ? `(${sec.batch_code})` : ""} {sec.max_capacity ? `· Cap: ${sec.max_capacity}` : ""}
-                                      </option>
-                                    );
-                                  })}
-                                  <option value="CUSTOM">Custom / Unlisted Section...</option>
-                                </>
-                              ) : (
-                                <>
-                                  {["A", "B", "C", "D", "E"].map((secVal) => (
-                                    <option key={secVal} value={secVal}>
-                                      Section {secVal}
-                                    </option>
-                                  ))}
-                                  <option value="CUSTOM">Custom / Unlisted Section...</option>
-                                </>
-                              )}
+                              {allUniqueSectionCodes.map((code) => {
+                                const dbSec = dbSectionMap.get(code);
+                                return (
+                                  <option key={code} value={code}>
+                                    Section {code}
+                                    {dbSec?.batch_code ? ` (${dbSec.batch_code})` : ""}
+                                    {dbSec?.max_capacity ? ` · Cap: ${dbSec.max_capacity}` : ""}
+                                  </option>
+                                );
+                              })}
+                              <option value="CUSTOM">Custom / Unlisted Section...</option>
                             </select>
                           </div>
                         </div>
 
                         {/* Custom Section Input if Unlisted Section Chosen */}
-                        {(section === "CUSTOM" || (!distinctListedSections.includes(section) && !["A", "B", "C", "D", "E"].includes(section))) && (
+                        {isCustomMode && (
                           <div>
                             <label className="block text-xs font-bold text-foreground mb-1">
                               Enter Custom Section Name
@@ -502,7 +515,7 @@ export function Login() {
                               type="text"
                               value={section === "CUSTOM" ? "" : section}
                               onChange={(e) => setSection(e.target.value.toUpperCase())}
-                              placeholder="e.g. G, H, Honors, Batch-B"
+                              placeholder="e.g. Honors, Batch-B"
                               maxLength={10}
                               className="h-11 w-full rounded-2xl border border-primary/50 bg-background px-3 text-xs uppercase font-mono font-bold focus:border-primary focus:outline-none"
                             />

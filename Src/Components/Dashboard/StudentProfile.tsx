@@ -356,7 +356,7 @@ export function StudentProfile() {
                         const matchingSecs = sectionsList.filter(
                           (s) => (s.program === newProg.id || s.program_name === newProg.name || s.program_code === newProg.code) && Number(s.semester) === Number(semester)
                         );
-                        if (matchingSecs.length > 0 && matchingSecs[0]) {
+                        if (!section && matchingSecs.length > 0 && matchingSecs[0]) {
                           setSection((matchingSecs[0]?.section || matchingSecs[0]?.section_name || "A").toUpperCase());
                         }
                       }
@@ -387,7 +387,7 @@ export function StudentProfile() {
                       const matchingSecs = sectionsList.filter(
                         (s) => (!newProg || s.program === newProg.id || s.program_name === newProg.name || s.program_code === newProg.code) && Number(s.semester) === Number(semester)
                       );
-                      if (matchingSecs.length > 0 && matchingSecs[0]) {
+                      if (!section && matchingSecs.length > 0 && matchingSecs[0]) {
                         setSection((matchingSecs[0]?.section || matchingSecs[0]?.section_name || "A").toUpperCase());
                       }
                     }}
@@ -426,13 +426,38 @@ export function StudentProfile() {
                         s.program_code === selectedProgObj.code) &&
                       Number(s.semester) === Number(semester)
                   );
-                  const distinctListedSections = Array.from(
-                    new Set(
-                      availableSectionsForProfile
-                        .map((s) => (s.section || s.section_name || "").trim().toUpperCase())
-                        .filter(Boolean)
-                    )
-                  );
+
+                  // Map database-registered sections by their uppercase code
+                  const dbSectionMap = new Map<string, SectionBatch>();
+                  availableSectionsForProfile.forEach((sec) => {
+                    const code = (sec.section || sec.section_name || "").trim().toUpperCase();
+                    if (code) dbSectionMap.set(code, sec);
+                  });
+
+                  // Comprehensive standard university sections A through T (including J!)
+                  const standardAlphabetSections = [
+                    "A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
+                    "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T"
+                  ];
+
+                  // Form the complete set of distinct section codes:
+                  // 1. Any specific database-listed sections for this program & semester
+                  // 2. Standard alphabet sections A through T
+                  // 3. The student's current section if custom (e.g. "HONORS")
+                  const allUniqueCodes = Array.from(
+                    new Set([
+                      ...Array.from(dbSectionMap.keys()),
+                      ...standardAlphabetSections,
+                      ...(section && section !== "CUSTOM" ? [section.trim().toUpperCase()] : []),
+                    ])
+                  ).sort((a, b) => {
+                    if (a.length === 1 && b.length === 1) return a.localeCompare(b);
+                    if (a.length === 1) return -1;
+                    if (b.length === 1) return 1;
+                    return a.localeCompare(b);
+                  });
+
+                  const isCustomMode = section === "CUSTOM" || (!allUniqueCodes.includes(section) && section !== "");
 
                   return (
                     <div className="space-y-3">
@@ -453,7 +478,7 @@ export function StudentProfile() {
                                     s.program_code === selectedProgObj.code) &&
                                   Number(s.semester) === newSem
                               );
-                              if (semSections.length > 0 && semSections[0]) {
+                              if (!section && semSections.length > 0 && semSections[0]) {
                                 setSection((semSections[0]?.section || semSections[0]?.section_name || "A").toUpperCase());
                               }
                             }}
@@ -474,45 +499,40 @@ export function StudentProfile() {
                               Cohort Section
                             </label>
                             <span className="text-[0.62rem] font-mono font-bold text-primary">
-                              {distinctListedSections.length > 0
-                                ? `${distinctListedSections.length} Listed Sections`
-                                : "Standard Sections"}
+                              {dbSectionMap.size > 0
+                                ? `${dbSectionMap.size} Listed In DB`
+                                : "Standard Cohorts"}
                             </span>
                           </div>
 
                           <select
-                            value={section}
-                            onChange={(e) => setSection(e.target.value)}
+                            value={isCustomMode ? "CUSTOM" : section}
+                            onChange={(e) => {
+                              if (e.target.value === "CUSTOM") {
+                                setSection("CUSTOM");
+                              } else {
+                                setSection(e.target.value);
+                              }
+                            }}
                             className="h-10 w-full rounded-xl border border-border bg-background px-2.5 text-xs font-semibold focus:border-primary focus:outline-none"
                           >
-                            {distinctListedSections.length > 0 ? (
-                              <>
-                                {availableSectionsForProfile.map((sec) => {
-                                  const secVal = (sec.section || sec.section_name || "A").toUpperCase();
-                                  return (
-                                    <option key={sec.id} value={secVal}>
-                                      Section {secVal} {sec.batch_code ? `(${sec.batch_code})` : ""} {sec.max_capacity ? `· Cap: ${sec.max_capacity}` : ""}
-                                    </option>
-                                  );
-                                })}
-                                <option value="CUSTOM">Custom / Unlisted Section...</option>
-                              </>
-                            ) : (
-                              <>
-                                {["A", "B", "C", "D", "E"].map((secVal) => (
-                                  <option key={secVal} value={secVal}>
-                                    Section {secVal}
-                                  </option>
-                                ))}
-                                <option value="CUSTOM">Custom / Unlisted Section...</option>
-                              </>
-                            )}
+                            {allUniqueCodes.map((code) => {
+                              const dbSec = dbSectionMap.get(code);
+                              return (
+                                <option key={code} value={code}>
+                                  Section {code}
+                                  {dbSec?.batch_code ? ` (${dbSec.batch_code})` : ""}
+                                  {dbSec?.max_capacity ? ` · Cap: ${dbSec.max_capacity}` : ""}
+                                </option>
+                              );
+                            })}
+                            <option value="CUSTOM">Custom / Unlisted Section...</option>
                           </select>
                         </div>
                       </div>
 
-                      {/* Custom Section Input if CUSTOM is selected or typed */}
-                      {(section === "CUSTOM" || (!distinctListedSections.includes(section) && !["A", "B", "C", "D", "E"].includes(section))) && (
+                      {/* Custom Section Input if CUSTOM is selected */}
+                      {isCustomMode && (
                         <div>
                           <label className="block text-[0.68rem] font-bold text-muted-foreground mb-1">
                             Enter Custom Section Name
@@ -521,7 +541,7 @@ export function StudentProfile() {
                             type="text"
                             value={section === "CUSTOM" ? "" : section}
                             onChange={(e) => setSection(e.target.value.toUpperCase())}
-                            placeholder="e.g. G, H, Honors, Batch-B"
+                            placeholder="e.g. Honors, Special-Batch"
                             maxLength={10}
                             className="h-10 w-full rounded-xl border border-primary/50 bg-background px-3 text-xs font-mono font-bold uppercase focus:border-primary focus:outline-none"
                           />
