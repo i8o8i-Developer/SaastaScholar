@@ -125,7 +125,82 @@ class AdminTimetableSlotListCreateView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAdminUser]
     pagination_class = None
 
+    def delete(self, request, *args, **kwargs):
+        return perform_bulk_delete_timetable(request)
+
 class AdminTimetableSlotDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = TimetableSlot.objects.all()
     serializer_class = TimetableSlotSerializer
     permission_classes = [permissions.IsAdminUser]
+
+def perform_bulk_delete_timetable(request):
+    from Apps.Academic.cache_utils import invalidate_redis_pattern
+    purge_all = request.data.get("purge_all") if hasattr(request, "data") else None
+    if purge_all is None:
+        purge_all = request.query_params.get("purge_all")
+
+    if str(purge_all).lower() in ("true", "1", "yes"):
+        count, _ = TimetableSlot.objects.all().delete()
+        invalidate_redis_pattern("planner")
+        return Response({
+            "detail": f"Successfully Purged All {count} Timetable Slots.",
+            "deleted_count": count,
+        }, status=status.HTTP_200_OK)
+
+    ids = request.data.get("ids") if hasattr(request, "data") else None
+    if not ids:
+        ids = request.query_params.getlist("ids")
+    if ids:
+        count, _ = TimetableSlot.objects.filter(id__in=ids).delete()
+        invalidate_redis_pattern("planner")
+        return Response({
+            "detail": f"Successfully Deleted {count} Timetable Slots.",
+            "deleted_count": count,
+        }, status=status.HTTP_200_OK)
+
+    qs = TimetableSlot.objects.all()
+    semester = request.data.get("semester") if hasattr(request, "data") else None
+    if semester is None:
+        semester = request.query_params.get("semester")
+    section = request.data.get("section") if hasattr(request, "data") else None
+    if section is None:
+        section = request.query_params.get("section")
+    day_of_week = request.data.get("day_of_week") if hasattr(request, "data") else None
+    if day_of_week is None:
+        day_of_week = request.query_params.get("day_of_week")
+
+    filtered = False
+    if semester is not None and str(semester).strip() != "":
+        try:
+            qs = qs.filter(semester=int(semester))
+            filtered = True
+        except ValueError:
+            pass
+    if section and str(section).strip() != "":
+        qs = qs.filter(section__iexact=str(section).strip())
+        filtered = True
+    if day_of_week and str(day_of_week).strip() != "" and day_of_week != "All":
+        qs = qs.filter(day_of_week__iexact=str(day_of_week).strip())
+        filtered = True
+
+    if not filtered:
+        return Response({
+            "error": "Please Specify Filters (Semester, Section, Day_Of_Week) Or Purge_All=True."
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    count, _ = qs.delete()
+    invalidate_redis_pattern("planner")
+    return Response({
+        "detail": f"Successfully Deleted {count} Timetable Slots.",
+        "deleted_count": count,
+    }, status=status.HTTP_200_OK)
+
+class AdminTimetableBulkDeleteView(APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    def post(self, request):
+        return perform_bulk_delete_timetable(request)
+
+    def delete(self, request):
+        return perform_bulk_delete_timetable(request)
+

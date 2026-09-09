@@ -262,6 +262,10 @@ export function AdminPortal() {
 
   const [showTimetableModal, setShowTimetableModal] = useState<boolean>(false);
   const [editingTimetableId, setEditingTimetableId] = useState<string | null>(null);
+  const [showDeleteAllTimetableModal, setShowDeleteAllTimetableModal] = useState<boolean>(false);
+  const [isDeletingAllTimetable, setIsDeletingAllTimetable] = useState<boolean>(false);
+  const [deleteAllScope, setDeleteAllScope] = useState<"filtered" | "all">("filtered");
+  const [deleteConfirmationText, setDeleteConfirmationText] = useState<string>("");
 
   const [showMilestoneModal, setShowMilestoneModal] = useState<boolean>(false);
   const [editingMilestoneId, setEditingMilestoneId] = useState<string | null>(null);
@@ -1299,6 +1303,44 @@ export function AdminPortal() {
       loadAdminData();
     } catch (err: any) {
       toast.error(err.message || "Failed to save timetable slot.");
+    }
+  };
+
+  const handleDeleteAllTimetable = async () => {
+    try {
+      setIsDeletingAllTimetable(true);
+      if (deleteAllScope === "all") {
+        if (deleteConfirmationText.trim().toUpperCase() !== "DELETE") {
+          toast.error("Please Type 'DELETE' To Confirm Purging The Entire Timetable.");
+          setIsDeletingAllTimetable(false);
+          return;
+        }
+        await apiFetch("/planner/admin/timetable/bulk-delete/", {
+          method: "POST",
+          body: JSON.stringify({ purge_all: true }),
+        });
+        toast.success("Entire Timetable Database Purged Successfully.");
+      } else {
+        const targetSec = sections.find((s) => s.id === selectedSectionId);
+        const targetSecCode = targetSec?.section || targetSec?.section_name || "";
+        const payload: { semester?: number; section?: string; day_of_week?: string } = {};
+        if (selectedSemester) payload.semester = selectedSemester;
+        if (targetSecCode) payload.section = targetSecCode;
+        if (selectedTimetableDay && selectedTimetableDay !== "All") payload.day_of_week = selectedTimetableDay;
+
+        await apiFetch("/planner/admin/timetable/bulk-delete/", {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
+        toast.success("Filtered Timetable Slots Deleted Successfully.");
+      }
+      setShowDeleteAllTimetableModal(false);
+      setDeleteConfirmationText("");
+      await loadAdminData();
+    } catch (err: any) {
+      toast.error(err.message || "Failed To Delete Timetable Slots.");
+    } finally {
+      setIsDeletingAllTimetable(false);
     }
   };
 
@@ -4532,22 +4574,41 @@ export function AdminPortal() {
                   ))}
                 </div>
 
-                <button
-                  onClick={() => {
-                    const secObj = sections.find((s) => s.id === selectedSectionId);
-                    setNewTimetableSlot({
-                      ...newTimetableSlot,
-                      semester: selectedSemester || 1,
-                      section: secObj?.section || "A",
-                      subject: selectedSubjectId || (subjects[0]?.id || ""),
-                    });
-                    setShowTimetableModal(true);
-                  }}
-                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-xs font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer shrink-0"
-                >
-                  <Plus className="h-4 w-4" />
-                  <span>Add Timetable Slot</span>
-                </button>
+                <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
+                  <button
+                    onClick={() => {
+                      if (timetableSlots.length === 0) {
+                        toast.error("No Timetable Slots Exist To Delete.");
+                        return;
+                      }
+                      setDeleteAllScope("filtered");
+                      setDeleteConfirmationText("");
+                      setShowDeleteAllTimetableModal(true);
+                    }}
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-2.5 text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 hover:border-rose-500/50 cursor-pointer shrink-0 transition-colors shadow-xs"
+                    title="Delete Timetable Slots"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    <span>Delete All Timetable</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      const secObj = sections.find((s) => s.id === selectedSectionId);
+                      setNewTimetableSlot({
+                        ...newTimetableSlot,
+                        semester: selectedSemester || 1,
+                        section: secObj?.section || "A",
+                        subject: selectedSubjectId || (subjects[0]?.id || ""),
+                      });
+                      setShowTimetableModal(true);
+                    }}
+                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-xs font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer shrink-0"
+                  >
+                    <Plus className="h-4 w-4" />
+                    <span>Add Timetable Slot</span>
+                  </button>
+                </div>
               </div>
 
               {/* Slots Timeline List */}
@@ -7864,6 +7925,160 @@ export function AdminPortal() {
                 {editingTimetableId ? "Save Slot Changes" : "Add Timetable Slot"}
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Delete All Timetable Slots Confirmation */}
+      {showDeleteAllTimetableModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-lg rounded-3xl border border-border bg-card p-6 shadow-2xl space-y-5">
+            <div className="flex items-center justify-between border-b border-border pb-3.5">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/30">
+                  <Trash2 className="h-5 w-5" />
+                </div>
+                <div>
+                  <h3 className="font-display font-bold text-lg text-foreground">
+                    Delete Timetable Slots
+                  </h3>
+                  <p className="text-xs text-muted-foreground">
+                    Bulk Delete Timetable Slots With Scoped Precision Or Full Database Purge.
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setShowDeleteAllTimetableModal(false);
+                  setDeleteConfirmationText("");
+                }}
+                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Scope Selection */}
+            <div className="space-y-3">
+              <label className="block text-xs font-bold text-foreground">
+                Select Deletion Scope
+              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setDeleteAllScope("filtered")}
+                  className={cn(
+                    "flex flex-col text-left p-3.5 rounded-2xl border transition-all cursor-pointer",
+                    deleteAllScope === "filtered"
+                      ? "border-primary bg-primary/10 shadow-xs"
+                      : "border-border bg-surface/50 hover:bg-surface"
+                  )}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-bold text-xs text-foreground">Current Filter Only</span>
+                    <span className="rounded-full bg-primary/20 px-2 py-0.5 text-[0.68rem] font-bold text-primary">
+                      {filteredTimetableSlots.length} Slots
+                    </span>
+                  </div>
+                  <span className="text-[0.7rem] text-muted-foreground leading-tight">
+                    Semester {selectedSemester || "All"} · Section {sections.find((s) => s.id === selectedSectionId)?.section || "All"} · Day {selectedTimetableDay || "All"}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setDeleteAllScope("all")}
+                  className={cn(
+                    "flex flex-col text-left p-3.5 rounded-2xl border transition-all cursor-pointer",
+                    deleteAllScope === "all"
+                      ? "border-rose-500 bg-rose-500/10 shadow-xs"
+                      : "border-border bg-surface/50 hover:bg-surface"
+                  )}
+                >
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="font-bold text-xs text-rose-600 dark:text-rose-400">Purge Entire Database</span>
+                    <span className="rounded-full bg-rose-500/20 px-2 py-0.5 text-[0.68rem] font-bold text-rose-600 dark:text-rose-400">
+                      {timetableSlots.length} Total Slots
+                    </span>
+                  </div>
+                  <span className="text-[0.7rem] text-muted-foreground leading-tight">
+                    Permanently Wipes Every Slot Across All Departments, Programs, And Semesters.
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* Warning Message */}
+            <div className="rounded-2xl border border-rose-500/30 bg-rose-500/10 p-3.5 text-xs text-rose-700 dark:text-rose-300 flex items-start gap-2.5">
+              <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5 text-rose-600 dark:text-rose-400" />
+              <div className="space-y-1">
+                <p className="font-bold">
+                  {deleteAllScope === "all"
+                    ? "Warning: This will permanently wipe ALL timetable slots university-wide!"
+                    : `Warning: This will permanently delete ${filteredTimetableSlots.length} timetable slot(s) matching the active filter.`}
+                </p>
+                <p className="text-[0.72rem] opacity-90">
+                  This Action Immediately Purges Records From The Database And Flushes Redis Cache So All Student Dashboards Update Instantly.
+                </p>
+              </div>
+            </div>
+
+            {/* */}
+            {deleteAllScope === "all" && (
+              <div className="space-y-1.5">
+                <label className="block text-xs font-bold text-foreground">
+                  Type <span className="font-mono text-rose-600 dark:text-rose-400 font-black">DELETE</span> To Confirm Full Purge:
+                </label>
+                <input
+                  type="text"
+                  value={deleteConfirmationText}
+                  onChange={(e) => setDeleteConfirmationText(e.target.value)}
+                  placeholder="Type DELETE..."
+                  className="h-10 w-full rounded-2xl border border-rose-500/40 bg-background px-3 font-mono text-xs focus:border-rose-500 focus:outline-none"
+                />
+              </div>
+            )}
+
+            {/* Modal Actions */}
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowDeleteAllTimetableModal(false);
+                  setDeleteConfirmationText("");
+                }}
+                disabled={isDeletingAllTimetable}
+                className="h-10 px-4 rounded-2xl border border-border bg-surface text-xs font-bold text-foreground hover:bg-surface/80 cursor-pointer disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteAllTimetable}
+                disabled={
+                  isDeletingAllTimetable ||
+                  (deleteAllScope === "all" && deleteConfirmationText.trim().toUpperCase() !== "DELETE") ||
+                  (deleteAllScope === "filtered" && filteredTimetableSlots.length === 0)
+                }
+                className="h-10 px-5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              >
+                {isDeletingAllTimetable ? (
+                  <>
+                    <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                    <span>Deleting...</span>
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-3.5 w-3.5" />
+                    <span>
+                      {deleteAllScope === "all"
+                        ? `Purge Entire Timetable (${timetableSlots.length})`
+                        : `Delete Filtered Slots (${filteredTimetableSlots.length})`}
+                    </span>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       )}
