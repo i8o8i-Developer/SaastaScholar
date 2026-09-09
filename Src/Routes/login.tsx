@@ -109,36 +109,19 @@ export function Login() {
     (p) => !selectedDeptId || p.department === selectedDeptId,
   );
 
-  // Filtered Sections for selected Program and Semester
+  // Filtered Sections for selected Program and Semester (Only Created Batches in DB)
   const availableSections = sections.filter(
     (s) => (!selectedProgramId || s.program === selectedProgramId) && Number(s.semester) === Number(semester),
   );
 
-  const dbSectionMap = new Map<string, SectionBatch>();
-  availableSections.forEach((sec) => {
-    const code = (sec.section || sec.section_name || "").trim().toUpperCase();
-    if (code) dbSectionMap.set(code, sec);
-  });
-
-  const standardAlphabetSections = [
-    "A", "B", "C", "D", "E", "F", "G", "H", "I", "J",
-    "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T"
-  ];
-
-  const allUniqueSectionCodes = Array.from(
-    new Set([
-      ...Array.from(dbSectionMap.keys()),
-      ...standardAlphabetSections,
-      ...(section && section !== "CUSTOM" ? [section.trim().toUpperCase()] : []),
-    ])
-  ).sort((a, b) => {
-    if (a.length === 1 && b.length === 1) return a.localeCompare(b);
-    if (a.length === 1) return -1;
-    if (b.length === 1) return 1;
-    return a.localeCompare(b);
-  });
-
-  const isCustomMode = section === "CUSTOM" || (!allUniqueSectionCodes.includes(section) && section !== "");
+  const createdSections = Array.from(
+    new Map(
+      availableSections.map((sec) => [
+        (sec.section || sec.section_name || "").trim().toUpperCase(),
+        sec,
+      ]),
+    ).values(),
+  );
 
   const selectedProgramObj = programs.find((p) => p.id === selectedProgramId);
   const selectedDeptObj = departments.find((d) => d.id === selectedDeptId);
@@ -391,8 +374,13 @@ export function Login() {
                                 const matchingSecs = sections.filter(
                                   (s) => s.program === newProgId && Number(s.semester) === Number(semester)
                                 );
-                                if (!section && matchingSecs.length > 0 && matchingSecs[0]) {
-                                  setSection((matchingSecs[0]?.section || matchingSecs[0]?.section_name || "A").toUpperCase());
+                                if (matchingSecs.length > 0 && matchingSecs[0]) {
+                                  const exists = matchingSecs.some(
+                                    (s) => (s.section || s.section_name || "").trim().toUpperCase() === section.trim().toUpperCase()
+                                  );
+                                  if (!exists) {
+                                    setSection((matchingSecs[0]?.section || matchingSecs[0]?.section_name || "A").trim().toUpperCase());
+                                  }
                                 }
                               } else {
                                 setSelectedProgramId("");
@@ -423,8 +411,13 @@ export function Login() {
                               const matchingSecs = sections.filter(
                                 (s) => s.program === newProgId && Number(s.semester) === Number(semester)
                               );
-                              if (!section && matchingSecs.length > 0 && matchingSecs[0]) {
-                                setSection((matchingSecs[0]?.section || matchingSecs[0]?.section_name || "A").toUpperCase());
+                              if (matchingSecs.length > 0 && matchingSecs[0]) {
+                                const exists = matchingSecs.some(
+                                  (s) => (s.section || s.section_name || "").trim().toUpperCase() === section.trim().toUpperCase()
+                                );
+                                if (!exists) {
+                                  setSection((matchingSecs[0]?.section || matchingSecs[0]?.section_name || "A").trim().toUpperCase());
+                                }
                               }
                             }}
                             className="h-11 w-full rounded-2xl border border-border bg-background px-3 text-xs sm:text-sm font-semibold focus:border-primary focus:outline-none transition-colors"
@@ -453,8 +446,13 @@ export function Login() {
                                 const matchingSecs = sections.filter(
                                   (s) => (!selectedProgramId || s.program === selectedProgramId) && Number(s.semester) === newSem
                                 );
-                                if (!section && matchingSecs.length > 0 && matchingSecs[0]) {
-                                  setSection((matchingSecs[0]?.section || matchingSecs[0]?.section_name || "A").toUpperCase());
+                                if (matchingSecs.length > 0 && matchingSecs[0]) {
+                                  const exists = matchingSecs.some(
+                                    (s) => (s.section || s.section_name || "").trim().toUpperCase() === section.trim().toUpperCase()
+                                  );
+                                  if (!exists) {
+                                    setSection((matchingSecs[0]?.section || matchingSecs[0]?.section_name || "A").trim().toUpperCase());
+                                  }
                                 }
                               }}
                               className="h-11 w-full rounded-2xl border border-border bg-background px-3 text-xs sm:text-sm font-semibold focus:border-primary focus:outline-none"
@@ -473,54 +471,34 @@ export function Login() {
                                 Listed Cohort Section
                               </label>
                               <span className="text-[0.65rem] font-mono font-bold text-primary">
-                                {dbSectionMap.size > 0
-                                  ? `${dbSectionMap.size} Listed In DB`
-                                  : "Standard Cohorts"}
+                                {createdSections.length > 0
+                                  ? `${createdSections.length} Created Section${createdSections.length > 1 ? "s" : ""}`
+                                  : "No Sections Created"}
                               </span>
                             </div>
 
                             <select
-                              value={isCustomMode ? "CUSTOM" : section}
-                              onChange={(e) => {
-                                if (e.target.value === "CUSTOM") {
-                                  setSection("CUSTOM");
-                                } else {
-                                  setSection(e.target.value);
-                                }
-                              }}
+                              value={section}
+                              onChange={(e) => setSection(e.target.value)}
                               className="h-11 w-full rounded-2xl border border-border bg-background px-3 text-xs sm:text-sm font-semibold focus:border-primary focus:outline-none"
                             >
-                              {allUniqueSectionCodes.map((code) => {
-                                const dbSec = dbSectionMap.get(code);
-                                return (
-                                  <option key={code} value={code}>
-                                    Section {code}
-                                    {dbSec?.batch_code ? ` (${dbSec.batch_code})` : ""}
-                                    {dbSec?.max_capacity ? ` · Cap: ${dbSec.max_capacity}` : ""}
-                                  </option>
-                                );
-                              })}
-                              <option value="CUSTOM">Custom / Unlisted Section...</option>
+                              {createdSections.length > 0 ? (
+                                createdSections.map((sec) => {
+                                  const secVal = (sec.section || sec.section_name || "A").trim().toUpperCase();
+                                  return (
+                                    <option key={sec.id || secVal} value={secVal}>
+                                      Section {secVal}
+                                      {sec.batch_code ? ` (${sec.batch_code})` : ""}
+                                      {sec.max_capacity ? ` · Cap: ${sec.max_capacity}` : ""}
+                                    </option>
+                                  );
+                                })
+                              ) : (
+                                <option value="A">Section A (Default - No Created Batches)</option>
+                              )}
                             </select>
                           </div>
                         </div>
-
-                        {/* Custom Section Input if Unlisted Section Chosen */}
-                        {isCustomMode && (
-                          <div>
-                            <label className="block text-xs font-bold text-foreground mb-1">
-                              Enter Custom Section Name
-                            </label>
-                            <input
-                              type="text"
-                              value={section === "CUSTOM" ? "" : section}
-                              onChange={(e) => setSection(e.target.value.toUpperCase())}
-                              placeholder="e.g. Honors, Batch-B"
-                              maxLength={10}
-                              className="h-11 w-full rounded-2xl border border-primary/50 bg-background px-3 text-xs uppercase font-mono font-bold focus:border-primary focus:outline-none"
-                            />
-                          </div>
-                        )}
                       </div>
 
                       <div className="grid grid-cols-3 gap-3">
