@@ -71,6 +71,10 @@ import {
   ListOrdered,
   Quote,
   Radio,
+  Camera,
+  Key,
+  EyeOff,
+  Bot,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/Hooks/UseAuth";
@@ -266,6 +270,19 @@ export function AdminPortal() {
   const [isDeletingAllTimetable, setIsDeletingAllTimetable] = useState<boolean>(false);
   const [deleteAllScope, setDeleteAllScope] = useState<"filtered" | "all">("filtered");
   const [deleteConfirmationText, setDeleteConfirmationText] = useState<string>("");
+
+  // Gemini AI Photo Timetable Scanner States
+  const [showAiTimetableModal, setShowAiTimetableModal] = useState<boolean>(false);
+  const [aiTimetableImage, setAiTimetableImage] = useState<string | null>(null);
+  const [aiTimetableMime, setAiTimetableMime] = useState<string>("image/jpeg");
+  const [aiTimetableFileName, setAiTimetableFileName] = useState<string>("");
+  const [aiExtracting, setAiExtracting] = useState<boolean>(false);
+  const [aiExtractedSlots, setAiExtractedSlots] = useState<Array<any>>([]);
+  const [aiTargetSemester, setAiTargetSemester] = useState<number>(1);
+  const [aiTargetSection, setAiTargetSection] = useState<string>("");
+  const [aiGeminiKey, setAiGeminiKey] = useState<string>(() => localStorage.getItem("nimswallah_gemini_key") || "");
+  const [showAiKeyInput, setShowAiKeyInput] = useState<boolean>(false);
+  const [isSavingAiSlots, setIsSavingAiSlots] = useState<boolean>(false);
 
   const [showMilestoneModal, setShowMilestoneModal] = useState<boolean>(false);
   const [editingMilestoneId, setEditingMilestoneId] = useState<string | null>(null);
@@ -1341,6 +1358,87 @@ export function AdminPortal() {
       toast.error(err.message || "Failed To Delete Timetable Slots.");
     } finally {
       setIsDeletingAllTimetable(false);
+    }
+  };
+
+  const handleAiPhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please Upload A Valid Timetable Image (PNG, JPG, WEBP).");
+      return;
+    }
+    setAiTimetableFileName(file.name);
+    setAiTimetableMime(file.type);
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = reader.result as string;
+      setAiTimetableImage(result);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleConsumeTimetablePhotoWithAi = async () => {
+    if (!aiTimetableImage) {
+      toast.error("Please Upload Or Capture A Timetable Schedule Photo.");
+      return;
+    }
+    try {
+      setAiExtracting(true);
+      if (aiGeminiKey.trim()) {
+        localStorage.setItem("nimswallah_gemini_key", aiGeminiKey.trim());
+      }
+      const targetSec = aiTargetSection || sections.find((s) => s.id === selectedSectionId)?.section || sections[0]?.section || "A";
+      const res = await apiFetch<{
+        success: boolean;
+        slots: Array<any>;
+        count: number;
+        summary?: string;
+        model_used?: string;
+      }>("/planner/admin/timetable/ai-photo-consume/", {
+        method: "POST",
+        body: JSON.stringify({
+          image: aiTimetableImage,
+          mime_type: aiTimetableMime,
+          semester: aiTargetSemester || selectedSemester || 1,
+          section: targetSec,
+          gemini_api_key: aiGeminiKey.trim(),
+        }),
+      });
+
+      if (res.slots && res.slots.length > 0) {
+        setAiExtractedSlots(res.slots);
+        toast.success(res.summary || `Extracted ${res.slots.length} Timetable Slots With Gemini AI!`);
+      } else {
+        toast.error("No Schedule Slots Could Be Extracted From The Provided Image. Try A Clearer Photo.");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed To Consume Timetable Photo With Gemini AI.");
+    } finally {
+      setAiExtracting(false);
+    }
+  };
+
+  const handleSaveAiExtractedSlots = async () => {
+    if (aiExtractedSlots.length === 0) {
+      toast.error("No Timetable Slots To Save.");
+      return;
+    }
+    try {
+      setIsSavingAiSlots(true);
+      const res = await apiFetch<{ success: boolean; created_count: number }>("/planner/admin/timetable/bulk-create/", {
+        method: "POST",
+        body: JSON.stringify({ slots: aiExtractedSlots }),
+      });
+      toast.success(`Successfully Imported ${res.created_count || aiExtractedSlots.length} Timetable Slots!`);
+      setShowAiTimetableModal(false);
+      setAiTimetableImage(null);
+      setAiExtractedSlots([]);
+      await loadAdminData();
+    } catch (err: any) {
+      toast.error(err.message || "Failed To Save Extracted Timetable Slots.");
+    } finally {
+      setIsSavingAiSlots(false);
     }
   };
 
@@ -4574,7 +4672,21 @@ export function AdminPortal() {
                   ))}
                 </div>
 
-                <div className="flex items-center gap-2.5 flex-wrap sm:flex-nowrap">
+                <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap sm:flex-nowrap">
+                  <button
+                    onClick={() => {
+                      setAiTargetSemester(selectedSemester || 1);
+                      const sec = sections.find((s) => s.id === selectedSectionId)?.section || sections[0]?.section || "A";
+                      setAiTargetSection(sec);
+                      setShowAiTimetableModal(true);
+                    }}
+                    className="inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-2xl border border-purple-500/30 bg-purple-500/10 px-3 sm:px-4 py-2 sm:py-2.5 text-xs font-bold text-purple-600 dark:text-purple-400 hover:bg-purple-500/20 hover:border-purple-500/50 cursor-pointer shrink-0 transition-colors shadow-xs"
+                    title="Scan Timetable Photo with Gemini AI"
+                  >
+                    <Sparkles className="h-4 w-4 text-purple-500 shrink-0" />
+                    <span>Scan Timetable Photo (Gemini AI)</span>
+                  </button>
+
                   <button
                     onClick={() => {
                       if (timetableSlots.length === 0) {
@@ -4585,10 +4697,10 @@ export function AdminPortal() {
                       setDeleteConfirmationText("");
                       setShowDeleteAllTimetableModal(true);
                     }}
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-2.5 text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 hover:border-rose-500/50 cursor-pointer shrink-0 transition-colors shadow-xs"
+                    className="inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-3 sm:px-4 py-2 sm:py-2.5 text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 hover:border-rose-500/50 cursor-pointer shrink-0 transition-colors shadow-xs"
                     title="Delete Timetable Slots"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-4 w-4 shrink-0" />
                     <span>Delete All Timetable</span>
                   </button>
 
@@ -4598,14 +4710,14 @@ export function AdminPortal() {
                       setNewTimetableSlot({
                         ...newTimetableSlot,
                         semester: selectedSemester || 1,
-                        section: secObj?.section || "A",
+                        section: secObj?.section || sections[0]?.section || "A",
                         subject: selectedSubjectId || (subjects[0]?.id || ""),
                       });
                       setShowTimetableModal(true);
                     }}
-                    className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-xs font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer shrink-0"
+                    className="inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-2xl bg-primary px-3 sm:px-4 py-2 sm:py-2.5 text-xs font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer shrink-0"
                   >
-                    <Plus className="h-4 w-4" />
+                    <Plus className="h-4 w-4 shrink-0" />
                     <span>Add Timetable Slot</span>
                   </button>
                 </div>
@@ -6517,18 +6629,18 @@ export function AdminPortal() {
 
       {/* Modal: Create / Edit Department */}
       {showDeptModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="w-full max-w-lg rounded-3xl border border-border bg-card p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-1.5 xs:p-2.5 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-lg rounded-2xl sm:rounded-3xl border border-border bg-card p-3.5 xs:p-4 sm:p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto min-w-0">
             <div className="flex items-center justify-between border-b border-border pb-3">
-              <h3 className="font-display font-bold text-lg text-foreground">
-                {editingDeptId ? "Edit Academic Department" : "Create Academic Department"}
+              <h3 className="font-display font-bold text-base sm:text-lg text-foreground truncate">
+                {editingDeptId ? "Edit Department" : "Add Academic Department"}
               </h3>
               <button
                 onClick={() => {
                   setShowDeptModal(false);
                   setEditingDeptId(null);
                 }}
-                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer"
+                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer shrink-0"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -6542,10 +6654,10 @@ export function AdminPortal() {
                   onChange={(e) => setNewDept({ ...newDept, name: e.target.value })}
                   placeholder="Department of Computer Science & Engineering"
                   required
-                  className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
+                  className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                 <div>
                   <label className="block font-bold mb-1">Code (Abbreviation)</label>
                   <input
@@ -6554,7 +6666,7 @@ export function AdminPortal() {
                     onChange={(e) => setNewDept({ ...newDept, code: e.target.value.toUpperCase() })}
                     placeholder="CSE"
                     required
-                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-mono focus:border-primary focus:outline-none"
+                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-mono text-xs focus:border-primary focus:outline-none"
                   />
                 </div>
                 <div>
@@ -6564,7 +6676,7 @@ export function AdminPortal() {
                     value={newDept.head_of_department}
                     onChange={(e) => setNewDept({ ...newDept, head_of_department: e.target.value })}
                     placeholder="Dr. Rajeshwar Sen"
-                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
+                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
                   />
                 </div>
               </div>
@@ -6575,10 +6687,10 @@ export function AdminPortal() {
                   onChange={(e) => setNewDept({ ...newDept, description: e.target.value })}
                   placeholder="Enter Department Scope and Curriculum Overview..."
                   rows={3}
-                  className="w-full rounded-2xl border border-border bg-background p-3 focus:border-primary focus:outline-none"
+                  className="w-full rounded-2xl border border-border bg-background p-3 text-xs focus:border-primary focus:outline-none"
                 />
               </div>
-              <button type="submit" className="h-11 w-full rounded-2xl bg-primary font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer">
+              <button type="submit" className="h-11 w-full rounded-2xl bg-primary font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer text-xs">
                 {editingDeptId ? "Save Department Changes" : "Create Department"}
               </button>
             </form>
@@ -6588,10 +6700,10 @@ export function AdminPortal() {
 
       {/* Modal: Create / Edit Program / Specialization */}
       {showProgramModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="w-full max-w-lg rounded-3xl border border-border bg-card p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-1.5 xs:p-2.5 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-lg rounded-2xl sm:rounded-3xl border border-border bg-card p-3.5 xs:p-4 sm:p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto min-w-0">
             <div className="flex items-center justify-between border-b border-border pb-3">
-              <h3 className="font-display font-bold text-lg text-foreground">
+              <h3 className="font-display font-bold text-base sm:text-lg text-foreground truncate">
                 {editingProgramId ? "Edit Degree Program / Specialization" : "Add Degree Program / Specialization"}
               </h3>
               <button
@@ -6599,7 +6711,7 @@ export function AdminPortal() {
                   setShowProgramModal(false);
                   setEditingProgramId(null);
                 }}
-                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer"
+                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer shrink-0"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -6611,7 +6723,7 @@ export function AdminPortal() {
                   value={newProgram.department}
                   onChange={(e) => setNewProgram({ ...newProgram, department: e.target.value })}
                   required
-                  className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
+                  className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
                 >
                   <option value="">Select Department...</option>
                   {departments.map((d) => (
@@ -6627,7 +6739,7 @@ export function AdminPortal() {
                   onChange={(e) => setNewProgram({ ...newProgram, name: e.target.value })}
                   placeholder="e.g. B.Sc Forensic Science / B.Tech Computer Science"
                   required
-                  className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
+                  className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
                 />
               </div>
               <div>
@@ -6635,7 +6747,7 @@ export function AdminPortal() {
                 <select
                   value={newProgram.degree_level}
                   onChange={(e) => setNewProgram({ ...newProgram, degree_level: e.target.value })}
-                  className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-semibold focus:border-primary focus:outline-none"
+                  className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs font-semibold focus:border-primary focus:outline-none"
                 >
                   <option value="Undergraduate">Undergraduate</option>
                   <option value="Postgraduate">Postgraduate</option>
@@ -6647,7 +6759,7 @@ export function AdminPortal() {
                   )}
                 </select>
               </div>
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
                 <div>
                   <label className="block font-bold mb-1">Code</label>
                   <input
@@ -6656,7 +6768,7 @@ export function AdminPortal() {
                     onChange={(e) => setNewProgram({ ...newProgram, code: e.target.value.toUpperCase() })}
                     placeholder="e.g. BSC-FS / BTECH-CSE"
                     required
-                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-mono focus:border-primary focus:outline-none"
+                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-mono text-xs focus:border-primary focus:outline-none"
                   />
                 </div>
                 <div>
@@ -6665,7 +6777,7 @@ export function AdminPortal() {
                     type="number"
                     value={newProgram.duration_years}
                     onChange={(e) => setNewProgram({ ...newProgram, duration_years: Number(e.target.value) })}
-                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
+                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
                   />
                 </div>
                 <div>
@@ -6674,11 +6786,11 @@ export function AdminPortal() {
                     type="number"
                     value={newProgram.total_semesters}
                     onChange={(e) => setNewProgram({ ...newProgram, total_semesters: Number(e.target.value) })}
-                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
+                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
                   />
                 </div>
               </div>
-              <button type="submit" className="h-11 w-full rounded-2xl bg-primary font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer">
+              <button type="submit" className="h-11 w-full rounded-2xl bg-primary font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer text-xs">
                 {editingProgramId ? "Save Specialization Changes" : "Create Specialization Program"}
               </button>
             </form>
@@ -6688,10 +6800,10 @@ export function AdminPortal() {
 
       {/* Modal: Create / Edit Section */}
       {showSectionModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="w-full max-w-lg rounded-3xl border border-border bg-card p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-1.5 xs:p-2.5 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-lg rounded-2xl sm:rounded-3xl border border-border bg-card p-3.5 xs:p-4 sm:p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto min-w-0">
             <div className="flex items-center justify-between border-b border-border pb-3">
-              <h3 className="font-display font-bold text-lg text-foreground">
+              <h3 className="font-display font-bold text-base sm:text-lg text-foreground truncate">
                 {editingSectionId ? "Edit Semester Section Batch" : "Configure Semester Section Batch"}
               </h3>
               <button
@@ -6699,7 +6811,7 @@ export function AdminPortal() {
                   setShowSectionModal(false);
                   setEditingSectionId(null);
                 }}
-                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer"
+                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer shrink-0"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -6711,7 +6823,7 @@ export function AdminPortal() {
                   value={newSection.program}
                   onChange={(e) => setNewSection({ ...newSection, program: e.target.value })}
                   required
-                  className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
+                  className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
                 >
                   <option value="">Select Specialization...</option>
                   {programs.map((p) => (
@@ -6719,13 +6831,13 @@ export function AdminPortal() {
                   ))}
                 </select>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                 <div>
                   <label className="block font-bold mb-1">Semester (1–8)</label>
                   <select
                     value={newSection.semester}
                     onChange={(e) => setNewSection({ ...newSection, semester: Number(e.target.value) })}
-                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
+                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
                   >
                     {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
                       <option key={s} value={s}>Semester {s}</option>
@@ -6740,11 +6852,11 @@ export function AdminPortal() {
                     onChange={(e) => setNewSection({ ...newSection, section: e.target.value.toUpperCase() })}
                     placeholder="A"
                     required
-                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-mono font-bold focus:border-primary focus:outline-none"
+                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-mono font-bold text-xs focus:border-primary focus:outline-none"
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                 <div>
                   <label className="block font-bold mb-1">Academic Year</label>
                   <input
@@ -6752,7 +6864,7 @@ export function AdminPortal() {
                     value={newSection.academic_year}
                     onChange={(e) => setNewSection({ ...newSection, academic_year: e.target.value })}
                     placeholder="2026-2027"
-                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-mono font-bold focus:border-primary focus:outline-none"
+                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-mono font-bold text-xs focus:border-primary focus:outline-none"
                   />
                 </div>
                 <div>
@@ -6761,11 +6873,11 @@ export function AdminPortal() {
                     type="number"
                     value={newSection.max_capacity}
                     onChange={(e) => setNewSection({ ...newSection, max_capacity: Number(e.target.value) })}
-                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
+                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
                   />
                 </div>
               </div>
-              <button type="submit" className="h-11 w-full rounded-2xl bg-primary font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer">
+              <button type="submit" className="h-11 w-full rounded-2xl bg-primary font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer text-xs">
                 {editingSectionId ? "Save Section Changes" : "Create Section Cohort"}
               </button>
             </form>
@@ -6774,16 +6886,15 @@ export function AdminPortal() {
       )}
 
       {/* Modal: Register / Edit Subject */}
-      {/* Modal: Register / Edit Subject */}
       {showSubjectModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="w-full max-w-lg rounded-3xl border border-border bg-card p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-1.5 xs:p-2.5 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-lg rounded-2xl sm:rounded-3xl border border-border bg-card p-3.5 xs:p-4 sm:p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto min-w-0">
             <div className="flex items-center justify-between border-b border-border pb-3">
-              <div>
-                <h3 className="font-display font-bold text-lg text-foreground">
+              <div className="min-w-0 pr-2">
+                <h3 className="font-display font-bold text-base sm:text-lg text-foreground truncate">
                   {editingSubjectId ? "Edit Course Subject" : "Register Course Subject"}
                 </h3>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-[0.68rem] text-muted-foreground truncate">
                   Associate This Subject With One Or Multiple Degree Specializations.
                 </p>
               </div>
@@ -6792,7 +6903,7 @@ export function AdminPortal() {
                   setShowSubjectModal(false);
                   setEditingSubjectId(null);
                 }}
-                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer"
+                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer shrink-0"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -6998,16 +7109,16 @@ export function AdminPortal() {
 
       {/* Modal: Publish / Edit Academic Study Material (Dual-Mode Studio: Multi-Page Composition & Direct Document Upload) */}
       {showMaterialModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="w-full max-w-2xl sm:max-w-3xl rounded-3xl border border-border bg-card p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-1.5 xs:p-2.5 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-2xl sm:max-w-3xl rounded-2xl sm:rounded-3xl border border-border bg-card p-3.5 xs:p-4 sm:p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto min-w-0">
             <div className="flex items-center justify-between border-b border-border pb-3">
-              <div>
-                <h3 className="font-display font-bold text-lg text-foreground">
+              <div className="min-w-0 pr-2">
+                <h3 className="font-display font-bold text-base sm:text-lg text-foreground truncate">
                   {editingMaterialId
                     ? "Edit Academic Study Material"
                     : `Publish ${publisherType === "NOTES" ? "Unit Handwritten Notes" : publisherType === "SYLLABUS" ? "Official Syllabus Breakdown" : publisherType === "FACULTY" ? "Faculty Material" : "Solved University PYQ"}`}
                 </h3>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-[0.68rem] text-muted-foreground truncate">
                   Compose page-by-page DRM manuscripts or upload full PDF/PPT courseware documents.
                 </p>
               </div>
@@ -7016,7 +7127,7 @@ export function AdminPortal() {
                   setShowMaterialModal(false);
                   setEditingMaterialId(null);
                 }}
-                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer"
+                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer shrink-0"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -7500,21 +7611,21 @@ export function AdminPortal() {
 
       {/* Modal: Create / Edit Lab Experiment & Multiple Viva Drills */}
       {showLabModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="w-full max-w-2xl rounded-3xl border border-border bg-card p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-1.5 xs:p-2.5 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-2xl rounded-2xl sm:rounded-3xl border border-border bg-card p-3.5 xs:p-4 sm:p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto min-w-0">
             <div className="flex items-center justify-between border-b border-border pb-3">
-              <div>
-                <h3 className="font-display font-bold text-lg text-foreground">
+              <div className="min-w-0 pr-2">
+                <h3 className="font-display font-bold text-base sm:text-lg text-foreground truncate">
                   {editingLabId ? "Edit Practical Experiment & Viva Drills" : "Add Practical Experiment & Viva Drills"}
                 </h3>
-                <p className="text-xs text-muted-foreground">Register full laboratory algorithms and multiple interactive viva examination questions.</p>
+                <p className="text-[0.68rem] text-muted-foreground truncate">Register full laboratory algorithms and multiple interactive viva examination questions.</p>
               </div>
               <button
                 onClick={() => {
                   setShowLabModal(false);
                   setEditingLabId(null);
                 }}
-                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer"
+                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer shrink-0"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -7711,10 +7822,10 @@ export function AdminPortal() {
 
       {/* Modal: Create / Edit Assignment */}
       {showAssignmentModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="w-full max-w-lg rounded-3xl border border-border bg-card p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-1.5 xs:p-2.5 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-lg rounded-2xl sm:rounded-3xl border border-border bg-card p-3.5 xs:p-4 sm:p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto min-w-0">
             <div className="flex items-center justify-between border-b border-border pb-3">
-              <h3 className="font-display font-bold text-lg text-foreground">
+              <h3 className="font-display font-bold text-base sm:text-lg text-foreground truncate">
                 {editingAssignmentId ? "Edit Course Assignment" : "Create Course Assignment"}
               </h3>
               <button
@@ -7722,7 +7833,7 @@ export function AdminPortal() {
                   setShowAssignmentModal(false);
                   setEditingAssignmentId(null);
                 }}
-                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer"
+                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer shrink-0"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -7753,7 +7864,7 @@ export function AdminPortal() {
                   className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                 <div>
                   <label className="block font-bold mb-1">Submission Due Date</label>
                   <input
@@ -7794,10 +7905,10 @@ export function AdminPortal() {
 
       {/* Modal: Create / Edit Timetable Slot */}
       {showTimetableModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-          <div className="w-full max-w-lg rounded-3xl border border-border bg-card p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-1.5 xs:p-2.5 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-lg rounded-2xl sm:rounded-3xl border border-border bg-card p-3.5 xs:p-4 sm:p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto min-w-0">
             <div className="flex items-center justify-between border-b border-border pb-3">
-              <h3 className="font-display font-bold text-lg text-foreground">
+              <h3 className="font-display font-bold text-base sm:text-lg text-foreground truncate">
                 {editingTimetableId ? "Edit Timetable Lecture Slot" : "Add Timetable Lecture Slot"}
               </h3>
               <button
@@ -7805,11 +7916,34 @@ export function AdminPortal() {
                   setShowTimetableModal(false);
                   setEditingTimetableId(null);
                 }}
-                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer"
+                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer shrink-0"
               >
                 <X className="h-5 w-5" />
               </button>
             </div>
+
+            {/* AI Photo Scanner Quick Shortcut Banner */}
+            {!editingTimetableId && (
+              <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-2 rounded-2xl border border-purple-500/30 bg-purple-500/10 p-2.5 sm:p-3 text-xs text-purple-700 dark:text-purple-300">
+                <div className="flex items-center gap-2 min-w-0">
+                  <Sparkles className="h-4 w-4 shrink-0 text-purple-500" />
+                  <span className="text-[0.72rem] leading-tight">Have a photo of the schedule? Let Gemini AI extract all slots automatically.</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowTimetableModal(false);
+                    setAiTargetSemester(newTimetableSlot.semester || selectedSemester || 1);
+                    setAiTargetSection(newTimetableSlot.section || sections.find((s) => s.id === selectedSectionId)?.section || "A");
+                    setShowAiTimetableModal(true);
+                  }}
+                  className="rounded-xl bg-purple-600 hover:bg-purple-700 px-2.5 py-1 text-[0.68rem] font-bold text-white shadow-xs cursor-pointer shrink-0"
+                >
+                  AI Photo Scan ✨
+                </button>
+              </div>
+            )}
+
             <form onSubmit={handleSaveTimetableSlot} className="space-y-3.5 text-xs">
               <div>
                 <label className="block font-bold mb-1">Subject</label>
@@ -7824,7 +7958,7 @@ export function AdminPortal() {
                       title: subObj ? `${subObj.name} (${subObj.code})` : newTimetableSlot.title,
                     });
                   }}
-                  className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
+                  className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
                 >
                   <option value="">Select Target Subject (Optional)...</option>
                   {subjects.map((s) => (
@@ -7840,16 +7974,18 @@ export function AdminPortal() {
                   onChange={(e) => setNewTimetableSlot({ ...newTimetableSlot, title: e.target.value })}
                   placeholder="Artificial Intelligence Theory (LT-01)"
                   required
-                  className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
+                  className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
                 />
               </div>
-              <div className="grid grid-cols-3 gap-3">
+
+              {/* Day, Start Time, End Time - Fully Responsive for 280px+ */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3">
                 <div>
                   <label className="block font-bold mb-1">Day Of Week</label>
                   <select
                     value={newTimetableSlot.day_of_week}
                     onChange={(e) => setNewTimetableSlot({ ...newTimetableSlot, day_of_week: e.target.value })}
-                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
+                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
                   >
                     {WEEKDAYS.map((d) => (
                       <option key={d} value={d}>{d}</option>
@@ -7862,7 +7998,7 @@ export function AdminPortal() {
                     type="time"
                     value={newTimetableSlot.start_time}
                     onChange={(e) => setNewTimetableSlot({ ...newTimetableSlot, start_time: e.target.value })}
-                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
+                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
                   />
                 </div>
                 <div>
@@ -7871,17 +8007,19 @@ export function AdminPortal() {
                     type="time"
                     value={newTimetableSlot.end_time}
                     onChange={(e) => setNewTimetableSlot({ ...newTimetableSlot, end_time: e.target.value })}
-                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
+                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
                   />
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+
+              {/* Semester and Section Cohort From Database - Fully Responsive */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                 <div>
                   <label className="block font-bold mb-1">Semester (1–8)</label>
                   <select
                     value={newTimetableSlot.semester}
                     onChange={(e) => setNewTimetableSlot({ ...newTimetableSlot, semester: Number(e.target.value) })}
-                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
+                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
                   >
                     {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
                       <option key={s} value={s}>Semester {s}</option>
@@ -7889,17 +8027,39 @@ export function AdminPortal() {
                   </select>
                 </div>
                 <div>
-                  <label className="block font-bold mb-1">Section Cohort</label>
-                  <input
-                    type="text"
+                  <label className="block font-bold mb-1">Section Cohort (From DB)</label>
+                  <select
                     value={newTimetableSlot.section}
-                    onChange={(e) => setNewTimetableSlot({ ...newTimetableSlot, section: e.target.value.toUpperCase() })}
-                    placeholder="A"
-                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-mono font-bold focus:border-primary focus:outline-none"
-                  />
+                    onChange={(e) => setNewTimetableSlot({ ...newTimetableSlot, section: e.target.value })}
+                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs font-bold focus:border-primary focus:outline-none"
+                    required
+                  >
+                    <option value="">Select Created Section...</option>
+                    {/* Matching semester sections */}
+                    {sections
+                      .filter((s) => Number(s.semester) === Number(newTimetableSlot.semester))
+                      .map((sec) => (
+                        <option key={sec.id} value={sec.section || sec.section_name}>
+                          Section {sec.section || sec.section_name} (Sem {sec.semester}{programs.find(p => p.id === sec.program)?.name ? ` · ${programs.find(p => p.id === sec.program)?.name}` : ""})
+                        </option>
+                      ))}
+                    {/* Other semester sections */}
+                    {sections
+                      .filter((s) => Number(s.semester) !== Number(newTimetableSlot.semester))
+                      .map((sec) => (
+                        <option key={sec.id} value={sec.section || sec.section_name}>
+                          Section {sec.section || sec.section_name} (Sem {sec.semester})
+                        </option>
+                      ))}
+                    {sections.length === 0 && (
+                      <option value="A">Section A (No sections in DB yet)</option>
+                    )}
+                  </select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+
+              {/* Room and Faculty - Fully Responsive */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                 <div>
                   <label className="block font-bold mb-1">Room / Hall</label>
                   <input
@@ -7907,7 +8067,7 @@ export function AdminPortal() {
                     value={newTimetableSlot.room_number}
                     onChange={(e) => setNewTimetableSlot({ ...newTimetableSlot, room_number: e.target.value })}
                     placeholder="LT-01"
-                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
+                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
                   />
                 </div>
                 <div>
@@ -7917,11 +8077,11 @@ export function AdminPortal() {
                     value={newTimetableSlot.faculty_name}
                     onChange={(e) => setNewTimetableSlot({ ...newTimetableSlot, faculty_name: e.target.value })}
                     placeholder="Dr. Meera Raghav"
-                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
+                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
                   />
                 </div>
               </div>
-              <button type="submit" className="h-11 w-full rounded-2xl bg-primary font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer">
+              <button type="submit" className="h-11 w-full rounded-2xl bg-primary font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer text-xs">
                 {editingTimetableId ? "Save Slot Changes" : "Add Timetable Slot"}
               </button>
             </form>
@@ -7929,17 +8089,402 @@ export function AdminPortal() {
         </div>
       )}
 
+      {/* Modal: Gemini AI Timetable Photo Scanner */}
+      {showAiTimetableModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-1.5 xs:p-2.5 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-2xl rounded-2xl sm:rounded-3xl border border-border bg-card p-3.5 xs:p-4 sm:p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto min-w-0">
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/30 shrink-0">
+                  <Sparkles className="h-5 w-5 animate-pulse" />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="font-display font-bold text-base sm:text-lg text-foreground truncate">
+                    Gemini AI Timetable Scanner
+                  </h3>
+                  <p className="text-[0.68rem] text-muted-foreground truncate">
+                    Photo Consumption &amp; Automatic Timetable Schedule Transcription
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setShowAiTimetableModal(false);
+                  setAiTimetableImage(null);
+                  setAiExtractedSlots([]);
+                }}
+                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer shrink-0"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Target Cohort & DB Section Selection */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 p-3 rounded-2xl border border-border bg-surface/50">
+              <div>
+                <label className="block text-[0.68rem] font-bold text-muted-foreground mb-1">
+                  Default Target Semester
+                </label>
+                <select
+                  value={aiTargetSemester}
+                  onChange={(e) => setAiTargetSemester(Number(e.target.value))}
+                  className="h-9 w-full rounded-xl border border-border bg-background px-2.5 text-xs focus:border-primary focus:outline-none"
+                >
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
+                    <option key={s} value={s}>Semester {s}</option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label className="block text-[0.68rem] font-bold text-muted-foreground mb-1">
+                  Default Target Section (From DB)
+                </label>
+                <select
+                  value={aiTargetSection}
+                  onChange={(e) => setAiTargetSection(e.target.value)}
+                  className="h-9 w-full rounded-xl border border-border bg-background px-2.5 text-xs font-bold focus:border-primary focus:outline-none"
+                >
+                  <option value="">Select Section From Database...</option>
+                  {sections.map((sec) => (
+                    <option key={sec.id} value={sec.section || sec.section_name}>
+                      Section {sec.section || sec.section_name} (Sem {sec.semester}{programs.find(p => p.id === sec.program)?.name ? ` · ${programs.find(p => p.id === sec.program)?.name}` : ""})
+                    </option>
+                  ))}
+                  {sections.length === 0 && (
+                    <option value="A">Section A (No sections in DB yet)</option>
+                  )}
+                </select>
+              </div>
+            </div>
+
+            {/* Step 1: Photo Upload Dropzone / Camera Area */}
+            {aiExtractedSlots.length === 0 ? (
+              <div className="space-y-3.5">
+                <div className="space-y-1.5">
+                  <label className="block text-xs font-bold text-foreground">
+                    Upload Or Capture Timetable Schedule Photo
+                  </label>
+                  <p className="text-[0.68rem] text-muted-foreground">
+                    Accepts printed charts, whiteboard snapshots, notice board pictures, PDFs, or screenshots.
+                  </p>
+                </div>
+
+                {aiTimetableImage ? (
+                  <div className="relative rounded-2xl border border-border bg-surface/50 p-3 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Camera className="h-4 w-4 text-purple-500 shrink-0" />
+                        <span className="text-xs font-bold text-foreground truncate">{aiTimetableFileName || "Timetable Image"}</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAiTimetableImage(null);
+                          setAiTimetableFileName("");
+                        }}
+                        className="text-xs text-rose-500 hover:text-rose-600 font-bold cursor-pointer"
+                      >
+                        Change Photo
+                      </button>
+                    </div>
+                    <div className="overflow-hidden rounded-xl border border-border/80 max-h-56 flex items-center justify-center bg-black/5 dark:bg-white/5">
+                      <img
+                        src={aiTimetableImage}
+                        alt="Timetable Preview"
+                        className="max-h-56 w-auto object-contain rounded-lg"
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <label className="flex flex-col items-center justify-center p-6 sm:p-8 rounded-2xl border-2 border-dashed border-purple-500/30 bg-purple-500/5 hover:bg-purple-500/10 transition-colors cursor-pointer text-center space-y-3">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      onChange={handleAiPhotoUpload}
+                      className="hidden"
+                    />
+                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/30">
+                      <Camera className="h-6 w-6" />
+                    </div>
+                    <div className="space-y-1">
+                      <span className="text-xs sm:text-sm font-bold text-foreground block">
+                        Click To Take Photo Or Browse Files
+                      </span>
+                      <span className="text-[0.68rem] text-muted-foreground block">
+                        PNG, JPG, JPEG, WEBP · Mobile Camera Supported
+                      </span>
+                    </div>
+                  </label>
+                )}
+
+                {/* Optional Custom Gemini API Key configuration */}
+                <div className="rounded-2xl border border-border/80 bg-surface/50 p-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[0.7rem] font-bold text-foreground flex items-center gap-1.5">
+                      <Key className="h-3.5 w-3.5 text-purple-500" />
+                      <span>Gemini API Key (Optional)</span>
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setShowAiKeyInput(!showAiKeyInput)}
+                      className="text-[0.68rem] text-purple-600 dark:text-purple-400 hover:underline font-bold cursor-pointer"
+                    >
+                      {showAiKeyInput ? "Hide Key Input" : aiGeminiKey ? "Custom Key Saved ✓" : "Enter Key"}
+                    </button>
+                  </div>
+                  {showAiKeyInput && (
+                    <div className="space-y-1 pt-1">
+                      <input
+                        type="password"
+                        value={aiGeminiKey}
+                        onChange={(e) => setAiGeminiKey(e.target.value)}
+                        placeholder="AIzaSy... (Leave blank to use server environment key)"
+                        className="h-9 w-full rounded-xl border border-border bg-background px-3 font-mono text-xs focus:border-purple-500 focus:outline-none"
+                      />
+                      <p className="text-[0.62rem] text-muted-foreground">
+                        Your key is saved locally in your browser for seamless future timetable scans.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Consume Action Button */}
+                <button
+                  type="button"
+                  onClick={handleConsumeTimetablePhotoWithAi}
+                  disabled={!aiTimetableImage || aiExtracting}
+                  className="h-11 w-full rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold text-xs shadow-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  {aiExtracting ? (
+                    <>
+                      <RefreshCw className="h-4 w-4 animate-spin" />
+                      <span>Analyzing &amp; Consuming Photo with Gemini AI...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="h-4 w-4" />
+                      <span>Consume &amp; Extract Timetable (Gemini AI)</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            ) : (
+              /* Step 2: Review Extracted Slots & Batch Import */
+              <div className="space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-0.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
+                      ✓ {aiExtractedSlots.length} Slots Extracted
+                    </span>
+                    <span className="text-xs text-muted-foreground">Review &amp; Adjust Before Saving</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAiExtractedSlots([]);
+                    }}
+                    className="text-xs text-purple-600 dark:text-purple-400 font-bold hover:underline cursor-pointer"
+                  >
+                    Rescan Another Photo
+                  </button>
+                </div>
+
+                {/* Slots List */}
+                <div className="space-y-3 max-h-96 overflow-y-auto pr-1">
+                  {aiExtractedSlots.map((slot, idx) => (
+                    <div
+                      key={idx}
+                      className="rounded-2xl border border-border bg-surface/50 p-3 space-y-2.5 transition-all text-xs"
+                    >
+                      <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="rounded-lg bg-primary/10 px-2 py-0.5 text-[0.68rem] font-bold text-primary">
+                            Period #{idx + 1}
+                          </span>
+                          <span className="font-bold text-foreground">{slot.day_of_week}</span>
+                          <span className="text-muted-foreground">{slot.start_time} - {slot.end_time}</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAiExtractedSlots(aiExtractedSlots.filter((_, i) => i !== idx));
+                          }}
+                          className="rounded-lg p-1 text-muted-foreground hover:text-rose-500 hover:bg-rose-500/10 cursor-pointer"
+                          title="Remove Slot"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+
+                      {/* Title & Subject */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div>
+                          <label className="block text-[0.65rem] font-bold text-muted-foreground mb-0.5">Title / Course</label>
+                          <input
+                            type="text"
+                            value={slot.title || ""}
+                            onChange={(e) => {
+                              const updated = [...aiExtractedSlots];
+                              updated[idx].title = e.target.value;
+                              setAiExtractedSlots(updated);
+                            }}
+                            className="h-8 w-full rounded-xl border border-border bg-background px-2.5 text-xs focus:border-primary focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[0.65rem] font-bold text-muted-foreground mb-0.5">Matched Subject (DB)</label>
+                          <select
+                            value={slot.subject_id || ""}
+                            onChange={(e) => {
+                              const updated = [...aiExtractedSlots];
+                              updated[idx].subject_id = e.target.value || null;
+                              setAiExtractedSlots(updated);
+                            }}
+                            className="h-8 w-full rounded-xl border border-border bg-background px-2 text-xs focus:border-primary focus:outline-none"
+                          >
+                            <option value="">No Direct Subject Match</option>
+                            {subjects.map((sub) => (
+                              <option key={sub.id} value={sub.id}>
+                                {sub.code}: {sub.name}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Day, Times, Section From DB, Room */}
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <div>
+                          <label className="block text-[0.65rem] font-bold text-muted-foreground mb-0.5">Day</label>
+                          <select
+                            value={slot.day_of_week}
+                            onChange={(e) => {
+                              const updated = [...aiExtractedSlots];
+                              updated[idx].day_of_week = e.target.value;
+                              setAiExtractedSlots(updated);
+                            }}
+                            className="h-8 w-full rounded-xl border border-border bg-background px-2 text-xs focus:border-primary focus:outline-none"
+                          >
+                            {WEEKDAYS.map((d) => (
+                              <option key={d} value={d}>{d}</option>
+                            ))}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-[0.65rem] font-bold text-muted-foreground mb-0.5">Time</label>
+                          <div className="flex items-center gap-1">
+                            <input
+                              type="time"
+                              value={slot.start_time}
+                              onChange={(e) => {
+                                const updated = [...aiExtractedSlots];
+                                updated[idx].start_time = e.target.value;
+                                setAiExtractedSlots(updated);
+                              }}
+                              className="h-8 w-full rounded-xl border border-border bg-background px-1.5 text-xs focus:border-primary focus:outline-none"
+                            />
+                            <span className="text-muted-foreground">-</span>
+                            <input
+                              type="time"
+                              value={slot.end_time}
+                              onChange={(e) => {
+                                const updated = [...aiExtractedSlots];
+                                updated[idx].end_time = e.target.value;
+                                setAiExtractedSlots(updated);
+                              }}
+                              className="h-8 w-full rounded-xl border border-border bg-background px-1.5 text-xs focus:border-primary focus:outline-none"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-[0.65rem] font-bold text-muted-foreground mb-0.5">Section (From DB)</label>
+                          <select
+                            value={slot.section}
+                            onChange={(e) => {
+                              const updated = [...aiExtractedSlots];
+                              updated[idx].section = e.target.value;
+                              setAiExtractedSlots(updated);
+                            }}
+                            className="h-8 w-full rounded-xl border border-border bg-background px-2 text-xs font-bold focus:border-primary focus:outline-none"
+                          >
+                            {sections.map((sec) => (
+                              <option key={sec.id} value={sec.section || sec.section_name}>
+                                Section {sec.section || sec.section_name}
+                              </option>
+                            ))}
+                            {sections.length === 0 && (
+                              <option value="A">Section A</option>
+                            )}
+                          </select>
+                        </div>
+                        <div>
+                          <label className="block text-[0.65rem] font-bold text-muted-foreground mb-0.5">Room / Hall</label>
+                          <input
+                            type="text"
+                            value={slot.room_number || ""}
+                            onChange={(e) => {
+                              const updated = [...aiExtractedSlots];
+                              updated[idx].room_number = e.target.value;
+                              setAiExtractedSlots(updated);
+                            }}
+                            className="h-8 w-full rounded-xl border border-border bg-background px-2 text-xs focus:border-primary focus:outline-none"
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Footer Save Button */}
+                <div className="flex flex-col sm:flex-row items-center justify-end gap-2 pt-2 border-t border-border">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowAiTimetableModal(false);
+                      setAiTimetableImage(null);
+                      setAiExtractedSlots([]);
+                    }}
+                    className="h-10 w-full sm:w-auto px-4 rounded-xl border border-border bg-surface text-xs font-bold text-foreground hover:bg-surface/80 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleSaveAiExtractedSlots}
+                    disabled={isSavingAiSlots || aiExtractedSlots.length === 0}
+                    className="h-10 w-full sm:w-auto px-6 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md cursor-pointer flex items-center justify-center gap-2"
+                  >
+                    {isSavingAiSlots ? (
+                      <>
+                        <RefreshCw className="h-4 w-4 animate-spin" />
+                        <span>Saving {aiExtractedSlots.length} Slots To Database...</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckCircle2 className="h-4 w-4" />
+                        <span>Save All {aiExtractedSlots.length} Slots To Database</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Modal: Delete All Timetable Slots Confirmation */}
       {showDeleteAllTimetableModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="w-full max-w-lg rounded-3xl border border-border bg-card p-6 shadow-2xl space-y-5">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-1.5 xs:p-2.5 sm:p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-lg rounded-2xl sm:rounded-3xl border border-border bg-card p-3.5 xs:p-4 sm:p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto min-w-0">
             <div className="flex items-center justify-between border-b border-border pb-3.5">
               <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/30">
+                <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/30 shrink-0">
                   <Trash2 className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="font-display font-bold text-lg text-foreground">
+                  <h3 className="font-display font-bold text-base sm:text-lg text-foreground">
                     Delete Timetable Slots
                   </h3>
                   <p className="text-xs text-muted-foreground">
@@ -7952,7 +8497,7 @@ export function AdminPortal() {
                   setShowDeleteAllTimetableModal(false);
                   setDeleteConfirmationText("");
                 }}
-                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer"
+                className="rounded-xl p-1.5 text-muted-foreground hover:bg-surface cursor-pointer shrink-0"
               >
                 <X className="h-5 w-5" />
               </button>
@@ -7963,7 +8508,7 @@ export function AdminPortal() {
               <label className="block text-xs font-bold text-foreground">
                 Select Deletion Scope
               </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
                 <button
                   type="button"
                   onClick={() => setDeleteAllScope("filtered")}
@@ -8023,7 +8568,6 @@ export function AdminPortal() {
               </div>
             </div>
 
-            {/* */}
             {deleteAllScope === "all" && (
               <div className="space-y-1.5">
                 <label className="block text-xs font-bold text-foreground">
@@ -8040,7 +8584,7 @@ export function AdminPortal() {
             )}
 
             {/* Modal Actions */}
-            <div className="flex items-center justify-end gap-3 pt-2">
+            <div className="flex flex-col-reverse xs:flex-row items-center justify-end gap-2.5 pt-2">
               <button
                 type="button"
                 onClick={() => {
@@ -8048,7 +8592,7 @@ export function AdminPortal() {
                   setDeleteConfirmationText("");
                 }}
                 disabled={isDeletingAllTimetable}
-                className="h-10 px-4 rounded-2xl border border-border bg-surface text-xs font-bold text-foreground hover:bg-surface/80 cursor-pointer disabled:opacity-50"
+                className="h-10 w-full xs:w-auto px-4 rounded-2xl border border-border bg-surface text-xs font-bold text-foreground hover:bg-surface/80 cursor-pointer disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -8060,7 +8604,7 @@ export function AdminPortal() {
                   (deleteAllScope === "all" && deleteConfirmationText.trim().toUpperCase() !== "DELETE") ||
                   (deleteAllScope === "filtered" && filteredTimetableSlots.length === 0)
                 }
-                className="h-10 px-5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="h-10 w-full xs:w-auto px-5 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold shadow-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isDeletingAllTimetable ? (
                   <>
@@ -8246,20 +8790,33 @@ export function AdminPortal() {
                     </div>
 
                     <div>
-                      <label className="block font-bold mb-1 text-muted-foreground text-[0.68rem]">Target Section (Optional)</label>
-                      <input
-                        type="text"
+                      <label className="block font-bold mb-1 text-muted-foreground text-[0.68rem]">Target Section (From DB)</label>
+                      <select
                         value={newNotice.target_section || ""}
-                        onChange={(e) => setNewNotice({ ...newNotice, target_section: e.target.value.toUpperCase() })}
-                        placeholder="e.g. A or blank for All"
-                        maxLength={5}
-                        className="h-9 w-full rounded-xl border border-border bg-background px-2.5 text-xs font-mono uppercase focus:border-primary focus:outline-none"
-                      />
+                        onChange={(e) => setNewNotice({ ...newNotice, target_section: e.target.value })}
+                        className="h-9 w-full rounded-xl border border-border bg-background px-2.5 text-xs focus:border-primary focus:outline-none font-bold"
+                      >
+                        <option value="">All Cohort Sections (Broadcast All)</option>
+                        {sections
+                          .filter((s) => !newNotice.target_semester || Number(s.semester) === Number(newNotice.target_semester))
+                          .map((sec) => (
+                            <option key={sec.id} value={sec.section || sec.section_name}>
+                              Section {sec.section || sec.section_name} (Sem {sec.semester})
+                            </option>
+                          ))}
+                        {sections
+                          .filter((s) => newNotice.target_semester && Number(s.semester) !== Number(newNotice.target_semester))
+                          .map((sec) => (
+                            <option key={sec.id} value={sec.section || sec.section_name}>
+                              Section {sec.section || sec.section_name} (Sem {sec.semester})
+                            </option>
+                          ))}
+                      </select>
                     </div>
                   </div>
                 ) : (
                   <p className="text-[0.68rem] text-muted-foreground italic">
-                    Universal broadcast will be dispatched to all student dashboards across all departments, specializations, and semesters.
+                    Universal Broadcast Will Be Dispatched To All Student Dashboards Across All Departments, Specializations, And Semesters.
                   </p>
                 )}
               </div>
@@ -8403,13 +8960,13 @@ export function AdminPortal() {
                     <textarea
                       value={newNotice.content}
                       onChange={(e) => setNewNotice({ ...newNotice, content: e.target.value })}
-                      placeholder={"# Important Circular\n\nAll students are advised to check the official portal: [SIH Portal](https://www.sih.gov.in/)\n\n![Poster](https://...)\n\n- Deadline: 15th Sep\n- Requirement: All teams registered"}
+                      placeholder={"# Important Circular\n\nAll Students Are Advised To Check The Official Portal: [SIH Portal](https://www.sih.gov.in/)\n\n![Poster](https://...)\n\n- Deadline: 15th Sep\n- Requirement: All Teams Registered"}
                       rows={6}
                       required
                       className="w-full rounded-2xl border border-border bg-background p-3.5 font-mono text-xs focus:border-primary focus:outline-none leading-relaxed"
                     />
                     <p className="text-[0.65rem] text-muted-foreground">
-                      💡 <strong>Tip:</strong> Plain URLs like <code className="text-primary font-mono">https://www.sih.gov.in/</code>, markdown links <code className="text-primary font-mono">[Title](URL)</code>, and images <code className="text-primary font-mono">![Alt](Image_URL)</code> render interactively.
+                      💡 <strong>Tip:</strong> Plain URLs Like <code className="text-primary font-mono">https://www.sih.gov.in/</code>, Markdown Links <code className="text-primary font-mono">[Title](URL)</code>, And Images <code className="text-primary font-mono">![Alt](Image_URL)</code> Render Interactively.
                     </p>
                   </div>
                 ) : (
@@ -8417,7 +8974,7 @@ export function AdminPortal() {
                     {newNotice.content.trim().length > 0 ? (
                       <MarkdownContent content={newNotice.content} />
                     ) : (
-                      <p className="text-xs text-muted-foreground italic">No Markdown content typed yet. Switch to Write tab to compose your notice.</p>
+                      <p className="text-xs text-muted-foreground italic">No Markdown Content Typed Yet. Switch To Write Tab To Compose Your Notice.</p>
                     )}
                   </div>
                 )}
