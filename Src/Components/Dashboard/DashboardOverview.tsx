@@ -38,6 +38,7 @@ import { toast } from "sonner";
 import { AcademicMaterial, apiFetch, DashboardSummary, StudentAssignment, Subject, TimetableSlot, studentSecurityApi } from "@/Lib/Api";
 import { useAuth } from "@/Hooks/UseAuth";
 import { cn } from "@/Lib/Utils";
+import { useIstClock, WEEKDAYS } from "@/Lib/IstTime";
 
 interface DashboardOverviewProps {
   onNavigateTab: (tab: string) => void;
@@ -46,6 +47,7 @@ interface DashboardOverviewProps {
 
 export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOverviewProps) {
   const { user } = useAuth();
+  const istClock = useIstClock();
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [materials, setMaterials] = useState<AcademicMaterial[]>([]);
@@ -104,7 +106,7 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
   const pendingAssignmentsCount = assignments.filter((a) => a.status === "PENDING" || a.status === "IN_PROGRESS").length;
 
   // Timetable distribution per weekday
-  const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const daysOfWeek = WEEKDAYS;
   const timetableByDay = daysOfWeek.map((day) => {
     const count = timetableSlots.filter((slot) => slot.day_of_week === day).length;
     return { day, count, hours: count * 1.5 };
@@ -206,9 +208,26 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
             </p>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+            {/* Live IST Real-Time Clock Card */}
+            <div className="rounded-2xl border border-emerald-500/25 bg-surface/90 p-3 sm:p-4 flex items-center justify-between sm:flex-col sm:justify-center text-center shadow-xs min-w-[160px]">
+              <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-mono font-bold text-[0.62rem] sm:text-[0.65rem] uppercase tracking-wider">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span>Live IST Time</span>
+              </div>
+              <span className="font-display text-base sm:text-xl font-bold text-foreground font-mono">
+                {istClock.timeShortString}
+              </span>
+              <span className="text-[0.62rem] text-muted-foreground font-medium truncate">
+                {istClock.dateString}
+              </span>
+            </div>
+
             {/* Target CGPA Goal Card */}
-            <div className="w-full sm:w-auto rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-3 sm:p-4 flex items-center justify-between sm:flex-col sm:justify-center text-center shadow-xs">
+            <div className="w-full sm:w-auto rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-3 sm:p-4 flex items-center justify-between sm:flex-col sm:justify-center text-center shadow-xs min-w-[140px]">
               <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold text-[0.62rem] sm:text-[0.65rem] uppercase tracking-wider">
                 <Target className="h-3.5 w-3.5" />
                 <span>Target CGPA Goal</span>

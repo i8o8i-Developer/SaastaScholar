@@ -43,6 +43,7 @@ import { toast } from "sonner";
 import { apiFetch, DepartmentNotice, SidebarBadgeConfig } from "@/Lib/Api";
 import { MarkdownContent } from "@/Components/Ui/MarkdownContent";
 import { BroadcastBanner } from "@/Components/Ui/BroadcastBanner";
+import { useIstClock } from "@/Lib/IstTime";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -93,6 +94,7 @@ export const getDisplayProgram = (user: any): string => {
 export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader }: DashboardLayoutProps) {
   const { user, logout } = useAuth();
   const { theme, isDark, toggleTheme } = useTheme();
+  const istClock = useIstClock();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
@@ -559,15 +561,17 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
               <Menu className="h-4 w-4 xs:h-5 xs:w-5" />
             </button>
 
-            {/* Desktop Sidebar Toggle Trigger */}
-            <button
-              type="button"
-              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="hidden lg:grid h-9 w-9 place-items-center rounded-xl border border-border bg-surface text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors cursor-pointer shrink-0"
-              title={sidebarCollapsed ? "Open / Expand Sidebar" : "Close / Collapse Sidebar"}
-            >
-              <Menu className="h-4 w-4" />
-            </button>
+            {/* Desktop Sidebar Toggle Trigger  */}
+            {sidebarCollapsed && (
+              <button
+                type="button"
+                onClick={() => setSidebarCollapsed(false)}
+                className="hidden lg:grid h-9 w-9 place-items-center rounded-xl border border-border bg-surface text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors cursor-pointer shrink-0"
+                title="Open / Expand Sidebar"
+              >
+                <Menu className="h-4 w-4" />
+              </button>
+            )}
 
             {/* Program & Semester Badge with Quick Section Switcher Action */}
             <div className="hidden sm:flex items-center gap-2 rounded-full border border-border/70 bg-surface/80 px-3 py-1 text-xs">
@@ -587,6 +591,19 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
                   (Change)
                 </span>
               </button>
+            </div>
+
+            {/* Real-Time IST Synchronization Pill */}
+            <div
+              className="hidden xl:flex items-center gap-2 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1 text-xs font-mono text-emerald-700 dark:text-emerald-300 shadow-2xs select-none"
+              title={`Indian Standard Time (UTC+05:30) • ${istClock.dateString}`}
+            >
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
+              <span className="font-bold">{istClock.timeString}</span>
+              <span className="text-[0.62rem] font-sans font-extrabold uppercase px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-700 dark:text-emerald-300">IST</span>
             </div>
           </div>
 

@@ -20,17 +20,14 @@ import {
 import { apiFetch, MilestoneCountdown, PersonalStudyTask, TimetableSlot } from "@/Lib/Api";
 import { cn } from "@/Lib/Utils";
 import { toast } from "sonner";
-
-const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
-const getTodayCode = (): string => {
-  const dayIndex = new Date().getDay(); // 0 = Sun, 1 = Mon, 2 = Tue, 3 = Wed, 4 = Thu, 5 = Fri, 6 = Sat
-  const map: Record<number, string> = { 1: "Mon", 2: "Tue", 3: "Wed", 4: "Thu", 5: "Fri", 6: "Sat", 0: "Mon" };
-  return map[dayIndex] || "Mon";
-};
+import {
+  WEEKDAYS,
+  useIstClock,
+} from "@/Lib/IstTime";
 
 export function TimetablePlanner() {
-  const todayCode = getTodayCode();
+  const istClock = useIstClock();
+  const todayCode = istClock.weekdayCode;
   const [selectedDay, setSelectedDay] = useState<string>(todayCode);
   const [slots, setSlots] = useState<TimetableSlot[]>([]);
   const [tasks, setTasks] = useState<PersonalStudyTask[]>([]);
@@ -93,7 +90,7 @@ export function TimetablePlanner() {
         body: JSON.stringify({
           title: newTaskTitle.trim(),
           scheduled_time: newTaskTime || "18:30",
-          target_date: new Date().toISOString().split("T")[0],
+          target_date: istClock.dateIso,
           category: "Study",
         }),
       });
@@ -143,24 +140,50 @@ export function TimetablePlanner() {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto min-w-0">
-      {/* ================= Header Banner with Weekday Controls ================= */}
+      {/* ================= Header Banner with Weekday Controls & Live IST Sync ================= */}
       <div className="rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-br from-card via-card to-primary/5 p-4 sm:p-6 shadow-xs min-w-0">
-        <div className="space-y-1 min-w-0">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[0.68rem] font-bold text-primary font-mono">
-            <Calendar className="h-3.5 w-3.5" />
-            <span>Synchronized Lecture &amp; Revision Matrix</span>
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-1 min-w-0">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[0.68rem] font-bold text-primary font-mono">
+              <Calendar className="h-3.5 w-3.5" />
+              <span>Synchronized Lecture &amp; Revision Matrix</span>
+            </div>
+            <h1 className="font-display text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-foreground">
+              Timetable &amp; Study Planner
+            </h1>
+            <p className="text-[0.72rem] sm:text-xs md:text-sm text-muted-foreground leading-relaxed max-w-2xl">
+              Synchronized Lecture Timings, Lab Practical Batches, Room Allocations, And Personal Revision Tasks.
+            </p>
           </div>
-          <h1 className="font-display text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-foreground">
-            Timetable &amp; Study Planner
-          </h1>
-          <p className="text-[0.72rem] sm:text-xs md:text-sm text-muted-foreground leading-relaxed max-w-2xl">
-            Synchronized Lecture Timings, Lab Practical Batches, Room Allocations, And Personal Revision Tasks.
-          </p>
+
+          {/* Dedicated Real-Time IST Synchronization Card */}
+          <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-3 sm:p-4 shrink-0 flex flex-col justify-center space-y-1 shadow-xs min-w-[210px]">
+            <div className="flex items-center justify-between gap-2">
+              <span className="inline-flex items-center gap-1.5 text-[0.62rem] font-mono font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <span>Live IST Sync</span>
+              </span>
+              <span className="text-[0.58rem] font-mono font-bold text-muted-foreground bg-surface/80 px-1.5 py-0.5 rounded border border-border/60">
+                UTC+05:30
+              </span>
+            </div>
+            <div className="font-mono text-lg sm:text-xl font-black text-foreground tracking-tight flex items-baseline gap-1">
+              <span>{istClock.timeString}</span>
+              <span className="text-[0.68rem] font-bold text-emerald-600 dark:text-emerald-400">IST</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-[0.68rem] font-semibold text-muted-foreground">
+              <Clock className="h-3 w-3 text-emerald-500 shrink-0" />
+              <span className="truncate">{istClock.dateString}</span>
+            </div>
+          </div>
         </div>
 
-        {/* Equal 6-Column Segmented Weekday Matrix */}
+        {/* Equal 7-Column Segmented Weekday Matrix */}
         <div className="mt-4 sm:mt-6 min-w-0">
-          <div className="grid grid-cols-6 gap-1.5 sm:gap-2 p-1.5 rounded-2xl bg-surface/80 border border-border/80 shadow-2xs min-w-0">
+          <div className="grid grid-cols-7 gap-1 sm:gap-2 p-1.5 rounded-2xl bg-surface/80 border border-border/80 shadow-2xs min-w-0">
             {WEEKDAYS.map((day) => {
               const isActive = selectedDay === day;
               const isToday = todayCode === day;
@@ -170,7 +193,7 @@ export function TimetablePlanner() {
                   type="button"
                   onClick={() => setSelectedDay(day)}
                   className={cn(
-                    "relative flex flex-col items-center justify-center rounded-xl py-2 px-1 text-center transition-all cursor-pointer select-none",
+                    "relative flex flex-col items-center justify-center rounded-xl py-2 px-0.5 sm:px-1 text-center transition-all cursor-pointer select-none",
                     isActive
                       ? "bg-primary text-primary-foreground font-bold shadow-md shadow-primary/25 scale-[1.02]"
                       : "text-muted-foreground hover:bg-surface/50 hover:text-foreground font-semibold",
@@ -179,7 +202,7 @@ export function TimetablePlanner() {
                   <span className="text-xs sm:text-sm font-bold tracking-tight">{day}</span>
                   {isToday && (
                     <span className={cn(
-                      "inline-block mt-0.5 rounded-full px-1.5 py-0.2 text-[0.52rem] sm:text-[0.6rem] font-extrabold uppercase leading-none",
+                      "inline-block mt-0.5 rounded-full px-1 sm:px-1.5 py-0.2 text-[0.5rem] sm:text-[0.6rem] font-extrabold uppercase leading-none",
                       isActive ? "bg-white/30 text-white" : "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold"
                     )}>
                       Today
@@ -216,10 +239,12 @@ export function TimetablePlanner() {
             <div className="rounded-2xl sm:rounded-3xl border border-dashed border-border bg-card/60 p-8 sm:p-12 text-center space-y-3">
               <Clock className="h-9 w-9 sm:h-10 sm:w-10 mx-auto text-muted-foreground/40" />
               <h3 className="font-display font-bold text-sm sm:text-base text-foreground">
-                No Lectures Scheduled For {selectedDay}
+                {selectedDay === "Sun" ? "No Classroom Lectures On Sunday" : `No Lectures Scheduled For ${selectedDay}`}
               </h3>
               <p className="text-[0.72rem] sm:text-xs text-muted-foreground max-w-sm mx-auto leading-relaxed">
-                No Active Timetable Slots Configured For This Day. Utilize This Time For Unit Notes Revision, Lab Prep, Or Adding Personal Study Goals.
+                {selectedDay === "Sun"
+                  ? "Sunday Is An Institutional Self-Study & Revision Day. Use This Quiet Period To Revise Unit Notes, Solve Previous Year Papers, Or Work On Personal Study Goals."
+                  : "No Active Timetable Slots Configured For This Day. Utilize This Time For Unit Notes Revision, Lab Prep, Or Adding Personal Study Goals."}
               </p>
             </div>
           ) : (
@@ -227,22 +252,31 @@ export function TimetablePlanner() {
             <div className="relative pl-4 sm:pl-6 border-l-2 border-dashed border-border/80 space-y-3 sm:space-y-4 ml-2 sm:ml-3">
               {slots.map((slot) => {
                 const isLab = (slot.event_type || "").toLowerCase().includes("lab") || (slot.title || "").toLowerCase().includes("lab");
+                const isViewingToday = selectedDay === todayCode;
+                const isLiveNow = isViewingToday && slot.start_time <= istClock.current24HourTime && istClock.current24HourTime <= slot.end_time;
+                const isUpcoming = isViewingToday && slot.start_time > istClock.current24HourTime;
+                const isConcluded = isViewingToday && slot.end_time < istClock.current24HourTime;
 
                 return (
                   <div key={slot.id} className="relative group">
                     {/* Timeline Node Indicator Dot */}
                     <div className={cn(
                       "absolute -left-[23px] sm:-left-[31px] top-4.5 h-3.5 w-3.5 sm:h-4 sm:w-4 rounded-full border-2 bg-background flex items-center justify-center shadow-xs transition-transform group-hover:scale-125 z-10",
-                      isLab ? "border-cyan-500" : "border-emerald-500"
+                      isLiveNow ? "border-rose-500 scale-110" : isLab ? "border-cyan-500" : "border-emerald-500"
                     )}>
-                      <div className={cn("h-1.5 w-1.5 rounded-full", isLab ? "bg-cyan-500 animate-pulse" : "bg-emerald-500")} />
+                      <div className={cn(
+                        "h-1.5 w-1.5 rounded-full",
+                        isLiveNow ? "bg-rose-500 animate-ping" : isLab ? "bg-cyan-500 animate-pulse" : "bg-emerald-500"
+                      )} />
                     </div>
 
                     {/* Timeline Event Card */}
                     <div
                       className={cn(
                         "rounded-2xl sm:rounded-3xl border bg-gradient-to-b from-card via-card to-surface/30 p-4 sm:p-5 shadow-xs transition-all hover:shadow-md space-y-3",
-                        isLab
+                        isLiveNow
+                          ? "border-rose-500/60 shadow-rose-500/10 ring-1 ring-rose-500/30"
+                          : isLab
                           ? "border-cyan-500/30 hover:border-cyan-500/60"
                           : "border-emerald-500/30 hover:border-emerald-500/60"
                       )}
@@ -252,7 +286,9 @@ export function TimetablePlanner() {
                         <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                           <span className={cn(
                             "rounded-xl px-2.5 py-0.5 text-xs font-mono font-bold border",
-                            isLab
+                            isLiveNow
+                              ? "bg-rose-500/15 border-rose-500/30 text-rose-700 dark:text-rose-300"
+                              : isLab
                               ? "bg-cyan-500/10 border-cyan-500/30 text-cyan-700 dark:text-cyan-300"
                               : "bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300"
                           )}>
@@ -262,6 +298,22 @@ export function TimetablePlanner() {
                             {isLab ? <FlaskConical className="h-3 w-3 text-cyan-600 dark:text-cyan-400" /> : <BookOpen className="h-3 w-3 text-emerald-600 dark:text-emerald-400" />}
                             <span>{slot.event_type || "Class Lecture"}</span>
                           </span>
+                          {isLiveNow && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/20 px-2 py-0.5 text-[0.62rem] font-extrabold text-rose-600 dark:text-rose-400 animate-pulse">
+                              <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-ping" />
+                              Live In Session (IST)
+                            </span>
+                          )}
+                          {isUpcoming && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[0.62rem] font-bold text-emerald-600 dark:text-emerald-400">
+                              Upcoming Today
+                            </span>
+                          )}
+                          {isConcluded && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-surface border border-border/80 px-2 py-0.5 text-[0.62rem] font-medium text-muted-foreground">
+                              Concluded
+                            </span>
+                          )}
                         </div>
 
                         <div className="inline-flex items-center gap-1.5 font-mono text-[0.7rem] sm:text-xs font-bold text-foreground bg-surface/80 border border-border/60 px-2.5 py-1 rounded-xl shadow-2xs">

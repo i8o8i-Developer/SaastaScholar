@@ -6,24 +6,26 @@ import urllib.request
 logger = logging.getLogger(__name__)
 
 FALLBACK_CANDIDATES = [
-    ("v1beta", "gemini-2.5-flash"),
+    ("v1beta", "gemini-1.5-flash"),
     ("v1beta", "gemini-2.0-flash"),
     ("v1beta", "gemini-1.5-flash-latest"),
-    ("v1beta", "gemini-1.5-flash-002"),
     ("v1", "gemini-1.5-flash"),
-    ("v1beta", "gemini-1.5-flash"),
-    ("v1beta", "gemini-2.0-flash-exp"),
     ("v1beta", "gemini-1.5-pro"),
 ]
 
+_DISCOVERED_MODELS_CACHE = {}
+
 
 def discover_available_gemini_models(api_key: str):
+    if api_key in _DISCOVERED_MODELS_CACHE:
+        return _DISCOVERED_MODELS_CACHE[api_key]
+
     discovered = []
     for api_version in ["v1beta", "v1"]:
         try:
             url = f"https://generativelanguage.googleapis.com/{api_version}/models?key={api_key}"
             req = urllib.request.Request(url, headers={"Content-Type": "application/json"})
-            with urllib.request.urlopen(req, timeout=8) as resp:
+            with urllib.request.urlopen(req, timeout=4) as resp:
                 data = json.loads(resp.read().decode("utf-8"))
                 for m in data.get("models", []):
                     methods = m.get("supportedGenerationMethods", [])
@@ -40,21 +42,18 @@ def discover_available_gemini_models(api_key: str):
     def score_model(item):
         ver, name = item
         nl = name.lower()
-        if "2.5-flash" in nl:
-            return 0
         if "2.0-flash" in nl:
-            return 1
-        if "1.5-flash-latest" in nl:
-            return 2
+            return 0
         if "1.5-flash" in nl:
-            return 3
+            return 1
         if "flash" in nl:
-            return 4
+            return 2
         if "pro" in nl:
-            return 5
-        return 6
+            return 3
+        return 4
 
     discovered.sort(key=score_model)
+    _DISCOVERED_MODELS_CACHE[api_key] = discovered
     return discovered
 
 
@@ -64,10 +63,10 @@ def call_gemini_generate_content(
     inline_data: dict = None,
     temperature: float = 0.15,
     response_mime_type: str = "application/json",
-    timeout: int = 40,
+    timeout: int = 25,
 ):
-    discovered = discover_available_gemini_models(api_key)
-    candidates = discovered + [c for c in FALLBACK_CANDIDATES if c not in discovered]
+    # Try prioritized standard models directly without slow upfront network discovery
+    candidates = list(FALLBACK_CANDIDATES)
 
     parts = [{"text": prompt_text}]
     if inline_data:
@@ -85,7 +84,7 @@ def call_gemini_generate_content(
     last_err = None
     last_err_msg = ""
 
-    for api_version, model_name in candidates:
+    for attempt, (api_version, model_name) in enumerate(candidates):
         url = f"https://generativelanguage.googleapis.com/{api_version}/models/{model_name}:generateContent?key={api_key}"
         try:
             req = urllib.request.Request(
@@ -113,6 +112,12 @@ def call_gemini_generate_content(
                 or "model" in last_err_msg.lower()
             ):
                 logger.warning(f"Model {model_name} on {api_version} failed ({http_err.code}): {last_err_msg}. Trying next candidate...")
+                # If primary hardcoded models failed, run discovery once to find available models for this specific key
+                if attempt == len(candidates) - 1:
+                    discovered = discover_available_gemini_models(api_key)
+                    for d_ver, d_mod in discovered:
+                        if (d_ver, d_mod) not in candidates:
+                            candidates.append((d_ver, d_mod))
                 continue
             if "api key" in last_err_msg.lower() or "api_key" in last_err_msg.lower() or http_err.code in (401, 403):
                 raise ValueError(f"Gemini API Key Error: {last_err_msg}")

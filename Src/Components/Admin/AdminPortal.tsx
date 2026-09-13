@@ -127,6 +127,7 @@ import {
   CartesianGrid,
 } from "recharts";
 import { ArrowUpRight, Check, Compass, Globe, Server, TrendingUp } from "lucide-react";
+import { WEEKDAYS, getIstWeekdayCode, useIstClock } from "@/Lib/IstTime";
 
 type AdminStation =
   | "overview"
@@ -157,15 +158,14 @@ function extractArray<T>(data: any): T[] {
   return [];
 }
 
-const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
 export function AdminPortal() {
   const { user, logout, isAuthenticated, isLoading } = useAuth();
   const { theme, isDark, toggleTheme } = useTheme();
+  const istClock = useIstClock();
   const [activeStation, setActiveStation] = useState<AdminStation>("overview");
   const [structureSubTab, setStructureSubTab] = useState<"departments" | "programs" | "sections" | "subjects">("departments");
   const [publisherType, setPublisherType] = useState<PublisherContentType>("NOTES");
-  const [selectedTimetableDay, setSelectedTimetableDay] = useState<string>("Mon");
+  const [selectedTimetableDay, setSelectedTimetableDay] = useState<string>(() => getIstWeekdayCode());
   const [mobileNavOpen, setMobileNavOpen] = useState<boolean>(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() => {
     return localStorage.getItem("admin_sidebar_collapsed") === "true";
@@ -697,18 +697,36 @@ export function AdminPortal() {
     }
   }, [filteredSubjects, selectedSubjectId]);
 
-  // Filtered Materials
-  const filteredMaterials = materials.filter((mat) => {
-    if (selectedSubjectId && mat.subject !== selectedSubjectId) return false;
-    if (!selectedSubjectId && selectedSemester) {
-      const allowedSubjectIds = new Set(filteredSubjects.map((s) => s.id));
-      if (allowedSubjectIds.size > 0 && !allowedSubjectIds.has(mat.subject)) return false;
-    }
-    return true;
-  });
+  // Active Cascading Context State Check
+  const isCascadingFilterActive = Boolean(
+    selectedDeptId || selectedProgramId || selectedSemester || selectedSubjectId
+  );
 
   // 
+  const allowedSubjectIds = useMemo(() => {
+    if (!isCascadingFilterActive) return new Set<string>();
+    if (selectedSubjectId) return new Set<string>([selectedSubjectId]);
+    return new Set<string>(filteredSubjects.map((s) => s.id));
+  }, [isCascadingFilterActive, selectedSubjectId, filteredSubjects]);
+
+  //
+  const filteredMaterials = useMemo(() => {
+    if (!isCascadingFilterActive) return [];
+    return materials.filter((mat) => allowedSubjectIds.has(mat.subject));
+  }, [isCascadingFilterActive, materials, allowedSubjectIds]);
+
+  // 
+  const filteredLabs = useMemo(() => {
+    if (!isCascadingFilterActive) return [];
+    return labs.filter((lab) => allowedSubjectIds.has(lab.subject));
+  }, [isCascadingFilterActive, labs, allowedSubjectIds]);
+
+  const isTimetableFilterActive = Boolean(
+    selectedDeptId || selectedProgramId || selectedSemester || selectedSectionId || selectedSubjectId
+  );
+
   const filteredTimetableSlots = useMemo(() => {
+    if (!isTimetableFilterActive) return [];
     return timetableSlots.filter((slot) => {
       if (selectedSemester && slot.semester !== selectedSemester) return false;
       if (selectedSectionId) {
@@ -735,7 +753,7 @@ export function AdminPortal() {
       }
       return true;
     });
-  }, [timetableSlots, selectedSemester, selectedSectionId, sections, selectedSubjectId, selectedProgramId, selectedDeptId, subjects, selectedTimetableDay]);
+  }, [isTimetableFilterActive, timetableSlots, selectedSemester, selectedSectionId, sections, selectedSubjectId, selectedProgramId, selectedDeptId, subjects, selectedTimetableDay]);
 
   // Real-time computed metrics for Weekly Class Schedule
   const weeklyScheduleData = useMemo(() => {
@@ -796,15 +814,11 @@ export function AdminPortal() {
     return unique.size;
   }, [timetableSlots]);
 
-  // Filtered Assignments
-  const filteredAssignments = assignments.filter((assign) => {
-    if (selectedSubjectId && assign.subject !== selectedSubjectId) return false;
-    if (!selectedSubjectId && selectedSemester) {
-      const allowedSubjectIds = new Set(filteredSubjects.map((s) => s.id));
-      if (!allowedSubjectIds.has(assign.subject)) return false;
-    }
-    return true;
-  });
+  // 
+  const filteredAssignments = useMemo(() => {
+    if (!isCascadingFilterActive) return [];
+    return assignments.filter((assign) => allowedSubjectIds.has(assign.subject));
+  }, [isCascadingFilterActive, assignments, allowedSubjectIds]);
 
   // Filtered Notices with Cascading Curriculum Context Logic
   const filteredNotices = notices.filter((n) => {
@@ -1502,11 +1516,40 @@ export function AdminPortal() {
       return;
     }
     setAiTimetableFileName(file.name);
-    setAiTimetableMime(file.type);
+    setAiTimetableMime("image/jpeg");
+
+    // Client-side downscale & optimize image to prevent 504 Gateway Timeouts
     const reader = new FileReader();
     reader.onload = () => {
-      const result = reader.result as string;
-      setAiTimetableImage(result);
+      const img = new Image();
+      img.onload = () => {
+        const MAX_DIM = 1600;
+        let { width, height } = img;
+        if (width > MAX_DIM || height > MAX_DIM) {
+          if (width > height) {
+            height = Math.round((height * MAX_DIM) / width);
+            width = MAX_DIM;
+          } else {
+            width = Math.round((width * MAX_DIM) / height);
+            height = MAX_DIM;
+          }
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (ctx) {
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressed = canvas.toDataURL("image/jpeg", 0.85);
+          setAiTimetableImage(compressed);
+        } else {
+          setAiTimetableImage(reader.result as string);
+        }
+      };
+      img.onerror = () => {
+        setAiTimetableImage(reader.result as string);
+      };
+      img.src = reader.result as string;
     };
     reader.readAsDataURL(file);
   };
@@ -1941,6 +1984,24 @@ export function AdminPortal() {
             </select>
           </div>
         )}
+      </div>
+    </div>
+  );
+
+  // Reusable Empty State Prompt when Cascading Context is Unselected
+  const renderSelectFilterPrompt = (entityName: string, isFullSpan = true) => (
+    <div className={cn(
+      "rounded-3xl border border-dashed border-border/80 bg-card/60 p-12 text-center space-y-4",
+      isFullSpan ? "col-span-full" : ""
+    )}>
+      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20 text-primary shadow-xs">
+        <Filter className="h-7 w-7" />
+      </div>
+      <div className="space-y-1.5 max-w-sm mx-auto">
+        <h3 className="font-display font-bold text-base text-foreground">Select Filter To View {entityName}</h3>
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          Please Select Department, Specialization, Semester, Or Subject In The Cascading Curriculum Context Selector Above To View {entityName.toLowerCase()}.
+        </p>
       </div>
     </div>
   );
@@ -4289,7 +4350,7 @@ export function AdminPortal() {
                       "rounded-full px-1.5 py-0.2 text-[0.62rem] font-mono font-bold shrink-0",
                       publisherType === "LAB_MANUAL" ? "bg-white/25 text-white" : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
                     )}>
-                      {labs.length + filteredMaterials.filter((m) => m.material_type === "LAB_MANUAL").length}
+                      {filteredLabs.length + filteredMaterials.filter((m) => m.material_type === "LAB_MANUAL").length}
                     </span>
                   </button>
 
@@ -4410,7 +4471,9 @@ export function AdminPortal() {
               {/* Notes List */}
               {publisherType === "NOTES" && (
                 <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                  {filteredMaterials.filter((m) => m.material_type === "NOTES").length === 0 ? (
+                  {!isCascadingFilterActive ? (
+                    renderSelectFilterPrompt("Published Notes")
+                  ) : filteredMaterials.filter((m) => m.material_type === "NOTES").length === 0 ? (
                     <div className="col-span-full rounded-3xl border border-dashed border-border bg-card/60 p-12 text-center space-y-3">
                       <FileText className="h-10 w-10 mx-auto text-muted-foreground/40" />
                       <h3 className="font-display font-bold text-base text-foreground">No Notes Published For This Filter</h3>
@@ -4499,7 +4562,9 @@ export function AdminPortal() {
               {/* Solved PYQs List */}
               {publisherType === "SOLVED_PYQ" && (
                 <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                  {filteredMaterials.filter((m) => m.material_type === "SOLVED_PYQ").length === 0 ? (
+                  {!isCascadingFilterActive ? (
+                    renderSelectFilterPrompt("Solved PYQs")
+                  ) : filteredMaterials.filter((m) => m.material_type === "SOLVED_PYQ").length === 0 ? (
                     <div className="col-span-full rounded-3xl border border-dashed border-border bg-card/60 p-12 text-center space-y-3">
                       <FileCheck2 className="h-10 w-10 mx-auto text-muted-foreground/40" />
                       <h3 className="font-display font-bold text-base text-foreground">No Solved PYQs Published For This Filter</h3>
@@ -4588,7 +4653,9 @@ export function AdminPortal() {
               {/* Official Syllabus List */}
               {publisherType === "SYLLABUS" && (
                 <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                  {filteredMaterials.filter((m) => m.material_type === "SYLLABUS").length === 0 ? (
+                  {!isCascadingFilterActive ? (
+                    renderSelectFilterPrompt("Official Syllabus")
+                  ) : filteredMaterials.filter((m) => m.material_type === "SYLLABUS").length === 0 ? (
                     <div className="col-span-full rounded-3xl border border-dashed border-border bg-card/60 p-12 text-center space-y-3">
                       <ScrollText className="h-10 w-10 mx-auto text-muted-foreground/40" />
                       <h3 className="font-display font-bold text-base text-foreground">No Official Syllabus Published For This Filter</h3>
@@ -4665,7 +4732,9 @@ export function AdminPortal() {
               {/* Faculty Materials List */}
               {publisherType === "FACULTY" && (
                 <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                  {filteredMaterials.filter((m) => m.material_type === "FACULTY").length === 0 ? (
+                  {!isCascadingFilterActive ? (
+                    renderSelectFilterPrompt("Faculty Materials")
+                  ) : filteredMaterials.filter((m) => m.material_type === "FACULTY").length === 0 ? (
                     <div className="col-span-full rounded-3xl border border-dashed border-border bg-card/60 p-12 text-center space-y-3">
                       <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-surface shadow-xs">
                         <LibraryBig className="h-6 w-6 text-muted-foreground" />
@@ -4747,7 +4816,7 @@ export function AdminPortal() {
                         <FlaskConical className="h-3.5 w-3.5 text-amber-500" />
                         <span>Interactive Experiments &amp; Viva</span>
                         <span className="rounded-full bg-amber-500/20 px-1.5 py-0.2 text-[0.62rem] font-mono font-bold text-amber-700 dark:text-amber-300">
-                          {labs.length}
+                          {filteredLabs.length}
                         </span>
                       </button>
 
@@ -4779,7 +4848,9 @@ export function AdminPortal() {
                   {/* 1. Interactive Practical Experiments & Viva Voce Drills View */}
                   {labSectionTab === "EXPERIMENTS" && (
                     <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                      {labs.length === 0 ? (
+                      {!isCascadingFilterActive ? (
+                        renderSelectFilterPrompt("Practical Lab Experiments")
+                      ) : filteredLabs.length === 0 ? (
                         <div className="col-span-full rounded-3xl border border-dashed border-border bg-card/60 p-12 text-center space-y-3">
                           <FlaskConical className="h-10 w-10 mx-auto text-muted-foreground/40" />
                           <h3 className="font-display font-bold text-base text-foreground">No Practical Lab Experiments Added Yet</h3>
@@ -4807,7 +4878,7 @@ export function AdminPortal() {
                           </div>
                         </div>
                       ) : (
-                        labs.map((lab) => (
+                        filteredLabs.map((lab) => (
                           <div key={lab.id} className="rounded-3xl border border-border/80 bg-card p-5 shadow-xs flex flex-col justify-between space-y-4 hover:border-primary/50 transition-all">
                             <div>
                               <div className="flex items-center justify-between border-b border-border/60 pb-3">
@@ -4846,7 +4917,9 @@ export function AdminPortal() {
                   {/* 2. Official Lab Manuals & Documents (Files) View */}
                   {labSectionTab === "MANUALS" && (
                     <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                      {filteredMaterials.filter((m) => m.material_type === "LAB_MANUAL").length === 0 ? (
+                      {!isCascadingFilterActive ? (
+                        renderSelectFilterPrompt("Lab Manual Files")
+                      ) : filteredMaterials.filter((m) => m.material_type === "LAB_MANUAL").length === 0 ? (
                         <div className="col-span-full rounded-3xl border border-dashed border-border bg-card/60 p-12 text-center space-y-3">
                           <FileText className="h-10 w-10 mx-auto text-muted-foreground/40" />
                           <h3 className="font-display font-bold text-base text-foreground">No Lab Manuals Or Documents Uploaded For This Filter</h3>
@@ -4983,26 +5056,46 @@ export function AdminPortal() {
             <div className="space-y-6">
               {renderCascadingContextBar({ showSection: true })}
 
-              {/* Day Selector (6-Day Grid) & Action Bar */}
+              {/* Day Selector (7-Day Grid) & Action Bar */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
-                <div className="grid grid-cols-6 gap-1 bg-surface p-1 rounded-2xl border border-border w-full sm:w-auto">
-                  {WEEKDAYS.map((d) => (
-                    <button
-                      key={d}
-                      onClick={() => setSelectedTimetableDay(d)}
-                      className={cn(
-                        "px-1.5 xs:px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer text-center whitespace-nowrap",
-                        selectedTimetableDay === d
-                          ? "bg-primary text-primary-foreground shadow-xs"
-                          : "text-muted-foreground hover:text-foreground",
-                      )}
-                    >
-                      {d}
-                    </button>
-                  ))}
+                <div className="grid grid-cols-7 gap-1 bg-surface p-1 rounded-2xl border border-border w-full sm:w-auto">
+                  {WEEKDAYS.map((d) => {
+                    const isToday = istClock.weekdayCode === d;
+                    return (
+                      <button
+                        key={d}
+                        onClick={() => setSelectedTimetableDay(d)}
+                        className={cn(
+                          "px-1.5 xs:px-2 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer text-center whitespace-nowrap relative flex flex-col items-center",
+                          selectedTimetableDay === d
+                            ? "bg-primary text-primary-foreground shadow-xs"
+                            : "text-muted-foreground hover:text-foreground",
+                        )}
+                      >
+                        <span>{d}</span>
+                        {isToday && (
+                          <span className={cn(
+                            "inline-block text-[0.5rem] font-black uppercase leading-none mt-0.5",
+                            selectedTimetableDay === d ? "text-white/80" : "text-emerald-600 dark:text-emerald-400"
+                          )}>
+                            Today
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
                 </div>
 
                 <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap sm:flex-nowrap">
+                  {/* Real-time IST Status Badge */}
+                  <div className="hidden lg:flex items-center gap-1.5 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs font-mono text-emerald-700 dark:text-emerald-300 shadow-2xs">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    <span className="font-bold">{istClock.timeString}</span>
+                    <span className="text-[0.62rem] opacity-75 font-sans font-bold">IST</span>
+                  </div>
                   <button
                     onClick={() => {
                       setAiTargetSemester(selectedSemester || 1);
@@ -5068,7 +5161,9 @@ export function AdminPortal() {
               </div>
 
               {/* Slots Timeline List */}
-              {filteredTimetableSlots.length === 0 ? (
+              {!isTimetableFilterActive ? (
+                renderSelectFilterPrompt("Timetable Slots", false)
+              ) : filteredTimetableSlots.length === 0 ? (
                 <div className="rounded-3xl border border-dashed border-border bg-card/60 p-12 text-center space-y-3">
                   <Clock className="h-10 w-10 mx-auto text-muted-foreground/40" />
                   <h3 className="font-display font-bold text-base text-foreground">No Timetable Slots For {selectedTimetableDay}</h3>
@@ -5189,7 +5284,9 @@ export function AdminPortal() {
               </div>
 
               {/* Assignments Grid */}
-              {filteredAssignments.length === 0 ? (
+              {!isCascadingFilterActive ? (
+                renderSelectFilterPrompt("Course Assignments", false)
+              ) : filteredAssignments.length === 0 ? (
                 <div className="rounded-3xl border border-dashed border-border bg-card/60 p-12 text-center space-y-3">
                   <FileText className="h-10 w-10 mx-auto text-muted-foreground/40" />
                   <h3 className="font-display font-bold text-base text-foreground">No Assignments Created Yet</h3>
