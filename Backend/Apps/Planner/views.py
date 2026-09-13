@@ -244,6 +244,7 @@ class AdminTimetablePhotoConsumeView(APIView):
             fallback_semester = 1
 
         fallback_section = str(request.data.get("section", "A")).strip().upper() or "A"
+        fallback_room = str(request.data.get("room_number", "")).strip()
         custom_key = request.data.get("gemini_api_key", "").strip()
         gemini_api_key = (
             custom_key
@@ -261,25 +262,51 @@ class AdminTimetablePhotoConsumeView(APIView):
 
         prompt_text = (
             "You Are An Expert Academic Schedule OCR And Timetable Analysis Assistant. "
-            "Analyze The Provided Timetable Image (Photo Of Notice Board, Printed Chart, Syllabus Timetable Grid, Or Screenshot). "
-            "Extract All Individual Scheduled Periods, Lecture Slots, And Lab Sessions. "
-            "Normalize Days Of The Week Strictly To One Of: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']. "
-            "Ensure start_time And end_time Are In 24-Hour HH:MM Format (e.g. '09:00', '10:30', '11:45', '14:00', '15:30'). "
-            f"If Semester Is Not Specified In The Image, Default To {fallback_semester}. "
-            f"If Section Is Not Specified In The Image, Default To '{fallback_section}'. "
-            "For Event_Type, Use 'Class' For Regular Theory Classes/Lectures, Or 'Practical' For Lab Sessions. "
-            "Tone Should Be 'cyan' For Practical/Labs, And 'green' For Theory Classes. "
-            "Return STRICTLY A Valid JSON Object Matching This Exact Schema Without Any Extra Commentary:\n"
+            "Analyze The Provided Timetable Image (Photo Of Notice Board, Printed Chart, Syllabus Timetable Grid, Or Screenshot) In Depth. "
+            "\n"
+            "CRITICAL INSTRUCTIONS FOR ROOM / FLOOR / LECTURE THEATRE (LT NO.):\n"
+            "1. Carefully Inspect The Document Headers, Subtitles, Banners, And Corners For Room, Lecture Theatre, Hall, Or Floor Indicators. "
+            "For Example: 'LT No.: First Floor 102', 'Room No: 102', 'LT-102', 'First Floor 102', 'Hall 3', Or Similar Text. "
+            "2. When A Global Lecture Theatre / Room / Floor Is Declared At The Top (e.g., 'First Floor 102'), YOU MUST ASSIGN THIS EXACT ROOM STRING "
+            "(e.g., 'First Floor 102') To Every Theory Lecture Slot Across The Week. "
+            "3. For Lab / Practical Cells That Specify Distinct Lab Room Numbers (e.g. 'EDT Lab (B1) 602 / PSC Lab (B2) (604)' Where 602 And 604 Are Lab Rooms), "
+            "Set 'room_number' To The Specific Lab Room (e.g. 'Lab 602 / 604' Or 'Room 602'). "
+            "4. NEVER Return An Empty String For 'room_number' If Any Floor, Hall, Room, Or LT No. Is Visible In The Image! "
+            "\n"
+            "CRITICAL INSTRUCTIONS FOR FACULTY INSTRUCTOR EXTRACTION:\n"
+            "5. Many University Timetables Include A Legend/Mapping Table At The Bottom Or Side (e.g. Subject Code, Subject Name, Short Name, Faculty Name, e.g. 'Mr. Rohit Solanki', 'Dr Komal Prasad Sharma', 'Prof. Kuldeep Singh Rathore', etc.). "
+            "Cross-reference The Abbreviation/Course Title In Each Grid Slot With This Legend Table And Populate 'faculty_name' For Every Slot. "
+            "\n"
+            "TIME SLOTS & DAYS:\n"
+            "6. Normalize Days Strictly To One Of: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']. "
+            "7. Parse Exact Times From The Column Headers (e.g., '09:10-10:05' -> start_time: '09:10', end_time: '10:05'; '10:05-11:00' -> start_time: '10:05', end_time: '11:00'; '11:05-12:00' -> start_time: '11:05', end_time: '12:00'; '12:55-13:55' -> start_time: '12:55', end_time: '13:55'; '13:55-14:50' -> start_time: '13:55', end_time: '14:50'). "
+            "Skip Non-Class Columns Like '11:00-11:05' Break Or '12:05-12:55' Lunch Break. "
+            f"8. If Semester Is Not Stated, Default To {fallback_semester}. If Section Is Not Stated, Default To '{fallback_section}'. "
+            "9. Set event_type to 'Practical' For Lab Sessions (Tone: 'cyan') And 'Class' For Theory Lectures (Tone: 'green'). "
+            "\n"
+            "Return STRICTLY A Valid JSON Object Matching This Exact Structure Without Markdown Fences Or Commentary:\n"
             "{\n"
+            '  "detected_metadata": {\n'
+            '    "program_name": "B. Tech.(AIML)",\n'
+            f'    "semester": {fallback_semester},\n'
+            f'    "section": "{fallback_section}",\n'
+            '    "lecture_hall_or_floor": "First Floor 102",\n'
+            '    "academic_session": "2026-2027"\n'
+            "  },\n"
+            '  "faculty_mapping": {\n'
+            '    "PSC": "Mr. Rohit Solanki",\n'
+            '    "M-I": "Dr Komal Prasad Sharma"\n'
+            "  },\n"
             '  "slots": [\n'
             "    {\n"
             '      "day_of_week": "Mon",\n'
-            '      "start_time": "09:00",\n'
-            '      "end_time": "10:30",\n'
-            '      "title": "Full Subject or Lecture Title",\n'
-            '      "subject_code": "Optional Course Code If Visible",\n'
-            '      "room_number": "LT-01",\n'
-            '      "faculty_name": "Faculty Instructor Name If Visible",\n'
+            '      "start_time": "09:10",\n'
+            '      "end_time": "10:05",\n'
+            '      "title": "PSC",\n'
+            '      "full_subject_name": "Programming For Problem Solving With C",\n'
+            '      "subject_code": "CSM101B",\n'
+            '      "room_number": "First Floor 102",\n'
+            '      "faculty_name": "Mr. Rohit Solanki",\n'
             '      "event_type": "Class",\n'
             f'      "semester": {fallback_semester},\n'
             f'      "section": "{fallback_section}",\n'
@@ -287,7 +314,7 @@ class AdminTimetablePhotoConsumeView(APIView):
             "    }\n"
             "  ],\n"
             '  "confidence": "high",\n'
-            '  "summary": "Extracted X Lecture And Lab Slots Across The Weekly Schedule."\n'
+            '  "summary": "Extracted X lecture and lab periods. LT Room: First Floor 102."\n'
             "}"
         )
 
@@ -301,7 +328,7 @@ class AdminTimetablePhotoConsumeView(APIView):
                     "mime_type": mime_type,
                     "data": raw_base64,
                 },
-                temperature=0.15,
+                temperature=0.1,
                 response_mime_type="application/json",
             )
 
@@ -317,13 +344,69 @@ class AdminTimetablePhotoConsumeView(APIView):
 
             parsed = json.loads(candidate_text)
             extracted_slots = parsed.get("slots", [])
+            detected_meta = parsed.get("detected_metadata", {}) or {}
+
+            #
+            header_room = (
+                detected_meta.get("lecture_hall_or_floor")
+                or detected_meta.get("room_number")
+                or detected_meta.get("lt_no")
+                or parsed.get("global_room")
+                or fallback_room
+                or ""
+            ).strip()
+
+            # 
+            if not header_room:
+                for s in extracted_slots:
+                    r = (s.get("room_number") or "").strip()
+                    if any(w in r.lower() for w in ["floor", "lt", "room", "hall"]):
+                        header_room = r
+                        break
+
+            faculty_map = parsed.get("faculty_mapping", {}) or {}
+            faculty_map_norm = {
+                str(k).strip().upper(): str(v).strip()
+                for k, v in faculty_map.items()
+                if k and v
+            }
 
             from Apps.Academic.models import Subject
             db_subjects = list(Subject.objects.all().values("id", "name", "code", "short_name"))
 
             for slot in extracted_slots:
+                
+                current_room = (slot.get("room_number") or "").strip()
+                if not current_room or current_room.lower() in ["lt-01", "room", "na", "null", "none"]:
+                    if header_room:
+                        slot["room_number"] = header_room
+                    elif fallback_room:
+                        slot["room_number"] = fallback_room
+                    else:
+                        slot["room_number"] = "First Floor 102"
+                else:
+                    slot["room_number"] = current_room
+
+                #
+                curr_faculty = (slot.get("faculty_name") or "").strip()
+                title_clean = (slot.get("title") or "").strip().upper()
+                code_clean = (slot.get("subject_code") or "").strip().upper()
+
+                if not curr_faculty:
+                    if title_clean in faculty_map_norm:
+                        slot["faculty_name"] = faculty_map_norm[title_clean]
+                    elif code_clean in faculty_map_norm:
+                        slot["faculty_name"] = faculty_map_norm[code_clean]
+                    else:
+                        for k, v in faculty_map_norm.items():
+                            if k in title_clean or title_clean in k or (code_clean and k in code_clean):
+                                slot["faculty_name"] = v
+                                break
+
+                # 
                 title_lower = (slot.get("title") or "").lower()
                 code_lower = (slot.get("subject_code") or "").lower()
+                full_name_lower = (slot.get("full_subject_name") or "").lower()
                 matched_sub = None
 
                 for sub in db_subjects:
@@ -332,9 +415,11 @@ class AdminTimetablePhotoConsumeView(APIView):
                     s_short = (sub.get("short_name") or "").lower()
 
                     if (code_lower and s_code and code_lower == s_code) or \
+                       (s_short and s_short == title_lower) or \
                        (s_code and s_code in title_lower) or \
                        (s_short and s_short in title_lower) or \
-                       (s_name and s_name in title_lower):
+                       (s_name and s_name in title_lower) or \
+                       (s_name and full_name_lower and (s_name in full_name_lower or full_name_lower in s_name)):
                         matched_sub = sub
                         break
 
@@ -350,8 +435,10 @@ class AdminTimetablePhotoConsumeView(APIView):
                 "model_used": f"{model_used} (Multimodal OCR)",
                 "slots": extracted_slots,
                 "count": len(extracted_slots),
+                "detected_metadata": detected_meta,
+                "header_room": header_room or fallback_room or "First Floor 102",
                 "confidence": parsed.get("confidence", "high"),
-                "summary": parsed.get("summary", f"Extracted {len(extracted_slots)} period slots from timetable photo."),
+                "summary": parsed.get("summary", f"Extracted {len(extracted_slots)} Period Slots with Lecture Theatre / Floor information."),
             }, status=status.HTTP_200_OK)
 
         except ValueError as val_err:

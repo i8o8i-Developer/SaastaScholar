@@ -281,6 +281,7 @@ export function AdminPortal() {
   const [aiExtractedSlots, setAiExtractedSlots] = useState<Array<any>>([]);
   const [aiTargetSemester, setAiTargetSemester] = useState<number>(1);
   const [aiTargetSection, setAiTargetSection] = useState<string>("");
+  const [aiTargetRoom, setAiTargetRoom] = useState<string>("First Floor 102");
   const [aiGeminiKey, setAiGeminiKey] = useState<string>(() => localStorage.getItem("nimswallah_gemini_key") || "");
   const [showAiKeyInput, setShowAiKeyInput] = useState<boolean>(false);
   const [isSavingAiSlots, setIsSavingAiSlots] = useState<boolean>(false);
@@ -1481,6 +1482,8 @@ export function AdminPortal() {
         count: number;
         summary?: string;
         model_used?: string;
+        header_room?: string;
+        detected_metadata?: any;
       }>("/planner/admin/timetable/ai-photo-consume/", {
         method: "POST",
         body: JSON.stringify({
@@ -1488,12 +1491,22 @@ export function AdminPortal() {
           mime_type: aiTimetableMime,
           semester: aiTargetSemester || selectedSemester || 1,
           section: targetSec,
+          room_number: aiTargetRoom.trim(),
           gemini_api_key: aiGeminiKey.trim(),
         }),
       });
 
       if (res.slots && res.slots.length > 0) {
-        setAiExtractedSlots(res.slots);
+        const detectedRoom = (res.header_room || res.detected_metadata?.lecture_hall_or_floor || aiTargetRoom || "First Floor 102").trim();
+        if (detectedRoom) {
+          setAiTargetRoom(detectedRoom);
+        }
+        const enrichedSlots = res.slots.map((s: any) => ({
+          ...s,
+          room_number: (s.room_number || detectedRoom || "First Floor 102").trim(),
+          faculty_name: (s.faculty_name || "").trim(),
+        }));
+        setAiExtractedSlots(enrichedSlots);
         toast.success(res.summary || `Extracted ${res.slots.length} Timetable Slots With Gemini AI!`);
       } else {
         toast.error("No Schedule Slots Could Be Extracted From The Provided Image. Try A Clearer Photo.");
@@ -1503,6 +1516,17 @@ export function AdminPortal() {
     } finally {
       setAiExtracting(false);
     }
+  };
+
+  const handleApplyRoomToAllAiSlots = (roomToApply: string) => {
+    const val = (roomToApply || "First Floor 102").trim();
+    setAiExtractedSlots((prev) =>
+      prev.map((slot) => ({
+        ...slot,
+        room_number: val,
+      }))
+    );
+    toast.success(`Applied Room / Floor "${val}" To All ${aiExtractedSlots.length} Slots.`);
   };
 
   const handleSaveAiExtractedSlots = async () => {
@@ -8353,8 +8377,8 @@ export function AdminPortal() {
               </button>
             </div>
 
-            {/* Target Cohort & DB Section Selection */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 p-3 rounded-2xl border border-border bg-surface/50">
+            {/* Target Cohort, DB Section & Room/Floor Selection */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-3 p-3 rounded-2xl border border-border bg-surface/50">
               <div>
                 <label className="block text-[0.68rem] font-bold text-muted-foreground mb-1">
                   Default Target Semester
@@ -8389,6 +8413,29 @@ export function AdminPortal() {
                   )}
                 </select>
               </div>
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-[0.68rem] font-bold text-muted-foreground">
+                    Default Room / Floor (LT No.)
+                  </label>
+                  {aiExtractedSlots.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => handleApplyRoomToAllAiSlots(aiTargetRoom)}
+                      className="text-[0.62rem] font-bold text-primary hover:underline cursor-pointer"
+                    >
+                      Apply To All
+                    </button>
+                  )}
+                </div>
+                <input
+                  type="text"
+                  value={aiTargetRoom}
+                  onChange={(e) => setAiTargetRoom(e.target.value)}
+                  placeholder="e.g. First Floor 102, LT-102"
+                  className="h-9 w-full rounded-xl border border-primary/30 bg-background px-2.5 text-xs font-bold text-primary focus:border-primary focus:outline-none"
+                />
+              </div>
             </div>
 
             {/* Step 1: Photo Upload Dropzone / Camera Area */}
@@ -8399,7 +8446,7 @@ export function AdminPortal() {
                     Upload Or Capture Timetable Schedule Photo
                   </label>
                   <p className="text-[0.68rem] text-muted-foreground">
-                    Accepts Printed Charts, Whiteboard Snapshots, Notice Board Pictures, PDFs, Or Screenshots.
+                    Accepts Printed Charts, Whiteboard Snapshots, Notice Board Pictures, PDFs, Or Screenshots. Automatically Transcribes Lecture Theatres, Floors, Faculty Names &amp; Lab Periods.
                   </p>
                 </div>
 
@@ -8506,22 +8553,34 @@ export function AdminPortal() {
             ) : (
               /* Step 2: Review Extracted Slots & Batch Import */
               <div className="space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-3">
-                  <div className="flex items-center gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3 rounded-2xl border border-border bg-surface/60">
+                  <div className="flex flex-wrap items-center gap-2">
                     <span className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-0.5 text-xs font-bold text-emerald-600 dark:text-emerald-400">
                       ✓ {aiExtractedSlots.length} Slots Extracted
                     </span>
-                    <span className="text-xs text-muted-foreground">Review &amp; Adjust Before Saving</span>
+                    <span className="rounded-full bg-primary/10 border border-primary/20 px-2.5 py-0.5 text-[0.68rem] font-bold text-primary">
+                      Floor / Room: {aiTargetRoom || "First Floor 102"}
+                    </span>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setAiExtractedSlots([]);
-                    }}
-                    className="text-xs text-purple-600 dark:text-purple-400 font-bold hover:underline cursor-pointer"
-                  >
-                    Rescan Another Photo
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleApplyRoomToAllAiSlots(aiTargetRoom)}
+                      className="text-xs font-bold px-2.5 py-1 rounded-xl bg-primary/10 text-primary hover:bg-primary/20 transition-colors cursor-pointer"
+                      title="Apply Current Floor / Room To All Extracted Slots"
+                    >
+                      Apply Floor To All
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setAiExtractedSlots([]);
+                      }}
+                      className="text-xs text-purple-600 dark:text-purple-400 font-bold hover:underline cursor-pointer"
+                    >
+                      Rescan Another Photo
+                    </button>
+                  </div>
                 </div>
 
                 {/* Slots List */}
@@ -8538,6 +8597,11 @@ export function AdminPortal() {
                           </span>
                           <span className="font-bold text-foreground">{slot.day_of_week}</span>
                           <span className="text-muted-foreground">{slot.start_time} - {slot.end_time}</span>
+                          {slot.room_number && (
+                            <span className="rounded-md bg-secondary px-1.5 py-0.5 text-[0.65rem] font-bold text-secondary-foreground">
+                              {slot.room_number}
+                            </span>
+                          )}
                         </div>
                         <button
                           type="button"
@@ -8551,8 +8615,8 @@ export function AdminPortal() {
                         </button>
                       </div>
 
-                      {/* Title & Subject */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      {/* Title, Subject & Faculty Instructor */}
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                         <div>
                           <label className="block text-[0.65rem] font-bold text-muted-foreground mb-0.5">Title / Course</label>
                           <input
@@ -8585,9 +8649,23 @@ export function AdminPortal() {
                             ))}
                           </select>
                         </div>
+                        <div>
+                          <label className="block text-[0.65rem] font-bold text-muted-foreground mb-0.5">Faculty Instructor</label>
+                          <input
+                            type="text"
+                            value={slot.faculty_name || ""}
+                            placeholder="e.g. Mr. Rohit Solanki"
+                            onChange={(e) => {
+                              const updated = [...aiExtractedSlots];
+                              updated[idx].faculty_name = e.target.value;
+                              setAiExtractedSlots(updated);
+                            }}
+                            className="h-8 w-full rounded-xl border border-border bg-background px-2.5 text-xs focus:border-primary focus:outline-none"
+                          />
+                        </div>
                       </div>
 
-                      {/* Day, Times, Section From DB, Room */}
+                      {/* Day, Times, Section From DB, Room / Floor */}
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                         <div>
                           <label className="block text-[0.65rem] font-bold text-muted-foreground mb-0.5">Day</label>
@@ -8653,16 +8731,17 @@ export function AdminPortal() {
                           </select>
                         </div>
                         <div>
-                          <label className="block text-[0.65rem] font-bold text-muted-foreground mb-0.5">Room / Hall</label>
+                          <label className="block text-[0.65rem] font-bold text-muted-foreground mb-0.5">Room / Hall / Floor</label>
                           <input
                             type="text"
                             value={slot.room_number || ""}
+                            placeholder="e.g. First Floor 102"
                             onChange={(e) => {
                               const updated = [...aiExtractedSlots];
                               updated[idx].room_number = e.target.value;
                               setAiExtractedSlots(updated);
                             }}
-                            className="h-8 w-full rounded-xl border border-border bg-background px-2 text-xs focus:border-primary focus:outline-none"
+                            className="h-8 w-full rounded-xl border border-primary/40 bg-background px-2 text-xs font-bold text-primary focus:border-primary focus:outline-none"
                           />
                         </div>
                       </div>
