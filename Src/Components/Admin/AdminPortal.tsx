@@ -285,6 +285,7 @@ export function AdminPortal() {
   const [aiGeminiKey, setAiGeminiKey] = useState<string>(() => localStorage.getItem("nimswallah_gemini_key") || "");
   const [showAiKeyInput, setShowAiKeyInput] = useState<boolean>(false);
   const [isSavingAiSlots, setIsSavingAiSlots] = useState<boolean>(false);
+  const [isEnrichingFullNames, setIsEnrichingFullNames] = useState<boolean>(false);
 
   const [showMilestoneModal, setShowMilestoneModal] = useState<boolean>(false);
   const [editingMilestoneId, setEditingMilestoneId] = useState<string | null>(null);
@@ -1531,17 +1532,19 @@ export function AdminPortal() {
       });
 
       if (res.slots && res.slots.length > 0) {
-        const detectedRoom = (res.header_room || res.detected_metadata?.lecture_hall_or_floor || aiTargetRoom || "First Floor 102").trim();
+        const detectedRoom = (res.header_room || res.detected_metadata?.lecture_hall_or_floor || aiTargetRoom || "Third Floor 306").trim();
         if (detectedRoom) {
           setAiTargetRoom(detectedRoom);
         }
         const enrichedSlots = res.slots.map((s: any) => ({
           ...s,
-          room_number: (s.room_number || detectedRoom || "First Floor 102").trim(),
+          title: (s.full_subject_name || s.title || "").trim(),
+          full_subject_name: (s.full_subject_name || s.title || "").trim(),
+          room_number: (s.room_number || detectedRoom || "Third Floor 306").trim(),
           faculty_name: (s.faculty_name || "").trim(),
         }));
         setAiExtractedSlots(enrichedSlots);
-        toast.success(res.summary || `Extracted ${res.slots.length} Timetable Slots With Gemini AI!`);
+        toast.success(res.summary || `Extracted ${res.slots.length} Timetable Slots With Full Official Course Names!`);
       } else {
         toast.error("No Schedule Slots Could Be Extracted From The Provided Image. Try A Clearer Photo.");
       }
@@ -1549,6 +1552,21 @@ export function AdminPortal() {
       toast.error(err.message || "Failed To Consume Timetable Photo With Gemini AI.");
     } finally {
       setAiExtracting(false);
+    }
+  };
+
+  const handleEnrichTimetableFullNames = async () => {
+    try {
+      setIsEnrichingFullNames(true);
+      const res = await apiFetch<{ success: boolean; updated_count: number; detail?: string }>("/planner/admin/timetable/enrich-full-names/", {
+        method: "POST",
+      });
+      toast.success(res.detail || `Successfully Expanded ${res.updated_count || 0} Slots To Full Subject Names!`);
+      await loadAdminData();
+    } catch (err: any) {
+      toast.error(err.message || "Failed To Expand Timetable Full Subject Names.");
+    } finally {
+      setIsEnrichingFullNames(false);
     }
   };
 
@@ -1570,11 +1588,15 @@ export function AdminPortal() {
     }
     try {
       setIsSavingAiSlots(true);
+      const cleanedSlots = aiExtractedSlots.map((s) => ({
+        ...s,
+        title: (s.full_subject_name || s.title || "").trim(),
+      }));
       const res = await apiFetch<{ success: boolean; created_count: number }>("/planner/admin/timetable/bulk-create/", {
         method: "POST",
-        body: JSON.stringify({ slots: aiExtractedSlots }),
+        body: JSON.stringify({ slots: cleanedSlots }),
       });
-      toast.success(`Successfully Imported ${res.created_count || aiExtractedSlots.length} Timetable Slots!`);
+      toast.success(`Successfully Imported ${res.created_count || aiExtractedSlots.length} Timetable Slots With Full Course Names!`);
       setShowAiTimetableModal(false);
       setAiTimetableImage(null);
       setAiExtractedSlots([]);
@@ -4982,6 +5004,20 @@ export function AdminPortal() {
                   >
                     <Sparkles className="h-4 w-4 text-purple-500 shrink-0" />
                     <span>Scan Timetable Photo (Gemini AI)</span>
+                  </button>
+
+                  <button
+                    onClick={handleEnrichTimetableFullNames}
+                    disabled={isEnrichingFullNames || timetableSlots.length === 0}
+                    className="inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-2xl border border-blue-500/30 bg-blue-500/10 px-3 sm:px-4 py-2 sm:py-2.5 text-xs font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-500/20 hover:border-blue-500/50 cursor-pointer shrink-0 transition-colors shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                    title="Automatically Expand All Abbreviated Course Codes (e.g. PSC -> Programming for Problem Solving with C, M-1 -> Mathematics-I) To Full Names"
+                  >
+                    {isEnrichingFullNames ? (
+                      <RefreshCw className="h-4 w-4 animate-spin shrink-0" />
+                    ) : (
+                      <BookOpen className="h-4 w-4 shrink-0" />
+                    )}
+                    <span>Enrich Full Names</span>
                   </button>
 
                   <button
@@ -8683,16 +8719,25 @@ export function AdminPortal() {
                       {/* Title, Subject & Faculty Instructor */}
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                         <div>
-                          <label className="block text-[0.65rem] font-bold text-muted-foreground mb-0.5">Title / Course</label>
+                          <div className="flex items-center justify-between mb-0.5">
+                            <label className="block text-[0.65rem] font-bold text-muted-foreground">Full Course Name</label>
+                            {slot.short_name && slot.short_name !== slot.title && (
+                              <span className="text-[0.6rem] font-mono px-1.5 py-0.2 rounded bg-purple-500/10 text-purple-600 dark:text-purple-400 font-bold border border-purple-500/20">
+                                Code: {slot.short_name}
+                              </span>
+                            )}
+                          </div>
                           <input
                             type="text"
                             value={slot.title || ""}
+                            placeholder="e.g. Programming for Problem Solving with C"
                             onChange={(e) => {
                               const updated = [...aiExtractedSlots];
                               updated[idx].title = e.target.value;
+                              updated[idx].full_subject_name = e.target.value;
                               setAiExtractedSlots(updated);
                             }}
-                            className="h-8 w-full rounded-xl border border-border bg-background px-2.5 text-xs focus:border-primary focus:outline-none"
+                            className="h-8 w-full rounded-xl border border-border bg-background px-2.5 text-xs font-semibold focus:border-primary focus:outline-none"
                           />
                         </div>
                         <div>

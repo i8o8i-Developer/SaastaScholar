@@ -264,48 +264,74 @@ class AdminTimetablePhotoConsumeView(APIView):
             "You Are An Expert Academic Schedule OCR And Timetable Analysis Assistant. "
             "Analyze The Provided Timetable Image (Photo Of Notice Board, Printed Chart, Syllabus Timetable Grid, Or Screenshot) In Depth. "
             "\n"
+            "CRITICAL INSTRUCTIONS FOR FULL OFFICIAL SUBJECT NAMES (NEVER USE SHORT ABBREVIATIONS IN 'title'):\n"
+            "1. University timetables feature a weekly schedule grid on top with abbreviated subject codes (e.g. 'PSC', 'M-1', 'BEEE', 'EPHY', 'IAI', 'PE', 'Anandam', 'EDT Lab', 'PSC Lab', 'EPHY Lab') "
+            "AND an explicit legend / subject mapping table at the bottom or side with columns such as: 'Subject Code', 'Subject Name', 'Short Name', 'Theory/Practical', 'Faculty Name'.\n"
+            "2. YOU MUST CROSS-REFERENCE EVERY SINGLE CELL IN THE TIMETABLE GRID WITH THIS BOTTOM LEGEND TABLE.\n"
+            "3. THE 'title' FIELD IN EVERY SLOT MUST STRICTLY BE POPULATED WITH THE FULL, OFFICIAL EXPANDED SUBJECT NAME FROM THE LEGEND TABLE, NEVER THE SHORT ABBREVIATION!\n"
+            "   - When grid cell says 'PSC', look up the legend table: 'Programming for Problem Solving with C'. Set 'title': 'Programming for Problem Solving with C' (DO NOT set 'PSC')!\n"
+            "   - When grid cell says 'M-1' or 'M-I', look up the legend table: 'Mathematics-I'. Set 'title': 'Mathematics-I' (DO NOT set 'M-1')!\n"
+            "   - When grid cell says 'EPHY', look up the legend table: 'Engineering Physics'. Set 'title': 'Engineering Physics'!\n"
+            "   - When grid cell says 'BEEE', look up the legend table: 'Basic Electrical & Electronics Engineering'. Set 'title': 'Basic Electrical & Electronics Engineering'!\n"
+            "   - When grid cell says 'IAI', look up the legend table: 'Introduction to AI'. Set 'title': 'Introduction to AI'!\n"
+            "   - When grid cell says 'PE', look up the legend table: 'Professional English-I'. Set 'title': 'Professional English-I'!\n"
+            "   - When grid cell says 'Anandam', set 'title': 'Anandam Activity'!\n"
+            "   - When grid cell says 'EDT Lab (J1) 702/ PSC Lab(J2) (608)', set 'title': 'Emerging & Disruptive Technologies Lab-I (J1) / Programming for Problem Solving with C Lab (J2)', 'room_number': 'Lab 702 / 608', 'event_type': 'Practical'!\n"
+            "   - When grid cell says 'PSC Revision', set 'title': 'Programming for Problem Solving with C (Revision)'!\n"
+            "4. Also extract 'subject_legend_mapping' capturing all rows from the bottom legend table: { 'PSC': { 'full_name': 'Programming for Problem Solving with C', 'code': 'CSM101B', 'faculty': 'Mr. Rohit Solanki', 'type': 'Theory' }, ... }.\n"
+            "\n"
             "CRITICAL INSTRUCTIONS FOR ROOM / FLOOR / LECTURE THEATRE (LT NO.):\n"
-            "1. Carefully Inspect The Document Headers, Subtitles, Banners, And Corners For Room, Lecture Theatre, Hall, Or Floor Indicators. "
-            "For Example: 'LT No.: First Floor 102', 'Room No: 102', 'LT-102', 'First Floor 102', 'Hall 3', Or Similar Text. "
-            "2. When A Global Lecture Theatre / Room / Floor Is Declared At The Top (e.g., 'First Floor 102'), YOU MUST ASSIGN THIS EXACT ROOM STRING "
-            "(e.g., 'First Floor 102') To Every Theory Lecture Slot Across The Week. "
-            "3. For Lab / Practical Cells That Specify Distinct Lab Room Numbers (e.g. 'EDT Lab (B1) 602 / PSC Lab (B2) (604)' Where 602 And 604 Are Lab Rooms), "
-            "Set 'room_number' To The Specific Lab Room (e.g. 'Lab 602 / 604' Or 'Room 602'). "
-            "4. NEVER Return An Empty String For 'room_number' If Any Floor, Hall, Room, Or LT No. Is Visible In The Image! "
+            "5. Carefully Inspect The Document Headers, Subtitles, Banners, And Corners For Room, Lecture Theatre, Hall, Or Floor Indicators. "
+            "For Example: 'LT No.: Third Floor 306', 'LT No.: First Floor 102', 'Room No: 102', 'LT-102', 'Hall 3', Or Similar Text. "
+            "6. When A Global Lecture Theatre / Room / Floor Is Declared At The Top (e.g., 'Third Floor 306'), YOU MUST ASSIGN THIS EXACT ROOM STRING "
+            "(e.g., 'Third Floor 306') To Every Theory Lecture Slot Across The Week. "
+            "7. For Lab / Practical Cells That Specify Distinct Lab Room Numbers (e.g. 'EDT Lab (J1) 702/ PSC Lab(J2) (608)' Where 702 And 608 Are Lab Rooms), "
+            "Set 'room_number' To The Specific Lab Room (e.g. 'Lab 702 / 608'). "
+            "8. NEVER Return An Empty String For 'room_number' If Any Floor, Hall, Room, Or LT No. Is Visible In The Image!\n"
             "\n"
             "CRITICAL INSTRUCTIONS FOR FACULTY INSTRUCTOR EXTRACTION:\n"
-            "5. Many University Timetables Include A Legend/Mapping Table At The Bottom Or Side (e.g. Subject Code, Subject Name, Short Name, Faculty Name, e.g. 'Mr. Rohit Solanki', 'Dr Komal Prasad Sharma', 'Prof. Kuldeep Singh Rathore', etc.). "
-            "Cross-reference The Abbreviation/Course Title In Each Grid Slot With This Legend Table And Populate 'faculty_name' For Every Slot. "
+            "9. Cross-reference The Course In Each Grid Slot With The Legend Table And Populate 'faculty_name' For Every Slot (e.g. 'Mr. Rohit Solanki', 'Dr. Sudheer Kumar Sharma', 'Dr. Karishma', 'Mr. Ankit Sharma', 'Mr. Sandeep', 'Dr. Suman Devi', 'Dr. Alok').\n"
             "\n"
             "TIME SLOTS & DAYS:\n"
-            "6. Normalize Days Strictly To One Of: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']. "
-            "7. Parse Exact Times From The Column Headers (e.g., '09:10-10:05' -> start_time: '09:10', end_time: '10:05'; '10:05-11:00' -> start_time: '10:05', end_time: '11:00'; '11:05-12:00' -> start_time: '11:05', end_time: '12:00'; '12:55-13:55' -> start_time: '12:55', end_time: '13:55'; '13:55-14:50' -> start_time: '13:55', end_time: '14:50'). "
-            "Skip Non-Class Columns Like '11:00-11:05' Break Or '12:05-12:55' Lunch Break. "
-            f"8. If Semester Is Not Stated, Default To {fallback_semester}. If Section Is Not Stated, Default To '{fallback_section}'. "
-            "9. Set event_type to 'Practical' For Lab Sessions (Tone: 'cyan') And 'Class' For Theory Lectures (Tone: 'green'). "
+            "10. Normalize Days Strictly To One Of: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']. "
+            "11. Parse Exact Times From The Column Headers (e.g., '09:10-10:05' -> start_time: '09:10', end_time: '10:05'; '10:05-11:00' -> start_time: '10:05', end_time: '11:00'; '11:05-12:00' -> start_time: '11:05', end_time: '12:00'; '12:55-13:55' -> start_time: '12:55', end_time: '13:55'; '13:55-14:50' -> start_time: '13:55', end_time: '14:50'; '14:55-15:50' -> start_time: '14:55', end_time: '15:50'; '15:50-16:45' -> start_time: '15:50', end_time: '16:45'). "
+            "Skip Non-Class Columns Like '11:00-11:05' Break Or '12:05-12:55' Lunch Break Or '14:50-14:55' Break. "
+            f"12. If Semester Is Not Stated, Default To {fallback_semester}. If Section Is Not Stated, Default To '{fallback_section}'. "
+            "13. Set event_type to 'Practical' For Lab Sessions (Tone: 'cyan') And 'Class' For Theory Lectures (Tone: 'green'). "
             "\n"
             "Return STRICTLY A Valid JSON Object Matching This Exact Structure Without Markdown Fences Or Commentary:\n"
             "{\n"
             '  "detected_metadata": {\n'
-            '    "program_name": "B. Tech.(AIML)",\n'
+            '    "program_name": "B.Tech. (CSE+DATA SCIENCE+IT+IOT&CYBERNETICS+CCVT+HT+ROBOTICS+EVT)",\n'
             f'    "semester": {fallback_semester},\n'
             f'    "section": "{fallback_section}",\n'
-            '    "lecture_hall_or_floor": "First Floor 102",\n'
+            '    "lecture_hall_or_floor": "Third Floor 306",\n'
             '    "academic_session": "2026-2027"\n'
             "  },\n"
-            '  "faculty_mapping": {\n'
-            '    "PSC": "Mr. Rohit Solanki",\n'
-            '    "M-I": "Dr Komal Prasad Sharma"\n'
+            '  "subject_legend_mapping": {\n'
+            '    "PSC": {\n'
+            '      "full_name": "Programming for Problem Solving with C",\n'
+            '      "code": "CSM101B",\n'
+            '      "faculty": "Mr. Rohit Solanki",\n'
+            '      "type": "Theory"\n'
+            '    },\n'
+            '    "M-1": {\n'
+            '      "full_name": "Mathematics-I",\n'
+            '      "code": "MTM101T",\n'
+            '      "faculty": "Dr. Sudheer Kumar Sharma",\n'
+            '      "type": "Theory"\n'
+            '    }\n'
             "  },\n"
             '  "slots": [\n'
             "    {\n"
             '      "day_of_week": "Mon",\n'
             '      "start_time": "09:10",\n'
             '      "end_time": "10:05",\n'
-            '      "title": "PSC",\n'
-            '      "full_subject_name": "Programming For Problem Solving With C",\n'
+            '      "title": "Programming for Problem Solving with C",\n'
+            '      "short_name": "PSC",\n'
+            '      "full_subject_name": "Programming for Problem Solving with C",\n'
             '      "subject_code": "CSM101B",\n'
-            '      "room_number": "First Floor 102",\n'
+            '      "room_number": "Third Floor 306",\n'
             '      "faculty_name": "Mr. Rohit Solanki",\n'
             '      "event_type": "Class",\n'
             f'      "semester": {fallback_semester},\n'
@@ -314,7 +340,7 @@ class AdminTimetablePhotoConsumeView(APIView):
             "    }\n"
             "  ],\n"
             '  "confidence": "high",\n'
-            '  "summary": "Extracted X lecture and lab periods. LT Room: First Floor 102."\n'
+            '  "summary": "Extracted X lecture and lab periods. Full course names assigned from legend table."\n'
             "}"
         )
 
@@ -346,7 +372,6 @@ class AdminTimetablePhotoConsumeView(APIView):
             extracted_slots = parsed.get("slots", [])
             detected_meta = parsed.get("detected_metadata", {}) or {}
 
-            #
             header_room = (
                 detected_meta.get("lecture_hall_or_floor")
                 or detected_meta.get("room_number")
@@ -356,13 +381,40 @@ class AdminTimetablePhotoConsumeView(APIView):
                 or ""
             ).strip()
 
-            # 
             if not header_room:
                 for s in extracted_slots:
                     r = (s.get("room_number") or "").strip()
                     if any(w in r.lower() for w in ["floor", "lt", "room", "hall"]):
                         header_room = r
                         break
+
+            # Standard comprehensive expansions for common engineering subjects
+            STANDARD_EXPANSIONS = {
+                "PSC": "Programming for Problem Solving with C",
+                "M-1": "Mathematics-I",
+                "M-I": "Mathematics-I",
+                "M1": "Mathematics-I",
+                "MATH-I": "Mathematics-I",
+                "MATHS-I": "Mathematics-I",
+                "EPHY": "Engineering Physics",
+                "BEEE": "Basic Electrical & Electronics Engineering",
+                "IAI": "Introduction to AI",
+                "PE": "Professional English-I",
+                "ANANDAM": "Anandam Activity",
+                "EDT LAB": "Emerging & Disruptive Technologies Lab-I",
+                "PSC LAB": "Programming for Problem Solving with C Lab",
+                "EPHY LAB": "Engineering Physics Lab",
+                "BEEE LAB": "Basic Electrical & Electronics Engineering Lab",
+                "CSM101B": "Programming for Problem Solving with C",
+                "MTM101T": "Mathematics-I",
+                "PHM101B": "Engineering Physics",
+                "EEM101T": "Basic Electrical & Electronics Engineering",
+                "CSM102T": "Introduction to AI",
+                "CSM103P": "Emerging & Disruptive Technologies Lab-I",
+                "HUM101T": "Professional English-I",
+            }
+
+            full_name_lookup = dict(STANDARD_EXPANSIONS)
 
             faculty_map = parsed.get("faculty_mapping", {}) or {}
             faculty_map_norm = {
@@ -371,11 +423,39 @@ class AdminTimetablePhotoConsumeView(APIView):
                 if k and v
             }
 
+            # Legend mapping extracted directly from table at the bottom of the photo
+            legend_mapping = parsed.get("subject_legend_mapping", {}) or {}
+            if isinstance(legend_mapping, dict):
+                for k, v in legend_mapping.items():
+                    k_clean = str(k).strip().upper()
+                    if isinstance(v, dict):
+                        f_name = (v.get("full_name") or v.get("name") or "").strip()
+                        c_code = (v.get("code") or v.get("subject_code") or "").strip().upper()
+                        f_faculty = (v.get("faculty") or v.get("faculty_name") or "").strip()
+                        if f_name:
+                            full_name_lookup[k_clean] = f_name
+                            if c_code:
+                                full_name_lookup[c_code] = f_name
+                        if f_faculty:
+                            faculty_map_norm[k_clean] = f_faculty
+                            if c_code:
+                                faculty_map_norm[c_code] = f_faculty
+                    elif isinstance(v, str) and v.strip():
+                        full_name_lookup[k_clean] = v.strip()
+
             from Apps.Academic.models import Subject
             db_subjects = list(Subject.objects.all().values("id", "name", "code", "short_name"))
+            for sub in db_subjects:
+                s_name = (sub.get("name") or "").strip()
+                s_short = (sub.get("short_name") or "").strip().upper()
+                s_code = (sub.get("code") or "").strip().upper()
+                if s_name:
+                    if s_short:
+                        full_name_lookup[s_short] = s_name
+                    if s_code:
+                        full_name_lookup[s_code] = s_name
 
             for slot in extracted_slots:
-                
                 current_room = (slot.get("room_number") or "").strip()
                 if not current_room or current_room.lower() in ["lt-01", "room", "na", "null", "none"]:
                     if header_room:
@@ -387,23 +467,25 @@ class AdminTimetablePhotoConsumeView(APIView):
                 else:
                     slot["room_number"] = current_room
 
-                #
                 curr_faculty = (slot.get("faculty_name") or "").strip()
                 title_clean = (slot.get("title") or "").strip().upper()
                 code_clean = (slot.get("subject_code") or "").strip().upper()
+                short_clean = (slot.get("short_name") or "").strip().upper()
 
                 if not curr_faculty:
                     if title_clean in faculty_map_norm:
                         slot["faculty_name"] = faculty_map_norm[title_clean]
                     elif code_clean in faculty_map_norm:
                         slot["faculty_name"] = faculty_map_norm[code_clean]
+                    elif short_clean in faculty_map_norm:
+                        slot["faculty_name"] = faculty_map_norm[short_clean]
                     else:
                         for k, v in faculty_map_norm.items():
-                            if k in title_clean or title_clean in k or (code_clean and k in code_clean):
+                            if k in title_clean or title_clean in k or (code_clean and k in code_clean) or (short_clean and k in short_clean):
                                 slot["faculty_name"] = v
                                 break
 
-                # 
+                # Database Subject Matching
                 title_lower = (slot.get("title") or "").lower()
                 code_lower = (slot.get("subject_code") or "").lower()
                 full_name_lower = (slot.get("full_subject_name") or "").lower()
@@ -430,15 +512,49 @@ class AdminTimetablePhotoConsumeView(APIView):
                 else:
                     slot["subject_id"] = None
 
+                # FULL COURSE NAME RESOLUTION: Never leave abbreviations as primary title
+                raw_title = (slot.get("title") or "").strip()
+                slot_full = (slot.get("full_subject_name") or "").strip()
+                resolved_full_name = ""
+
+                if slot_full and len(slot_full) > len(raw_title) and len(slot_full) > 4:
+                    resolved_full_name = slot_full
+
+                lookup_keys = [raw_title.upper(), short_clean, code_clean]
+                if not resolved_full_name:
+                    for lk in lookup_keys:
+                        if lk and lk in full_name_lookup:
+                            resolved_full_name = full_name_lookup[lk]
+                            break
+
+                if not resolved_full_name and matched_sub and matched_sub.get("name"):
+                    resolved_full_name = matched_sub["name"]
+
+                if not resolved_full_name and "revision" in raw_title.lower():
+                    base = raw_title.lower().replace("revision", "").strip().upper()
+                    if base in full_name_lookup:
+                        resolved_full_name = f"{full_name_lookup[base]} (Revision)"
+
+                if resolved_full_name:
+                    slot["title"] = resolved_full_name
+                    slot["full_subject_name"] = resolved_full_name
+                elif slot_full:
+                    slot["title"] = slot_full
+                else:
+                    slot["full_subject_name"] = slot["title"]
+
+                if not slot.get("short_name") and raw_title != slot["title"]:
+                    slot["short_name"] = raw_title
+
             return Response({
                 "success": True,
                 "model_used": f"{model_used} (Multimodal OCR)",
                 "slots": extracted_slots,
                 "count": len(extracted_slots),
                 "detected_metadata": detected_meta,
-                "header_room": header_room or fallback_room or "First Floor 102",
+                "header_room": header_room or fallback_room or "Third Floor 306",
                 "confidence": parsed.get("confidence", "high"),
-                "summary": parsed.get("summary", f"Extracted {len(extracted_slots)} Period Slots with Lecture Theatre / Floor information."),
+                "summary": parsed.get("summary", f"Extracted {len(extracted_slots)} Period Slots with Full Course Names & Lecture Theatre / Floor information."),
             }, status=status.HTTP_200_OK)
 
         except ValueError as val_err:
@@ -480,6 +596,10 @@ class AdminTimetableBulkCreateView(APIView):
 
             sec = str(item.get("section", "A")).strip().upper() or "A"
             title = str(item.get("title", "Lecture Slot")).strip() or "Lecture Slot"
+            full_title = str(item.get("full_subject_name") or "").strip()
+            if full_title and len(full_title) > len(title):
+                title = full_title
+
             start_time = str(item.get("start_time", "09:00")).strip()
             end_time = str(item.get("end_time", "10:30")).strip()
             room = str(item.get("room_number", "LT-01")).strip() or "LT-01"
@@ -513,5 +633,99 @@ class AdminTimetableBulkCreateView(APIView):
             "detail": f"Successfully Created {len(created_slots)} Timetable Slots.",
             "created_count": len(created_slots),
         }, status=status.HTTP_201_CREATED)
+
+class AdminTimetableEnrichFullNamesView(APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    def post(self, request):
+        from Apps.Academic.models import Subject
+        from Apps.Academic.cache_utils import invalidate_redis_pattern
+
+        STANDARD_EXPANSIONS = {
+            "PSC": "Programming for Problem Solving with C",
+            "M-1": "Mathematics-I",
+            "M-I": "Mathematics-I",
+            "M1": "Mathematics-I",
+            "MATH-I": "Mathematics-I",
+            "MATHS-I": "Mathematics-I",
+            "EPHY": "Engineering Physics",
+            "BEEE": "Basic Electrical & Electronics Engineering",
+            "IAI": "Introduction to AI",
+            "PE": "Professional English-I",
+            "ANANDAM": "Anandam Activity",
+            "EDT LAB": "Emerging & Disruptive Technologies Lab-I",
+            "PSC LAB": "Programming for Problem Solving with C Lab",
+            "EPHY LAB": "Engineering Physics Lab",
+            "BEEE LAB": "Basic Electrical & Electronics Engineering Lab",
+            "CSM101B": "Programming for Problem Solving with C",
+            "MTM101T": "Mathematics-I",
+            "PHM101B": "Engineering Physics",
+            "EEM101T": "Basic Electrical & Electronics Engineering",
+            "CSM102T": "Introduction to AI",
+            "CSM103P": "Emerging & Disruptive Technologies Lab-I",
+            "HUM101T": "Professional English-I",
+        }
+
+        db_subjects = list(Subject.objects.all())
+        subject_map = {}
+        for s in db_subjects:
+            if s.name:
+                if s.short_name:
+                    subject_map[s.short_name.strip().upper()] = s
+                if s.code:
+                    subject_map[s.code.strip().upper()] = s
+                subject_map[s.name.strip().upper()] = s
+
+        updated_count = 0
+        slots = TimetableSlot.objects.all()
+
+        for slot in slots:
+            curr_title = (slot.title or "").strip()
+            curr_upper = curr_title.upper()
+            resolved_title = None
+            matched_subject = slot.subject
+
+            # 1. If subject is already linked and has a longer, official name
+            if matched_subject and matched_subject.name and len(curr_title) < len(matched_subject.name):
+                resolved_title = matched_subject.name
+
+            # 2. If short code matches DB subject
+            if not resolved_title and curr_upper in subject_map:
+                s_obj = subject_map[curr_upper]
+                resolved_title = s_obj.name
+                if not matched_subject:
+                    matched_subject = s_obj
+
+            # 3. If matches standard university expansions
+            if not resolved_title and curr_upper in STANDARD_EXPANSIONS:
+                resolved_title = STANDARD_EXPANSIONS[curr_upper]
+
+            # 4. If revision suffix (e.g. "PSC Revision")
+            if not resolved_title and "revision" in curr_title.lower():
+                base_key = curr_title.lower().replace("revision", "").strip().upper()
+                if base_key in STANDARD_EXPANSIONS:
+                    resolved_title = f"{STANDARD_EXPANSIONS[base_key]} (Revision)"
+                elif base_key in subject_map:
+                    resolved_title = f"{subject_map[base_key].name} (Revision)"
+
+            needs_save = False
+            if resolved_title and resolved_title != curr_title:
+                slot.title = resolved_title
+                needs_save = True
+
+            if matched_subject and slot.subject_id != matched_subject.id:
+                slot.subject = matched_subject
+                needs_save = True
+
+            if needs_save:
+                slot.save()
+                updated_count += 1
+
+        invalidate_redis_pattern("planner")
+        return Response({
+            "success": True,
+            "updated_count": updated_count,
+            "detail": f"Successfully Expanded {updated_count} Timetable Slots To Full Official Course Names."
+        }, status=status.HTTP_200_OK)
 
 
