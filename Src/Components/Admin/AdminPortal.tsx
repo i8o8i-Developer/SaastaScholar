@@ -301,7 +301,6 @@ export function AdminPortal() {
   const [sectionFolderSemesterFilter, setSectionFolderSemesterFilter] = useState<number | "all">("all");
   const [subjectFolderProgramId, setSubjectFolderProgramId] = useState<string | null>(null);
   const [subjectFolderSemesterFilter, setSubjectFolderSemesterFilter] = useState<number | "all">("all");
-  const [academicFolderViewMode, setAcademicFolderViewMode] = useState<"folders" | "flat">("folders");
   const [academicSearchQuery, setAcademicSearchQuery] = useState<string>("");
 
   // Form State Containers
@@ -1343,18 +1342,24 @@ export function AdminPortal() {
         });
         toast.success("Entire Timetable Database Purged Successfully.");
       } else {
+        if (filteredTimetableSlots.length === 0) {
+          toast.error("No Timetable Slots Match The Current Filter.");
+          setIsDeletingAllTimetable(false);
+          return;
+        }
         const targetSec = sections.find((s) => s.id === selectedSectionId);
         const targetSecCode = targetSec?.section || targetSec?.section_name || "";
-        const payload: { semester?: number; section?: string; day_of_week?: string } = {};
+        const payload: { semester?: number; section?: string; day_of_week?: string; ids?: string[] } = {};
         if (selectedSemester) payload.semester = selectedSemester;
         if (targetSecCode) payload.section = targetSecCode;
         if (selectedTimetableDay && selectedTimetableDay !== "All") payload.day_of_week = selectedTimetableDay;
+        payload.ids = filteredTimetableSlots.map((s) => s.id);
 
         await apiFetch("/planner/admin/timetable/bulk-delete/", {
           method: "POST",
           body: JSON.stringify(payload),
         });
-        toast.success("Filtered Timetable Slots Deleted Successfully.");
+        toast.success(`Successfully Deleted ${filteredTimetableSlots.length} Filtered Timetable Slots.`);
       }
       setShowDeleteAllTimetableModal(false);
       setDeleteConfirmationText("");
@@ -3140,42 +3145,11 @@ export function AdminPortal() {
                             className="h-8.5 pl-8.5 pr-3 text-xs rounded-xl border border-border bg-background focus:outline-none focus:border-primary w-full sm:w-44"
                           />
                         </div>
-
-                        <div className="inline-flex items-center p-0.5 rounded-xl border border-border bg-card">
-                          <button
-                            type="button"
-                            onClick={() => { setAcademicFolderViewMode("folders"); setProgramFolderDeptId(null); }}
-                            className={cn(
-                              "px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1",
-                              academicFolderViewMode === "folders"
-                                ? "bg-primary text-primary-foreground shadow-2xs"
-                                : "text-muted-foreground hover:text-foreground"
-                            )}
-                            title="Folder View"
-                          >
-                            <Folder className="h-3.5 w-3.5" />
-                            <span>Folders</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setAcademicFolderViewMode("flat")}
-                            className={cn(
-                              "px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1",
-                              academicFolderViewMode === "flat"
-                                ? "bg-primary text-primary-foreground shadow-2xs"
-                                : "text-muted-foreground hover:text-foreground"
-                            )}
-                            title="Flat Grid View"
-                          >
-                            <Layers className="h-3.5 w-3.5" />
-                            <span>Grid</span>
-                          </button>
-                        </div>
                       </div>
                     </div>
 
                     {/* FOLDER VIEW: Top-level Department Folders */}
-                    {academicFolderViewMode === "folders" && !programFolderDeptId && (
+                    {!programFolderDeptId && (
                       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                         {departments.map((dept) => {
                           const progsInDept = filteredPrograms.filter((p) => p.department === dept.id || p.department_name === dept.name);
@@ -3183,33 +3157,38 @@ export function AdminPortal() {
                             <div
                               key={dept.id}
                               onClick={() => setProgramFolderDeptId(dept.id)}
-                              className="group relative rounded-3xl border border-border/80 bg-gradient-to-b from-card via-card to-surface/40 p-5 shadow-xs hover:shadow-lg hover:border-cyan-500/50 transition-all cursor-pointer flex flex-col justify-between space-y-4"
+                              className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border/80 bg-card p-5 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:border-cyan-500/50 hover:shadow-lg cursor-pointer min-w-0"
                             >
-                              <div className="space-y-3">
-                                <div className="flex items-center justify-between">
-                                  <div className="grid h-12 w-12 place-items-center rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-500 group-hover:scale-110 transition-transform">
-                                    <Folder className="h-6 w-6 fill-cyan-500/20" />
+                              <div className="space-y-3 min-w-0">
+                                <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                                  <div className="flex items-center gap-2">
+                                    <div className="grid h-9 w-9 place-items-center rounded-2xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 font-mono font-bold text-xs">
+                                      <Folder className="h-4 w-4" />
+                                    </div>
+                                    <div>
+                                      <span className="text-[0.68rem] font-mono font-bold uppercase tracking-wider text-cyan-600 dark:text-cyan-400">
+                                        Department Folder
+                                      </span>
+                                      <h4 className="font-display text-sm font-bold text-foreground truncate max-w-[180px] sm:max-w-[220px]">
+                                        {dept.name}
+                                      </h4>
+                                    </div>
                                   </div>
-                                  <span className="rounded-full bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-0.5 text-xs font-bold font-mono text-cyan-600 dark:text-cyan-400">
-                                    {dept.code}
+                                  <span className="rounded-full bg-surface border border-border/80 px-2 py-0.5 text-[0.68rem] font-mono font-bold text-foreground">
+                                    {progsInDept.length} Programs
                                   </span>
                                 </div>
-                                <div>
-                                  <h3 className="font-display text-base font-bold text-foreground group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
-                                    {dept.name}
-                                  </h3>
-                                  <p className="mt-1 text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-                                    {dept.description || "Academic Department Specializations."}
-                                  </p>
-                                </div>
+                                <p className="text-xs text-muted-foreground line-clamp-2 min-h-[32px]">
+                                  {dept.description || "Academic department and degree curriculum architecture."}
+                                </p>
                               </div>
-                              <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs font-mono">
-                                <span className="font-bold text-cyan-600 dark:text-cyan-400">
-                                  {progsInDept.length} Specializations
-                                </span>
-                                <span className="text-muted-foreground group-hover:text-foreground font-semibold flex items-center gap-1 transition-colors">
-                                  Open Folder <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
-                                </span>
+
+                              <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
+                                <span className="font-mono text-[0.7rem]">{dept.code}</span>
+                                <div className="inline-flex items-center gap-1 font-bold text-cyan-600 dark:text-cyan-400 group-hover:translate-x-0.5 transition-transform text-xs">
+                                  <span>Open Folder</span>
+                                  <ChevronRight className="h-3.5 w-3.5" />
+                                </div>
                               </div>
                             </div>
                           );
@@ -3217,8 +3196,8 @@ export function AdminPortal() {
                       </div>
                     )}
 
-                    {/* FOLDER VIEW: Inside a Selected Department Folder OR FLAT VIEW */}
-                    {(academicFolderViewMode === "flat" || programFolderDeptId !== null) && (
+                    {/* FOLDER VIEW: Inside a Selected Department Folder */}
+                    {programFolderDeptId !== null && (
                       <div className="space-y-3">
                         {programFolderDeptId && currentDept && (
                           <div className="flex flex-wrap items-center justify-between gap-2 px-1">
@@ -3391,42 +3370,11 @@ export function AdminPortal() {
                             className="h-8.5 pl-8.5 pr-3 text-xs rounded-xl border border-border bg-background focus:outline-none focus:border-primary w-full sm:w-44"
                           />
                         </div>
-
-                        <div className="inline-flex items-center p-0.5 rounded-xl border border-border bg-card">
-                          <button
-                            type="button"
-                            onClick={() => { setAcademicFolderViewMode("folders"); setSectionFolderProgramId(null); }}
-                            className={cn(
-                              "px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1",
-                              academicFolderViewMode === "folders"
-                                ? "bg-primary text-primary-foreground shadow-2xs"
-                                : "text-muted-foreground hover:text-foreground"
-                            )}
-                            title="Folder View"
-                          >
-                            <Folder className="h-3.5 w-3.5" />
-                            <span>Folders</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setAcademicFolderViewMode("flat")}
-                            className={cn(
-                              "px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1",
-                              academicFolderViewMode === "flat"
-                                ? "bg-primary text-primary-foreground shadow-2xs"
-                                : "text-muted-foreground hover:text-foreground"
-                            )}
-                            title="Flat Grid View"
-                          >
-                            <Layers className="h-3.5 w-3.5" />
-                            <span>Grid</span>
-                          </button>
-                        </div>
                       </div>
                     </div>
 
                     {/* FOLDER VIEW: Top-level Program Folders for Sections */}
-                    {academicFolderViewMode === "folders" && !sectionFolderProgramId && (
+                    {!sectionFolderProgramId && (
                       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                         {programs.map((prog) => {
                           const progSections = filteredSections.filter((s) => isSectionInProgram(s, prog));
@@ -3518,7 +3466,7 @@ export function AdminPortal() {
                     )}
 
                     {/* INSIDE PROGRAM FOLDER: Semester Sub-Filters + Section Cards */}
-                    {(academicFolderViewMode === "flat" || sectionFolderProgramId !== null) && (
+                    {sectionFolderProgramId !== null && (
                       <div className="space-y-4">
                         {sectionFolderProgramId && (
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-card border border-border">
@@ -3756,42 +3704,11 @@ export function AdminPortal() {
                             className="h-8.5 pl-8.5 pr-3 text-xs rounded-xl border border-border bg-background focus:outline-none focus:border-primary w-full sm:w-44"
                           />
                         </div>
-
-                        <div className="inline-flex items-center p-0.5 rounded-xl border border-border bg-card">
-                          <button
-                            type="button"
-                            onClick={() => { setAcademicFolderViewMode("folders"); setSubjectFolderProgramId(null); }}
-                            className={cn(
-                              "px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1",
-                              academicFolderViewMode === "folders"
-                                ? "bg-primary text-primary-foreground shadow-2xs"
-                                : "text-muted-foreground hover:text-foreground"
-                            )}
-                            title="Folder View"
-                          >
-                            <Folder className="h-3.5 w-3.5" />
-                            <span>Folders</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => setAcademicFolderViewMode("flat")}
-                            className={cn(
-                              "px-2.5 py-1 rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center gap-1",
-                              academicFolderViewMode === "flat"
-                                ? "bg-primary text-primary-foreground shadow-2xs"
-                                : "text-muted-foreground hover:text-foreground"
-                            )}
-                            title="Flat Grid View"
-                          >
-                            <Layers className="h-3.5 w-3.5" />
-                            <span>Grid</span>
-                          </button>
-                        </div>
                       </div>
                     </div>
 
                     {/* FOLDER VIEW: Top-level Program Specialization Folders */}
-                    {academicFolderViewMode === "folders" && !subjectFolderProgramId && (
+                    {!subjectFolderProgramId && (
                       <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                         {programs.map((prog) => {
                           const progSubjects = filteredSubjects.filter((s) => isSubjectInProgram(s, prog));
@@ -3832,10 +3749,9 @@ export function AdminPortal() {
                                 </div>
                               </div>
                               <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs font-mono">
-                                <div className="flex items-center gap-2">
-                                  <span className="font-bold text-foreground">{progSubjects.length} Modules</span>
-                                  <span className="text-emerald-600 dark:text-emerald-400 font-bold">· {totalCredits} Credits</span>
-                                </div>
+                                <span className="font-bold text-emerald-600 dark:text-emerald-400">
+                                  {progSubjects.length} Modules · {totalCredits} Credits
+                                </span>
                                 <span className="text-muted-foreground group-hover:text-foreground font-semibold flex items-center gap-1 transition-colors">
                                   Open Folder <ChevronRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
                                 </span>
@@ -3844,30 +3760,30 @@ export function AdminPortal() {
                           );
                         })}
 
-                        {/* Unassigned / Shared Modules Folder if any exist */}
+                        {/* Unassigned Modules Folder (If Any) */}
                         {unassignedSubjects.length > 0 && (
                           <div
                             onClick={() => {
-                              setSubjectFolderProgramId("__unassigned__");
+                              setSubjectFolderProgramId("unassigned");
                               setSubjectFolderSemesterFilter("all");
                             }}
-                            className="group relative rounded-3xl border border-dashed border-border/80 bg-surface/40 p-5 shadow-xs hover:shadow-md hover:border-primary/50 transition-all cursor-pointer flex flex-col justify-between space-y-4"
+                            className="group relative rounded-3xl border border-dashed border-border/80 bg-surface/30 p-5 shadow-xs hover:shadow-lg hover:border-foreground/40 transition-all cursor-pointer flex flex-col justify-between space-y-4"
                           >
                             <div className="space-y-3">
                               <div className="flex items-center justify-between">
-                                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-primary/10 border border-primary/20 text-primary group-hover:scale-110 transition-transform">
-                                  <Folder className="h-6 w-6 fill-primary/20" />
+                                <div className="grid h-12 w-12 place-items-center rounded-2xl bg-surface border border-border text-muted-foreground group-hover:scale-110 transition-transform">
+                                  <Folder className="h-6 w-6" />
                                 </div>
-                                <span className="rounded-full bg-surface border border-border px-2.5 py-0.5 text-xs font-mono font-bold text-muted-foreground">
+                                <span className="rounded-full bg-surface border border-border px-2.5 py-0.5 text-xs font-bold font-mono text-muted-foreground">
                                   CORE
                                 </span>
                               </div>
                               <div>
-                                <h3 className="font-display text-base font-bold text-foreground group-hover:text-primary transition-colors">
-                                  General &amp; Multidisciplinary Modules
+                                <h3 className="font-display text-base font-bold text-foreground">
+                                  General &amp; Core Curriculum
                                 </h3>
-                                <p className="mt-1 text-xs text-muted-foreground line-clamp-1 font-semibold">
-                                  Subjects not strictly bound to a single program
+                                <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
+                                  Unassigned University Modules &amp; Foundation Electives.
                                 </p>
                               </div>
                             </div>
@@ -3883,7 +3799,7 @@ export function AdminPortal() {
                     )}
 
                     {/* INSIDE PROGRAM FOLDER: Semester Sub-Filters + Subject Cards */}
-                    {(academicFolderViewMode === "flat" || subjectFolderProgramId !== null) && (
+                    {subjectFolderProgramId !== null && (
                       <div className="space-y-4">
                         {subjectFolderProgramId && (
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 rounded-2xl bg-card border border-border">
@@ -8170,7 +8086,7 @@ export function AdminPortal() {
                     Upload Or Capture Timetable Schedule Photo
                   </label>
                   <p className="text-[0.68rem] text-muted-foreground">
-                    Accepts printed charts, whiteboard snapshots, notice board pictures, PDFs, or screenshots.
+                    Accepts Printed Charts, Whiteboard Snapshots, Notice Board Pictures, PDFs, Or Screenshots.
                   </p>
                 </div>
 
@@ -8244,11 +8160,11 @@ export function AdminPortal() {
                         type="password"
                         value={aiGeminiKey}
                         onChange={(e) => setAiGeminiKey(e.target.value)}
-                        placeholder="AIzaSy... (Leave blank to use server environment key)"
+                        placeholder="AIzaSy... (Leave Blank To Use Server Environment Key)"
                         className="h-9 w-full rounded-xl border border-border bg-background px-3 font-mono text-xs focus:border-purple-500 focus:outline-none"
                       />
                       <p className="text-[0.62rem] text-muted-foreground">
-                        Your key is saved locally in your browser for seamless future timetable scans.
+                        Your Key Is Saved Locally In Your Browser For Seamless Future Timetable Scans.
                       </p>
                     </div>
                   )}

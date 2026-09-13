@@ -164,6 +164,9 @@ def perform_bulk_delete_timetable(request):
         }, status=status.HTTP_200_OK)
 
     qs = TimetableSlot.objects.all()
+    program_id = request.data.get("program_id") or request.data.get("program") if hasattr(request, "data") else None
+    if program_id is None:
+        program_id = request.query_params.get("program_id") or request.query_params.get("program")
     semester = request.data.get("semester") if hasattr(request, "data") else None
     if semester is None:
         semester = request.query_params.get("semester")
@@ -175,6 +178,9 @@ def perform_bulk_delete_timetable(request):
         day_of_week = request.query_params.get("day_of_week")
 
     filtered = False
+    if program_id and str(program_id).strip() != "":
+        qs = qs.filter(subject__program_id=str(program_id).strip())
+        filtered = True
     if semester is not None and str(semester).strip() != "":
         try:
             qs = qs.filter(semester=int(semester))
@@ -190,7 +196,7 @@ def perform_bulk_delete_timetable(request):
 
     if not filtered:
         return Response({
-            "error": "Please Specify Filters (Semester, Section, Day_Of_Week) Or Purge_All=True."
+            "error": "Please Specify Filters (Program, Semester, Section, Day_Of_Week) Or Purge_All=True."
         }, status=status.HTTP_400_BAD_REQUEST)
 
     count, _ = qs.delete()

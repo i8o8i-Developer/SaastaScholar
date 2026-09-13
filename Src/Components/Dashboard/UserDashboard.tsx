@@ -78,7 +78,7 @@ export function UserDashboard() {
             <FacultyHub onOpenReader={handleOpenReader} />
           )}
           {activeTab === "labs" && (
-            <LabsHub />
+            <LabsHub onOpenReader={handleOpenReader} />
           )}
           {activeTab === "assignments" && (
             <AssignmentsTracker />
