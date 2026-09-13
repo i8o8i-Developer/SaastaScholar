@@ -508,6 +508,11 @@ export function AdminPortal() {
     if (!isLoading) {
       const isMasterAdmin = (user as any)?.is_staff || (user as any)?.is_superuser || user?.email === "admin@nims.edu.in";
       if (!isAuthenticated || !getAccessToken() || !isMasterAdmin) {
+        if (isAuthenticated && !isMasterAdmin) {
+          toast.error("Access Denied: Administrative Clearance Required. Redirecting To Student Dashboard.");
+          window.location.href = "/dashboard";
+          return;
+        }
         window.location.href = "/login?mode=admin";
         return;
       }

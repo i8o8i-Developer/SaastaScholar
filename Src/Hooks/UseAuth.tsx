@@ -6,7 +6,7 @@ interface AuthContextType {
   user: StudentUser | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password?: string) => Promise<boolean>;
+  login: (email: string, password?: string, portal?: "student" | "admin") => Promise<StudentUser>;
   register: (data: Partial<StudentUser> & { password?: string }) => Promise<boolean>;
   logout: () => void;
   updateProfile: (data: Partial<StudentUser>) => Promise<boolean>;
@@ -52,13 +52,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     refreshUser();
   }, []);
 
-  const login = async (email: string, password = "password123"): Promise<boolean> => {
+  const login = async (
+    email: string,
+    password = "password123",
+    portal: "student" | "admin" = "student"
+  ): Promise<StudentUser> => {
     try {
       setIsLoading(true);
       const res = await apiFetch<{ user: StudentUser; access: string; refresh: string }>("/auth/login/", {
         method: "POST",
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, portal }),
       });
+
+      const isUserAdmin = Boolean(
+        res.user.is_staff || res.user.is_superuser || res.user.email === "admin@nims.edu.in"
+      );
+
+      // Deep Client-Side Gate: Prevent Cross-Portal Contamination
+      if (portal === "student" && isUserAdmin) {
+        removeAccessToken();
+        localStorage.removeItem("nimswallah_refresh_token");
+        localStorage.removeItem("nimswallah_user");
+        setUser(null);
+        const errMsg = "Access Denied: Administrator Credentials Detected. Administrator Accounts Must Sign In Exclusively Through The Admin Portal.";
+        toast.error(toTitleCase(errMsg));
+        throw new Error(errMsg);
+      }
+
+      if (portal === "admin" && !isUserAdmin) {
+        removeAccessToken();
+        localStorage.removeItem("nimswallah_refresh_token");
+        localStorage.removeItem("nimswallah_user");
+        setUser(null);
+        const errMsg = "Access Denied: Administrative Clearance Required. Student Scholars Must Sign In Exclusively Through The Student Portal.";
+        toast.error(toTitleCase(errMsg));
+        throw new Error(errMsg);
+      }
 
       setAccessToken(res.access);
       if (res.refresh) {
@@ -66,9 +95,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       setUser(res.user);
       localStorage.setItem("nimswallah_user", JSON.stringify(res.user));
-      const userName = toTitleCase(res.user.full_name || res.user.username || "Scholar");
-      toast.success(`Welcome Back, ${userName}!`);
-      return true;
+      const userName = toTitleCase(res.user.full_name || res.user.username || (isUserAdmin ? "Administrator" : "Scholar"));
+      toast.success(isUserAdmin ? `Master Administrator Session Initialized. Welcome, ${userName}!` : `Welcome Back, ${userName}!`);
+      return res.user;
     } catch (error: any) {
       toast.error(toTitleCase(error.message || "Authentication Failed. Please Verify Credentials."));
       throw error;

@@ -263,7 +263,7 @@ class AdminTimetablePhotoConsumeView(APIView):
             f"If Section Is Not Specified In The Image, Default To '{fallback_section}'. "
             "For Event_Type, Use 'Class' For Regular Theory Classes/Lectures, Or 'Practical' For Lab Sessions. "
             "Tone Should Be 'cyan' For Practical/Labs, And 'green' For Theory Classes. "
-            "Return STRICTLY A valid JSON Object Matching This Exact Schema Without Commentary:\n"
+            "Return STRICTLY A Valid JSON Object Matching This Exact Schema Without Any Extra Commentary:\n"
             "{\n"
             '  "slots": [\n'
             "    {\n"

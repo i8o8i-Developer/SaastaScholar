@@ -164,13 +164,27 @@ export function Login() {
         });
         navigate({ to: "/dashboard" });
       } else {
-        await login(email, password);
-        if (authMode === "admin" || email === "admin@nims.edu.in") {
-          toast.success("Master Administrator Session Initialized.");
-          navigate({ to: "/admin" });
+        const targetPortal: "student" | "admin" = authMode === "admin" ? "admin" : "student";
+        const authenticatedUser = await login(email, password, targetPortal);
+
+        const isUserAdmin = Boolean(
+          authenticatedUser.is_staff ||
+          authenticatedUser.is_superuser ||
+          authenticatedUser.email === "admin@nims.edu.in"
+        );
+
+        if (authMode === "admin") {
+          if (isUserAdmin) {
+            navigate({ to: "/admin" });
+          } else {
+            toast.error("Access Denied: Administrative Clearance Required. Student Scholars Must Sign In Exclusively Through The Student Portal.");
+          }
         } else {
-          toast.success("Student Scholar Authenticated.");
-          navigate({ to: "/dashboard" });
+          if (isUserAdmin) {
+            toast.error("Access Denied: Administrator Credentials Detected. Administrator Accounts Must Sign In Exclusively Through The Admin Portal.");
+          } else {
+            navigate({ to: "/dashboard" });
+          }
         }
       }
     } catch (err: any) {
@@ -588,10 +602,57 @@ export function Login() {
                     )}
                   </div>
 
+                  {/* Strict Portal Access Advisory Notice */}
+                  {authMode === "login" && (
+                    <div className="flex items-start gap-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 p-3 text-[0.72rem] text-emerald-900 dark:text-emerald-200">
+                      <GraduationCap className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                      <div className="leading-snug">
+                        <span className="font-bold">Student Scholar Portal: </span>
+                        Strictly For Verified Students. Administrator Credentials Are Not Permitted Here. University Controllers And Administrators Must Sign In Via The{" "}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAuthMode("admin");
+                            setEmail("");
+                            setPassword("");
+                          }}
+                          className="font-bold underline hover:text-foreground cursor-pointer"
+                        >
+                          Admin Portal
+                        </button>.
+                      </div>
+                    </div>
+                  )}
+
+                  {authMode === "admin" && (
+                    <div className="flex items-start gap-2.5 rounded-2xl bg-rose-500/10 border border-rose-500/25 p-3 text-[0.72rem] text-rose-900 dark:text-rose-200">
+                      <ShieldCheck className="h-4 w-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+                      <div className="leading-snug">
+                        <span className="font-bold">Restricted Administration Zone: </span>
+                        Institutional Controller Privileges Required. Student Credentials Are Not Permitted Here. For Student Academic Tools And Notes, Sign In Through{" "}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAuthMode("login");
+                            setEmail("");
+                            setPassword("");
+                          }}
+                          className="font-bold underline hover:text-foreground cursor-pointer"
+                        >
+                          Student Sign In
+                        </button>.
+                      </div>
+                    </div>
+                  )}
+
                   <button
                     type="submit"
                     disabled={loading}
-                    className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-primary px-5 text-xs sm:text-sm font-bold text-primary-foreground shadow-md transition-all hover:bg-primary-deep hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-60 cursor-pointer mt-3"
+                    className={`inline-flex h-12 w-full items-center justify-center gap-2 rounded-2xl px-5 text-xs sm:text-sm font-bold shadow-md transition-all hover:shadow-lg hover:-translate-y-0.5 active:scale-[0.98] disabled:opacity-60 cursor-pointer mt-3 ${
+                      authMode === "admin"
+                        ? "bg-emerald-600 hover:bg-emerald-700 text-white"
+                        : "bg-primary hover:bg-primary-deep text-primary-foreground"
+                    }`}
                   >
                     {loading ? (
                       <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
@@ -599,7 +660,7 @@ export function Login() {
                       <>
                         <span>
                           {authMode === "register" && "Register & Enter Dashboard"}
-                          {authMode === "login" && "Sign In To Workspace"}
+                          {authMode === "login" && "Sign In As Student Scholar"}
                           {authMode === "admin" && "Sign In As Institutional Administrator"}
                         </span>
                         <ArrowRight className="h-4 w-4" />

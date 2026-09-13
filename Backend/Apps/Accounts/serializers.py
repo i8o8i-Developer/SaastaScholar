@@ -126,9 +126,30 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    portal = serializers.CharField(required=False, allow_blank=True, write_only=True)
+
     def validate(self, attrs):
         data = super().validate(attrs)
         
+        # Enforce Strict Portal / Role Context Segregation
+        portal = str(self.initial_data.get("portal") or attrs.get("portal") or "").strip().lower()
+        is_admin_user = bool(
+            self.user.is_staff or 
+            self.user.is_superuser or 
+            getattr(self.user, "email", "") == "admin@nims.edu.in"
+        )
+
+        if portal == "student":
+            if is_admin_user:
+                raise serializers.ValidationError({
+                    "detail": "Access Denied: Administrator Credentials Detected. Administrator Accounts Must Sign In Exclusively Through The Admin Portal."
+                })
+        elif portal == "admin":
+            if not is_admin_user:
+                raise serializers.ValidationError({
+                    "detail": "Access Denied: Administrative Clearance Required. Student Scholars Must Sign In Exclusively Through The Student Portal."
+                })
+
         # Check login block
         if self.user.is_login_blocked or not self.user.is_active:
             reason = self.user.block_reason or "Account Suspended Due To Disciplinary/Security Violation."
