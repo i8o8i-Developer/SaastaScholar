@@ -364,7 +364,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
               </h2>
 
               <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-md mx-auto">
-                Content is secure. Click anywhere to instantly resume your reading session.
+                Content Is Secure. Click Anywhere To Instantly Resume Your Reading Session.
               </p>
             </div>
 
