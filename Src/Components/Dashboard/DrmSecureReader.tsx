@@ -412,93 +412,96 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
 
       {/* ================= MANDATORY MOBILE DRM CLEARANCE & PERMISSION MODAL ================= */}
       {isMobile && !hasMobileCleared && !isDrmDisabled && !isAccountBlocked && (
-        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/95 text-white p-4 xs:p-6 text-center backdrop-blur-3xl animate-in fade-in select-none">
-          <div className="relative z-10 max-w-md w-full rounded-3xl border border-emerald-500/50 bg-zinc-950/95 p-6 xs:p-8 shadow-[0_0_80px_-15px_rgba(16,185,129,0.5)] backdrop-blur-2xl space-y-5">
-            {/* Header Icon */}
-            <div className="relative mx-auto grid h-16 w-16 place-items-center rounded-3xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 shadow-inner">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-3xl bg-emerald-400/20 opacity-75" />
-              <Smartphone className="h-8 w-8 text-emerald-400" />
-            </div>
-
-            <div className="space-y-2">
-              <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-3 py-1 text-xs font-bold text-emerald-300">
-                <Radio className="h-3.5 w-3.5 animate-pulse text-emerald-400" />
-                <span>Mobile DRM Security Clearance</span>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-3 sm:p-4 text-white text-center backdrop-blur-2xl animate-in fade-in select-none overflow-y-auto overscroll-contain">
+          <div className="relative z-10 max-w-sm sm:max-w-md w-full max-h-[min(100dvh-1.5rem,640px)] flex flex-col justify-between rounded-2xl sm:rounded-3xl border border-emerald-500/40 bg-zinc-950/98 p-4 sm:p-5 shadow-[0_0_60px_-15px_rgba(16,185,129,0.35)] backdrop-blur-2xl">
+            {/* Scrollable body if screen is ultra-compact */}
+            <div className="overflow-y-auto space-y-3 sm:space-y-3.5 pr-0.5 scrollbar-none">
+              {/* Header Icon */}
+              <div className="relative mx-auto grid h-12 w-12 sm:h-14 sm:w-14 place-items-center rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 shadow-inner">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-2xl bg-emerald-400/20 opacity-60" />
+                <Smartphone className="h-6 w-6 sm:h-7 sm:w-7 text-emerald-400" />
               </div>
 
-              <h2 className="text-xl xs:text-2xl font-bold tracking-tight text-white">
-                DRM Secure Mode Required
-              </h2>
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-2.5 py-0.5 text-[0.65rem] sm:text-xs font-bold text-emerald-300">
+                  <Radio className="h-3 w-3 animate-pulse text-emerald-400" />
+                  <span>Mobile DRM Security Clearance</span>
+                </div>
 
-              <p className="text-xs text-zinc-300 leading-relaxed max-w-sm mx-auto">
-                To Protect NIMS University Intellectual Property, Mobile Reading Requires Fullscreen Anti-Capture Protection.
-              </p>
-            </div>
+                <h2 className="text-lg sm:text-xl font-bold tracking-tight text-white">
+                  DRM Secure Mode Required
+                </h2>
 
-            {/* Protocols List */}
-            <div className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-3.5 text-left text-xs space-y-2.5">
-              <div className="flex items-start gap-2.5">
-                <Lock className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-bold text-zinc-100">Fullscreen Secure Sandbox</p>
-                  <p className="text-[0.68rem] text-zinc-400 leading-tight">
-                    Locks Viewport To Isolate Content From Background Recorders And System Chrome.
+                <p className="text-[0.72rem] sm:text-xs text-zinc-300 leading-snug max-w-xs mx-auto">
+                  Mobile Reading Requires Fullscreen Anti-Capture Protection.
+                </p>
+              </div>
+
+              {/* Protocols Grid (2x2 for Compact Viewport Height) */}
+              <div className="grid grid-cols-2 gap-2 text-left">
+                <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/70 p-2 sm:p-2.5">
+                  <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-[0.7rem] sm:text-[0.75rem] mb-0.5">
+                    <Lock className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">Secure Sandbox</span>
+                  </div>
+                  <p className="text-[0.62rem] sm:text-[0.66rem] text-zinc-400 leading-tight">
+                    Viewport isolated from background tools
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/70 p-2 sm:p-2.5">
+                  <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-[0.7rem] sm:text-[0.75rem] mb-0.5">
+                    <CameraOff className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">Anti-Capture</span>
+                  </div>
+                  <p className="text-[0.62rem] sm:text-[0.66rem] text-zinc-400 leading-tight">
+                    Gesture triggers instant blackout shield
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/70 p-2 sm:p-2.5">
+                  <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-[0.7rem] sm:text-[0.75rem] mb-0.5">
+                    <Sparkles className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">Forensic Stamp</span>
+                  </div>
+                  <p className="text-[0.62rem] sm:text-[0.66rem] text-zinc-400 leading-tight">
+                    Dynamic verified student session imprint
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/70 p-2 sm:p-2.5">
+                  <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-[0.7rem] sm:text-[0.75rem] mb-0.5">
+                    <Radio className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">Live Telemetry</span>
+                  </div>
+                  <p className="text-[0.62rem] sm:text-[0.66rem] text-zinc-400 leading-tight">
+                    Cybersecurity audit logging active
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-start gap-2.5">
-                <CameraOff className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-bold text-zinc-100">Hardware &amp; Gesture Neutralizer</p>
-                  <p className="text-[0.68rem] text-zinc-400 leading-tight">
-                    Power + Volume Down And Multi-Finger Gestures Automatically Trigger Instant Blackout Shield.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-2.5">
-                <Sparkles className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-bold text-zinc-100">High-Contrast Forensic Watermark</p>
-                  <p className="text-[0.68rem] text-zinc-400 leading-tight">
-                    Permanently Stamped To Foil External Camera Photography Attempts.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-start gap-2.5">
-                <Radio className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-bold text-zinc-100">Live Telemetry Recorder</p>
-                  <p className="text-[0.68rem] text-zinc-400 leading-tight">
-                    Continuously Records Reader Activity Directly To University Cybersecurity Audit Logs.
-                  </p>
-                </div>
+              {/* Scholar Identity Verification */}
+              <div className="rounded-xl border border-zinc-800/80 bg-black/60 px-3 py-1.5 text-[0.68rem] font-mono text-zinc-400 flex items-center justify-between">
+                <span>Scholar: {user?.roll_number || payload.watermark.roll_number}</span>
+                <span className="text-emerald-400 font-bold">Verified Session</span>
               </div>
             </div>
 
-            {/* Scholar Identity Verification */}
-            <div className="rounded-xl border border-zinc-800 bg-black/60 p-2.5 text-[0.68rem] font-mono text-zinc-400 flex items-center justify-between">
-              <span>Scholar: {user?.roll_number || payload.watermark.roll_number}</span>
-              <span className="text-emerald-400 font-bold">Verified Session</span>
-            </div>
-
-            {/* Actions */}
-            <div className="space-y-2">
+            {/* Actions anchored at bottom */}
+            <div className="pt-2.5 space-y-1.5 sm:space-y-2 mt-auto">
               <button
                 type="button"
                 onClick={handleAuthorizeMobileDrm}
-                className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 text-zinc-950 font-bold text-xs shadow-lg transition-all hover:bg-emerald-400 active:scale-95 cursor-pointer"
+                className="inline-flex h-10 sm:h-11 w-full items-center justify-center gap-2 rounded-xl sm:rounded-2xl bg-emerald-500 text-zinc-950 font-bold text-xs shadow-md transition-all hover:bg-emerald-400 active:scale-98 cursor-pointer"
               >
-                <span>Authorize DRM Secure Mode &amp; Begin Reading</span>
+                <span>Authorize DRM Secure Mode &amp; Begin</span>
                 <ArrowRight className="h-4 w-4" />
               </button>
 
               <button
                 type="button"
                 onClick={onClose}
-                className="inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-xl border border-zinc-800 text-zinc-400 font-semibold text-xs hover:text-white hover:bg-zinc-900 active:scale-95 transition-all cursor-pointer"
+                className="inline-flex h-8 sm:h-9 w-full items-center justify-center gap-1 rounded-lg border border-zinc-800/80 text-zinc-400 font-semibold text-[0.72rem] sm:text-xs hover:text-white hover:bg-zinc-900 active:scale-98 transition-all cursor-pointer"
               >
                 <span>Cancel &amp; Return To Dashboard</span>
               </button>
@@ -745,25 +748,22 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
           isScreenBlurred && !isDrmDisabled ? "flex" : isScreenBlurred ? "hidden opacity-0 pointer-events-none select-none invisible" : "flex"
         )}
       >
-        {/* Dynamic Watermark Background Grid Overlay (High-Contrast External Camera Defense) */}
+        {/* Dynamic Watermark Background Grid Overlay (Behind Paper Container) */}
         {!isDrmDisabled && (
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-0 z-20 flex flex-wrap items-center justify-around gap-8 sm:gap-12 p-2 sm:p-4 opacity-35 dark:opacity-30 overflow-hidden select-none"
+            className="pointer-events-none absolute inset-0 z-0 flex flex-wrap items-center justify-around gap-8 sm:gap-12 p-2 sm:p-4 opacity-20 overflow-hidden select-none"
           >
-            {Array.from({ length: 36 }).map((_, i) => (
+            {Array.from({ length: 24 }).map((_, i) => (
               <div
                 key={i}
-                className="rotate-[-26deg] text-center font-mono text-[0.62rem] sm:text-xs font-black tracking-widest uppercase select-none text-rose-600 dark:text-rose-400 drop-shadow-[0_1px_2px_rgba(255,255,255,0.95)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]"
+                className="rotate-[-26deg] text-center font-mono text-[0.62rem] sm:text-xs font-semibold tracking-widest uppercase select-none text-emerald-600/30 dark:text-emerald-400/20"
               >
-                <p className="font-extrabold tracking-wider">
-                  🔒 RESTRICTED COPY · {user?.full_name || payload.watermark.student_name} · {user?.roll_number || payload.watermark.roll_number}
+                <p className="font-bold tracking-wider">
+                  🔒 {user?.roll_number || payload.watermark.roll_number} · {user?.full_name || payload.watermark.student_name}
                 </p>
-                <p className="text-[0.55rem] sm:text-[0.65rem] text-rose-700 dark:text-rose-300 font-bold opacity-90">
-                  NIMS DRM · IP: {payload.watermark.ip_address} · {payload.watermark.session_hash}
-                </p>
-                <p className="text-[0.5rem] sm:text-[0.55rem] text-amber-600 dark:text-amber-300 font-semibold tracking-normal">
-                  CAMERA CAPTURE TRACED &amp; RECORDED
+                <p className="text-[0.55rem] sm:text-[0.65rem] text-emerald-700/30 dark:text-emerald-300/20">
+                  NIMS DRM · {payload.watermark.ip_address} · {payload.watermark.session_hash}
                 </p>
               </div>
             ))}
@@ -840,25 +840,22 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
                   isDark ? "prose-invert text-zinc-200" : "prose-slate text-slate-800"
                 )}
               />
-              {/* Forensic Watermark Floating Over Manuscript (High-Contrast Camera Defense) */}
+              {/* Forensic Watermark Floating Over Manuscript (Subtle Emerald Protection) */}
               {!isDrmDisabled && (
                 <div
                   aria-hidden
-                  className="pointer-events-none absolute inset-0 z-10 flex flex-wrap items-center justify-around gap-6 p-4 opacity-35 dark:opacity-30 overflow-hidden select-none"
+                  className="pointer-events-none absolute inset-0 z-10 flex flex-wrap items-center justify-around gap-8 p-4 opacity-15 overflow-hidden select-none"
                 >
-                  {Array.from({ length: 24 }).map((_, i) => (
+                  {Array.from({ length: 16 }).map((_, i) => (
                     <div
                       key={i}
-                      className="rotate-[-26deg] text-center font-mono text-[0.65rem] font-black tracking-widest uppercase select-none text-rose-600 dark:text-rose-400 drop-shadow-[0_1px_2px_rgba(255,255,255,0.95)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]"
+                      className="rotate-[-26deg] text-center font-mono text-[0.65rem] font-bold tracking-widest uppercase select-none text-emerald-700/30 dark:text-emerald-400/25"
                     >
-                      <p className="font-extrabold tracking-wider">
-                        🔒 RESTRICTED · {user?.full_name || payload.watermark.student_name} · {user?.roll_number || payload.watermark.roll_number}
+                      <p className="tracking-wider">
+                        🔒 {user?.roll_number || payload.watermark.roll_number} · {user?.full_name || payload.watermark.student_name}
                       </p>
-                      <p className="text-[0.55rem] text-rose-700 dark:text-rose-300 font-bold opacity-90">
+                      <p className="text-[0.55rem] text-emerald-800/30 dark:text-emerald-300/20">
                         NIMS DRM · {payload.watermark.ip_address} · {payload.watermark.session_hash}
-                      </p>
-                      <p className="text-[0.5rem] text-amber-600 dark:text-amber-300 font-semibold tracking-normal">
-                        EXTERNAL CAMERA PHOTOGRAPHY PROHIBITED
                       </p>
                     </div>
                   ))}

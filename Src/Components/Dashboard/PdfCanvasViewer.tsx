@@ -246,16 +246,14 @@ export function PdfCanvasViewer({
           context.rotate((-28 * Math.PI) / 180);
           context.translate(-canvas.width / 2, -canvas.height / 2);
 
-          const fontSize = Math.max(16, Math.floor(canvas.width / 40));
-          context.font = `bold ${fontSize}px "Courier New", Courier, monospace`;
-          
-          //
-          context.lineWidth = 2;
-          context.strokeStyle = "rgba(255, 255, 255, 0.75)";
-          context.fillStyle = "rgba(225, 29, 72, 0.28)"; 
+          const fontSize = Math.max(13, Math.floor(canvas.width / 50));
+          context.font = `500 ${fontSize}px "Courier New", Courier, monospace`;
 
-          const stepX = Math.max(280, canvas.width / 2.5);
-          const stepY = Math.max(130, canvas.height / 6.5);
+          // 
+          context.fillStyle = "rgba(16, 185, 129, 0.075)";
+
+          const stepX = Math.max(380, canvas.width / 2.2);
+          const stepY = Math.max(200, canvas.height / 5);
           const startX = -canvas.width;
           const endX = canvas.width * 2;
           const startY = -canvas.height;
@@ -265,22 +263,16 @@ export function PdfCanvasViewer({
           const scholarRoll = (watermark.roll_number || "VERIFIED").toUpperCase();
           const ipAddr = watermark.ip_address || "127.0.0.1";
           const sessHash = watermark.session_hash || "SEC-DRM";
-          const todayDate = new Date().toISOString().split("T")[0];
 
           let row = 0;
           for (let y = startY; y < endY; y += stepY) {
             const offsetX = row % 2 === 0 ? 0 : stepX / 2;
             for (let x = startX + offsetX; x < endX; x += stepX) {
-              const line1 = `🔒 ${scholarName} · ${scholarRoll}`;
-              const line2 = `NIMS DRM · IP: ${ipAddr} · ${sessHash}`;
-              const line3 = `STRICT CONFIDENTIAL · ${todayDate}`;
+              const line1 = `🔒 ${scholarRoll} · ${scholarName}`;
+              const line2 = `NIMS UNIVERSITY · ${ipAddr} · ${sessHash}`;
 
-              context.strokeText(line1, x, y);
               context.fillText(line1, x, y);
-              context.strokeText(line2, x, y + fontSize * 1.25);
-              context.fillText(line2, x, y + fontSize * 1.25);
-              context.strokeText(line3, x, y + fontSize * 2.5);
-              context.fillText(line3, x, y + fontSize * 2.5);
+              context.fillText(line2, x, y + fontSize * 1.3);
             }
             row++;
           }
@@ -378,31 +370,6 @@ export function PdfCanvasViewer({
           className="block w-full h-auto select-none pointer-events-none"
           onContextMenu={(e) => e.preventDefault()}
         />
-
-        {/* Forensic DRM Watermark Matrix (Overlaid Directly Above In-Memory Canvas With High Contrast) */}
-        {!isDrmDisabled && watermark && (
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 z-20 flex flex-wrap items-center justify-around gap-6 sm:gap-10 p-2 sm:p-4 opacity-35 dark:opacity-30 overflow-hidden select-none"
-          >
-            {Array.from({ length: 28 }).map((_, i) => (
-              <div
-                key={i}
-                className="rotate-[-26deg] text-center font-mono text-[0.65rem] xs:text-xs font-black tracking-widest uppercase select-none text-rose-600 dark:text-rose-400 drop-shadow-[0_1px_2px_rgba(255,255,255,0.95)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]"
-              >
-                <p className="font-extrabold tracking-wider">
-                  🔒 {watermark.student_name || "AUTHORIZED SCHOLAR"} · {watermark.roll_number || "RESTRICTED"}
-                </p>
-                <p className="text-[0.55rem] xs:text-[0.65rem] text-rose-700 dark:text-rose-300 font-bold opacity-90">
-                  NIMS DRM · IP: {watermark.ip_address || "127.0.0.1"} · {watermark.session_hash || "SECURE"}
-                </p>
-                <p className="text-[0.5rem] xs:text-[0.55rem] text-amber-600 dark:text-amber-300 font-semibold tracking-normal">
-                  CAMERA CAPTURE TRACED &amp; RECORDED
-                </p>
-              </div>
-            ))}
-          </div>
-        )}
 
         {/* Non-Intrusive Interaction Guard Layer */}
         <div
