@@ -3,6 +3,7 @@ import {
   AlertTriangle,
   ArrowLeft,
   ArrowRight,
+  CameraOff,
   ChevronLeft,
   ChevronRight,
   Eye,
@@ -10,15 +11,17 @@ import {
   Maximize2,
   Minimize2,
   Moon,
+  Radio,
   RotateCcw,
   ShieldAlert,
   ShieldCheck,
+  Smartphone,
   Sparkles,
   Sun,
   ZoomIn,
   ZoomOut,
 } from "lucide-react";
-import { AcademicMaterial, apiFetch, DrmMaterialPayload, DrmPageVector } from "@/Lib/Api";
+import { AcademicMaterial, apiFetch, DrmMaterialPayload, DrmPageVector, toTitleCase } from "@/Lib/Api";
 import { useAuth } from "@/Hooks/UseAuth";
 import { useDrmProtection } from "@/Hooks/UseDrmProtection";
 import { cn } from "@/Lib/Utils";
@@ -131,7 +134,26 @@ const SAMPLE_PAGES: Record<number, DrmPageVector> = {
 export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
   const { user } = useAuth();
   const { isDark } = useTheme();
-  const { isScreenBlurred, resumeReading, isAccountBlocked, blockReason, violationsCount, isDrmDisabled, toggleDrm } = useDrmProtection({ materialId });
+  const {
+    isScreenBlurred,
+    resumeReading,
+    isAccountBlocked,
+    blockReason,
+    violationsCount,
+    isDrmDisabled,
+    isMobile,
+    logDrmEvent,
+    toggleDrm,
+  } = useDrmProtection({ materialId });
+
+  // Mandatory Mobile DRM Clearance Protocol
+  const [hasMobileCleared, setHasMobileCleared] = useState<boolean>(() => {
+    if (typeof window === "undefined") return true;
+    const isMob =
+      /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+      (navigator.maxTouchPoints > 1 && window.innerWidth < 1024);
+    return !isMob;
+  });
 
   const [payload, setPayload] = useState<DrmMaterialPayload>(FALLBACK_PAYLOAD);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -144,6 +166,35 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
 
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Authorize Mobile DRM Secure Sandbox & Lock Screen
+  const handleAuthorizeMobileDrm = async () => {
+    try {
+      if (containerRef.current?.requestFullscreen) {
+        await containerRef.current.requestFullscreen().catch(() => {});
+        setIsFullscreen(true);
+      } else if ((document.documentElement as any).webkitRequestFullscreen) {
+        await (document.documentElement as any).webkitRequestFullscreen().catch(() => {});
+        setIsFullscreen(true);
+      }
+    } catch {}
+
+    try {
+      if ("wakeLock" in navigator && (navigator as any).wakeLock?.request) {
+        await (navigator as any).wakeLock.request("screen").catch(() => {});
+      }
+    } catch {}
+
+    logDrmEvent("MOBILE_CLEARANCE_GRANTED", {
+      material_id: materialId,
+      screen_width: window.innerWidth,
+      screen_height: window.innerHeight,
+      touch_points: navigator.maxTouchPoints,
+    });
+
+    setHasMobileCleared(true);
+    toast.success(toTitleCase("DRM Secure Mobile Mode Authorized. Content Protection Active."));
+  };
+
   // Strictly identify if this is a genuine PDF courseware document
   const isPdfDoc =
     payload.file_ext === "pdf" ||
@@ -153,6 +204,32 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
 
   // Per user specification: No clean notes functionality for PDF files; render clean notes exclusively for other document types
   const readerViewMode: "document" | "manuscript" = isPdfDoc ? "document" : "manuscript";
+
+  // Continuous Telemetry: Log Session Entry & Exit
+  useEffect(() => {
+    logDrmEvent("DRM_READER_SESSION_ENTERED", {
+      material_id: materialId,
+      subject_code: payload.subject_code,
+      title: payload.title,
+      total_pages: payload.total_pages,
+      is_mobile: isMobile,
+    });
+    return () => {
+      logDrmEvent("DRM_READER_SESSION_EXITED", {
+        material_id: materialId,
+        final_page: currentPage,
+      });
+    };
+  }, [materialId]);
+
+  // Continuous Telemetry: Log Page Navigation
+  useEffect(() => {
+    logDrmEvent("DRM_PAGE_ACCESSED", {
+      page_number: currentPage,
+      total_pages: payload.total_pages,
+      material_id: materialId,
+    });
+  }, [currentPage]);
 
   // Load Session & Material Info
   useEffect(() => {
@@ -333,11 +410,108 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
         </div>
       )}
 
+      {/* ================= MANDATORY MOBILE DRM CLEARANCE & PERMISSION MODAL ================= */}
+      {isMobile && !hasMobileCleared && !isDrmDisabled && !isAccountBlocked && (
+        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/95 text-white p-4 xs:p-6 text-center backdrop-blur-3xl animate-in fade-in select-none">
+          <div className="relative z-10 max-w-md w-full rounded-3xl border border-emerald-500/50 bg-zinc-950/95 p-6 xs:p-8 shadow-[0_0_80px_-15px_rgba(16,185,129,0.5)] backdrop-blur-2xl space-y-5">
+            {/* Header Icon */}
+            <div className="relative mx-auto grid h-16 w-16 place-items-center rounded-3xl bg-emerald-500/20 border border-emerald-500/40 text-emerald-400 shadow-inner">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-3xl bg-emerald-400/20 opacity-75" />
+              <Smartphone className="h-8 w-8 text-emerald-400" />
+            </div>
+
+            <div className="space-y-2">
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-3 py-1 text-xs font-bold text-emerald-300">
+                <Radio className="h-3.5 w-3.5 animate-pulse text-emerald-400" />
+                <span>Mobile DRM Security Clearance</span>
+              </div>
+
+              <h2 className="text-xl xs:text-2xl font-bold tracking-tight text-white">
+                DRM Secure Mode Required
+              </h2>
+
+              <p className="text-xs text-zinc-300 leading-relaxed max-w-sm mx-auto">
+                To Protect NIMS University Intellectual Property, Mobile Reading Requires Fullscreen Anti-Capture Protection.
+              </p>
+            </div>
+
+            {/* Protocols List */}
+            <div className="rounded-2xl border border-zinc-800 bg-zinc-900/80 p-3.5 text-left text-xs space-y-2.5">
+              <div className="flex items-start gap-2.5">
+                <Lock className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold text-zinc-100">Fullscreen Secure Sandbox</p>
+                  <p className="text-[0.68rem] text-zinc-400 leading-tight">
+                    Locks Viewport To Isolate Content From Background Recorders And System Chrome.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5">
+                <CameraOff className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold text-zinc-100">Hardware &amp; Gesture Neutralizer</p>
+                  <p className="text-[0.68rem] text-zinc-400 leading-tight">
+                    Power + Volume Down And Multi-Finger Gestures Automatically Trigger Instant Blackout Shield.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5">
+                <Sparkles className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold text-zinc-100">High-Contrast Forensic Watermark</p>
+                  <p className="text-[0.68rem] text-zinc-400 leading-tight">
+                    Permanently Stamped To Foil External Camera Photography Attempts.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5">
+                <Radio className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-bold text-zinc-100">Live Telemetry Recorder</p>
+                  <p className="text-[0.68rem] text-zinc-400 leading-tight">
+                    Continuously Records Reader Activity Directly To University Cybersecurity Audit Logs.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Scholar Identity Verification */}
+            <div className="rounded-xl border border-zinc-800 bg-black/60 p-2.5 text-[0.68rem] font-mono text-zinc-400 flex items-center justify-between">
+              <span>Scholar: {user?.roll_number || payload.watermark.roll_number}</span>
+              <span className="text-emerald-400 font-bold">Verified Session</span>
+            </div>
+
+            {/* Actions */}
+            <div className="space-y-2">
+              <button
+                type="button"
+                onClick={handleAuthorizeMobileDrm}
+                className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 text-zinc-950 font-bold text-xs shadow-lg transition-all hover:bg-emerald-400 active:scale-95 cursor-pointer"
+              >
+                <span>Authorize DRM Secure Mode &amp; Begin Reading</span>
+                <ArrowRight className="h-4 w-4" />
+              </button>
+
+              <button
+                type="button"
+                onClick={onClose}
+                className="inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-xl border border-zinc-800 text-zinc-400 font-semibold text-xs hover:text-white hover:bg-zinc-900 active:scale-95 transition-all cursor-pointer"
+              >
+                <span>Cancel &amp; Return To Dashboard</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ================= BLACKOUT SHIELD OVERLAY (CLICK TO RESUME) ================= */}
       {isScreenBlurred && !isAccountBlocked && !isDrmDisabled && (
         <div
           onClick={() => resumeReading()}
-          className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/90 text-white p-6 text-center backdrop-blur-2xl animate-in fade-in duration-75 cursor-pointer select-none"
+          className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/95 text-white p-6 text-center backdrop-blur-2xl animate-in fade-in duration-75 cursor-pointer select-none"
         >
           {/* Central Holographic Shield Card */}
           <div
@@ -356,15 +530,17 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
             <div className="space-y-2">
               <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-3 py-1 text-xs font-bold text-emerald-300">
                 <Sparkles className="h-3.5 w-3.5" />
-                <span>Forensic DRM Shield Engaged</span>
+                <span>Forensic DRM Shield Engaged · Anti-Capture Active</span>
               </div>
 
               <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
-                DRM Screen Protection Active
+                Screen Capture Neutralized
               </h2>
 
               <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-md mx-auto">
-                Content Is Secure. Click Anywhere To Instantly Resume Your Reading Session.
+                {isMobile
+                  ? "Mobile Screenshot Combination Or Gesture Detected. Blackout Shield Engaged. Tap Below To Return."
+                  : "Content Is Secure. Click Anywhere To Instantly Resume Your Reading Session."}
               </p>
             </div>
 
@@ -375,8 +551,8 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
                 <span>{user?.roll_number || payload.watermark.roll_number}</span>
               </div>
               <div className="flex items-center justify-between text-zinc-500">
-                <span>Protection Engine:</span>
-                <span>HMAC-SHA256 Encrypted Vector Stream</span>
+                <span>Live Audit Telemetry:</span>
+                <span className="text-emerald-400 font-bold">Active &amp; Logging</span>
               </div>
             </div>
 
@@ -534,12 +710,14 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
           body * { display: none !important; }
           body { background: #000000 !important; }
         }
-        .drm-protected-content, .drm-protected-content * {
+        .drm-protected-content, .drm-protected-content *,
+        .drm-unrestricted-content, .drm-unrestricted-content * {
           user-select: none !important;
           -webkit-user-select: none !important;
           -moz-user-select: none !important;
           -ms-user-select: none !important;
           -webkit-touch-callout: none !important;
+          touch-action: pan-x pan-y !important;
         }
         /* Scoped High-Contrast Typography For Dark & Sepia Themes */
         .reading-theme-day h1, .reading-theme-day h2, .reading-theme-day h3, .reading-theme-day h4,
@@ -567,16 +745,26 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
           isScreenBlurred && !isDrmDisabled ? "flex" : isScreenBlurred ? "hidden opacity-0 pointer-events-none select-none invisible" : "flex"
         )}
       >
-        {/* Dynamic Watermark Background Grid Overlay */}
+        {/* Dynamic Watermark Background Grid Overlay (High-Contrast External Camera Defense) */}
         {!isDrmDisabled && (
           <div
             aria-hidden
-            className="pointer-events-none absolute inset-0 z-20 flex flex-wrap items-center justify-around gap-8 sm:gap-12 p-2 sm:p-4 opacity-[0.12] dark:opacity-[0.08] overflow-hidden select-none"
+            className="pointer-events-none absolute inset-0 z-20 flex flex-wrap items-center justify-around gap-8 sm:gap-12 p-2 sm:p-4 opacity-35 dark:opacity-30 overflow-hidden select-none"
           >
-            {Array.from({ length: 30 }).map((_, i) => (
-              <div key={i} className="rotate-[-26deg] text-center font-mono text-[0.6rem] sm:text-xs font-bold tracking-widest uppercase select-none">
-                <p className="text-emerald-700 dark:text-emerald-300 drop-shadow-xs">{user?.full_name || payload.watermark.student_name} · {user?.roll_number || payload.watermark.roll_number}</p>
-                <p className="text-[0.55rem] sm:text-[0.65rem] text-muted-foreground font-semibold">NIMS DRM · {payload.watermark.ip_address} · {payload.watermark.session_hash}</p>
+            {Array.from({ length: 36 }).map((_, i) => (
+              <div
+                key={i}
+                className="rotate-[-26deg] text-center font-mono text-[0.62rem] sm:text-xs font-black tracking-widest uppercase select-none text-rose-600 dark:text-rose-400 drop-shadow-[0_1px_2px_rgba(255,255,255,0.95)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]"
+              >
+                <p className="font-extrabold tracking-wider">
+                  🔒 RESTRICTED COPY · {user?.full_name || payload.watermark.student_name} · {user?.roll_number || payload.watermark.roll_number}
+                </p>
+                <p className="text-[0.55rem] sm:text-[0.65rem] text-rose-700 dark:text-rose-300 font-bold opacity-90">
+                  NIMS DRM · IP: {payload.watermark.ip_address} · {payload.watermark.session_hash}
+                </p>
+                <p className="text-[0.5rem] sm:text-[0.55rem] text-amber-600 dark:text-amber-300 font-semibold tracking-normal">
+                  CAMERA CAPTURE TRACED &amp; RECORDED
+                </p>
               </div>
             ))}
           </div>
@@ -652,16 +840,26 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
                   isDark ? "prose-invert text-zinc-200" : "prose-slate text-slate-800"
                 )}
               />
-              {/* Forensic Watermark Floating Over Manuscript */}
+              {/* Forensic Watermark Floating Over Manuscript (High-Contrast Camera Defense) */}
               {!isDrmDisabled && (
                 <div
                   aria-hidden
-                  className="pointer-events-none absolute inset-0 z-10 flex flex-wrap items-center justify-around gap-6 p-4 opacity-20 dark:opacity-15 overflow-hidden select-none"
+                  className="pointer-events-none absolute inset-0 z-10 flex flex-wrap items-center justify-around gap-6 p-4 opacity-35 dark:opacity-30 overflow-hidden select-none"
                 >
-                  {Array.from({ length: 12 }).map((_, i) => (
-                    <div key={i} className="rotate-[-26deg] text-center font-mono text-[0.65rem] font-bold tracking-widest uppercase select-none text-emerald-800 dark:text-emerald-300">
-                      <p>{user?.full_name || payload.watermark.student_name} · {user?.roll_number || payload.watermark.roll_number}</p>
-                      <p className="text-[0.55rem] opacity-75">NIMS DRM · {payload.watermark.ip_address}</p>
+                  {Array.from({ length: 24 }).map((_, i) => (
+                    <div
+                      key={i}
+                      className="rotate-[-26deg] text-center font-mono text-[0.65rem] font-black tracking-widest uppercase select-none text-rose-600 dark:text-rose-400 drop-shadow-[0_1px_2px_rgba(255,255,255,0.95)] dark:drop-shadow-[0_1px_2px_rgba(0,0,0,0.95)]"
+                    >
+                      <p className="font-extrabold tracking-wider">
+                        🔒 RESTRICTED · {user?.full_name || payload.watermark.student_name} · {user?.roll_number || payload.watermark.roll_number}
+                      </p>
+                      <p className="text-[0.55rem] text-rose-700 dark:text-rose-300 font-bold opacity-90">
+                        NIMS DRM · {payload.watermark.ip_address} · {payload.watermark.session_hash}
+                      </p>
+                      <p className="text-[0.5rem] text-amber-600 dark:text-amber-300 font-semibold tracking-normal">
+                        EXTERNAL CAMERA PHOTOGRAPHY PROHIBITED
+                      </p>
                     </div>
                   ))}
                 </div>

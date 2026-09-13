@@ -311,15 +311,15 @@ class DrmSecurityReportView(APIView):
     Receives security telemetry from frontend DRM hooks & updates violations counter.
     Logs telemetry for forensic analytics without blocking legitimate mobile focus shifts.
     """
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request):
         config = GlobalDrmConfig.get_config()
         if not config.is_drm_enabled:
             return Response({"status": "drm_globally_disabled", "is_drm_enabled": False})
 
-        user = request.user
-        event_type = request.data.get("event_type", "SECURITY_ALERT")
+        user = request.user if (request.user and request.user.is_authenticated) else None
+        event_type = str(request.data.get("event_type", "SECURITY_ALERT"))[:50]
         client_ip = get_client_ip(request)
         details = request.data.get("details", {})
         material_id = request.data.get("material_id")
@@ -335,7 +335,7 @@ class DrmSecurityReportView(APIView):
         )
 
         # Clear any false-positive automated focus/screenshot locks
-        if user.is_drm_blocked and any(x in (user.block_reason or "") for x in ["MOBILE_HARDWARE_SCREENSHOT", "IOS_SCREENSHOT_DETECTED", "WINDOW_FOCUS_LOST", "MOBILE_BACKGROUND_CAPTURE", "PAGE_HIDE_CAPTURE_TRIGGER"]):
+        if user and user.is_drm_blocked and any(x in (user.block_reason or "") for x in ["MOBILE_HARDWARE_SCREENSHOT", "IOS_SCREENSHOT_DETECTED", "WINDOW_FOCUS_LOST", "MOBILE_BACKGROUND_CAPTURE", "PAGE_HIDE_CAPTURE_TRIGGER"]):
             user.is_drm_blocked = False
             user.block_reason = ""
             user.security_warning_note = ""
@@ -344,8 +344,8 @@ class DrmSecurityReportView(APIView):
 
         return Response({
             "status": "logged",
-            "violations_count": user.drm_violations_count or 0,
-            "is_drm_blocked": user.is_drm_blocked,
+            "violations_count": getattr(user, "drm_violations_count", 0) if user else 0,
+            "is_drm_blocked": getattr(user, "is_drm_blocked", False) if user else False,
             "timestamp": timezone.now(),
         })
 

@@ -28,6 +28,59 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
   const [violationsCount, setViolationsCount] = useState(0);
   const alertTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  const isIOS = typeof navigator !== "undefined" && /iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const isAndroid = typeof navigator !== "undefined" && /Android/i.test(navigator.userAgent);
+  const isMobile =
+    typeof navigator !== "undefined" &&
+    (isIOS || isAndroid || (navigator.maxTouchPoints > 1 && window.innerWidth < 1024));
+
+  // Continuous Telemetry & Audit Recorder Function
+  const logDrmEvent = (eventType: string, extraDetails: Record<string, any> = {}) => {
+    if (isDrmDisabled || !enabled) return;
+
+    const details = {
+      timestamp: new Date().toISOString(),
+      screen_width: typeof window !== "undefined" ? window.innerWidth : 0,
+      screen_height: typeof window !== "undefined" ? window.innerHeight : 0,
+      screen_resolution:
+        typeof window !== "undefined" && window.screen ? `${window.screen.width}x${window.screen.height}` : "unknown",
+      device_pixel_ratio: typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1,
+      user_agent: typeof navigator !== "undefined" ? navigator.userAgent : "unknown",
+      is_mobile: isMobile,
+      is_ios: isIOS,
+      is_android: isAndroid,
+      max_touch_points: typeof navigator !== "undefined" ? navigator.maxTouchPoints || 0 : 0,
+      document_visibility: typeof document !== "undefined" ? document.visibilityState : "unknown",
+      ...extraDetails,
+    };
+
+    apiFetch<{
+      status: string;
+      violations_count?: number;
+      is_drm_blocked?: boolean;
+      block_reason?: string;
+    }>("/drm/security-report/", {
+      method: "POST",
+      body: JSON.stringify({
+        material_id: materialId,
+        event_type: eventType.slice(0, 50),
+        details: details,
+      }),
+    })
+      .then((res) => {
+        if (res?.violations_count !== undefined) {
+          setViolationsCount(res.violations_count);
+        }
+        if (res?.is_drm_blocked) {
+          setIsAccountBlocked(true);
+          setBlockReason(res.block_reason || "Account Suspended Due To Unauthorized Screen Capture Activity.");
+          setIsScreenBlurred(true);
+          toast.error("SECURITY LOCKDOWN: Account Blocked For Unauthorized Screen Capture.");
+        }
+      })
+      .catch(() => {});
+  };
+
   useEffect(() => {
     // 1. Fetch Global Server-Side DRM Configuration
     apiFetch<{ is_drm_enabled: boolean }>("/drm/config/")
@@ -65,6 +118,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
     if (alertTimerRef.current) clearTimeout(alertTimerRef.current);
     setIsScreenBlurred(false);
     setIsSecurityAlertActive(false);
+    logDrmEvent("DRM_READING_RESUMED", {});
   };
 
   useEffect(() => {
@@ -74,9 +128,6 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       return;
     }
 
-    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-    const isAndroid = /Android/i.test(navigator.userAgent);
-
     const overwriteClipboard = () => {
       try {
         if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -84,11 +135,10 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
             "🔒 Protected Academic Material — Copyright NIMS University. Screen capture and copying are strictly prohibited."
           );
         }
-      } catch {
-      }
+      } catch {}
     };
 
-    const triggerBlackoutShield = (reason: string, durationMs = 4000) => {
+    const triggerBlackoutShield = (reason: string, durationMs = 4500) => {
       if (isDrmDisabled || !enabled) return;
       setIsScreenBlurred(true);
       setIsSecurityAlertActive(true);
@@ -96,8 +146,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
 
       try {
         window.getSelection()?.removeAllRanges();
-      } catch {
-      }
+      } catch {}
 
       if (alertTimerRef.current) clearTimeout(alertTimerRef.current);
       alertTimerRef.current = setTimeout(() => {
@@ -108,46 +157,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       }, durationMs);
 
       // Real-Time Telemetry & Instant Disciplinary Block Reporting
-      apiFetch<{
-        status: string;
-        violations_count?: number;
-        is_drm_blocked?: boolean;
-        block_reason?: string;
-        warning_note?: string;
-        cooldown_active?: boolean;
-      }>("/drm/security-report/", {
-        method: "POST",
-        body: JSON.stringify({
-          material_id: materialId,
-          event_type: reason,
-          details: {
-            timestamp: new Date().toISOString(),
-            screen_width: window.innerWidth,
-            screen_height: window.innerHeight,
-            screen_resolution: `${window.screen?.width || 0}x${window.screen?.height || 0}`,
-            user_agent: navigator.userAgent,
-            is_ios: isIOS,
-            is_android: isAndroid,
-            is_mobile: isIOS || isAndroid,
-            max_touch_points: navigator.maxTouchPoints || 0,
-            document_visibility: document.visibilityState,
-          },
-        }),
-      })
-        .then((res) => {
-          if (res?.violations_count !== undefined) {
-            setViolationsCount(res.violations_count);
-          }
-          if (res?.is_drm_blocked) {
-            setIsAccountBlocked(true);
-            setBlockReason(res.block_reason || "Account Suspended Due To Unauthorized Screen Capture Activity.");
-            setIsScreenBlurred(true);
-            toast.error("SECURITY LOCKDOWN: Account Blocked For Unauthorized Screen Capture.");
-          } else if (res?.cooldown_active) {
-            toast.error("Account Placed In Disciplinary Cooldown Due To Security Triggers.");
-          }
-        })
-        .catch(() => {});
+      logDrmEvent(reason, { trigger_source: "blackout_shield" });
     };
 
     // Tracking Modifier Keys & Instant Screenshot Combo Detection
@@ -196,12 +206,12 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       if (e.key === "Control") isCtrlPressed = false;
     };
 
-    // 1. Intercept Right-Click Context Menu
-    const handleContextMenu = (e: MouseEvent) => {
+    // 1. Intercept Right-Click Context Menu & Mobile Long-Press
+    const handleContextMenu = (e: MouseEvent | TouchEvent) => {
       e.preventDefault();
       e.stopPropagation();
       triggerBlackoutShield("CONTEXT_MENU_BLOCKED", 3500);
-      toast.error(toTitleCase("Right-Click Actions Are Disabled On DRM Documents."));
+      toast.error(toTitleCase("Right-Click Actions And Image Menus Are Disabled."));
       return false;
     };
 
@@ -242,7 +252,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       const key = (e.key || "").toLowerCase();
       const code = (e.code || "").toLowerCase();
 
-      // PrintScreen Key (PrtScn / PrintScreen)
+      // PrintScreen Key
       if (e.key === "PrintScreen" || code === "printscreen" || key === "printscreen") {
         e.preventDefault();
         e.stopPropagation();
@@ -251,7 +261,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
         return;
       }
 
-      // Windows / Mac Snipping Combos (Win+Shift+S, Ctrl+Shift+S, Cmd+Shift+3/4/5/6/S, Alt+PrtScn)
+      // Windows / Mac Snipping Combos
       if (
         (isCtrlOrMeta && e.shiftKey && (key === "s" || code === "keys")) ||
         (e.metaKey && e.shiftKey && ["3", "4", "5", "6", "s"].includes(key)) ||
@@ -264,7 +274,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
         return;
       }
 
-      // Print Prevention: Ctrl+P / Cmd+P
+      // Print Prevention
       if (isCtrlOrMeta && (key === "p" || code === "keyp")) {
         e.preventDefault();
         e.stopPropagation();
@@ -273,7 +283,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
         return;
       }
 
-      // Save Webpage: Ctrl+S / Cmd+S
+      // Save Webpage
       if (isCtrlOrMeta && (key === "s" || code === "keys")) {
         e.preventDefault();
         e.stopPropagation();
@@ -282,7 +292,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
         return;
       }
 
-      // View Source / Inspection: Ctrl+U, F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C
+      // View Source / Inspection
       if (
         e.key === "F12" ||
         code === "f12" ||
@@ -298,7 +308,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
         return;
       }
 
-      // Text Extraction: Ctrl+A (Select All), Ctrl+C (Copy), Ctrl+X (Cut)
+      // Text Extraction
       if (isCtrlOrMeta && ["a", "c", "x"].includes(key)) {
         e.preventDefault();
         e.stopPropagation();
@@ -308,16 +318,20 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       }
     };
 
-    // 4. Window Focus Blur & Visibility (Graceful Protection without False-Positive Incident Bans)
+    // 
     const handleBlur = () => {
       isMetaPressed = false;
       isShiftPressed = false;
       isCtrlPressed = false;
 
-      if (isIOS || isAndroid) return;
-      // Soft privacy shield when window is in background; does not file a disciplinary breach
+      //
       setIsScreenBlurred(true);
+      setIsSecurityAlertActive(true);
       overwriteClipboard();
+      logDrmEvent("WINDOW_BLUR_POSSIBLE_SCREENSHOT", {
+        is_mobile: isMobile,
+        trigger: "window_blur",
+      });
     };
 
     const handleFocus = () => {
@@ -325,36 +339,58 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       isShiftPressed = false;
       isCtrlPressed = false;
 
-      if (!isAccountBlocked) {
+      //
+      if (!isAccountBlocked && !isMobile) {
         setIsScreenBlurred(false);
         setIsSecurityAlertActive(false);
       }
     };
 
-    // 5. Visibility Change (Tab Switch - Desktop Only)
+    // 
     const handleVisibilityChange = () => {
-      if (isIOS || isAndroid) return;
       if (document.hidden) {
         setIsScreenBlurred(true);
+        setIsSecurityAlertActive(true);
         overwriteClipboard();
+        logDrmEvent("VISIBILITY_HIDDEN_CAPTURE_GUARD", {
+          is_mobile: isMobile,
+          visibility_state: document.visibilityState,
+        });
       } else {
-        if (!isAccountBlocked) {
+        if (!isAccountBlocked && !isMobile) {
           setIsScreenBlurred(false);
           setIsSecurityAlertActive(false);
         }
       }
     };
 
-    // 6. Mobile Touch & 3+ Finger Gesture Detection (Passive & Fluid iOS Scrolling)
+    const handlePageHide = () => {
+      setIsScreenBlurred(true);
+      overwriteClipboard();
+      logDrmEvent("PAGE_HIDE_CAPTURE_GUARD", { is_mobile: isMobile });
+    };
+
+    // 6. Mobile Multi-Touch & 3+ Finger Screenshot Gesture Detection
     let touchTimer: ReturnType<typeof setTimeout> | null = null;
     const handleTouchStart = (e: TouchEvent) => {
       if (touchTimer) clearTimeout(touchTimer);
 
-      // Check for 3+ finger swipe (mobile capture gesture)
+      // 
       if (e.touches && e.touches.length >= 3) {
+        e.preventDefault();
+        e.stopPropagation();
         overwriteClipboard();
-        triggerBlackoutShield("MULTI_FINGER_MOBILE_CAPTURE", 3500);
-        toast.error(toTitleCase("Multi-Touch Capture Intercepted."));
+        triggerBlackoutShield("MULTI_FINGER_GESTURE_CAPTURE", 4500);
+        toast.error(toTitleCase("Three-Finger Screenshot Gesture Intercepted. Blackout Shield Engaged."));
+        return;
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      if (e.touches && e.touches.length >= 3) {
+        e.preventDefault();
+        e.stopPropagation();
+        triggerBlackoutShield("MULTI_FINGER_GESTURE_CAPTURE", 4500);
         return;
       }
     };
@@ -365,6 +401,10 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
 
     const handleTouchCancel = () => {
       if (touchTimer) clearTimeout(touchTimer);
+      // Hardware button press during touch cancels touch
+      if (isMobile) {
+        setIsScreenBlurred(true);
+      }
     };
 
     const mediaQueryList = window.matchMedia("print");
@@ -380,7 +420,8 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
     window.addEventListener("cut", handleCut, true);
     window.addEventListener("selectstart", handleSelectStart, true);
     window.addEventListener("dragstart", handleDragStart, true);
-    window.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("touchstart", handleTouchStart, { passive: false });
+    window.addEventListener("touchmove", handleTouchMove, { passive: false });
     window.addEventListener("touchend", handleTouchEnd, { passive: true });
     window.addEventListener("touchcancel", handleTouchCancel, { passive: true });
     window.addEventListener("keydown", handleKeyTrackerDown, true);
@@ -388,6 +429,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
     window.addEventListener("keydown", handleKeyDown, true);
     window.addEventListener("blur", handleBlur);
     window.addEventListener("focus", handleFocus);
+    window.addEventListener("pagehide", handlePageHide);
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
     if (mediaQueryList.addEventListener) {
@@ -405,6 +447,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       window.removeEventListener("selectstart", handleSelectStart, true);
       window.removeEventListener("dragstart", handleDragStart, true);
       window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchmove", handleTouchMove);
       window.removeEventListener("touchend", handleTouchEnd);
       window.removeEventListener("touchcancel", handleTouchCancel);
       window.removeEventListener("keydown", handleKeyTrackerDown, true);
@@ -412,6 +455,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       window.removeEventListener("keydown", handleKeyDown, true);
       window.removeEventListener("blur", handleBlur);
       window.removeEventListener("focus", handleFocus);
+      window.removeEventListener("pagehide", handlePageHide);
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       if (mediaQueryList.removeEventListener) {
         mediaQueryList.removeEventListener("change", handlePrintChange);
@@ -419,7 +463,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
         mediaQueryList.removeListener(handlePrintChange);
       }
     };
-  }, [enabled, materialId, isDrmDisabled, isSecurityAlertActive, isAccountBlocked]);
+  }, [enabled, materialId, isDrmDisabled, isSecurityAlertActive, isAccountBlocked, isMobile, isIOS, isAndroid]);
 
   return {
     isScreenBlurred,
@@ -431,6 +475,8 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
     blockReason,
     violationsCount,
     isDrmDisabled,
+    isMobile,
+    logDrmEvent,
     toggleDrm: () => setDrmGloballyDisabled(!isDrmDisabled),
   };
 }
