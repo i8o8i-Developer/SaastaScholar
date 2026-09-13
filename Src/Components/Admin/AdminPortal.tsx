@@ -233,7 +233,7 @@ export function AdminPortal() {
   // ================= Cascading Selection State =================
   const [selectedDeptId, setSelectedDeptId] = useState<string>("");
   const [selectedProgramId, setSelectedProgramId] = useState<string>("");
-  const [selectedSemester, setSelectedSemester] = useState<number>(1);
+  const [selectedSemester, setSelectedSemester] = useState<number | null>(null);
   const [selectedSectionId, setSelectedSectionId] = useState<string>("");
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>("");
 
@@ -673,35 +673,25 @@ export function AdminPortal() {
 
   // 
   useEffect(() => {
-    if (departments.length > 0 && (!selectedDeptId || !departments.some((d) => d.id === selectedDeptId))) {
-      const firstDept = departments[0];
-      if (firstDept) setSelectedDeptId(firstDept.id);
+    if (selectedDeptId && !departments.some((d) => d.id === selectedDeptId)) {
+      setSelectedDeptId("");
     }
   }, [departments, selectedDeptId]);
 
   useEffect(() => {
-    if (filteredPrograms.length > 0 && (!selectedProgramId || !filteredPrograms.some((p) => p.id === selectedProgramId))) {
-      const firstProg = filteredPrograms[0];
-      if (firstProg) setSelectedProgramId(firstProg.id);
-    } else if (filteredPrograms.length === 0 && selectedProgramId) {
+    if (selectedProgramId && !filteredPrograms.some((p) => p.id === selectedProgramId)) {
       setSelectedProgramId("");
     }
   }, [filteredPrograms, selectedProgramId]);
 
   useEffect(() => {
-    if (filteredSections.length > 0 && (!selectedSectionId || !filteredSections.some((s) => s.id === selectedSectionId))) {
-      const firstSec = filteredSections[0];
-      if (firstSec) setSelectedSectionId(firstSec.id);
-    } else if (filteredSections.length === 0 && selectedSectionId) {
+    if (selectedSectionId && !filteredSections.some((s) => s.id === selectedSectionId)) {
       setSelectedSectionId("");
     }
   }, [filteredSections, selectedSectionId]);
 
   useEffect(() => {
-    if (filteredSubjects.length > 0 && (!selectedSubjectId || !filteredSubjects.some((s) => s.id === selectedSubjectId))) {
-      const firstSub = filteredSubjects[0];
-      if (firstSub) setSelectedSubjectId(firstSub.id);
-    } else if (filteredSubjects.length === 0 && selectedSubjectId) {
+    if (selectedSubjectId && !filteredSubjects.some((s) => s.id === selectedSubjectId)) {
       setSelectedSubjectId("");
     }
   }, [filteredSubjects, selectedSubjectId]);
@@ -716,21 +706,24 @@ export function AdminPortal() {
     return true;
   });
 
-  // Filtered Timetable Slots
-  const filteredTimetableSlots = timetableSlots.filter((slot) => {
-    if (selectedSemester && slot.semester !== selectedSemester) return false;
-    if (selectedSectionId) {
-      const targetSec = sections.find((s) => s.id === selectedSectionId);
-      const targetSecCode = targetSec?.section || targetSec?.section_name;
-      if (targetSecCode && slot.section?.trim().toUpperCase() !== targetSecCode.trim().toUpperCase()) return false;
-    }
-    if (selectedTimetableDay && selectedTimetableDay !== "All") {
-      const slotDay = (slot.day_of_week || "").trim().toLowerCase();
-      const targetDay = selectedTimetableDay.trim().toLowerCase();
-      if (!slotDay.startsWith(targetDay) && slotDay !== targetDay) return false;
-    }
-    return true;
-  });
+  // 
+  const filteredTimetableSlots = useMemo(() => {
+    if (!selectedSemester || !selectedSectionId) return [];
+    return timetableSlots.filter((slot) => {
+      if (selectedSemester && slot.semester !== selectedSemester) return false;
+      if (selectedSectionId) {
+        const targetSec = sections.find((s) => s.id === selectedSectionId);
+        const targetSecCode = targetSec?.section || targetSec?.section_name;
+        if (targetSecCode && slot.section?.trim().toUpperCase() !== targetSecCode.trim().toUpperCase()) return false;
+      }
+      if (selectedTimetableDay && selectedTimetableDay !== "All") {
+        const slotDay = (slot.day_of_week || "").trim().toLowerCase();
+        const targetDay = selectedTimetableDay.trim().toLowerCase();
+        if (!slotDay.startsWith(targetDay) && slotDay !== targetDay) return false;
+      }
+      return true;
+    });
+  }, [timetableSlots, selectedSemester, selectedSectionId, sections, selectedTimetableDay]);
 
   // Real-time computed metrics for Weekly Class Schedule
   const weeklyScheduleData = useMemo(() => {
@@ -1776,12 +1769,15 @@ export function AdminPortal() {
         <button
           type="button"
           onClick={() => {
-            if (departments[0]?.id) setSelectedDeptId(departments[0].id);
-            setSelectedSemester(1);
+            setSelectedDeptId("");
+            setSelectedProgramId("");
+            setSelectedSemester(null);
+            setSelectedSectionId("");
+            setSelectedSubjectId("");
           }}
           className="text-[0.65rem] font-bold text-muted-foreground hover:text-primary transition-colors cursor-pointer"
         >
-          Reset To Primary Cohort
+          Clear All Filters
         </button>
       </div>
 
@@ -1799,27 +1795,17 @@ export function AdminPortal() {
             onChange={(e) => {
               const newDeptId = e.target.value;
               setSelectedDeptId(newDeptId);
-              const progsInDept = programs.filter((p) => p.department === newDeptId);
-              const firstProgId = progsInDept[0]?.id || "";
-              setSelectedProgramId(firstProgId);
-              const secsInCohort = sections.filter((s) => s.program === firstProgId && Number(s.semester) === Number(selectedSemester));
-              setSelectedSectionId(secsInCohort[0]?.id || "");
-              const subsInCohort = subjects.filter((sub) => {
-                const subProgIds = sub.program_ids || (Array.isArray(sub.programs) ? sub.programs : (sub.program ? [sub.program] : []));
-                const matchProg = subProgIds.length > 0 ? subProgIds.includes(firstProgId) : sub.department === newDeptId;
-                return matchProg && Number(sub.semester) === Number(selectedSemester);
-              });
-              setSelectedSubjectId(subsInCohort[0]?.id || "");
+              setSelectedProgramId("");
+              setSelectedSemester(null);
+              setSelectedSectionId("");
+              setSelectedSubjectId("");
             }}
             className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-semibold text-foreground focus:border-primary focus:outline-none"
           >
-            {departments.length === 0 ? (
-              <option value="">No Departments Registered</option>
-            ) : (
-              departments.map((d) => (
-                <option key={d.id} value={d.id}>{d.name} ({d.code})</option>
-              ))
-            )}
+            <option value="">Select Department...</option>
+            {departments.map((d) => (
+              <option key={d.id} value={d.id}>{d.name} ({d.code})</option>
+            ))}
           </select>
         </div>
 
@@ -1828,27 +1814,26 @@ export function AdminPortal() {
           <label className="block text-[0.65rem] font-bold text-muted-foreground uppercase mb-1">2. Specialization</label>
           <select
             value={selectedProgramId}
+            disabled={!selectedDeptId}
             onChange={(e) => {
               const newProgId = e.target.value;
               setSelectedProgramId(newProgId);
-              const secsInCohort = sections.filter((s) => s.program === newProgId && Number(s.semester) === Number(selectedSemester));
-              setSelectedSectionId(secsInCohort[0]?.id || "");
-              const subsInCohort = subjects.filter((sub) => {
-                const subProgIds = sub.program_ids || (Array.isArray(sub.programs) ? sub.programs : (sub.program ? [sub.program] : []));
-                const matchProg = subProgIds.length > 0 ? subProgIds.includes(newProgId) : true;
-                return matchProg && Number(sub.semester) === Number(selectedSemester);
-              });
-              setSelectedSubjectId(subsInCohort[0]?.id || "");
+              setSelectedSemester(null);
+              setSelectedSectionId("");
+              setSelectedSubjectId("");
             }}
-            className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-semibold text-foreground focus:border-primary focus:outline-none"
+            className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-semibold text-foreground focus:border-primary focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {filteredPrograms.length === 0 ? (
-              <option value="">No Specializations In Department</option>
-            ) : (
-              filteredPrograms.map((p) => (
-                <option key={p.id} value={p.id}>{p.name} ({p.code})</option>
-              ))
-            )}
+            <option value="">
+              {!selectedDeptId
+                ? "Select Department First..."
+                : filteredPrograms.length === 0
+                ? "No Specializations Found"
+                : "Select Specialization..."}
+            </option>
+            {filteredPrograms.map((p) => (
+              <option key={p.id} value={p.id}>{p.name} ({p.code})</option>
+            ))}
           </select>
         </div>
 
@@ -1856,21 +1841,20 @@ export function AdminPortal() {
         <div>
           <label className="block text-[0.65rem] font-bold text-muted-foreground uppercase mb-1">3. Semester</label>
           <select
-            value={selectedSemester}
+            value={selectedSemester ?? ""}
+            disabled={!selectedProgramId}
             onChange={(e) => {
-              const newSem = Number(e.target.value);
+              const val = e.target.value;
+              const newSem = val ? Number(val) : null;
               setSelectedSemester(newSem);
-              const secsInCohort = sections.filter((s) => s.program === selectedProgramId && Number(s.semester) === newSem);
-              setSelectedSectionId(secsInCohort[0]?.id || "");
-              const subsInCohort = subjects.filter((sub) => {
-                const subProgIds = sub.program_ids || (Array.isArray(sub.programs) ? sub.programs : (sub.program ? [sub.program] : []));
-                const matchProg = subProgIds.length > 0 ? subProgIds.includes(selectedProgramId) : true;
-                return matchProg && Number(sub.semester) === newSem;
-              });
-              setSelectedSubjectId(subsInCohort[0]?.id || "");
+              setSelectedSectionId("");
+              setSelectedSubjectId("");
             }}
-            className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-semibold text-foreground focus:border-primary focus:outline-none"
+            className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-semibold text-foreground focus:border-primary focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
           >
+            <option value="">
+              {!selectedProgramId ? "Select Specialization First..." : "Select Semester..."}
+            </option>
             {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
               <option key={s} value={s}>Semester {s}</option>
             ))}
@@ -1883,16 +1867,20 @@ export function AdminPortal() {
             <label className="block text-[0.65rem] font-bold text-muted-foreground uppercase mb-1">4. Section Cohort</label>
             <select
               value={selectedSectionId}
+              disabled={!selectedSemester}
               onChange={(e) => setSelectedSectionId(e.target.value)}
-              className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-semibold text-foreground focus:border-primary focus:outline-none"
+              className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-semibold text-foreground focus:border-primary focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {filteredSections.length === 0 ? (
-                <option value="">No Sections In Cohort</option>
-              ) : (
-                filteredSections.map((sec) => (
-                  <option key={sec.id} value={sec.id}>Section {sec.section} ({sec.academic_year})</option>
-                ))
-              )}
+              <option value="">
+                {!selectedSemester
+                  ? "Select Semester First..."
+                  : filteredSections.length === 0
+                  ? "No Sections Found"
+                  : "Select Section..."}
+              </option>
+              {filteredSections.map((sec) => (
+                <option key={sec.id} value={sec.id}>Section {sec.section} ({sec.academic_year})</option>
+              ))}
             </select>
           </div>
         )}
@@ -1903,16 +1891,20 @@ export function AdminPortal() {
             <label className="block text-[0.65rem] font-bold text-muted-foreground uppercase mb-1">4. Active Subject</label>
             <select
               value={selectedSubjectId}
+              disabled={!selectedSemester}
               onChange={(e) => setSelectedSubjectId(e.target.value)}
-              className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-semibold text-foreground focus:border-primary focus:outline-none"
+              className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-semibold text-foreground focus:border-primary focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {filteredSubjects.length === 0 ? (
-                <option value="">No Subjects In Cohort</option>
-              ) : (
-                filteredSubjects.map((sub) => (
-                  <option key={sub.id} value={sub.id}>{sub.code}: {sub.name}</option>
-                ))
-              )}
+              <option value="">
+                {!selectedSemester
+                  ? "Select Semester First..."
+                  : filteredSubjects.length === 0
+                  ? "No Subjects Found"
+                  : "Select Subject..."}
+              </option>
+              {filteredSubjects.map((sub) => (
+                <option key={sub.id} value={sub.id}>{sub.code}: {sub.name}</option>
+              ))}
             </select>
           </div>
         )}
