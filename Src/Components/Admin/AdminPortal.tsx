@@ -260,6 +260,7 @@ export function AdminPortal() {
 
   const [showLabModal, setShowLabModal] = useState<boolean>(false);
   const [editingLabId, setEditingLabId] = useState<string | null>(null);
+  const [labSectionTab, setLabSectionTab] = useState<"EXPERIMENTS" | "MANUALS">("EXPERIMENTS");
 
   const [showAssignmentModal, setShowAssignmentModal] = useState<boolean>(false);
   const [editingAssignmentId, setEditingAssignmentId] = useState<string | null>(null);
@@ -1136,11 +1137,23 @@ export function AdminPortal() {
         return;
       }
 
-      const targetMatType = newMaterial.material_type || (publisherType === "SOLVED_PYQ" ? "SOLVED_PYQ" : "NOTES");
+      const targetMatType = newMaterial.material_type || (publisherType === "SOLVED_PYQ" ? "SOLVED_PYQ" : publisherType === "LAB_MANUAL" ? "LAB_MANUAL" : publisherType === "SYLLABUS" ? "SYLLABUS" : publisherType === "FACULTY" ? "FACULTY" : "NOTES");
 
       const formData = new FormData();
       formData.append("subject", targetSubjectId);
-      formData.append("title", newMaterial.title.trim() || (targetMatType === "SOLVED_PYQ" ? "University Solved PYQ" : "Unit Notes"));
+      formData.append(
+        "title",
+        newMaterial.title.trim() ||
+          (targetMatType === "SOLVED_PYQ"
+            ? "University Solved PYQ"
+            : targetMatType === "LAB_MANUAL"
+            ? "Practical Lab Manual & Experiments"
+            : targetMatType === "SYLLABUS"
+            ? "Official Course Syllabus"
+            : targetMatType === "FACULTY"
+            ? "Faculty Handout Material"
+            : "Unit Notes")
+      );
       formData.append("material_type", targetMatType);
       formData.append("unit_number", String(newMaterial.unit_number || 1));
       formData.append("academic_year", newMaterial.academic_year || "2026-2027");
@@ -4154,7 +4167,7 @@ export function AdminPortal() {
                       "rounded-full px-1.5 py-0.2 text-[0.62rem] font-mono font-bold shrink-0",
                       publisherType === "LAB_MANUAL" ? "bg-white/25 text-white" : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
                     )}>
-                      {labs.length}
+                      {labs.length + filteredMaterials.filter((m) => m.material_type === "LAB_MANUAL").length}
                     </span>
                   </button>
 
@@ -4226,16 +4239,36 @@ export function AdminPortal() {
                     </button>
                   )}
                   {publisherType === "LAB_MANUAL" && (
-                    <button
-                      onClick={() => {
-                        setNewLab({ ...newLab, subject: selectedSubjectId || (subjects[0]?.id || "") });
-                        setShowLabModal(true);
-                      }}
-                      className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-xs font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer w-full sm:w-auto"
-                    >
-                      <Plus className="h-4 w-4" />
-                      <span>Add Practical Lab Experiment</span>
-                    </button>
+                    <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto justify-end">
+                      <button
+                        onClick={() => {
+                          setNewLab({ ...newLab, subject: selectedSubjectId || (subjects[0]?.id || "") });
+                          setShowLabModal(true);
+                        }}
+                        className="inline-flex items-center justify-center gap-2 rounded-2xl bg-amber-600 hover:bg-amber-700 px-4 py-2.5 text-xs font-bold text-white shadow-md cursor-pointer transition-all w-full sm:w-auto"
+                      >
+                        <Plus className="h-4 w-4" />
+                        <span>Add Practical Experiment</span>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setNewMaterial({
+                            ...newMaterial,
+                            material_type: "LAB_MANUAL",
+                            subject: selectedSubjectId || (subjects[0]?.id || ""),
+                            title: "",
+                            unit_number: 1,
+                            file: null,
+                          });
+                          setMaterialUploadMode("FILE");
+                          setShowMaterialModal(true);
+                        }}
+                        className="inline-flex items-center justify-center gap-2 rounded-2xl bg-primary px-4 py-2.5 text-xs font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer transition-all w-full sm:w-auto"
+                      >
+                        <Upload className="h-4 w-4" />
+                        <span>Upload Lab Manual File</span>
+                      </button>
+                    </div>
                   )}
                   {publisherType === "FACULTY" && (
                     <button
@@ -4573,50 +4606,248 @@ export function AdminPortal() {
                   )}
                 </div>
               )}
-              {/* Lab Experiments List */}
+              {/* Lab Experiments & Lab Manuals Section */}
               {publisherType === "LAB_MANUAL" && (
-                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-                  {labs.length === 0 ? (
-                    <div className="col-span-full rounded-3xl border border-dashed border-border bg-card/60 p-12 text-center space-y-3">
-                      <FlaskConical className="h-10 w-10 mx-auto text-muted-foreground/40" />
-                      <h3 className="font-display font-bold text-base text-foreground">No Practical Lab Experiments Added Yet</h3>
-                      <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                        Add Practical Experiments With Multi-Language Code Snippets And Viva Questions.
-                      </p>
+                <div className="space-y-4">
+                  {/* Dual Section Navigation Sub-Tabs */}
+                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border/80 pb-3">
+                    <div className="flex items-center gap-2 p-1 rounded-2xl bg-surface border border-border/80">
+                      <button
+                        type="button"
+                        onClick={() => setLabSectionTab("EXPERIMENTS")}
+                        className={cn(
+                          "flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all cursor-pointer",
+                          labSectionTab === "EXPERIMENTS"
+                            ? "bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-500/30 shadow-xs"
+                            : "text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        <FlaskConical className="h-3.5 w-3.5 text-amber-500" />
+                        <span>Interactive Experiments &amp; Viva</span>
+                        <span className="rounded-full bg-amber-500/20 px-1.5 py-0.2 text-[0.62rem] font-mono font-bold text-amber-700 dark:text-amber-300">
+                          {labs.length}
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => setLabSectionTab("MANUALS")}
+                        className={cn(
+                          "flex items-center gap-2 rounded-xl px-3.5 py-1.5 text-xs font-bold transition-all cursor-pointer",
+                          labSectionTab === "MANUALS"
+                            ? "bg-teal-500/15 text-teal-700 dark:text-teal-300 border border-teal-500/30 shadow-xs"
+                            : "text-muted-foreground hover:text-foreground"
+                        )}
+                      >
+                        <FileText className="h-3.5 w-3.5 text-teal-500" />
+                        <span>Lab Manuals &amp; Documents (Files)</span>
+                        <span className="rounded-full bg-teal-500/20 px-1.5 py-0.2 text-[0.62rem] font-mono font-bold text-teal-700 dark:text-teal-300">
+                          {filteredMaterials.filter((m) => m.material_type === "LAB_MANUAL").length}
+                        </span>
+                      </button>
                     </div>
-                  ) : (
-                    labs.map((lab) => (
-                      <div key={lab.id} className="rounded-3xl border border-border/80 bg-card p-5 shadow-xs flex flex-col justify-between space-y-4 hover:border-primary/50 transition-all">
-                        <div>
-                          <div className="flex items-center justify-between border-b border-border/60 pb-3">
-                            <span className="rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-bold font-mono text-amber-600 dark:text-amber-400">
-                              {lab.subject_code} · Exp {lab.experiment_number}
-                            </span>
-                            <div className="flex items-center gap-1">
-                              <button
-                                onClick={() => handleEditLab(lab)}
-                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-amber-500/10 hover:text-amber-500 cursor-pointer transition-colors"
-                                title="Edit Practical Lab Experiment"
-                              >
-                                <Pencil className="h-4 w-4" />
-                              </button>
-                              <button
-                                onClick={() => handleDeleteItem("/academic/admin/labs/", lab.id, lab.title, loadAdminData)}
-                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer"
-                              >
-                                <Trash2 className="h-4 w-4" />
-                              </button>
+
+                    <span className="text-[0.7rem] font-bold text-muted-foreground">
+                      {labSectionTab === "EXPERIMENTS"
+                        ? "Algorithms, Code Snippets & Viva Drills"
+                        : "Official PDFs, Docs & Studio Manuscripts"}
+                    </span>
+                  </div>
+
+                  {/* 1. Interactive Practical Experiments & Viva Voce Drills View */}
+                  {labSectionTab === "EXPERIMENTS" && (
+                    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                      {labs.length === 0 ? (
+                        <div className="col-span-full rounded-3xl border border-dashed border-border bg-card/60 p-12 text-center space-y-3">
+                          <FlaskConical className="h-10 w-10 mx-auto text-muted-foreground/40" />
+                          <h3 className="font-display font-bold text-base text-foreground">No Practical Lab Experiments Added Yet</h3>
+                          <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                            Add Practical Experiments With Multi-Language Code Snippets And Viva Questions, Or Switch To Lab Manuals &amp; Documents To Upload PDF Files.
+                          </p>
+                          <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+                            <button
+                              onClick={() => {
+                                setNewLab({ ...newLab, subject: selectedSubjectId || (subjects[0]?.id || "") });
+                                setShowLabModal(true);
+                              }}
+                              className="inline-flex items-center gap-2 rounded-2xl bg-amber-600 hover:bg-amber-700 px-4 py-2 text-xs font-bold text-white shadow-md cursor-pointer transition-all"
+                            >
+                              <Plus className="h-4 w-4" />
+                              <span>Add Practical Experiment</span>
+                            </button>
+                            <button
+                              onClick={() => setLabSectionTab("MANUALS")}
+                              className="inline-flex items-center gap-2 rounded-2xl border border-border bg-card px-4 py-2 text-xs font-bold text-foreground hover:bg-surface cursor-pointer transition-all"
+                            >
+                              <FileText className="h-4 w-4" />
+                              <span>View Lab Manual Files</span>
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        labs.map((lab) => (
+                          <div key={lab.id} className="rounded-3xl border border-border/80 bg-card p-5 shadow-xs flex flex-col justify-between space-y-4 hover:border-primary/50 transition-all">
+                            <div>
+                              <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                                <span className="rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-bold font-mono text-amber-600 dark:text-amber-400">
+                                  {lab.subject_code} · Exp {lab.experiment_number}
+                                </span>
+                                <div className="flex items-center gap-1">
+                                  <button
+                                    onClick={() => handleEditLab(lab)}
+                                    className="rounded-xl p-1.5 text-muted-foreground hover:bg-amber-500/10 hover:text-amber-500 cursor-pointer transition-colors"
+                                    title="Edit Practical Lab Experiment"
+                                  >
+                                    <Pencil className="h-4 w-4" />
+                                  </button>
+                                  <button
+                                    onClick={() => handleDeleteItem("/academic/admin/labs/", lab.id, lab.title, loadAdminData)}
+                                    className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer"
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </button>
+                                </div>
+                              </div>
+                              <h3 className="mt-3 font-display text-base font-bold text-foreground">{lab.title}</h3>
+                              <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{lab.aim}</p>
+                            </div>
+                            <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs text-muted-foreground">
+                              <span>{lab.viva_questions?.length || 0} Viva Q&amp;A Drills</span>
+                              <span className="font-mono text-cyan-600 dark:text-cyan-400">Code Verified</span>
                             </div>
                           </div>
-                          <h3 className="mt-3 font-display text-base font-bold text-foreground">{lab.title}</h3>
-                          <p className="mt-1 text-xs text-muted-foreground line-clamp-2">{lab.aim}</p>
+                        ))
+                      )}
+                    </div>
+                  )}
+
+                  {/* 2. Official Lab Manuals & Documents (Files) View */}
+                  {labSectionTab === "MANUALS" && (
+                    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                      {filteredMaterials.filter((m) => m.material_type === "LAB_MANUAL").length === 0 ? (
+                        <div className="col-span-full rounded-3xl border border-dashed border-border bg-card/60 p-12 text-center space-y-3">
+                          <FileText className="h-10 w-10 mx-auto text-muted-foreground/40" />
+                          <h3 className="font-display font-bold text-base text-foreground">No Lab Manuals Or Documents Uploaded For This Filter</h3>
+                          <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                            Upload Official PDF Lab Manuals, Procedure Guides, Or Practical Records With DRM Protection And Live Student Previews.
+                          </p>
+                          <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
+                            <button
+                              onClick={() => {
+                                setNewMaterial({
+                                  ...newMaterial,
+                                  material_type: "LAB_MANUAL",
+                                  subject: selectedSubjectId || (subjects[0]?.id || ""),
+                                  title: "",
+                                  unit_number: 1,
+                                  file: null,
+                                });
+                                setMaterialUploadMode("FILE");
+                                setShowMaterialModal(true);
+                              }}
+                              className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer transition-all"
+                            >
+                              <Upload className="h-4 w-4" />
+                              <span>Upload Lab Manual File</span>
+                            </button>
+                            <button
+                              onClick={() => setLabSectionTab("EXPERIMENTS")}
+                              className="inline-flex items-center gap-2 rounded-2xl border border-border bg-card px-4 py-2 text-xs font-bold text-foreground hover:bg-surface cursor-pointer transition-all"
+                            >
+                              <FlaskConical className="h-4 w-4" />
+                              <span>View Viva &amp; Code Drills</span>
+                            </button>
+                          </div>
                         </div>
-                        <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs text-muted-foreground">
-                          <span>{lab.viva_questions?.length || 0} Viva Q&amp;A Drills</span>
-                          <span className="font-mono text-cyan-600 dark:text-cyan-400">Code Verified</span>
-                        </div>
-                      </div>
-                    ))
+                      ) : (
+                        filteredMaterials
+                          .filter((m) => m.material_type === "LAB_MANUAL")
+                          .map((mat) => (
+                            <div
+                              key={mat.id}
+                              className="rounded-3xl border border-border/80 bg-gradient-to-b from-card via-card to-surface/30 p-5 sm:p-6 shadow-xs flex flex-col justify-between space-y-4 hover:border-primary/50 hover:shadow-lg transition-all"
+                            >
+                              <div className="space-y-3">
+                                <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-3">
+                                  <div className="flex items-center gap-1.5 flex-wrap">
+                                    <span className="rounded-xl bg-purple-500/10 border border-purple-500/20 px-2.5 py-1 text-xs font-bold font-mono text-purple-700 dark:text-purple-300 whitespace-nowrap">
+                                      {mat.subject_code} · Exp / Lab {mat.unit_number || 1}
+                                    </span>
+                                    {mat.file ? (
+                                      <span className="rounded-xl bg-rose-500/10 border border-rose-500/20 px-2.5 py-1 text-[0.68rem] font-bold font-mono text-rose-600 dark:text-rose-400 whitespace-nowrap inline-flex items-center gap-1">
+                                        <FileText className="h-3 w-3" />
+                                        {mat.file.endsWith(".pdf") ? "PDF Doc" : mat.file.endsWith(".docx") ? "Word Doc" : "Doc File"}
+                                      </span>
+                                    ) : (
+                                      <span className="rounded-xl bg-teal-500/10 border border-teal-500/20 px-2.5 py-1 text-[0.68rem] font-bold font-mono text-teal-600 dark:text-teal-400 whitespace-nowrap inline-flex items-center gap-1">
+                                        <FlaskConical className="h-3 w-3" />
+                                        Studio Manual
+                                      </span>
+                                    )}
+                                    {mat.is_drm_protected && (
+                                      <span className="rounded-xl bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-[0.65rem] font-bold font-mono text-emerald-600 dark:text-emerald-400 whitespace-nowrap inline-flex items-center gap-1">
+                                        <ShieldCheck className="h-3 w-3" />
+                                        DRM
+                                      </span>
+                                    )}
+                                  </div>
+                                  <div className="flex items-center gap-1 shrink-0">
+                                    <button
+                                      onClick={() => handleEditMaterial(mat)}
+                                      className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
+                                      title="Edit Lab Manual"
+                                    >
+                                      <Pencil className="h-4 w-4" />
+                                    </button>
+                                    <button
+                                      onClick={() => setPreviewMaterialId(mat.id)}
+                                      className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
+                                      title="Preview in DRM Secure Reader"
+                                    >
+                                      <Eye className="h-4 w-4" />
+                                    </button>
+                                    <button
+                                      onClick={() => handleDeleteItem("/academic/admin/materials/", mat.id, mat.title, loadAdminData)}
+                                      className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer"
+                                      title="Delete Lab Manual"
+                                    >
+                                      <Trash2 className="h-4 w-4" />
+                                    </button>
+                                  </div>
+                                </div>
+                                <h3 className="font-display text-base font-bold text-foreground leading-snug">{mat.title}</h3>
+                                <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed min-h-[32px]">
+                                  {mat.summary || "Official practical manual, algorithmic instructions, and lab procedure guide."}
+                                </p>
+                                {mat.tags && mat.tags.length > 0 && (
+                                  <div className="flex flex-wrap gap-1.5">
+                                    {mat.tags.map((t, idx) => (
+                                      <span key={idx} className="rounded-lg bg-surface border border-border/60 px-2 py-0.5 text-[0.65rem] font-mono text-muted-foreground">
+                                        #{t}
+                                      </span>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs text-muted-foreground">
+                                <span className="font-mono text-[0.7rem]">
+                                  {mat.page_count} Pages · {mat.is_topper_verified ? "Faculty Approved" : "Lab Standard"}
+                                </span>
+                                <div className="flex items-center gap-3">
+                                  <span className="font-mono text-[0.68rem]">{mat.academic_year || "2026-2027"}</span>
+                                  <button
+                                    onClick={() => setPreviewMaterialId(mat.id)}
+                                    className="font-bold text-primary hover:underline text-xs cursor-pointer inline-flex items-center gap-1"
+                                  >
+                                    <span>Preview</span>
+                                    <Eye className="h-3.5 w-3.5" />
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          ))
+                      )}
+                    </div>
                   )}
                 </div>
               )}
@@ -7093,7 +7324,7 @@ export function AdminPortal() {
                 <h3 className="font-display font-bold text-base sm:text-lg text-foreground truncate">
                   {editingMaterialId
                     ? "Edit Academic Study Material"
-                    : `Publish ${publisherType === "NOTES" ? "Unit Handwritten Notes" : publisherType === "SYLLABUS" ? "Official Syllabus Breakdown" : publisherType === "FACULTY" ? "Faculty Material" : "Solved University PYQ"}`}
+                    : `Publish ${newMaterial.material_type === "NOTES" ? "Unit Handwritten Notes" : newMaterial.material_type === "SYLLABUS" ? "Official Syllabus Breakdown" : newMaterial.material_type === "FACULTY" ? "Faculty Material" : newMaterial.material_type === "LAB_MANUAL" ? "Lab Manual Document" : "Solved University PYQ"}`}
                 </h3>
                 <p className="text-[0.68rem] text-muted-foreground truncate">
                   Compose page-by-page DRM manuscripts or upload full PDF/PPT courseware documents.
@@ -7141,8 +7372,8 @@ export function AdminPortal() {
             </div>
 
             <form onSubmit={handleSaveMaterial} className="space-y-4 text-xs">
-              {/* Primary Material Metadata (Subject, Unit/Year, Title) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Primary Material Metadata (Subject, Type, Unit/Exp, Academic Session) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                 <div>
                   <label className="block font-bold mb-1">Target Subject</label>
                   <select
@@ -7158,21 +7389,43 @@ export function AdminPortal() {
                   </select>
                 </div>
                 <div>
+                  <label className="block font-bold mb-1">Material Type</label>
+                  <select
+                    value={newMaterial.material_type}
+                    onChange={(e) => setNewMaterial({ ...newMaterial, material_type: e.target.value as any })}
+                    className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none font-semibold text-foreground"
+                  >
+                    <option value="NOTES">Unit Notes</option>
+                    <option value="SOLVED_PYQ">Solved PYQ</option>
+                    <option value="SYLLABUS">Official Syllabus</option>
+                    <option value="LAB_MANUAL">Lab Manual / Practical Doc</option>
+                    <option value="FACULTY">Faculty Resource</option>
+                  </select>
+                </div>
+                <div>
                   <label className="block font-bold mb-1">
-                    {publisherType === "NOTES" ? "Curriculum Unit (1–5)" : publisherType === "SYLLABUS" ? "Curriculum Unit / Module" : "Paper Unit / Module"}
+                    {newMaterial.material_type === "LAB_MANUAL"
+                      ? "Experiment / Lab No."
+                      : newMaterial.material_type === "NOTES"
+                        ? "Curriculum Unit (1–5)"
+                        : newMaterial.material_type === "SYLLABUS"
+                          ? "Curriculum Unit / Module"
+                          : "Paper Unit / Module"}
                   </label>
                   <select
                     value={newMaterial.unit_number}
                     onChange={(e) => setNewMaterial({ ...newMaterial, unit_number: Number(e.target.value) })}
                     className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none font-semibold text-foreground"
                   >
-                    {[1, 2, 3, 4, 5].map((u) => (
-                      <option key={u} value={u}>Unit {u}</option>
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((u) => (
+                      <option key={u} value={u}>
+                        {newMaterial.material_type === "LAB_MANUAL" ? `Experiment / Lab ${u}` : `Unit ${u}`}
+                      </option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="block font-bold mb-1">Academic Session / Exam Year</label>
+                  <label className="block font-bold mb-1">Academic Session / Year</label>
                   <input
                     type="text"
                     value={newMaterial.academic_year}
@@ -7189,7 +7442,11 @@ export function AdminPortal() {
                   type="text"
                   value={newMaterial.title}
                   onChange={(e) => setNewMaterial({ ...newMaterial, title: e.target.value })}
-                  placeholder="Unit 1: Intelligent Agents & State Space Heuristic Models"
+                  placeholder={
+                    newMaterial.material_type === "LAB_MANUAL"
+                      ? "Experiment 1: Object-Oriented Programming & File I/O Lab Manual"
+                      : "Unit 1: Intelligent Agents & State Space Heuristic Models"
+                  }
                   required
                   className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
                 />

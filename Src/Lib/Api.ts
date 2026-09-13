@@ -140,6 +140,7 @@ export interface AcademicMaterial {
   preview_pages_count: number;
   is_free: boolean;
   is_topper_verified: boolean;
+  is_drm_protected?: boolean;
   file?: string;
   tags?: string[];
   pages?: Array<{ page_number: number; page_title?: string; content_html?: string }>;
