@@ -246,6 +246,31 @@ export function TimetablePlanner() {
                   ? "Sunday Is An Institutional Self-Study & Revision Day. Use This Quiet Period To Revise Unit Notes, Solve Previous Year Papers, Or Work On Personal Study Goals."
                   : "No Active Timetable Slots Configured For This Day. Utilize This Time For Unit Notes Revision, Lab Prep, Or Adding Personal Study Goals."}
               </p>
+              <div className="pt-2 flex flex-wrap items-center justify-center gap-2">
+                {selectedDay === "Sun" ? (
+                  <button
+                    type="button"
+                    onClick={() => setSelectedDay("Mon")}
+                    className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground hover:bg-primary-deep shadow-xs transition-all cursor-pointer"
+                  >
+                    <Calendar className="h-3.5 w-3.5" />
+                    <span>View Monday Schedule</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const idx = WEEKDAYS.indexOf(selectedDay as any);
+                      const nextDayIndex = idx >= 0 ? (idx + 1) % WEEKDAYS.length : 0;
+                      setSelectedDay(WEEKDAYS[nextDayIndex] || "Mon");
+                    }}
+                    className="inline-flex items-center gap-2 rounded-2xl bg-surface border border-border px-4 py-2 text-xs font-bold text-foreground hover:bg-card shadow-2xs transition-all cursor-pointer"
+                  >
+                    <Calendar className="h-3.5 w-3.5 text-primary" />
+                    <span>View Next Day</span>
+                  </button>
+                )}
+              </div>
             </div>
           ) : (
             /* Visual Connected Timeline Track */

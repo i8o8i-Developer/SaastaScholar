@@ -20,6 +20,7 @@ import {
   GraduationCap,
   Layers,
   LineChart,
+  MapPin,
   PieChart,
   ScrollText,
   ShieldCheck,
@@ -244,85 +245,174 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
       {summary?.next_lecture?.day_status === "DAY_ENDED" ? (
         <div
           onClick={() => onNavigateTab("planner")}
-          className="rounded-2xl sm:rounded-3xl border border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 via-card to-cyan-500/10 p-4 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:border-emerald-500/50 hover:shadow-md transition-all group"
+          className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-emerald-500/25 bg-gradient-to-br from-emerald-500/10 via-card to-teal-500/5 p-5 sm:p-6 shadow-xs hover:border-emerald-500/50 hover:shadow-md transition-all cursor-pointer group space-y-4"
         >
-          <div className="flex items-start gap-3.5 sm:gap-4">
-            <div className="grid h-10 w-10 sm:h-11 sm:w-11 shrink-0 place-items-center rounded-2xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition-transform">
-              <CheckCircle2 className="h-5 w-5" />
-            </div>
-            <div>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[0.62rem] sm:text-[0.65rem] uppercase font-bold text-emerald-600 dark:text-emerald-400 tracking-wider">
-                  College Academic Day Has Ended For Today
+          {/* Top Row: Icon + Badge + Action CTA */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/60 pb-3">
+            <div className="flex items-center gap-3">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition-transform shadow-xs">
+                <CheckCircle2 className="h-5 w-5" />
+              </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/15 px-3 py-1 text-[0.68rem] font-bold text-emerald-700 dark:text-emerald-300">
+                  <CheckCircle2 className="h-3 w-3" />
+                  <span>Classes Concluded For Today</span>
                 </span>
-                <span className="inline-flex items-center rounded-full bg-emerald-500/20 px-2 py-0.2 text-[0.58rem] sm:text-[0.6rem] font-bold text-emerald-700 dark:text-emerald-300">
-                  Classes Concluded
+                <span className="text-[0.65rem] font-medium text-muted-foreground hidden sm:inline">
+                  • Schedule Resets At Midnight
                 </span>
               </div>
-              <h3 className="font-display font-bold text-sm sm:text-base text-foreground mt-0.5">
-                All Scheduled Lectures For Today Are Complete
-              </h3>
-              <p className="text-[0.72rem] sm:text-xs text-muted-foreground mt-0.5">
-                Rest Up, Revise Notes, Or Prepare For Upcoming Sessions. Schedule Will Automatically Roll Over At Midnight.
-              </p>
+            </div>
+
+            <div className="flex items-center gap-1.5 text-xs font-bold text-primary group-hover:underline">
+              <span>Open Timetable Planner</span>
+              <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
             </div>
           </div>
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-3 text-xs shrink-0 w-full sm:w-auto">
-            {summary.next_lecture.day === "Tomorrow" && summary.next_lecture.title && summary.next_lecture.title !== "No Scheduled Lectures In Blueprint" && (
-              <span className="rounded-xl bg-surface border border-border/80 px-3 py-1.5 font-bold text-foreground text-center sm:text-left text-xs">
-                🗓️ Tomorrow: {summary.next_lecture.title} ({summary.next_lecture.time})
-              </span>
-            )}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onNavigateTab("planner");
-              }}
-              className="inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-bold text-primary hover:bg-primary/20 transition-all cursor-pointer whitespace-nowrap"
-            >
-              <span>View Today's Timetable</span>
-              <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
-            </button>
+
+          {/* Main Content Area */}
+          <div className="space-y-1">
+            <h3 className="font-display font-bold text-base sm:text-lg text-foreground tracking-tight">
+              All Scheduled Lectures For Today Are Complete
+            </h3>
+            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-3xl">
+              Academic Periods For Today Have Finished. Rest Up, Review Unit Notes, Or Prepare For Upcoming Classes Tomorrow.
+            </p>
           </div>
+
+          {/* Tomorrow's Preview Card */}
+          {summary.next_lecture?.day === "Tomorrow" && summary.next_lecture?.title && summary.next_lecture.title !== "No Scheduled Lectures In Blueprint" && (
+            <div className="pt-2">
+              <div className="rounded-2xl border border-border/80 bg-surface/80 p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs hover:border-primary/40 transition-colors">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary border border-primary/20">
+                    <Clock className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0 space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[0.62rem] sm:text-[0.68rem] font-bold uppercase tracking-wider text-primary">
+                        Next Upcoming Class • Tomorrow
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-display font-bold text-sm sm:text-base text-foreground truncate">
+                        {summary.next_lecture.title}
+                      </span>
+                      {summary.next_lecture.room && (
+                        <span className="inline-flex items-center gap-1 text-[0.68rem] font-mono font-semibold text-muted-foreground bg-surface px-2 py-0.5 rounded-md border border-border/60">
+                          <MapPin className="h-2.5 w-2.5 text-primary" />
+                          <span>{summary.next_lecture.room}</span>
+                        </span>
+                      )}
+                      {summary.next_lecture.faculty && (
+                        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground truncate max-w-[200px]">
+                          <User className="h-3 w-3 text-muted-foreground/80 shrink-0" />
+                          <span className="truncate">{summary.next_lecture.faculty}</span>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2.5 shrink-0 self-start sm:self-center">
+                  <span className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs font-mono font-bold text-primary shadow-2xs">
+                    <Clock className="h-3.5 w-3.5" />
+                    <span>{summary.next_lecture.time}</span>
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-1.5 text-xs font-bold text-primary-foreground shadow-xs group-hover:bg-primary-deep transition-all">
+                    <span>View Schedule</span>
+                    <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       ) : summary?.next_lecture?.day_status === "NO_CLASSES_TODAY" ? (
         <div
           onClick={() => onNavigateTab("planner")}
-          className="rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-r from-cyan-500/5 via-card to-indigo-500/5 p-4 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer hover:border-cyan-500/50 hover:shadow-md transition-all group"
+          className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-emerald-500/25 bg-gradient-to-br from-emerald-500/10 via-card to-teal-500/5 p-5 sm:p-6 shadow-xs hover:border-emerald-500/50 hover:shadow-md transition-all cursor-pointer group space-y-4"
         >
-          <div className="flex items-start gap-3.5 sm:gap-4">
-            <div className="grid h-10 w-10 sm:h-11 sm:w-11 shrink-0 place-items-center rounded-2xl bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 group-hover:scale-105 transition-transform">
-              <Calendar className="h-5 w-5" />
+          {/* Top Row: Icon + Badge + Action CTA */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/60 pb-3">
+            <div className="flex items-center gap-3">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition-transform shadow-xs">
+                <Calendar className="h-5 w-5" />
+              </div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/15 px-3 py-1 text-[0.68rem] font-bold text-emerald-700 dark:text-emerald-300">
+                  <BookOpen className="h-3 w-3" />
+                  <span>{istClock.weekdayCode === "Sun" ? "Sunday Institutional Revision" : "Academic Self-Study Day"}</span>
+                </span>
+                <span className="text-[0.65rem] font-medium text-muted-foreground hidden sm:inline">
+                  • No Classroom Lectures Today
+                </span>
+              </div>
             </div>
-            <div>
-              <span className="text-[0.62rem] sm:text-[0.65rem] uppercase font-bold text-cyan-600 dark:text-cyan-400 tracking-wider">
-                No Classroom Lectures Scheduled For Today
-              </span>
-              <h3 className="font-display font-bold text-sm sm:text-base text-foreground mt-0.5">
-                Academic Self-Study &amp; Revision Day
-              </h3>
-              <p className="text-[0.72rem] sm:text-xs text-muted-foreground mt-0.5">
-                Utilize This Time To Review Unit Notes, Solved PYQs, Or Complete Laboratory Assignments.
-              </p>
-            </div>
-          </div>
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-3 text-xs shrink-0 w-full sm:w-auto">
-            {summary.next_lecture.day === "Tomorrow" && summary.next_lecture.title && summary.next_lecture.title !== "No Scheduled Lectures In Blueprint" && (
-              <span className="rounded-xl bg-surface border border-border/80 px-3 py-1.5 font-bold text-foreground text-center sm:text-left text-xs">
-                🗓️ Tomorrow: {summary.next_lecture.title} ({summary.next_lecture.time})
-              </span>
-            )}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onNavigateTab("planner");
-              }}
-              className="inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl border border-primary/30 bg-primary/10 px-4 py-2 text-xs font-bold text-primary hover:bg-primary/20 transition-all cursor-pointer whitespace-nowrap"
-            >
-              <span>View Today's Timetable</span>
+
+            <div className="flex items-center gap-1.5 text-xs font-bold text-primary group-hover:underline">
+              <span>Open Timetable Planner</span>
               <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
-            </button>
+            </div>
           </div>
+
+          {/* Main Content Area: Headline + Description */}
+          <div className="space-y-1">
+            <h3 className="font-display font-bold text-base sm:text-lg text-foreground tracking-tight">
+              Academic Self-Study &amp; Revision Day
+            </h3>
+            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-3xl">
+              Utilize This Quiet Study Window To Review Unit Derivations, Solve Previous Year Question Papers (PYQs), Or Prepare Laboratory Practical Assignments.
+            </p>
+          </div>
+
+          {/* Tomorrow's Preview Card  */}
+          {summary.next_lecture?.day === "Tomorrow" && summary.next_lecture?.title && summary.next_lecture.title !== "No Scheduled Lectures In Blueprint" && (
+            <div className="pt-2">
+              <div className="rounded-2xl border border-border/80 bg-surface/80 p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs hover:border-primary/40 transition-colors">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary border border-primary/20">
+                    <Clock className="h-4 w-4" />
+                  </div>
+                  <div className="min-w-0 space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[0.62rem] sm:text-[0.68rem] font-bold uppercase tracking-wider text-primary">
+                        Next Upcoming Class • Tomorrow ({istClock.weekdayCode === "Sun" ? "Monday" : "Next Working Day"})
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-display font-bold text-sm sm:text-base text-foreground truncate">
+                        {summary.next_lecture.title}
+                      </span>
+                      {summary.next_lecture.room && (
+                        <span className="inline-flex items-center gap-1 text-[0.68rem] font-mono font-semibold text-muted-foreground bg-surface px-2 py-0.5 rounded-md border border-border/60">
+                          <MapPin className="h-2.5 w-2.5 text-primary" />
+                          <span>{summary.next_lecture.room}</span>
+                        </span>
+                      )}
+                      {summary.next_lecture.faculty && (
+                        <span className="inline-flex items-center gap-1 text-xs text-muted-foreground truncate max-w-[200px]">
+                          <User className="h-3 w-3 text-muted-foreground/80 shrink-0" />
+                          <span className="truncate">{summary.next_lecture.faculty}</span>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2.5 shrink-0 self-start sm:self-center">
+                  <span className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs font-mono font-bold text-primary shadow-2xs">
+                    <Clock className="h-3.5 w-3.5" />
+                    <span>{summary.next_lecture.time}</span>
+                  </span>
+                  <span className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-1.5 text-xs font-bold text-primary-foreground shadow-xs group-hover:bg-primary-deep transition-all">
+                    <span>View Schedule</span>
+                    <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       ) : (() => {
         const nextLec = summary?.next_lecture;
@@ -339,32 +429,33 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
           return (
             <div
               onClick={() => onNavigateTab("planner")}
-              className="rounded-3xl border border-border/80 bg-gradient-to-b from-card via-card to-surface/40 p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-4 cursor-pointer hover:border-primary/50 transition-all group"
+              className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-br from-card via-card to-surface/40 p-5 sm:p-6 shadow-xs hover:border-primary/50 transition-all cursor-pointer group space-y-3"
             >
-              <div className="flex items-center gap-3.5">
-                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary group-hover:scale-105 transition-transform">
-                  <Clock className="h-5 w-5" />
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/60 pb-3">
+                <div className="flex items-center gap-3">
+                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary group-hover:scale-105 transition-transform shadow-xs">
+                    <Clock className="h-5 w-5" />
+                  </div>
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[0.68rem] font-bold text-primary font-mono">
+                    <Calendar className="h-3 w-3" />
+                    <span>Timetable Matrix</span>
+                  </span>
                 </div>
-                <div>
-                  <h4 className="font-display font-bold text-sm text-foreground">
-                    No Lectures Scheduled In Timetable Matrix
-                  </h4>
-                  <p className="text-xs text-muted-foreground mt-0.5">
-                    No Active Periods Configured For Your Specialization Section Today. Use This Time For Unit Notes Revision Or Practical Prep.
-                  </p>
+
+                <div className="flex items-center gap-1.5 text-xs font-bold text-primary group-hover:underline">
+                  <span>View Timetable Matrix</span>
+                  <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onNavigateTab("planner");
-                }}
-                className="inline-flex items-center gap-1.5 font-bold text-primary hover:underline cursor-pointer text-xs shrink-0 self-start sm:self-auto"
-              >
-                <span>View Timetable Matrix</span>
-                <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
-              </button>
+
+              <div className="space-y-1">
+                <h4 className="font-display font-bold text-sm sm:text-base text-foreground">
+                  No Scheduled Lectures In Timetable Matrix Today
+                </h4>
+                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-2xl">
+                  No Active Periods Configured For Your Specialization Section Today. Use This Time For Unit Notes Revision, Previous Question Papers, Or Practical Prep.
+                </p>
+              </div>
             </div>
           );
         }
@@ -372,52 +463,69 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
         return (
           <div
             onClick={() => onNavigateTab("planner")}
-            className="rounded-3xl border border-border/80 bg-gradient-to-b from-card via-card to-surface/40 p-5 sm:p-6 shadow-xs hover:border-emerald-500/50 hover:shadow-md transition-all cursor-pointer group space-y-3.5"
+            className={cn(
+              "relative overflow-hidden rounded-2xl sm:rounded-3xl border p-5 sm:p-6 shadow-xs hover:shadow-md transition-all cursor-pointer group space-y-3.5",
+              nextLec.is_ongoing
+                ? "border-rose-500/40 bg-gradient-to-br from-rose-500/10 via-card to-rose-950/10 hover:border-rose-500/60 ring-1 ring-rose-500/20"
+                : "border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 via-card to-teal-500/5 hover:border-emerald-500/50"
+            )}
           >
             {/* Header Row: Live Status Badge + Day label + Timetable CTA */}
             <div className="flex items-center justify-between gap-3 border-b border-border/60 pb-3">
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-3">
                 <div className={cn(
-                  "grid h-8 w-8 shrink-0 place-items-center rounded-xl transition-transform group-hover:scale-105",
+                  "grid h-10 w-10 shrink-0 place-items-center rounded-2xl transition-transform group-hover:scale-105 shadow-xs",
                   nextLec.is_ongoing
-                    ? "bg-rose-500/15 text-rose-600 dark:text-rose-400"
-                    : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                    ? "bg-rose-500/20 text-rose-600 dark:text-rose-400"
+                    : "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400"
                 )}>
-                  <Clock className="h-4 w-4" />
+                  <Clock className="h-5 w-5" />
                 </div>
-                <div className="flex items-center gap-2">
+
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className={cn(
-                    "text-[0.65rem] sm:text-xs font-bold uppercase tracking-wider",
+                    "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[0.68rem] font-bold border",
                     nextLec.is_ongoing
-                      ? "text-rose-600 dark:text-rose-400"
-                      : "text-emerald-600 dark:text-emerald-400"
+                      ? "border-rose-500/40 bg-rose-500/15 text-rose-700 dark:text-rose-300"
+                      : "border-emerald-500/30 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300"
                   )}>
-                    {nextLec.is_ongoing
-                      ? "Active Lecture In Session"
-                      : `Next Upcoming Lecture (${nextLec.day || "Today"})`}
+                    {nextLec.is_ongoing ? (
+                      <>
+                        <span className="relative flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75" />
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500" />
+                        </span>
+                        <span>Live Lecture In Session</span>
+                      </>
+                    ) : (
+                      <>
+                        <Clock className="h-3 w-3" />
+                        <span>Next Upcoming Lecture ({nextLec.day || "Today"})</span>
+                      </>
+                    )}
                   </span>
+
                   {nextLec.is_ongoing && (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/20 px-2 py-0.5 text-[0.6rem] font-extrabold text-rose-600 dark:text-rose-400">
-                      <span className="h-1.5 w-1.5 rounded-full bg-rose-500 animate-ping" />
-                      Live Now
+                    <span className="text-[0.65rem] font-bold text-rose-600 dark:text-rose-400 hidden sm:inline animate-pulse">
+                      Live Now (IST)
                     </span>
                   )}
                 </div>
               </div>
 
-              <div className="flex items-center gap-1 text-xs font-bold text-primary group-hover:underline">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-primary group-hover:underline">
                 <span>View Schedule</span>
                 <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
               </div>
             </div>
 
-            {/* Title & Topic Area*/}
-            <div>
-              <h3 className="font-display font-bold text-base sm:text-lg text-foreground leading-snug group-hover:text-primary transition-colors break-words">
+            {/* Title & Topic Area */}
+            <div className="space-y-1">
+              <h3 className="font-display font-bold text-base sm:text-xl text-foreground group-hover:text-primary transition-colors leading-snug">
                 {nextLec.title}
               </h3>
               {nextLec.topic && (
-                <p className="text-xs text-muted-foreground mt-1 font-medium line-clamp-2">
+                <p className="text-xs sm:text-sm text-muted-foreground font-medium line-clamp-2">
                   {nextLec.topic}
                 </p>
               )}
@@ -426,19 +534,19 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
             {/* Metadata Chips */}
             <div className="flex flex-wrap items-center gap-2 pt-1">
               {nextLec.faculty && (
-                <span className="inline-flex items-center gap-1.5 rounded-xl bg-surface/90 border border-border/80 px-3 py-1.5 text-xs font-semibold text-foreground">
-                  <span>👨‍🏫</span>
+                <span className="inline-flex items-center gap-1.5 rounded-xl bg-surface/90 border border-border/80 px-3 py-1.5 text-xs font-semibold text-foreground shadow-2xs">
+                  <User className="h-3.5 w-3.5 text-primary shrink-0" />
                   <span className="truncate max-w-[220px]">{nextLec.faculty}</span>
                 </span>
               )}
               {nextLec.room && (
-                <span className="inline-flex items-center gap-1.5 rounded-xl bg-surface/90 border border-border/80 px-3 py-1.5 text-xs font-bold text-foreground font-mono">
-                  <span>📍</span>
+                <span className="inline-flex items-center gap-1.5 rounded-xl bg-surface/90 border border-border/80 px-3 py-1.5 text-xs font-bold text-foreground font-mono shadow-2xs">
+                  <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
                   <span>{nextLec.room}</span>
                 </span>
               )}
-              <span className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs font-bold font-mono text-primary">
-                <Clock className="h-3.5 w-3.5" />
+              <span className="inline-flex items-center gap-1.5 rounded-xl bg-primary/10 border border-primary/20 px-3 py-1.5 text-xs font-bold font-mono text-primary shadow-2xs">
+                <Clock className="h-3.5 w-3.5 shrink-0" />
                 <span>{nextLec.time}</span>
               </span>
             </div>

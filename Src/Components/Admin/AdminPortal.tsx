@@ -5086,7 +5086,7 @@ export function AdminPortal() {
                   })}
                 </div>
 
-                <div className="flex items-center gap-2 sm:gap-2.5 flex-wrap sm:flex-nowrap">
+                <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-2.5 w-full sm:w-auto">
                   {/* Real-time IST Status Badge */}
                   <div className="hidden lg:flex items-center gap-1.5 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs font-mono text-emerald-700 dark:text-emerald-300 shadow-2xs">
                     <span className="relative flex h-2 w-2">
@@ -5103,17 +5103,17 @@ export function AdminPortal() {
                       setAiTargetSection(sec);
                       setShowAiTimetableModal(true);
                     }}
-                    className="inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-2xl border border-purple-500/30 bg-purple-500/10 px-3 sm:px-4 py-2 sm:py-2.5 text-xs font-bold text-purple-600 dark:text-purple-400 hover:bg-purple-500/20 hover:border-purple-500/50 cursor-pointer shrink-0 transition-colors shadow-xs"
+                    className="inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-2xl border border-purple-500/30 bg-purple-500/10 px-2.5 sm:px-4 py-2 sm:py-2.5 text-xs font-bold text-purple-600 dark:text-purple-400 hover:bg-purple-500/20 hover:border-purple-500/50 cursor-pointer transition-colors shadow-xs w-full sm:w-auto"
                     title="Scan Timetable Photo with Gemini AI"
                   >
                     <Sparkles className="h-4 w-4 text-purple-500 shrink-0" />
-                    <span>Scan Timetable Photo (Gemini AI)</span>
+                    <span className="truncate">Scan Photo (AI)</span>
                   </button>
 
                   <button
                     onClick={handleEnrichTimetableFullNames}
                     disabled={isEnrichingFullNames || timetableSlots.length === 0}
-                    className="inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-2xl border border-blue-500/30 bg-blue-500/10 px-3 sm:px-4 py-2 sm:py-2.5 text-xs font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-500/20 hover:border-blue-500/50 cursor-pointer shrink-0 transition-colors shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-2xl border border-blue-500/30 bg-blue-500/10 px-2.5 sm:px-4 py-2 sm:py-2.5 text-xs font-bold text-blue-600 dark:text-blue-400 hover:bg-blue-500/20 hover:border-blue-500/50 cursor-pointer transition-colors shadow-xs disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto"
                     title="Automatically Expand All Abbreviated Course Codes (e.g. PSC -> Programming for Problem Solving with C, M-1 -> Mathematics-I) To Full Names"
                   >
                     {isEnrichingFullNames ? (
@@ -5121,7 +5121,7 @@ export function AdminPortal() {
                     ) : (
                       <BookOpen className="h-4 w-4 shrink-0" />
                     )}
-                    <span>Enrich Full Names</span>
+                    <span className="truncate">Enrich Names</span>
                   </button>
 
                   <button
@@ -5134,11 +5134,11 @@ export function AdminPortal() {
                       setDeleteConfirmationText("");
                       setShowDeleteAllTimetableModal(true);
                     }}
-                    className="inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-3 sm:px-4 py-2 sm:py-2.5 text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 hover:border-rose-500/50 cursor-pointer shrink-0 transition-colors shadow-xs"
+                    className="inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-2xl border border-rose-500/30 bg-rose-500/10 px-2.5 sm:px-4 py-2 sm:py-2.5 text-xs font-bold text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 hover:border-rose-500/50 cursor-pointer transition-colors shadow-xs w-full sm:w-auto"
                     title="Delete Timetable Slots"
                   >
                     <Trash2 className="h-4 w-4 shrink-0" />
-                    <span>Delete All Timetable</span>
+                    <span className="truncate">Delete All</span>
                   </button>
 
                   <button
@@ -5152,10 +5152,10 @@ export function AdminPortal() {
                       });
                       setShowTimetableModal(true);
                     }}
-                    className="inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-2xl bg-primary px-3 sm:px-4 py-2 sm:py-2.5 text-xs font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer shrink-0"
+                    className="inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-2xl bg-primary px-2.5 sm:px-4 py-2 sm:py-2.5 text-xs font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer w-full sm:w-auto"
                   >
                     <Plus className="h-4 w-4 shrink-0" />
-                    <span>Add Timetable Slot</span>
+                    <span className="truncate">Add Slot</span>
                   </button>
                 </div>
               </div>

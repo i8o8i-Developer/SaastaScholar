@@ -239,16 +239,27 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
       >
         <div>
           {/* Brand Header with Collapse / Expand Trigger */}
-          <div className={cn("flex items-center gap-3 py-1", sidebarCollapsed ? "justify-center px-0" : "justify-between px-2")}>
+          <div className={cn("flex items-center py-1", sidebarCollapsed ? "justify-center" : "justify-between gap-3 px-2")}>
             <div className="flex items-center gap-3 min-w-0">
-              <img
-                src="/NIMSWallah.png"
-                onError={(e) => {
-                  e.currentTarget.src = "/favicon.png";
+              <button
+                type="button"
+                onClick={() => {
+                  if (sidebarCollapsed) {
+                    setSidebarCollapsed(false);
+                  }
                 }}
-                alt="Logo"
-                className="h-8 w-8 object-contain shrink-0"
-              />
+                className={cn("shrink-0", sidebarCollapsed && "cursor-pointer hover:scale-105 transition-transform")}
+                title={sidebarCollapsed ? "Expand Sidebar" : undefined}
+              >
+                <img
+                  src="/NIMSWallah.png"
+                  onError={(e) => {
+                    e.currentTarget.src = "/favicon.png";
+                  }}
+                  alt="Logo"
+                  className="h-8 w-8 object-contain shrink-0"
+                />
+              </button>
               {!sidebarCollapsed && (
                 <div className="min-w-0">
                   <h2 className="font-display text-lg font-bold tracking-tight bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent truncate">
@@ -261,14 +272,16 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
               )}
             </div>
 
-            <button
-              type="button"
-              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              className="grid h-8 w-8 place-items-center rounded-xl border border-border bg-surface text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors cursor-pointer shrink-0"
-              title={sidebarCollapsed ? "Expand Sidebar (Open)" : "Collapse Sidebar (Close)"}
-            >
-              <Menu className="h-4 w-4" />
-            </button>
+            {!sidebarCollapsed && (
+              <button
+                type="button"
+                onClick={() => setSidebarCollapsed(true)}
+                className="grid h-8 w-8 place-items-center rounded-xl border border-border bg-surface text-muted-foreground hover:text-foreground hover:border-primary/50 transition-colors cursor-pointer shrink-0"
+                title="Collapse Sidebar"
+              >
+                <Menu className="h-4 w-4" />
+              </button>
+            )}
           </div>
 
           {/* Student Profile Quick Strip */}
