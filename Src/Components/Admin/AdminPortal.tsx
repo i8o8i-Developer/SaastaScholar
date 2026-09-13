@@ -709,13 +709,24 @@ export function AdminPortal() {
 
   // 
   const filteredTimetableSlots = useMemo(() => {
-    if (!selectedSemester || !selectedSectionId) return [];
     return timetableSlots.filter((slot) => {
       if (selectedSemester && slot.semester !== selectedSemester) return false;
       if (selectedSectionId) {
         const targetSec = sections.find((s) => s.id === selectedSectionId);
         const targetSecCode = targetSec?.section || targetSec?.section_name;
         if (targetSecCode && slot.section?.trim().toUpperCase() !== targetSecCode.trim().toUpperCase()) return false;
+      }
+      if (selectedSubjectId && slot.subject && slot.subject !== selectedSubjectId) return false;
+      if (selectedProgramId && slot.subject) {
+        const sub = subjects.find((s) => s.id === slot.subject);
+        if (sub) {
+          const subProgs = sub.program_ids || (Array.isArray(sub.programs) ? sub.programs : (sub.program ? [sub.program] : []));
+          if (subProgs.length > 0 && !subProgs.includes(selectedProgramId)) return false;
+        }
+      }
+      if (selectedDeptId && slot.subject) {
+        const sub = subjects.find((s) => s.id === slot.subject);
+        if (sub?.department && sub.department !== selectedDeptId) return false;
       }
       if (selectedTimetableDay && selectedTimetableDay !== "All") {
         const slotDay = (slot.day_of_week || "").trim().toLowerCase();
@@ -724,7 +735,7 @@ export function AdminPortal() {
       }
       return true;
     });
-  }, [timetableSlots, selectedSemester, selectedSectionId, sections, selectedTimetableDay]);
+  }, [timetableSlots, selectedSemester, selectedSectionId, sections, selectedSubjectId, selectedProgramId, selectedDeptId, subjects, selectedTimetableDay]);
 
   // Real-time computed metrics for Weekly Class Schedule
   const weeklyScheduleData = useMemo(() => {
@@ -1817,14 +1828,16 @@ export function AdminPortal() {
             onChange={(e) => {
               const newDeptId = e.target.value;
               setSelectedDeptId(newDeptId);
-              setSelectedProgramId("");
-              setSelectedSemester(null);
-              setSelectedSectionId("");
-              setSelectedSubjectId("");
+              if (newDeptId && selectedProgramId) {
+                const prog = programs.find((p) => p.id === selectedProgramId);
+                if (prog && prog.department !== newDeptId) {
+                  setSelectedProgramId("");
+                }
+              }
             }}
             className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-semibold text-foreground focus:border-primary focus:outline-none"
           >
-            <option value="">Select Department...</option>
+            <option value="">All Departments (Global)</option>
             {departments.map((d) => (
               <option key={d.id} value={d.id}>{d.name} ({d.code})</option>
             ))}
@@ -1836,22 +1849,20 @@ export function AdminPortal() {
           <label className="block text-[0.65rem] font-bold text-muted-foreground uppercase mb-1">2. Specialization</label>
           <select
             value={selectedProgramId}
-            disabled={!selectedDeptId}
             onChange={(e) => {
               const newProgId = e.target.value;
               setSelectedProgramId(newProgId);
-              setSelectedSemester(null);
-              setSelectedSectionId("");
-              setSelectedSubjectId("");
+              if (newProgId) {
+                const prog = programs.find((p) => p.id === newProgId);
+                if (prog?.department && prog.department !== selectedDeptId) {
+                  setSelectedDeptId(prog.department);
+                }
+              }
             }}
-            className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-semibold text-foreground focus:border-primary focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+            className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-semibold text-foreground focus:border-primary focus:outline-none"
           >
             <option value="">
-              {!selectedDeptId
-                ? "Select Department First..."
-                : filteredPrograms.length === 0
-                ? "No Specializations Found"
-                : "Select Specialization..."}
+              {selectedDeptId ? "All Specializations In Department" : "All Specializations (All Departments)"}
             </option>
             {filteredPrograms.map((p) => (
               <option key={p.id} value={p.id}>{p.name} ({p.code})</option>
@@ -1864,19 +1875,14 @@ export function AdminPortal() {
           <label className="block text-[0.65rem] font-bold text-muted-foreground uppercase mb-1">3. Semester</label>
           <select
             value={selectedSemester ?? ""}
-            disabled={!selectedProgramId}
             onChange={(e) => {
               const val = e.target.value;
               const newSem = val ? Number(val) : null;
               setSelectedSemester(newSem);
-              setSelectedSectionId("");
-              setSelectedSubjectId("");
             }}
-            className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-semibold text-foreground focus:border-primary focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+            className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-semibold text-foreground focus:border-primary focus:outline-none"
           >
-            <option value="">
-              {!selectedProgramId ? "Select Specialization First..." : "Select Semester..."}
-            </option>
+            <option value="">All Semesters</option>
             {[1, 2, 3, 4, 5, 6, 7, 8].map((s) => (
               <option key={s} value={s}>Semester {s}</option>
             ))}
@@ -1889,16 +1895,19 @@ export function AdminPortal() {
             <label className="block text-[0.65rem] font-bold text-muted-foreground uppercase mb-1">4. Section Cohort</label>
             <select
               value={selectedSectionId}
-              disabled={!selectedSemester}
-              onChange={(e) => setSelectedSectionId(e.target.value)}
-              className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-semibold text-foreground focus:border-primary focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+              onChange={(e) => {
+                const newSecId = e.target.value;
+                setSelectedSectionId(newSecId);
+                if (newSecId) {
+                  const sec = sections.find((s) => s.id === newSecId);
+                  if (sec?.program && !selectedProgramId) setSelectedProgramId(sec.program);
+                  if (sec?.semester && !selectedSemester) setSelectedSemester(sec.semester);
+                }
+              }}
+              className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-semibold text-foreground focus:border-primary focus:outline-none"
             >
               <option value="">
-                {!selectedSemester
-                  ? "Select Semester First..."
-                  : filteredSections.length === 0
-                  ? "No Sections Found"
-                  : "Select Section..."}
+                {filteredSections.length === 0 ? "No Sections Found" : "All Sections"}
               </option>
               {filteredSections.map((sec) => (
                 <option key={sec.id} value={sec.id}>Section {sec.section} ({sec.academic_year})</option>
@@ -1913,16 +1922,21 @@ export function AdminPortal() {
             <label className="block text-[0.65rem] font-bold text-muted-foreground uppercase mb-1">4. Active Subject</label>
             <select
               value={selectedSubjectId}
-              disabled={!selectedSemester}
-              onChange={(e) => setSelectedSubjectId(e.target.value)}
-              className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-semibold text-foreground focus:border-primary focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+              onChange={(e) => {
+                const newSubId = e.target.value;
+                setSelectedSubjectId(newSubId);
+                if (newSubId) {
+                  const sub = subjects.find((s) => s.id === newSubId);
+                  if (sub?.department && !selectedDeptId) setSelectedDeptId(sub.department);
+                  if (sub?.semester && !selectedSemester) setSelectedSemester(sub.semester);
+                  const subProgs = sub?.program_ids || (Array.isArray(sub?.programs) ? sub?.programs : (sub?.program ? [sub.program] : []));
+                  if (subProgs.length === 1 && !selectedProgramId && typeof subProgs[0] === "string" && subProgs[0]) setSelectedProgramId(subProgs[0]);
+                }
+              }}
+              className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-semibold text-foreground focus:border-primary focus:outline-none"
             >
               <option value="">
-                {!selectedSemester
-                  ? "Select Semester First..."
-                  : filteredSubjects.length === 0
-                  ? "No Subjects Found"
-                  : "Select Subject..."}
+                {filteredSubjects.length === 0 ? "No Subjects Found" : "All Subjects"}
               </option>
               {filteredSubjects.map((sub) => (
                 <option key={sub.id} value={sub.id}>{sub.code}: {sub.name}</option>

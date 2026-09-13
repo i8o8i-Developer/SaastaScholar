@@ -179,7 +179,7 @@ def perform_bulk_delete_timetable(request):
 
     filtered = False
     if program_id and str(program_id).strip() != "":
-        qs = qs.filter(subject__program_id=str(program_id).strip())
+        qs = qs.filter(subject__programs__id=str(program_id).strip())
         filtered = True
     if semester is not None and str(semester).strip() != "":
         try:
@@ -388,33 +388,8 @@ class AdminTimetablePhotoConsumeView(APIView):
                         header_room = r
                         break
 
-            # Standard comprehensive expansions for common engineering subjects
-            STANDARD_EXPANSIONS = {
-                "PSC": "Programming for Problem Solving with C",
-                "M-1": "Mathematics-I",
-                "M-I": "Mathematics-I",
-                "M1": "Mathematics-I",
-                "MATH-I": "Mathematics-I",
-                "MATHS-I": "Mathematics-I",
-                "EPHY": "Engineering Physics",
-                "BEEE": "Basic Electrical & Electronics Engineering",
-                "IAI": "Introduction to AI",
-                "PE": "Professional English-I",
-                "ANANDAM": "Anandam Activity",
-                "EDT LAB": "Emerging & Disruptive Technologies Lab-I",
-                "PSC LAB": "Programming for Problem Solving with C Lab",
-                "EPHY LAB": "Engineering Physics Lab",
-                "BEEE LAB": "Basic Electrical & Electronics Engineering Lab",
-                "CSM101B": "Programming for Problem Solving with C",
-                "MTM101T": "Mathematics-I",
-                "PHM101B": "Engineering Physics",
-                "EEM101T": "Basic Electrical & Electronics Engineering",
-                "CSM102T": "Introduction to AI",
-                "CSM103P": "Emerging & Disruptive Technologies Lab-I",
-                "HUM101T": "Professional English-I",
-            }
-
-            full_name_lookup = dict(STANDARD_EXPANSIONS)
+            #
+            full_name_lookup = {}
 
             faculty_map = parsed.get("faculty_mapping", {}) or {}
             faculty_map_norm = {
@@ -641,31 +616,6 @@ class AdminTimetableEnrichFullNamesView(APIView):
         from Apps.Academic.models import Subject
         from Apps.Academic.cache_utils import invalidate_redis_pattern
 
-        STANDARD_EXPANSIONS = {
-            "PSC": "Programming for Problem Solving with C",
-            "M-1": "Mathematics-I",
-            "M-I": "Mathematics-I",
-            "M1": "Mathematics-I",
-            "MATH-I": "Mathematics-I",
-            "MATHS-I": "Mathematics-I",
-            "EPHY": "Engineering Physics",
-            "BEEE": "Basic Electrical & Electronics Engineering",
-            "IAI": "Introduction to AI",
-            "PE": "Professional English-I",
-            "ANANDAM": "Anandam Activity",
-            "EDT LAB": "Emerging & Disruptive Technologies Lab-I",
-            "PSC LAB": "Programming for Problem Solving with C Lab",
-            "EPHY LAB": "Engineering Physics Lab",
-            "BEEE LAB": "Basic Electrical & Electronics Engineering Lab",
-            "CSM101B": "Programming for Problem Solving with C",
-            "MTM101T": "Mathematics-I",
-            "PHM101B": "Engineering Physics",
-            "EEM101T": "Basic Electrical & Electronics Engineering",
-            "CSM102T": "Introduction to AI",
-            "CSM103P": "Emerging & Disruptive Technologies Lab-I",
-            "HUM101T": "Professional English-I",
-        }
-
         db_subjects = list(Subject.objects.all())
         subject_map = {}
         for s in db_subjects:
@@ -689,23 +639,17 @@ class AdminTimetableEnrichFullNamesView(APIView):
             if matched_subject and matched_subject.name and len(curr_title) < len(matched_subject.name):
                 resolved_title = matched_subject.name
 
-            # 2. If short code matches DB subject
+            # 2. If short code or title matches DB subject
             if not resolved_title and curr_upper in subject_map:
                 s_obj = subject_map[curr_upper]
                 resolved_title = s_obj.name
                 if not matched_subject:
                     matched_subject = s_obj
 
-            # 3. If matches standard university expansions
-            if not resolved_title and curr_upper in STANDARD_EXPANSIONS:
-                resolved_title = STANDARD_EXPANSIONS[curr_upper]
-
-            # 4. If revision suffix (e.g. "PSC Revision")
+            # 3. If revision suffix (e.g. "PSC Revision")
             if not resolved_title and "revision" in curr_title.lower():
                 base_key = curr_title.lower().replace("revision", "").strip().upper()
-                if base_key in STANDARD_EXPANSIONS:
-                    resolved_title = f"{STANDARD_EXPANSIONS[base_key]} (Revision)"
-                elif base_key in subject_map:
+                if base_key in subject_map:
                     resolved_title = f"{subject_map[base_key].name} (Revision)"
 
             needs_save = False
