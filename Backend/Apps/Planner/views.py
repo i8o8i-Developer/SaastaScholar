@@ -292,95 +292,71 @@ class AdminTimetablePhotoConsumeView(APIView):
         )
 
         try:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_api_key}"
-            payload = {
-                "contents": [
-                    {
-                        "parts": [
-                            {"text": prompt_text},
-                            {
-                                "inline_data": {
-                                    "mime_type": mime_type,
-                                    "data": raw_base64,
-                                }
-                            },
-                        ]
-                    }
-                ],
-                "generationConfig": {
-                    "temperature": 0.15,
-                    "responseMimeType": "application/json",
-                },
-            }
+            from .gemini_utils import call_gemini_generate_content
 
-            req = urllib.request.Request(
-                url,
-                data=json.dumps(payload).encode("utf-8"),
-                headers={"Content-Type": "application/json"},
-                method="POST",
+            result_json, model_used = call_gemini_generate_content(
+                api_key=gemini_api_key,
+                prompt_text=prompt_text,
+                inline_data={
+                    "mime_type": mime_type,
+                    "data": raw_base64,
+                },
+                temperature=0.15,
+                response_mime_type="application/json",
             )
 
-            with urllib.request.urlopen(req, timeout=30) as resp:
-                raw_data = resp.read().decode("utf-8")
-                result_json = json.loads(raw_data)
-                candidate_text = result_json["candidates"][0]["content"]["parts"][0]["text"].strip()
+            candidate_text = result_json["candidates"][0]["content"]["parts"][0]["text"].strip()
 
-                if candidate_text.startswith("```json"):
-                    candidate_text = candidate_text[7:]
-                elif candidate_text.startswith("```"):
-                    candidate_text = candidate_text[3:]
-                if candidate_text.endswith("```"):
-                    candidate_text = candidate_text[:-3]
-                candidate_text = candidate_text.strip()
+            if candidate_text.startswith("```json"):
+                candidate_text = candidate_text[7:]
+            elif candidate_text.startswith("```"):
+                candidate_text = candidate_text[3:]
+            if candidate_text.endswith("```"):
+                candidate_text = candidate_text[:-3]
+            candidate_text = candidate_text.strip()
 
-                parsed = json.loads(candidate_text)
-                extracted_slots = parsed.get("slots", [])
+            parsed = json.loads(candidate_text)
+            extracted_slots = parsed.get("slots", [])
 
-                from Apps.Academic.models import Subject
-                db_subjects = list(Subject.objects.all().values("id", "name", "code", "short_name"))
+            from Apps.Academic.models import Subject
+            db_subjects = list(Subject.objects.all().values("id", "name", "code", "short_name"))
 
-                for slot in extracted_slots:
-                    title_lower = (slot.get("title") or "").lower()
-                    code_lower = (slot.get("subject_code") or "").lower()
-                    matched_sub = None
+            for slot in extracted_slots:
+                title_lower = (slot.get("title") or "").lower()
+                code_lower = (slot.get("subject_code") or "").lower()
+                matched_sub = None
 
-                    for sub in db_subjects:
-                        s_code = (sub.get("code") or "").lower()
-                        s_name = (sub.get("name") or "").lower()
-                        s_short = (sub.get("short_name") or "").lower()
+                for sub in db_subjects:
+                    s_code = (sub.get("code") or "").lower()
+                    s_name = (sub.get("name") or "").lower()
+                    s_short = (sub.get("short_name") or "").lower()
 
-                        if (code_lower and s_code and code_lower == s_code) or \
-                           (s_code and s_code in title_lower) or \
-                           (s_short and s_short in title_lower) or \
-                           (s_name and s_name in title_lower):
-                            matched_sub = sub
-                            break
+                    if (code_lower and s_code and code_lower == s_code) or \
+                       (s_code and s_code in title_lower) or \
+                       (s_short and s_short in title_lower) or \
+                       (s_name and s_name in title_lower):
+                        matched_sub = sub
+                        break
 
-                    if matched_sub:
-                        slot["subject_id"] = str(matched_sub["id"])
-                        slot["matched_subject_name"] = matched_sub["name"]
-                        slot["matched_subject_code"] = matched_sub["code"]
-                    else:
-                        slot["subject_id"] = None
+                if matched_sub:
+                    slot["subject_id"] = str(matched_sub["id"])
+                    slot["matched_subject_name"] = matched_sub["name"]
+                    slot["matched_subject_code"] = matched_sub["code"]
+                else:
+                    slot["subject_id"] = None
 
-                return Response({
-                    "success": True,
-                    "model_used": "Gemini 1.5 Flash (Multimodal OCR)",
-                    "slots": extracted_slots,
-                    "count": len(extracted_slots),
-                    "confidence": parsed.get("confidence", "high"),
-                    "summary": parsed.get("summary", f"Extracted {len(extracted_slots)} period slots from timetable photo."),
-                }, status=status.HTTP_200_OK)
+            return Response({
+                "success": True,
+                "model_used": f"{model_used} (Multimodal OCR)",
+                "slots": extracted_slots,
+                "count": len(extracted_slots),
+                "confidence": parsed.get("confidence", "high"),
+                "summary": parsed.get("summary", f"Extracted {len(extracted_slots)} period slots from timetable photo."),
+            }, status=status.HTTP_200_OK)
 
-        except urllib.error.HTTPError as http_err:
-            try:
-                err_body = http_err.read().decode("utf-8")
-                err_json = json.loads(err_body)
-                error_msg = err_json.get("error", {}).get("message", str(http_err))
-            except Exception:
-                error_msg = str(http_err)
+        except ValueError as val_err:
             return Response(
-                {"error": f"Gemini API Error: {error_msg}"},
+                {"error": str(val_err)},
                 status=status.HTTP_400_BAD_REQUEST,
             )
         except Exception as e:

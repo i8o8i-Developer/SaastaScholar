@@ -62,34 +62,30 @@ class AIOutlineGeneratorView(APIView):
 
         if gemini_api_key:
             try:
-                url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_api_key}"
+                from Apps.Planner.gemini_utils import call_gemini_generate_content
+
                 prompt_text = (
                     f"You Are A Top University Engineering Professor. "
                     f"Generate A Rigorous Academic Assignment Outline And Bibliography For Topic: '{topic}' In Subject: '{subject}' Using '{format_type}' Citation Standard. "
                     f"Return Strictly A Valid JSON Object Matching This Structure : "
                     f'{{"outline": [{{"section": "1. Section Name", "details": "Academic Description..."}}], "citations": ["[1] Reference Details..."]}}'
                 )
-                payload = {
-                    "contents": [{
-                        "parts": [{"text": prompt_text}]
-                    }],
-                    "generationConfig": {
-                        "temperature": 0.3,
-                        "responseMimeType": "application/json"
-                    }
-                }
-                req = urllib.request.Request(
-                    url,
-                    data=json.dumps(payload).encode("utf-8"),
-                    headers={"Content-Type": "application/json"},
-                    method="POST"
+                result_json, model_used = call_gemini_generate_content(
+                    api_key=gemini_api_key,
+                    prompt_text=prompt_text,
+                    temperature=0.3,
+                    response_mime_type="application/json",
+                    timeout=25,
                 )
-                with urllib.request.urlopen(req, timeout=15) as resp:
-                    raw_data = resp.read().decode("utf-8")
-                    result_json = json.loads(raw_data)
-                    candidate_text = result_json["candidates"][0]["content"]["parts"][0]["text"]
-                    parsed = json.loads(candidate_text)
-                    return Response({
+                candidate_text = result_json["candidates"][0]["content"]["parts"][0]["text"].strip()
+                if candidate_text.startswith("```json"):
+                    candidate_text = candidate_text[7:]
+                elif candidate_text.startswith("```"):
+                    candidate_text = candidate_text[3:]
+                if candidate_text.endswith("```"):
+                    candidate_text = candidate_text[:-3]
+                parsed = json.loads(candidate_text.strip())
+                return Response({
                         "topic": topic,
                         "subject": subject,
                         "format": format_type,

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Activity,
   AlertCircle,
@@ -679,11 +679,74 @@ export function AdminPortal() {
     if (selectedSectionId) {
       const targetSec = sections.find((s) => s.id === selectedSectionId);
       const targetSecCode = targetSec?.section || targetSec?.section_name;
-      if (targetSecCode && slot.section !== targetSecCode) return false;
+      if (targetSecCode && slot.section?.trim().toUpperCase() !== targetSecCode.trim().toUpperCase()) return false;
     }
-    if (selectedTimetableDay && slot.day_of_week !== selectedTimetableDay) return false;
+    if (selectedTimetableDay && selectedTimetableDay !== "All") {
+      const slotDay = (slot.day_of_week || "").trim().toLowerCase();
+      const targetDay = selectedTimetableDay.trim().toLowerCase();
+      if (!slotDay.startsWith(targetDay) && slotDay !== targetDay) return false;
+    }
     return true;
   });
+
+  // Real-time computed metrics for Weekly Class Schedule
+  const weeklyScheduleData = useMemo(() => {
+    const isDayMatch = (val: string, prefix: string) =>
+      (val || "").trim().toLowerCase().startsWith(prefix.toLowerCase());
+
+    const days = [
+      { day: "Monday", shortDay: "Mon", prefix: "mon" },
+      { day: "Tuesday", shortDay: "Tue", prefix: "tue" },
+      { day: "Wednesday", shortDay: "Wed", prefix: "wed" },
+      { day: "Thursday", shortDay: "Thu", prefix: "thu" },
+      { day: "Friday", shortDay: "Fri", prefix: "fri" },
+      { day: "Saturday", shortDay: "Sat", prefix: "sat" },
+    ];
+
+    return days.map(({ day, shortDay, prefix }) => {
+      const daySlots = timetableSlots.filter((s) => isDayMatch(s.day_of_week, prefix));
+      const hours = daySlots.reduce((acc, s) => {
+        if (s.start_time && s.end_time) {
+          const partsStart = s.start_time.split(":").map(Number);
+          const partsEnd = s.end_time.split(":").map(Number);
+          const sh = partsStart[0] ?? 0;
+          const sm = partsStart[1] ?? 0;
+          const eh = partsEnd[0] ?? 0;
+          const em = partsEnd[1] ?? 0;
+          if (!Number.isNaN(sh) && !Number.isNaN(eh) && (eh * 60 + em) > (sh * 60 + sm)) {
+            const diff = (eh * 60 + em) - (sh * 60 + sm);
+            if (diff > 0) return acc + diff / 60;
+          }
+        }
+        return acc + 1.5;
+      }, 0);
+      return {
+        day,
+        shortDay,
+        periods: daySlots.length,
+        hours: +hours.toFixed(1),
+      };
+    });
+  }, [timetableSlots]);
+
+  const peakScheduleDay = useMemo(() => {
+    if (timetableSlots.length === 0) return "No Periods Scheduled";
+    const sorted = [...weeklyScheduleData].sort((a, b) => b.periods - a.periods);
+    const top = sorted[0];
+    if (!top || top.periods === 0) return "No Periods Scheduled";
+    return `${top.day} (${top.periods} Periods)`;
+  }, [timetableSlots, weeklyScheduleData]);
+
+  const totalWeeklyAcademicHours = useMemo(() => {
+    const sum = weeklyScheduleData.reduce((acc, d) => acc + d.hours, 0);
+    return sum.toFixed(1);
+  }, [weeklyScheduleData]);
+
+  const activeCohortsCount = useMemo(() => {
+    if (timetableSlots.length === 0) return 0;
+    const unique = new Set(timetableSlots.map((s) => `Sem${s.semester}-Sec${s.section}`));
+    return unique.size;
+  }, [timetableSlots]);
 
   // Filtered Assignments
   const filteredAssignments = assignments.filter((assign) => {
@@ -2560,7 +2623,7 @@ export function AdminPortal() {
                           <span className="truncate">Weekly Class Schedule (Periods Per Day)</span>
                         </h3>
                         <p className="text-[0.68rem] sm:text-xs text-muted-foreground truncate">
-                          Total Active Lecture Slots Scheduled Across All 6 Student Cohorts (Mon – Sat)
+                          Total Active Lecture Slots Scheduled Across All {sections.length} Student Cohorts (Mon – Sat)
                         </p>
                       </div>
                       <span className="rounded-full bg-cyan-500/10 border border-cyan-500/30 px-3 py-1 text-xs font-mono font-bold text-cyan-800 dark:text-cyan-300 shrink-0 whitespace-nowrap">
@@ -2571,14 +2634,7 @@ export function AdminPortal() {
                     <div className="h-56 sm:h-64 w-full pt-3">
                       <ResponsiveContainer width="100%" height="100%">
                         <AreaChart
-                          data={[
-                            { day: "Monday", shortDay: "Mon", periods: timetableSlots.filter((s) => s.day_of_week === "Mon").length, hours: +(timetableSlots.filter((s) => s.day_of_week === "Mon").length * 1.5).toFixed(1) },
-                            { day: "Tuesday", shortDay: "Tue", periods: timetableSlots.filter((s) => s.day_of_week === "Tue").length, hours: +(timetableSlots.filter((s) => s.day_of_week === "Tue").length * 1.5).toFixed(1) },
-                            { day: "Wednesday", shortDay: "Wed", periods: timetableSlots.filter((s) => s.day_of_week === "Wed").length, hours: +(timetableSlots.filter((s) => s.day_of_week === "Wed").length * 1.5).toFixed(1) },
-                            { day: "Thursday", shortDay: "Thu", periods: timetableSlots.filter((s) => s.day_of_week === "Thu").length, hours: +(timetableSlots.filter((s) => s.day_of_week === "Thu").length * 1.5).toFixed(1) },
-                            { day: "Friday", shortDay: "Fri", periods: timetableSlots.filter((s) => s.day_of_week === "Fri").length, hours: +(timetableSlots.filter((s) => s.day_of_week === "Fri").length * 1.5).toFixed(1) },
-                            { day: "Saturday", shortDay: "Sat", periods: timetableSlots.filter((s) => s.day_of_week === "Sat").length, hours: +(timetableSlots.filter((s) => s.day_of_week === "Sat").length * 1.5).toFixed(1) },
-                          ]}
+                          data={weeklyScheduleData}
                           margin={{ top: 15, right: 15, left: -20, bottom: 5 }}
                         >
                           <defs>
@@ -2641,20 +2697,20 @@ export function AdminPortal() {
                   <div className="grid grid-cols-3 gap-2 pt-2 border-t border-border/80 text-center">
                     <div className="p-2.5 rounded-2xl bg-cyan-50/70 dark:bg-cyan-500/10 border border-cyan-200 dark:border-cyan-500/25 shadow-2xs">
                       <span className="text-[0.62rem] uppercase font-extrabold text-cyan-900 dark:text-cyan-300 block">Peak Load Day</span>
-                      <span className="font-mono font-black text-xs text-cyan-800 dark:text-cyan-400 mt-0.5 block">
-                        Monday (29 Periods)
+                      <span className="font-mono font-black text-xs text-cyan-800 dark:text-cyan-400 mt-0.5 block truncate">
+                        {peakScheduleDay}
                       </span>
                     </div>
                     <div className="p-2.5 rounded-2xl bg-emerald-50/70 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/25 shadow-2xs">
                       <span className="text-[0.62rem] uppercase font-extrabold text-emerald-900 dark:text-emerald-300 block">Weekly Hours</span>
-                      <span className="font-mono font-black text-xs text-emerald-800 dark:text-emerald-400 mt-0.5 block">
-                        {(timetableSlots.length * 1.5).toFixed(1)} Total Hours
+                      <span className="font-mono font-black text-xs text-emerald-800 dark:text-emerald-400 mt-0.5 block truncate">
+                        {totalWeeklyAcademicHours} Total Hours
                       </span>
                     </div>
                     <div className="p-2.5 rounded-2xl bg-purple-50/70 dark:bg-purple-500/10 border border-purple-200 dark:border-purple-500/25 shadow-2xs">
                       <span className="text-[0.62rem] uppercase font-extrabold text-purple-900 dark:text-purple-300 block">Mapped Cohorts</span>
-                      <span className="font-mono font-black text-xs text-purple-800 dark:text-purple-400 mt-0.5 block">
-                        {sections.length} Sections Active
+                      <span className="font-mono font-black text-xs text-purple-800 dark:text-purple-400 mt-0.5 block truncate">
+                        {activeCohortsCount > 0 ? `${activeCohortsCount} Cohorts Mapped` : `${sections.length} Sections Active`}
                       </span>
                     </div>
                   </div>
@@ -2724,7 +2780,7 @@ export function AdminPortal() {
                           </span>
                         </div>
                         <p className="text-[0.65rem] text-muted-foreground leading-tight">
-                          {materials.filter(m => m.material_type === "NOTES").length} Notes · {materials.filter(m => m.material_type === "SOLVED_PYQ").length} Solved PYQs · {labs.length} Lab Manuals
+                          {materials.filter(m => m.material_type === "NOTES").length} Notes · {materials.filter(m => m.material_type === "SOLVED_PYQ").length} Solved PYQs · {labs.length + materials.filter(m => m.material_type === "LAB_MANUAL").length} Lab Manuals
                         </p>
                       </div>
 
@@ -2736,11 +2792,11 @@ export function AdminPortal() {
                             <span className="font-bold text-foreground truncate">Incident Telemetry</span>
                           </div>
                           <span className="font-mono font-extrabold text-[0.68rem] text-emerald-800 dark:text-emerald-300 shrink-0">
-                            0 Violations
+                            {drmIncidents.length} Violations
                           </span>
                         </div>
                         <p className="text-[0.65rem] text-muted-foreground leading-tight">
-                          All {students.length || 55} enrolled scholars operating in verified DRM sessions
+                          All {students.length} enrolled scholars operating in verified DRM sessions
                         </p>
                       </div>
                     </div>
