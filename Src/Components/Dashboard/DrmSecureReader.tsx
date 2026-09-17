@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import {
   AlertTriangle,
   ArrowLeft,
@@ -7,6 +7,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Eye,
+  Loader2,
   Lock,
   Maximize2,
   Minimize2,
@@ -276,6 +277,17 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
       isCancelled = true;
     };
   }, [materialId, currentPage]);
+
+  const handleTotalPagesDetected = useCallback((p: number) => {
+    if (p) {
+      setPayload((prev) => {
+        if (prev && prev.total_pages !== p) {
+          return { ...prev, total_pages: p };
+        }
+        return prev;
+      });
+    }
+  }, []);
 
   const handleNextPage = () => {
     if (currentPage < payload.total_pages) {
@@ -781,7 +793,15 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
             readerViewMode === "document" ? "max-w-5xl p-2 xs:p-4 sm:p-6" : "max-w-4xl p-3 xs:p-5 sm:p-8"
           )}
         >
-          {readerViewMode === "document" ? (
+          {loading ? (
+            <div className="flex flex-col items-center justify-center min-h-[50vh] p-8 text-center space-y-3">
+              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-500/15 text-emerald-500 animate-pulse">
+                <Loader2 className="h-6 w-6 animate-spin" />
+              </div>
+              <p className="font-bold text-sm text-foreground">Opening DRM Secure Record...</p>
+              <p className="text-xs text-muted-foreground font-mono">Initializing Protected Session &amp; High-Definition Pipeline</p>
+            </div>
+          ) : readerViewMode === "document" ? (
             <div className="space-y-3 sm:space-y-4 min-w-0">
               <div
                 className={cn(
@@ -824,11 +844,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
                 zoomLevel={zoomLevel}
                 watermark={payload.watermark}
                 isDrmDisabled={isDrmDisabled}
-                onTotalPagesDetected={(p) => {
-                  if (p && p !== payload.total_pages) {
-                    setPayload((prev) => ({ ...prev, total_pages: p }));
-                  }
-                }}
+                onTotalPagesDetected={handleTotalPagesDetected}
               />
             </div>
           ) : (

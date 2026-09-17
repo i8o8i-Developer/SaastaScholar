@@ -90,7 +90,10 @@ export function UserDashboard() {
             <DepartmentNotices />
           )}
           {activeTab === "profile" && (
-            <StudentProfile />
+            <StudentProfile
+              onNavigateTab={(tab) => setActiveTab(tab)}
+              onOpenReader={handleOpenReader}
+            />
           )}
           {activeTab === "student-desk" && (
             <StudentDeskHub />

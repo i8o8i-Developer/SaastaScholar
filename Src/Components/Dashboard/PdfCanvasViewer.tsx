@@ -55,8 +55,11 @@ export function PdfCanvasViewer({
   const containerRef = useRef<HTMLDivElement | null>(null);
   const renderTaskRef = useRef<any>(null);
   const isMountedRef = useRef<boolean>(true);
+  const onTotalPagesDetectedRef = useRef(onTotalPagesDetected);
+  onTotalPagesDetectedRef.current = onTotalPagesDetected;
 
   const [pdfDoc, setPdfDoc] = useState<any>(null);
+  const currentLoadedUrlRef = useRef<string | null>(null);
   const [naturalWidth, setNaturalWidth] = useState<number>(800);
   const [naturalHeight, setNaturalHeight] = useState<number>(1130);
   const [pageAspectRatio, setPageAspectRatio] = useState<number>(0.707); // Default A4
@@ -72,10 +75,16 @@ export function PdfCanvasViewer({
     };
   }, []);
 
-  // 1. Load PDF Document with Direct Binary Stream & Retry
+  // 
   const loadDocument = useCallback(async () => {
     if (!fileUrl) {
       setError("No Document Source URL Provided.");
+      setLoading(false);
+      return;
+    }
+
+    // 
+    if (pdfDoc && currentLoadedUrlRef.current === fileUrl) {
       setLoading(false);
       return;
     }
@@ -123,7 +132,6 @@ export function PdfCanvasViewer({
       }
 
       if (!binaryData) {
-        // If binary stream was not reachable directly, attempt fallback or throw clear notice
         throw new Error("Courseware PDF stream is initializing on server. Switch to Clean Notes Vector for instant reading.");
       }
 
@@ -141,8 +149,9 @@ export function PdfCanvasViewer({
 
       if (isMountedRef.current) {
         setPdfDoc(doc);
-        if (onTotalPagesDetected && doc.numPages) {
-          onTotalPagesDetected(doc.numPages);
+        currentLoadedUrlRef.current = fileUrl;
+        if (onTotalPagesDetectedRef.current && doc.numPages) {
+          onTotalPagesDetectedRef.current(doc.numPages);
         }
       }
     } catch (err: any) {
@@ -155,7 +164,7 @@ export function PdfCanvasViewer({
         setLoading(false);
       }
     }
-  }, [fileUrl, onTotalPagesDetected]);
+  }, [fileUrl]);
 
   useEffect(() => {
     loadDocument();
@@ -218,18 +227,15 @@ export function PdfCanvasViewer({
         }
         const viewport = finalScale !== renderScale ? page.getViewport({ scale: finalScale }) : rawViewport;
 
-        // Set internal canvas pixel buffer size
-        canvas.width = Math.floor(viewport.width);
-        canvas.height = Math.floor(viewport.height);
-
-        // Proportional canvas style
-        canvas.style.width = "100%";
-        canvas.style.height = "auto";
-        canvas.style.aspectRatio = `${ratio}`;
-        canvas.style.display = "block";
+        // 
+        const offscreenCanvas = document.createElement("canvas");
+        offscreenCanvas.width = Math.floor(viewport.width);
+        offscreenCanvas.height = Math.floor(viewport.height);
+        const offscreenContext = offscreenCanvas.getContext("2d", { alpha: false });
+        if (!offscreenContext) return;
 
         const renderContext = {
-          canvasContext: context,
+          canvasContext: offscreenContext,
           viewport: viewport,
           enableWebGL: true,
         };
@@ -238,26 +244,25 @@ export function PdfCanvasViewer({
         renderTaskRef.current = renderTask;
 
         await renderTask.promise;
+        if (isCancelled || !isMountedRef.current) return;
 
-        //
-        if (!isDrmDisabled && watermark && context) {
-          context.save();
-          context.translate(canvas.width / 2, canvas.height / 2);
-          context.rotate((-28 * Math.PI) / 180);
-          context.translate(-canvas.width / 2, -canvas.height / 2);
+        // 
+        if (!isDrmDisabled && watermark && offscreenContext) {
+          offscreenContext.save();
+          offscreenContext.translate(offscreenCanvas.width / 2, offscreenCanvas.height / 2);
+          offscreenContext.rotate((-28 * Math.PI) / 180);
+          offscreenContext.translate(-offscreenCanvas.width / 2, -offscreenCanvas.height / 2);
 
-          const fontSize = Math.max(13, Math.floor(canvas.width / 50));
-          context.font = `500 ${fontSize}px "Courier New", Courier, monospace`;
+          const fontSize = Math.max(13, Math.floor(offscreenCanvas.width / 50));
+          offscreenContext.font = `500 ${fontSize}px "Courier New", Courier, monospace`;
+          offscreenContext.fillStyle = "rgba(16, 185, 129, 0.075)";
 
-          // 
-          context.fillStyle = "rgba(16, 185, 129, 0.075)";
-
-          const stepX = Math.max(380, canvas.width / 2.2);
-          const stepY = Math.max(200, canvas.height / 5);
-          const startX = -canvas.width;
-          const endX = canvas.width * 2;
-          const startY = -canvas.height;
-          const endY = canvas.height * 2;
+          const stepX = Math.max(380, offscreenCanvas.width / 2.2);
+          const stepY = Math.max(200, offscreenCanvas.height / 5);
+          const startX = -offscreenCanvas.width;
+          const endX = offscreenCanvas.width * 2;
+          const startY = -offscreenCanvas.height;
+          const endY = offscreenCanvas.height * 2;
 
           const scholarName = (watermark.student_name || "AUTHORIZED SCHOLAR").toUpperCase();
           const scholarRoll = (watermark.roll_number || "VERIFIED").toUpperCase();
@@ -271,12 +276,25 @@ export function PdfCanvasViewer({
               const line1 = `🔒 ${scholarRoll} · ${scholarName}`;
               const line2 = `NIMS UNIVERSITY · ${ipAddr} · ${sessHash}`;
 
-              context.fillText(line1, x, y);
-              context.fillText(line2, x, y + fontSize * 1.3);
+              offscreenContext.fillText(line1, x, y);
+              offscreenContext.fillText(line2, x, y + fontSize * 1.3);
             }
             row++;
           }
-          context.restore();
+          offscreenContext.restore();
+        }
+
+        //
+        canvas.width = offscreenCanvas.width;
+        canvas.height = offscreenCanvas.height;
+        canvas.style.width = "100%";
+        canvas.style.height = "auto";
+        canvas.style.aspectRatio = `${ratio}`;
+        canvas.style.display = "block";
+
+        const visibleCtx = canvas.getContext("2d", { alpha: false });
+        if (visibleCtx) {
+          visibleCtx.drawImage(offscreenCanvas, 0, 0);
         }
       } catch (err: any) {
         if (err?.name !== "RenderingCancelledException") {

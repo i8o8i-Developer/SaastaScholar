@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
+  ArrowLeft,
   ArrowRight,
   Award,
   BookMarked,
@@ -7,12 +8,15 @@ import {
   Check,
   CheckCircle2,
   ChevronDown,
+  ChevronRight,
   Cpu,
   FileCheck2,
   FileText,
   Filter,
   Flame,
   FlaskConical,
+  Folder,
+  FolderOpen,
   GraduationCap,
   Lock,
   Search,
@@ -32,6 +36,8 @@ interface NotesHubProps {
 export function NotesHub({ onOpenReader }: NotesHubProps) {
   const [materials, setMaterials] = useState<AcademicMaterial[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [viewMode, setViewMode] = useState<"folders" | "list">("folders");
+  const [openedSubjectFolder, setOpenedSubjectFolder] = useState<Subject | null>(null);
   const [selectedSubject, setSelectedSubject] = useState<string>("ALL");
   const [selectedUnit, setSelectedUnit] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -80,8 +86,10 @@ export function NotesHub({ onOpenReader }: NotesHubProps) {
     }
   };
 
+  const effectiveSubjectFilter = openedSubjectFolder ? openedSubjectFolder.code : selectedSubject;
+
   const filteredMaterials = materials.filter((m) => {
-    const matchesSubject = selectedSubject === "ALL" || m.subject_code === selectedSubject;
+    const matchesSubject = effectiveSubjectFilter === "ALL" || m.subject_code === effectiveSubjectFilter;
     const matchesUnit = selectedUnit === "ALL" || String(m.unit_number) === selectedUnit;
     const matchesSearch =
       !searchQuery ||
@@ -108,47 +116,176 @@ export function NotesHub({ onOpenReader }: NotesHubProps) {
               Faculty-Reviewed, Topper Handwritten Derivations And Unit-Wise Examination Study Guides. Strictly Protected Under Real-Time View-Only DRM.
             </p>
           </div>
+
+          {/* View Switcher Toggle */}
+          <div className="flex items-center gap-1 bg-surface p-1 rounded-2xl border border-border shadow-2xs shrink-0 self-start lg:self-center">
+            <button
+              type="button"
+              onClick={() => {
+                setViewMode("folders");
+                setOpenedSubjectFolder(null);
+              }}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs transition-all cursor-pointer whitespace-nowrap",
+                viewMode === "folders"
+                  ? "bg-primary text-primary-foreground shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <Folder className="h-3.5 w-3.5" />
+              <span>Folder View</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setViewMode("list");
+                setOpenedSubjectFolder(null);
+              }}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs transition-all cursor-pointer whitespace-nowrap",
+                viewMode === "list"
+                  ? "bg-primary text-primary-foreground shadow-xs"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              <FileText className="h-3.5 w-3.5" />
+              <span>All Notes</span>
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Selection Filters (No Scrolling) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
-        {/* Subject Select Dropdown */}
-        <div className="relative">
-          <select
-            value={selectedSubject}
-            onChange={(e) => setSelectedSubject(e.target.value)}
-            aria-label="Filter by subject"
-            className="h-11 w-full appearance-none rounded-2xl border border-border/80 bg-card px-3.5 pr-10 text-xs sm:text-sm font-bold text-foreground focus:border-emerald-500 focus:outline-none shadow-xs cursor-pointer transition-all truncate"
-          >
-            <option value="ALL">📚 All Subjects ({materials.length} Notes Available)</option>
-            {subjects.map((sub) => (
-              <option key={sub.code} value={sub.code}>
-                {sub.code}: {sub.name}
-              </option>
-            ))}
-          </select>
-          <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        </div>
+      {/* Breadcrumb Bar when inside a Subject Folder */}
+      {viewMode === "folders" && openedSubjectFolder && (
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-2.5 sm:p-3 rounded-2xl bg-surface/80 border border-border/80 shadow-2xs">
+          <div className="flex items-center gap-2 text-xs font-bold overflow-x-auto no-scrollbar">
+            <button
+              type="button"
+              onClick={() => setOpenedSubjectFolder(null)}
+              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-card border border-border/60 text-muted-foreground hover:text-foreground cursor-pointer shrink-0"
+            >
+              <FolderOpen className="h-3.5 w-3.5 text-primary" />
+              <span>All Subject Folders</span>
+            </button>
+            <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
+            <span className="px-2.5 py-1 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
+              {openedSubjectFolder.code}: {openedSubjectFolder.name}
+            </span>
+          </div>
 
-        {/* Unit Select Dropdown */}
-        <div className="relative">
-          <select
-            value={selectedUnit}
-            onChange={(e) => setSelectedUnit(e.target.value)}
-            aria-label="Filter by unit"
-            className="h-11 w-full appearance-none rounded-2xl border border-border/80 bg-card px-3.5 pr-10 text-xs sm:text-sm font-bold text-foreground focus:border-emerald-500 focus:outline-none shadow-xs cursor-pointer transition-all truncate"
+          <button
+            type="button"
+            onClick={() => setOpenedSubjectFolder(null)}
+            className="inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer self-start sm:self-auto"
           >
-            <option value="ALL">📖 All Units (Complete Course)</option>
-            {["1", "2", "3", "4", "5"].map((unit) => (
-              <option key={unit} value={unit}>
-                Unit {unit} Study Notes
-              </option>
-            ))}
-          </select>
-          <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <ArrowLeft className="h-3.5 w-3.5" />
+            <span>Back To All Subject Folders</span>
+          </button>
         </div>
-      </div>
+      )}
+
+      {/* FOLDER VIEW: Subject Folders Grid */}
+      {viewMode === "folders" && !openedSubjectFolder ? (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between px-1">
+            <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider font-mono">
+              Academic Course Subjects ({subjects.length} Folders)
+            </span>
+            <span className="text-xs font-mono text-primary font-bold">
+              {materials.length} Unit Notes Available
+            </span>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {subjects.map((sub) => {
+              const count = materials.filter(
+                (m) => m.subject_code === sub.code || m.subject === sub.id
+              ).length;
+              return (
+                <div
+                  key={sub.code}
+                  onClick={() => setOpenedSubjectFolder(sub)}
+                  className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-br from-card via-card to-emerald-500/5 p-5 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:border-emerald-500/50 hover:shadow-lg cursor-pointer min-w-0"
+                >
+                  <div className="space-y-3 min-w-0">
+                    <div className="flex items-center justify-between border-b border-border/60 pb-3">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shadow-2xs group-hover:scale-105 transition-transform">
+                          <Folder className="h-5 w-5" />
+                        </div>
+                        <div className="min-w-0">
+                          <span className="text-[0.68rem] font-mono font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                            {sub.code} · Subject Folder
+                          </span>
+                          <h4 className="font-display text-sm font-bold text-foreground truncate">
+                            {sub.name}
+                          </h4>
+                        </div>
+                      </div>
+                      <span className="rounded-full bg-surface border border-border/80 px-2 py-0.5 text-[0.65rem] font-mono font-bold text-foreground shrink-0">
+                        {count} Notes
+                      </span>
+                    </div>
+
+                    <p className="text-xs text-muted-foreground line-clamp-2 min-h-[32px]">
+                      {sub.syllabus_summary || `Official Verified Handwritten Study Notes & Derivations For ${sub.name}.`}
+                    </p>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
+                    <span className="font-mono text-[0.7rem]">{sub.credits ? `${sub.credits} Credits` : "Core Course"}</span>
+                    <div className="inline-flex items-center gap-1 font-bold text-emerald-600 dark:text-emerald-400 group-hover:translate-x-1 transition-transform text-xs">
+                      <span>Open Subject Folder</span>
+                      <ChevronRight className="h-3.5 w-3.5" />
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      ) : (
+        /* LIST / INSIDE FOLDER VIEW: Filtered Notes Grid */
+        <div className="space-y-4">
+          {/* Selection Filters (No Scrolling) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
+            {!openedSubjectFolder && (
+              <div className="relative">
+                <select
+                  value={selectedSubject}
+                  onChange={(e) => setSelectedSubject(e.target.value)}
+                  aria-label="Filter by subject"
+                  className="h-11 w-full appearance-none rounded-2xl border border-border/80 bg-card px-3.5 pr-10 text-xs sm:text-sm font-bold text-foreground focus:border-emerald-500 focus:outline-none shadow-xs cursor-pointer transition-all truncate"
+                >
+                  <option value="ALL">📚 All Subjects ({materials.length} Notes Available)</option>
+                  {subjects.map((sub) => (
+                    <option key={sub.code} value={sub.code}>
+                      {sub.code}: {sub.name}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              </div>
+            )}
+
+            {/* Unit Select Dropdown */}
+            <div className={cn("relative", openedSubjectFolder ? "sm:col-span-2" : "")}>
+              <select
+                value={selectedUnit}
+                onChange={(e) => setSelectedUnit(e.target.value)}
+                aria-label="Filter by unit"
+                className="h-11 w-full appearance-none rounded-2xl border border-border/80 bg-card px-3.5 pr-10 text-xs sm:text-sm font-bold text-foreground focus:border-emerald-500 focus:outline-none shadow-xs cursor-pointer transition-all truncate"
+              >
+                <option value="ALL">📖 All Units (Complete Course)</option>
+                {["1", "2", "3", "4", "5"].map((unit) => (
+                  <option key={unit} value={unit}>
+                    Unit {unit} Study Notes
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            </div>
+          </div>
 
       {/* Materials Cards Grid */}
       {filteredMaterials.length === 0 ? (
@@ -237,6 +374,8 @@ export function NotesHub({ onOpenReader }: NotesHubProps) {
             </div>
           </div>
         ))}
+        </div>
+      )}
         </div>
       )}
     </div>
