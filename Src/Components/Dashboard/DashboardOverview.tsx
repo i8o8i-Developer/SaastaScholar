@@ -209,32 +209,35 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
+          <div className="grid grid-cols-2 gap-2.5 sm:flex sm:flex-row sm:items-center sm:gap-3 shrink-0">
             {/* Live IST Real-Time Clock Card */}
-            <div className="rounded-2xl border border-emerald-500/25 bg-surface/90 p-3 sm:p-4 flex items-center justify-between sm:flex-col sm:justify-center text-center shadow-xs min-w-[160px]">
-              <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-mono font-bold text-[0.62rem] sm:text-[0.65rem] uppercase tracking-wider">
-                <span className="relative flex h-2 w-2">
+            <div className="rounded-2xl border border-emerald-500/25 bg-surface/90 p-2.5 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs min-w-0">
+              <div className="flex items-center justify-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-mono font-bold text-[0.6rem] sm:text-[0.65rem] uppercase tracking-wider whitespace-nowrap">
+                <span className="relative flex h-1.5 w-1.5 shrink-0">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
                 </span>
                 <span>Live IST Time</span>
               </div>
-              <span className="font-display text-base sm:text-xl font-bold text-foreground font-mono">
+              <span className="font-display text-base sm:text-xl font-black text-foreground font-mono whitespace-nowrap tracking-tight my-0.5">
                 {istClock.timeShortString}
               </span>
-              <span className="text-[0.62rem] text-muted-foreground font-medium truncate">
+              <span className="text-[0.58rem] sm:text-[0.62rem] text-muted-foreground font-medium whitespace-nowrap truncate max-w-full">
                 {istClock.dateString}
               </span>
             </div>
 
             {/* Target CGPA Goal Card */}
-            <div className="w-full sm:w-auto rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-3 sm:p-4 flex items-center justify-between sm:flex-col sm:justify-center text-center shadow-xs min-w-[140px]">
-              <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold text-[0.62rem] sm:text-[0.65rem] uppercase tracking-wider">
-                <Target className="h-3.5 w-3.5" />
-                <span>Target CGPA Goal</span>
+            <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-2.5 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs min-w-0">
+              <div className="flex items-center justify-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold text-[0.6rem] sm:text-[0.65rem] uppercase tracking-wider whitespace-nowrap">
+                <Target className="h-3 w-3 shrink-0" />
+                <span>Target CGPA</span>
               </div>
-              <span className="font-display text-lg sm:text-2xl font-bold text-foreground font-mono">
-                {targetCgpaNum.toFixed(2)} <span className="text-xs text-muted-foreground font-normal">/ 10.00</span>
+              <span className="font-display text-base sm:text-xl font-black text-foreground font-mono whitespace-nowrap my-0.5">
+                {targetCgpaNum.toFixed(2)} <span className="text-[0.62rem] sm:text-xs text-muted-foreground font-normal">/ 10</span>
+              </span>
+              <span className="text-[0.58rem] sm:text-[0.62rem] text-emerald-600 dark:text-emerald-400 font-semibold whitespace-nowrap">
+                Goal Standing
               </span>
             </div>
           </div>
@@ -248,24 +251,24 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
           className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-emerald-500/25 bg-gradient-to-br from-emerald-500/10 via-card to-teal-500/5 p-5 sm:p-6 shadow-xs hover:border-emerald-500/50 hover:shadow-md transition-all cursor-pointer group space-y-4"
         >
           {/* Top Row: Icon + Badge + Action CTA */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/60 pb-3">
-            <div className="flex items-center gap-3">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition-transform shadow-xs">
-                <CheckCircle2 className="h-5 w-5" />
+          <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-3">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="grid h-9 w-9 sm:h-10 sm:w-10 shrink-0 place-items-center rounded-xl sm:rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition-transform shadow-xs">
+                <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/15 px-3 py-1 text-[0.68rem] font-bold text-emerald-700 dark:text-emerald-300">
-                  <CheckCircle2 className="h-3 w-3" />
-                  <span>Classes Concluded For Today</span>
+              <div className="flex items-center gap-2 flex-wrap min-w-0">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/15 px-2.5 sm:px-3 py-1 text-[0.65rem] sm:text-[0.68rem] font-bold text-emerald-700 dark:text-emerald-300 truncate">
+                  <CheckCircle2 className="h-3 w-3 shrink-0" />
+                  <span>Classes Concluded Today</span>
                 </span>
-                <span className="text-[0.65rem] font-medium text-muted-foreground hidden sm:inline">
-                  • Schedule Resets At Midnight
+                <span className="text-[0.65rem] font-medium text-muted-foreground hidden md:inline">
+                  • Resets At Midnight
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5 text-xs font-bold text-primary group-hover:underline">
-              <span>Open Timetable Planner</span>
+            <div className="flex items-center gap-1 text-[0.68rem] sm:text-xs font-bold text-primary shrink-0 group-hover:underline">
+              <span className="hidden xs:inline">Open </span>Planner
               <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
             </div>
           </div>
@@ -334,24 +337,24 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
           className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-emerald-500/25 bg-gradient-to-br from-emerald-500/10 via-card to-teal-500/5 p-5 sm:p-6 shadow-xs hover:border-emerald-500/50 hover:shadow-md transition-all cursor-pointer group space-y-4"
         >
           {/* Top Row: Icon + Badge + Action CTA */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/60 pb-3">
-            <div className="flex items-center gap-3">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition-transform shadow-xs">
-                <Calendar className="h-5 w-5" />
+          <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-3">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="grid h-9 w-9 sm:h-10 sm:w-10 shrink-0 place-items-center rounded-xl sm:rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition-transform shadow-xs">
+                <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/15 px-3 py-1 text-[0.68rem] font-bold text-emerald-700 dark:text-emerald-300">
-                  <BookOpen className="h-3 w-3" />
+              <div className="flex items-center gap-2 flex-wrap min-w-0">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/15 px-2.5 sm:px-3 py-1 text-[0.65rem] sm:text-[0.68rem] font-bold text-emerald-700 dark:text-emerald-300 truncate">
+                  <BookOpen className="h-3 w-3 shrink-0" />
                   <span>{istClock.weekdayCode === "Sun" ? "Sunday Institutional Revision" : "Academic Self-Study Day"}</span>
                 </span>
-                <span className="text-[0.65rem] font-medium text-muted-foreground hidden sm:inline">
+                <span className="text-[0.65rem] font-medium text-muted-foreground hidden md:inline">
                   • No Classroom Lectures Today
                 </span>
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5 text-xs font-bold text-primary group-hover:underline">
-              <span>Open Timetable Planner</span>
+            <div className="flex items-center gap-1 text-[0.68rem] sm:text-xs font-bold text-primary shrink-0 group-hover:underline">
+              <span className="hidden xs:inline">Open </span>Planner
               <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
             </div>
           </div>
@@ -431,19 +434,19 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
               onClick={() => onNavigateTab("planner")}
               className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-br from-card via-card to-surface/40 p-5 sm:p-6 shadow-xs hover:border-primary/50 transition-all cursor-pointer group space-y-3"
             >
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/60 pb-3">
-                <div className="flex items-center gap-3">
-                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary group-hover:scale-105 transition-transform shadow-xs">
-                    <Clock className="h-5 w-5" />
+              <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-3">
+                <div className="flex items-center gap-2.5">
+                  <div className="grid h-9 w-9 sm:h-10 sm:w-10 shrink-0 place-items-center rounded-xl sm:rounded-2xl bg-primary/10 text-primary group-hover:scale-105 transition-transform shadow-xs">
+                    <Clock className="h-4 w-4 sm:h-5 sm:w-5" />
                   </div>
-                  <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-[0.68rem] font-bold text-primary font-mono">
+                  <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-2.5 sm:px-3 py-1 text-[0.65rem] sm:text-[0.68rem] font-bold text-primary font-mono">
                     <Calendar className="h-3 w-3" />
                     <span>Timetable Matrix</span>
                   </span>
                 </div>
 
-                <div className="flex items-center gap-1.5 text-xs font-bold text-primary group-hover:underline">
-                  <span>View Timetable Matrix</span>
+                <div className="flex items-center gap-1 text-[0.68rem] sm:text-xs font-bold text-primary group-hover:underline">
+                  <span className="hidden xs:inline">View </span>Schedule
                   <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
                 </div>
               </div>

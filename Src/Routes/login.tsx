@@ -27,6 +27,7 @@ import { useAuth } from "@/Hooks/UseAuth";
 import { useTheme } from "@/Hooks/UseTheme";
 import { toast } from "sonner";
 import { apiFetch, Department, ProgramSpecialization, SectionBatch } from "@/Lib/Api";
+import { cn } from "@/Lib/Utils";
 
 export const Route = createFileRoute("/login")({
   component: Login,
@@ -270,16 +271,16 @@ export function Login() {
                   <h1 className="font-display text-base sm:text-lg font-bold text-foreground truncate">
                     {authMode === "admin" ? "NimsWallah Administration Control" : "NimsWallah Student Portal"}
                   </h1>
-                  <p className="text-[0.7rem] sm:text-xs text-muted-foreground truncate">
+                  <p className="text-[0.68rem] sm:text-xs text-muted-foreground truncate">
                     {authMode === "admin"
-                      ? "Department Infrastructure, Specializations & Official Circular Broadcasts"
-                      : "Handwritten Notes, Solved PYQs (2020–2025) & Lab Manuals"}
+                      ? "Department Infrastructure & Circular Broadcasts"
+                      : "Handwritten Notes, Solved PYQs & Lab Manuals"}
                   </p>
                 </div>
               </div>
 
               {/* Segmented Mode Switcher */}
-              <div className="grid grid-cols-3 sm:flex sm:items-center gap-1 bg-surface p-1 rounded-2xl border border-border text-xs shadow-2xs w-full sm:w-auto shrink-0">
+              <div className="grid grid-cols-3 sm:flex sm:items-center gap-1 bg-surface p-1 rounded-2xl border border-border shadow-2xs w-full sm:w-auto shrink-0">
                 <button
                   type="button"
                   onClick={() => {
@@ -287,13 +288,14 @@ export function Login() {
                     setEmail("");
                     setPassword("");
                   }}
-                  className={`px-2 sm:px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer text-[0.7rem] sm:text-xs text-center ${
+                  className={cn(
+                    "px-1.5 sm:px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer text-[0.68rem] xs:text-xs sm:text-xs text-center whitespace-nowrap",
                     authMode === "login"
                       ? "bg-primary text-primary-foreground shadow-xs"
                       : "text-muted-foreground hover:text-foreground"
-                  }`}
+                  )}
                 >
-                  Student Sign In
+                  <span className="hidden xs:inline">Student </span>Sign In
                 </button>
                 <button
                   type="button"
@@ -302,13 +304,14 @@ export function Login() {
                     setEmail("");
                     setPassword("");
                   }}
-                  className={`px-2 sm:px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer text-[0.7rem] sm:text-xs text-center ${
+                  className={cn(
+                    "px-1.5 sm:px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer text-[0.68rem] xs:text-xs sm:text-xs text-center whitespace-nowrap",
                     authMode === "register"
                       ? "bg-primary text-primary-foreground shadow-xs"
                       : "text-muted-foreground hover:text-foreground"
-                  }`}
+                  )}
                 >
-                  New Student
+                  <span className="hidden xs:inline">New </span>Student
                 </button>
                 <button
                   type="button"
@@ -317,13 +320,14 @@ export function Login() {
                     setEmail("");
                     setPassword("");
                   }}
-                  className={`px-2 sm:px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer text-[0.7rem] sm:text-xs text-center ${
+                  className={cn(
+                    "px-1.5 sm:px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer text-[0.68rem] xs:text-xs sm:text-xs text-center whitespace-nowrap",
                     authMode === "admin"
                       ? "bg-emerald-600 text-white shadow-xs font-bold"
                       : "text-muted-foreground hover:text-foreground"
-                  }`}
+                  )}
                 >
-                  Admin Portal
+                  Admin<span className="hidden xs:inline"> Portal</span>
                 </button>
               </div>
             </div>

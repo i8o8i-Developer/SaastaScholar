@@ -4249,7 +4249,7 @@ export function AdminPortal() {
 
               {/* Publisher Mode Switcher & Add Button */}
               <div className="flex flex-col gap-3 border-b border-border pb-4 w-full">
-                <div className="flex flex-wrap items-center gap-1.5 p-1.5 rounded-2xl sm:rounded-3xl bg-surface/80 border border-border/80 shadow-2xs w-full">
+                <div className="flex items-center gap-1.5 p-1.5 rounded-2xl sm:rounded-3xl bg-surface/80 border border-border/80 shadow-2xs w-full overflow-x-auto no-scrollbar scroll-smooth">
                   <button
                     type="button"
                     onClick={() => {
@@ -4262,7 +4262,7 @@ export function AdminPortal() {
                       setActivePageIndex(0);
                     }}
                     className={cn(
-                      "flex-1 min-w-[105px] flex items-center justify-center gap-1.5 rounded-xl sm:rounded-2xl px-2.5 py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer",
+                      "shrink-0 sm:flex-1 flex items-center justify-center gap-1.5 rounded-xl sm:rounded-2xl px-3 py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer whitespace-nowrap",
                       publisherType === "NOTES"
                         ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20"
                         : "text-muted-foreground hover:bg-card/70 hover:text-foreground",
@@ -4290,7 +4290,7 @@ export function AdminPortal() {
                       setActivePageIndex(0);
                     }}
                     className={cn(
-                      "flex-1 min-w-[105px] flex items-center justify-center gap-1.5 rounded-xl sm:rounded-2xl px-2.5 py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer",
+                      "shrink-0 sm:flex-1 flex items-center justify-center gap-1.5 rounded-xl sm:rounded-2xl px-3 py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer whitespace-nowrap",
                       publisherType === "SOLVED_PYQ"
                         ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20"
                         : "text-muted-foreground hover:bg-card/70 hover:text-foreground",
@@ -4318,7 +4318,7 @@ export function AdminPortal() {
                       setActivePageIndex(0);
                     }}
                     className={cn(
-                      "flex-1 min-w-[105px] flex items-center justify-center gap-1.5 rounded-xl sm:rounded-2xl px-2.5 py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer",
+                      "shrink-0 sm:flex-1 flex items-center justify-center gap-1.5 rounded-xl sm:rounded-2xl px-3 py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer whitespace-nowrap",
                       publisherType === "SYLLABUS"
                         ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20"
                         : "text-muted-foreground hover:bg-card/70 hover:text-foreground",
@@ -4338,7 +4338,7 @@ export function AdminPortal() {
                     type="button"
                     onClick={() => setPublisherType("LAB_MANUAL")}
                     className={cn(
-                      "flex-1 min-w-[105px] flex items-center justify-center gap-1.5 rounded-xl sm:rounded-2xl px-2.5 py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer",
+                      "shrink-0 sm:flex-1 flex items-center justify-center gap-1.5 rounded-xl sm:rounded-2xl px-3 py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer whitespace-nowrap",
                       publisherType === "LAB_MANUAL"
                         ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20"
                         : "text-muted-foreground hover:bg-card/70 hover:text-foreground",
@@ -4366,7 +4366,7 @@ export function AdminPortal() {
                       setActivePageIndex(0);
                     }}
                     className={cn(
-                      "flex-1 min-w-[105px] flex items-center justify-center gap-1.5 rounded-xl sm:rounded-2xl px-2.5 py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer",
+                      "shrink-0 sm:flex-1 flex items-center justify-center gap-1.5 rounded-xl sm:rounded-2xl px-3 py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer whitespace-nowrap",
                       publisherType === "FACULTY"
                         ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20"
                         : "text-muted-foreground hover:bg-card/70 hover:text-foreground",
