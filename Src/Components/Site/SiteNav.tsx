@@ -50,24 +50,24 @@ export function SiteNav() {
           scrolled ? "h-14" : "h-20",
         )}
       >
-        <a href="#top" className="flex items-center gap-2.5" aria-label="NimsWallah Home">
+        <a href="#top" className="flex items-center gap-2.5 shrink-0 whitespace-nowrap" aria-label="NimsWallah Home">
           <img
             src="/NIMSWallah.png?v=2"
             alt="NimsWallah Logo"
             width="32"
             height="32"
-            className="h-8 w-8 object-contain rounded-md"
+            className="h-8 w-8 object-contain rounded-md shrink-0"
           />
-          <span className="font-display text-lg font-bold tracking-tight">NimsWallah</span>
+          <span className="font-display text-lg font-bold tracking-tight whitespace-nowrap">NimsWallah</span>
         </a>
 
-        <nav aria-label="Primary" className="hidden lg:block">
-          <ul className="flex items-center gap-1">
+        <nav aria-label="Primary" className="hidden lg:block min-w-0">
+          <ul className="flex items-center gap-0.5 xl:gap-1">
             {NAV_ITEMS.map((item) => (
-              <li key={item.href}>
+              <li key={item.href} className="shrink-0">
                 <a
                   href={item.href}
-                  className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
+                  className="rounded-md px-2 py-1.5 text-xs xl:px-3 xl:py-2 xl:text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground whitespace-nowrap inline-block"
                 >
                   {item.label}
                 </a>
@@ -76,12 +76,12 @@ export function SiteNav() {
           </ul>
         </nav>
 
-        <div className="hidden items-center gap-2.5 lg:flex">
+        <div className="hidden items-center gap-2 xl:gap-2.5 lg:flex shrink-0">
           {/* Theme Toggle Button */}
           <button
             type="button"
             onClick={toggleTheme}
-            className="grid h-9 w-9 place-items-center rounded-xl border border-border bg-surface text-foreground hover:bg-card cursor-pointer transition-all shadow-2xs"
+            className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-border bg-surface text-foreground hover:bg-card cursor-pointer transition-all shadow-2xs"
             title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
           >
             {isDark ? (
@@ -91,10 +91,10 @@ export function SiteNav() {
             )}
           </button>
 
-          <Cta href="/login" variant="ghost" size="sm">
+          <Cta href="/login" variant="ghost" size="sm" className="whitespace-nowrap shrink-0 text-xs xl:text-sm px-2.5 xl:px-3">
             Log In
           </Cta>
-          <Cta href="/login?mode=signup" size="sm">
+          <Cta href="/login?mode=signup" size="sm" className="whitespace-nowrap shrink-0 text-xs xl:text-sm px-3 xl:px-4">
             Get Started
           </Cta>
         </div>
