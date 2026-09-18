@@ -58,13 +58,13 @@ export function AcademicHub() {
             {FEATURES.map(([num, title, copy]) => (
               <li
                 key={num}
-                className="group flex flex-col sm:grid sm:grid-cols-[auto_12rem_minmax(0,1fr)] items-start sm:items-baseline gap-1 sm:gap-x-4 border-b border-border py-3 sm:py-4 transition-colors hover:bg-surface min-w-0"
+                className="group flex flex-col sm:grid sm:grid-cols-[13rem_minmax(0,1fr)] lg:grid-cols-[11.5rem_minmax(0,1fr)] xl:grid-cols-[13.5rem_minmax(0,1fr)] items-start sm:items-baseline gap-1.5 sm:gap-4 border-b border-border py-3.5 sm:py-4 transition-colors hover:bg-surface/60 min-w-0"
               >
-                <div className="flex items-center gap-2">
-                  <span className="label-caps text-primary text-xs font-bold font-mono">{num}</span>
+                <div className="flex items-baseline gap-2.5 min-w-0">
+                  <span className="label-caps text-primary text-xs font-bold font-mono shrink-0">{num}</span>
                   <h3 className="text-sm sm:text-base font-semibold tracking-tight text-foreground">{title}</h3>
                 </div>
-                <p className="text-xs sm:text-sm leading-relaxed text-muted-foreground break-words sm:col-start-3">
+                <p className="text-xs sm:text-sm leading-relaxed text-muted-foreground min-w-0">
                   {copy}
                 </p>
               </li>

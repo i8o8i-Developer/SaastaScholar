@@ -102,7 +102,7 @@ export function Personalization() {
         className="pointer-events-none absolute top-1/2 left-1/4 -translate-y-1/2 -z-10 h-[30rem] w-[30rem] rounded-full bg-emerald-500/10 blur-[110px]"
       />
 
-      <div className="grid gap-12 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.15fr)] lg:items-center">
+      <div className="grid gap-10 lg:gap-12 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.2fr)] lg:items-center">
         <Reveal>
           <SectionHeading
             eyebrow="Academic Personalization"
@@ -126,20 +126,20 @@ export function Personalization() {
         </Reveal>
 
         <Reveal delay={100} className="min-w-0">
-          <div className="grid gap-5 sm:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)] min-w-0">
+          <div className="grid gap-4 sm:gap-5 grid-cols-1 md:grid-cols-2 lg:grid-cols-2 min-w-0">
             {/* Left Card: Dynamic Hierarchy Chain */}
             <div className="overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-card/95 p-4 sm:p-5 shadow-[0_16px_50px_-25px_color-mix(in_oklab,var(--color-primary-deep)_30%,transparent)] backdrop-blur-md min-w-0">
-              <div className="flex items-center justify-between border-b border-border/80 pb-3.5 min-w-0">
+              <div className="flex items-center justify-between border-b border-border/80 pb-3 min-w-0 gap-2">
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="relative flex h-2 w-2 shrink-0">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                     <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
                   </span>
-                  <span className="label-caps font-bold text-foreground text-xs truncate">
+                  <span className="label-caps font-bold text-foreground text-xs whitespace-nowrap">
                     Academic Scope Chain
                   </span>
                 </div>
-                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[0.65rem] font-bold text-primary shrink-0">
+                <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[0.65rem] font-bold text-primary shrink-0 whitespace-nowrap">
                   Inherited
                 </span>
               </div>
@@ -184,7 +184,7 @@ export function Personalization() {
                             {node.tag}
                           </span>
                         </div>
-                        <p className="mt-0.5 text-xs sm:text-sm font-semibold text-foreground leading-snug break-words">
+                        <p className="mt-0.5 text-xs sm:text-sm font-semibold text-foreground leading-snug break-normal">
                           {node.value}
                         </p>
                       </div>
@@ -197,14 +197,14 @@ export function Personalization() {
             {/* Right Card: Filtered Stream Results */}
             <div className="flex flex-col justify-between overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-card/95 p-4 sm:p-5 shadow-[0_16px_50px_-25px_color-mix(in_oklab,var(--color-primary-deep)_30%,transparent)] backdrop-blur-md min-w-0">
               <div>
-                <div className="flex items-center justify-between border-b border-border/80 pb-3.5 min-w-0">
+                <div className="flex items-center justify-between border-b border-border/80 pb-3 min-w-0 gap-2">
                   <div className="flex items-center gap-2 min-w-0">
                     <Filter className="h-4 w-4 text-primary shrink-0" />
-                    <span className="label-caps font-bold text-foreground text-xs truncate">
+                    <span className="label-caps font-bold text-foreground text-xs whitespace-nowrap">
                       Matched For You
                     </span>
                   </div>
-                  <Pill tone="green">4 Synced</Pill>
+                  <Pill tone="green" className="shrink-0 whitespace-nowrap">4 Synced</Pill>
                 </div>
 
                 <ul className="mt-3.5 space-y-2.5 min-w-0">
@@ -213,23 +213,26 @@ export function Personalization() {
                     return (
                       <li
                         key={item.title}
-                        className="group flex items-start justify-between gap-2.5 rounded-xl border border-border/70 bg-surface/60 p-3 transition-all duration-200 hover:border-primary/50 hover:bg-accent/50 min-w-0"
+                        className="group flex flex-col justify-between rounded-xl border border-border/70 bg-surface/60 p-3 transition-all duration-200 hover:border-primary/50 hover:bg-accent/50 min-w-0"
                       >
-                        <div className="flex items-start gap-2.5 min-w-0">
-                          <div className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-md bg-card text-primary shadow-2xs">
-                            <Icon className="h-3.5 w-3.5 shrink-0" />
+                        <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-border/40">
+                          <div className="flex items-center gap-1.5 min-w-0">
+                            <div className="grid h-5 w-5 shrink-0 place-items-center rounded-md bg-card text-primary shadow-2xs">
+                              <Icon className="h-3 w-3 shrink-0" />
+                            </div>
+                            <span className="text-[0.65rem] font-mono font-medium text-muted-foreground truncate">
+                              {(item.meta.split("·")[0] || item.meta).trim()}
+                            </span>
                           </div>
-                          <div className="min-w-0">
-                            <p className="text-xs font-semibold text-foreground group-hover:text-primary transition-colors leading-snug break-words">
-                              {item.title}
-                            </p>
-                            <p className="mt-1 text-[0.68rem] text-muted-foreground truncate">{item.meta}</p>
-                          </div>
+                          <Pill tone={item.tagTone} className="shrink-0 text-[0.62rem] px-2 py-0.5">
+                            {item.badge}
+                          </Pill>
                         </div>
 
-                        <Pill tone={item.tagTone} className="shrink-0">
-                          {item.badge}
-                        </Pill>
+                        <p className="mt-2 text-xs font-semibold text-foreground group-hover:text-primary transition-colors leading-snug break-normal">
+                          {item.title}
+                        </p>
+                        <p className="mt-1 text-[0.65rem] text-muted-foreground truncate">{item.meta}</p>
                       </li>
                     );
                   })}
