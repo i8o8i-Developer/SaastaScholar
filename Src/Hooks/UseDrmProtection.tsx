@@ -139,7 +139,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
         ) {
           navigator.clipboard
             .writeText(
-              "🔒 Protected Academic Material — Copyright NIMS University. Screen Capture And copying are strictly prohibited."
+              "🔒 Protected Academic Material — Copyright NIMS University. Screen Capture And Copying Are Strictly Prohibited."
             )
             .catch(() => {
               //
