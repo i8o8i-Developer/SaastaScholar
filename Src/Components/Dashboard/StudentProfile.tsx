@@ -51,8 +51,6 @@ import {
 } from "@/Lib/Api";
 import { toast } from "sonner";
 import { cn } from "@/Lib/Utils";
-import { isDrmGloballyDisabled, setDrmGloballyDisabled } from "@/Hooks/UseDrmProtection";
-
 interface StudentProfileProps {
   onNavigateTab?: (tab: string) => void;
   onOpenReader?: (materialId: string) => void;
@@ -64,24 +62,8 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
 
   // Folder Explorer Navigation States
   const [activeProfileFolder, setActiveProfileFolder] = useState<
-    "all" | "cohort" | "preferences" | "subjects" | "security"
+    "all" | "cohort" | "preferences" | "security"
   >("all");
-  const [selectedSubjectFolder, setSelectedSubjectFolder] = useState<Subject | null>(null);
-
-  const [isDrmDisabled, setIsDrmDisabled] = useState<boolean>(isDrmGloballyDisabled);
-
-  useEffect(() => {
-    const handleDrmChange = (e: any) => {
-      const disabled = e.detail?.disabled ?? isDrmGloballyDisabled();
-      setIsDrmDisabled(disabled);
-    };
-    window.addEventListener("drm-setting-changed", handleDrmChange);
-    window.addEventListener("storage", handleDrmChange);
-    return () => {
-      window.removeEventListener("drm-setting-changed", handleDrmChange);
-      window.removeEventListener("storage", handleDrmChange);
-    };
-  }, []);
 
   const [fullName, setFullName] = useState<string>(user?.full_name || "");
   const [phoneNumber, setPhoneNumber] = useState<string>(user?.phone_number || "");
@@ -191,16 +173,6 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
     }
   };
 
-  const handleToggleDrm = () => {
-    const nextState = !isDrmDisabled;
-    setIsDrmDisabled(nextState);
-    setDrmGloballyDisabled(nextState);
-    if (nextState) {
-      toast.warning("Master DRM Protection Completely Stopped & Disabled.");
-    } else {
-      toast.success("Master DRM Protection Actively Enabled & Enforced.");
-    }
-  };
 
   const handleAvatarFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -361,10 +333,7 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
           <div className="flex items-center gap-1.5 text-xs font-bold overflow-x-auto no-scrollbar scroll-smooth">
             <button
               type="button"
-              onClick={() => {
-                setActiveProfileFolder("all");
-                setSelectedSubjectFolder(null);
-              }}
+              onClick={() => setActiveProfileFolder("all")}
               className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-card border border-border/60 text-muted-foreground hover:text-foreground cursor-pointer shrink-0 transition-colors"
             >
               <FolderOpen className="h-3.5 w-3.5 text-primary" />
@@ -376,23 +345,12 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
                 <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
                 <button
                   type="button"
-                  onClick={() => setSelectedSubjectFolder(null)}
-                  className="px-2.5 py-1 rounded-xl bg-primary/10 text-primary font-bold border border-primary/20 shrink-0 cursor-pointer"
+                  className="px-2.5 py-1 rounded-xl bg-primary/10 text-primary font-bold border border-primary/20 shrink-0 cursor-default"
                 >
                   {activeProfileFolder === "cohort" && "Institutional Cohort"}
                   {activeProfileFolder === "preferences" && "Personal Preferences"}
-                  {activeProfileFolder === "subjects" && "Enrolled Subjects"}
                   {activeProfileFolder === "security" && "DRM Security"}
                 </button>
-              </>
-            )}
-
-            {selectedSubjectFolder && (
-              <>
-                <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
-                <span className="px-2.5 py-1 rounded-xl bg-violet-500/10 text-violet-600 dark:text-violet-400 font-bold border border-violet-500/20 shrink-0">
-                  {selectedSubjectFolder.code}
-                </span>
               </>
             )}
           </div>
@@ -401,10 +359,7 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
           <div className="flex items-center gap-1 overflow-x-auto no-scrollbar scroll-smooth shrink-0">
             <button
               type="button"
-              onClick={() => {
-                setActiveProfileFolder("all");
-                setSelectedSubjectFolder(null);
-              }}
+              onClick={() => setActiveProfileFolder("all")}
               className={cn(
                 "px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-xs transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 shrink-0",
                 activeProfileFolder === "all"
@@ -418,10 +373,7 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
 
             <button
               type="button"
-              onClick={() => {
-                setActiveProfileFolder("cohort");
-                setSelectedSubjectFolder(null);
-              }}
+              onClick={() => setActiveProfileFolder("cohort")}
               className={cn(
                 "px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-xs transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 shrink-0",
                 activeProfileFolder === "cohort"
@@ -435,10 +387,7 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
 
             <button
               type="button"
-              onClick={() => {
-                setActiveProfileFolder("preferences");
-                setSelectedSubjectFolder(null);
-              }}
+              onClick={() => setActiveProfileFolder("preferences")}
               className={cn(
                 "px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-xs transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 shrink-0",
                 activeProfileFolder === "preferences"
@@ -452,27 +401,7 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
 
             <button
               type="button"
-              onClick={() => {
-                setActiveProfileFolder("subjects");
-                setSelectedSubjectFolder(null);
-              }}
-              className={cn(
-                "px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-xs transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 shrink-0",
-                activeProfileFolder === "subjects"
-                  ? "bg-gradient-to-r from-violet-600 to-purple-600 text-white shadow-xs"
-                  : "text-muted-foreground hover:bg-card hover:text-foreground"
-              )}
-            >
-              <LibraryBig className="h-3.5 w-3.5" />
-              <span>Subject Folders ({enrolledSubjects.length})</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setActiveProfileFolder("security");
-                setSelectedSubjectFolder(null);
-              }}
+              onClick={() => setActiveProfileFolder("security")}
               className={cn(
                 "px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-xs transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 shrink-0",
                 activeProfileFolder === "security"
@@ -489,16 +418,16 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
         {/* ================= VIEW 1: ALL FOLDERS OVERVIEW GRID ================= */}
         {activeProfileFolder === "all" && (
           <div className="space-y-4">
-            <div className="flex items-center justify-between px-1">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 px-1">
               <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider font-mono">
-                Academic Identity &amp; Courseware Directory (4 Root Folders)
+                Academic Identity &amp; System Directory (3 Root Folders)
               </span>
               <span className="text-xs font-mono text-primary font-bold">
                 Cohort {user?.program ? user.program : "B.Tech"} · Sem {enrolledSemester}
               </span>
             </div>
 
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-2">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {/* Folder 1: Institutional Cohort */}
               <div
                 onClick={() => setActiveProfileFolder("cohort")}
@@ -508,38 +437,38 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
                   <div className="flex items-center justify-between border-b border-border/60 pb-3">
                     <div className="flex items-center gap-2.5 min-w-0">
                       <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 shadow-2xs group-hover:scale-105 transition-transform">
-                        <Folder className="h-5 w-5" />
+                        <Building2 className="h-5 w-5" />
                       </div>
                       <div className="min-w-0">
                         <span className="text-[0.68rem] font-mono font-bold uppercase tracking-wider text-cyan-600 dark:text-cyan-400">
-                          Academic Cohort Folder
+                          Institutional Record
                         </span>
                         <h4 className="font-display text-base font-bold text-foreground truncate">
-                          {user?.program || "Registered Degree Program"}
+                          Academic Cohort
                         </h4>
                       </div>
                     </div>
                     <span className="rounded-full bg-cyan-500/15 border border-cyan-500/30 px-2.5 py-0.5 text-[0.68rem] font-mono font-bold text-cyan-700 dark:text-cyan-300 shrink-0">
-                      Sem {enrolledSemester} · Sec {user?.section || "A"}
+                      Sem {enrolledSemester}
                     </span>
                   </div>
 
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    Official Department Architecture, Specialization Program, Section Cohort Enrollment &amp; Verification ID.
+                    Official Department, Degree Specialization, Registered Semester &amp; Assigned Classroom Section.
                   </p>
 
                   <div className="flex flex-wrap gap-1.5 pt-1">
                     <span className="rounded-lg bg-surface border border-border/60 px-2 py-0.5 text-[0.68rem] font-mono text-muted-foreground">
-                      🏢 {user?.department || "Department"}
+                      🎓 {user?.program || "Registered Program"}
                     </span>
                     <span className="rounded-lg bg-surface border border-border/60 px-2 py-0.5 text-[0.68rem] font-mono text-muted-foreground">
-                      🎓 Roll: {user?.roll_number || "STU01"}
+                      🏢 Section {user?.section || "A"}
                     </span>
                   </div>
                 </div>
 
                 <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
-                  <span className="font-mono text-[0.7rem]">{user?.university || "NIMS University"}</span>
+                  <span className="font-mono text-[0.7rem]">{user?.roll_number || "STU01"}</span>
                   <div className="inline-flex items-center gap-1 font-bold text-cyan-600 dark:text-cyan-400 group-hover:translate-x-1 transition-transform text-xs">
                     <span>Open Cohort Folder</span>
                     <ChevronRight className="h-3.5 w-3.5" />
@@ -547,7 +476,7 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
                 </div>
               </div>
 
-              {/* Folder 2: Personal Preferences */}
+              {/* Folder 2: Preferences & Bio */}
               <div
                 onClick={() => setActiveProfileFolder("preferences")}
                 className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-br from-card via-card to-emerald-500/5 p-5 sm:p-6 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:border-emerald-500/50 hover:shadow-lg cursor-pointer min-w-0"
@@ -560,34 +489,34 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
                       </div>
                       <div className="min-w-0">
                         <span className="text-[0.68rem] font-mono font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-                          Student Preferences Folder
+                          Personal Profile
                         </span>
                         <h4 className="font-display text-base font-bold text-foreground truncate">
-                          {user?.full_name || "Student Scholar"}
+                          Preferences &amp; Goals
                         </h4>
                       </div>
                     </div>
                     <span className="rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-[0.68rem] font-mono font-bold text-emerald-700 dark:text-emerald-300 shrink-0">
-                      Goal: {targetCgpa.toFixed(2)} CGPA
+                      Target {targetCgpa}
                     </span>
                   </div>
 
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    Personalized Research Statement, Elective Focus Area, Career Trajectory Track &amp; Target CGPA Goal.
+                    Student Bio Statement, Academic Interests, Target Semester GPA &amp; Career Aspirations.
                   </p>
 
                   <div className="flex flex-wrap gap-1.5 pt-1">
                     <span className="rounded-lg bg-surface border border-border/60 px-2 py-0.5 text-[0.68rem] font-mono text-muted-foreground">
-                      🎯 {careerGoal || "Industry MNCs Track"}
+                      🎯 Target CGPA: {targetCgpa}
                     </span>
                     <span className="rounded-lg bg-surface border border-border/60 px-2 py-0.5 text-[0.68rem] font-mono text-muted-foreground">
-                      📞 {user?.phone_number || "Contact Set"}
+                      📞 {phoneNumber ? "Phone Linked" : "No Phone"}
                     </span>
                   </div>
                 </div>
 
                 <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
-                  <span className="font-mono text-[0.7rem]">{user?.email}</span>
+                  <span className="font-mono text-[0.7rem] truncate max-w-[150px]">{user?.email}</span>
                   <div className="inline-flex items-center gap-1 font-bold text-emerald-600 dark:text-emerald-400 group-hover:translate-x-1 transition-transform text-xs">
                     <span>Open Preferences Folder</span>
                     <ChevronRight className="h-3.5 w-3.5" />
@@ -595,59 +524,7 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
                 </div>
               </div>
 
-              {/* Folder 3: Enrolled Courseware & Subject Folders */}
-              <div
-                onClick={() => setActiveProfileFolder("subjects")}
-                className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-br from-card via-card to-violet-500/5 p-5 sm:p-6 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:border-violet-500/50 hover:shadow-lg cursor-pointer min-w-0"
-              >
-                <div className="space-y-3 min-w-0">
-                  <div className="flex items-center justify-between border-b border-border/60 pb-3">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-violet-500/10 text-violet-600 dark:text-violet-400 shadow-2xs group-hover:scale-105 transition-transform">
-                        <LibraryBig className="h-5 w-5" />
-                      </div>
-                      <div className="min-w-0">
-                        <span className="text-[0.68rem] font-mono font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400">
-                          Courseware Curriculum Folders
-                        </span>
-                        <h4 className="font-display text-base font-bold text-foreground truncate">
-                          Semester {enrolledSemester} Subject Repositories
-                        </h4>
-                      </div>
-                    </div>
-                    <span className="rounded-full bg-violet-500/15 border border-violet-500/30 px-2.5 py-0.5 text-[0.68rem] font-mono font-bold text-violet-700 dark:text-violet-300 shrink-0">
-                      {enrolledSubjects.length} Subject Folders
-                    </span>
-                  </div>
-
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    Interactive Directory of Course Subjects With One-Click Access To Unit Notes, Solved PYQs &amp; Lab Manuals.
-                  </p>
-
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    {enrolledSubjects.slice(0, 3).map((s) => (
-                      <span key={s.code} className="rounded-lg bg-surface border border-border/60 px-2 py-0.5 text-[0.68rem] font-mono font-bold text-foreground">
-                        📁 {s.code}
-                      </span>
-                    ))}
-                    {enrolledSubjects.length > 3 && (
-                      <span className="rounded-lg bg-surface border border-border/60 px-2 py-0.5 text-[0.68rem] font-mono text-muted-foreground">
-                        +{enrolledSubjects.length - 3} More
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
-                  <span className="font-mono text-[0.7rem]">{materialsList.length} Total Course Documents</span>
-                  <div className="inline-flex items-center gap-1 font-bold text-violet-600 dark:text-violet-400 group-hover:translate-x-1 transition-transform text-xs">
-                    <span>Browse Subject Folders</span>
-                    <ChevronRight className="h-3.5 w-3.5" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Folder 4: DRM Security & Standing */}
+              {/* Folder 3: DRM Security & Standing */}
               <div
                 onClick={() => setActiveProfileFolder("security")}
                 className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-br from-card via-card to-amber-500/5 p-5 sm:p-6 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:border-amber-500/50 hover:shadow-lg cursor-pointer min-w-0"
@@ -678,7 +555,7 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
 
                   <div className="flex flex-wrap gap-1.5 pt-1">
                     <span className="rounded-lg bg-surface border border-border/60 px-2 py-0.5 text-[0.68rem] font-mono text-muted-foreground">
-                      🛡️ DRM: {isDrmDisabled ? "Disabled" : "Active & Enforced"}
+                      🛡️ DRM: Active &amp; Enforced
                     </span>
                     <span className="rounded-lg bg-surface border border-border/60 px-2 py-0.5 text-[0.68rem] font-mono text-muted-foreground">
                       🔒 Zero Policy Violations
@@ -701,17 +578,17 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
         {/* ================= VIEW 2: COHORT FOLDER ================= */}
         {activeProfileFolder === "cohort" && (
           <div className="space-y-5">
-            <div className="flex items-center justify-between border-b border-border/80 pb-3">
-              <div className="flex items-center gap-2">
-                <Building2 className="h-5 w-5 text-cyan-600 dark:text-cyan-400" />
-                <h2 className="font-display font-bold text-lg text-foreground">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/80 pb-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <Building2 className="h-5 w-5 text-cyan-600 dark:text-cyan-400 shrink-0" />
+                <h2 className="font-display font-bold text-base sm:text-lg text-foreground truncate">
                   Institutional Academic Cohort Folder
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={() => setActiveProfileFolder("all")}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer self-start sm:self-auto shrink-0"
               >
                 <ArrowLeft className="h-3.5 w-3.5" />
                 <span>Return To All Folders</span>
@@ -719,22 +596,22 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
             </div>
 
             <div className="rounded-3xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs space-y-5">
-              <div className="flex items-center justify-between border-b border-border/80 pb-3">
-                <div className="flex items-center gap-2">
-                  <GraduationCap className="h-5 w-5 text-primary" />
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/80 pb-3">
+                <div className="flex items-center gap-2 min-w-0">
+                  <GraduationCap className="h-5 w-5 text-primary shrink-0" />
                   <h3 className="font-display font-bold text-base text-foreground">
                     Institutional Cohort Credentials
                   </h3>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center flex-wrap gap-2 shrink-0">
                   <button
                     type="button"
                     onClick={() => setIsEditingAcademicRecord(!isEditingAcademicRecord)}
-                    className="rounded-full bg-primary/10 hover:bg-primary/20 text-primary px-3 py-1 text-xs font-bold transition-all cursor-pointer"
+                    className="rounded-full bg-primary/10 hover:bg-primary/20 text-primary px-3 py-1.5 text-xs font-bold transition-all cursor-pointer whitespace-nowrap"
                   >
                     {isEditingAcademicRecord ? "Close Edit" : "Change Section / Cohort"}
                   </button>
-                  <span className="rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-2.5 py-0.5 text-[0.65rem] font-bold border border-emerald-500/20">
+                  <span className="rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-3 py-1 text-xs font-bold border border-emerald-500/20 whitespace-nowrap inline-flex items-center gap-1">
                     Verified Student
                   </span>
                 </div>
@@ -955,17 +832,17 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
         {/* ================= VIEW 3: PREFERENCES FOLDER ================= */}
         {activeProfileFolder === "preferences" && (
           <div className="space-y-5">
-            <div className="flex items-center justify-between border-b border-border/80 pb-3">
-              <div className="flex items-center gap-2">
-                <User className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
-                <h2 className="font-display font-bold text-lg text-foreground">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/80 pb-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <User className="h-5 w-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <h2 className="font-display font-bold text-base sm:text-lg text-foreground truncate">
                   Personal Preferences &amp; Career Goals Folder
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={() => setActiveProfileFolder("all")}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer self-start sm:self-auto shrink-0"
               >
                 <ArrowLeft className="h-3.5 w-3.5" />
                 <span>Return To All Folders</span>
@@ -1012,59 +889,47 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <div>
-                    <label className="block text-xs font-bold text-foreground mb-1">
-                      Primary Academic Focus / Elective Area
-                    </label>
+                    <label className="block text-xs font-bold text-foreground mb-1">Academic Focus Area / Electives</label>
                     <input
                       type="text"
                       value={academicFocus}
                       onChange={(e) => setAcademicFocus(e.target.value)}
-                      placeholder="E.g. Artificial Intelligence, Data Science, Cyber Security, FinTech..."
+                      placeholder="E.g. Machine Learning, Cloud Systems, DSA"
                       className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-foreground mb-1">
-                      Career Goal &amp; Target Track
-                    </label>
-                    <select
+                    <label className="block text-xs font-bold text-foreground mb-1">Career Goal Track</label>
+                    <input
+                      type="text"
                       value={careerGoal}
                       onChange={(e) => setCareerGoal(e.target.value)}
-                      className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none font-medium"
-                    >
-                      <option value="">Select Target Track (Optional)...</option>
-                      <option value="Corporate Industry & Top MNCs">Corporate Industry &amp; Top MNCs</option>
-                      <option value="Higher Studies & Research (MS / M.Tech / MBA / MD)">Higher Studies &amp; Research (MS / M.Tech / MBA / MD)</option>
-                      <option value="Government & Competitive Exams (UPSC / GATE / NET / PSU)">Government &amp; Competitive Exams (UPSC / GATE / NET / PSU)</option>
-                      <option value="Healthcare & Clinical Hospital Practice">Healthcare &amp; Clinical Hospital Practice</option>
-                      <option value="Judicial / Legal Services & Corporate Counsel">Judicial / Legal Services &amp; Corporate Counsel</option>
-                      <option value="Entrepreneurship & Startup Incubation">Entrepreneurship &amp; Startup Incubation</option>
-                      <option value="Core Sector / Research & Development">Core Sector / Research &amp; Development</option>
-                      <option value="Open / Exploring Opportunities">Open / Exploring Opportunities</option>
-                    </select>
+                      placeholder="E.g. Software Development Engineer, Higher Studies"
+                      className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
+                    />
                   </div>
                 </div>
 
-                {/* Target CGPA Goal Range Slider */}
-                <div className="space-y-2 pt-2 border-t border-border/60">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="font-bold text-foreground">Target Semester CGPA Goal</span>
-                    <span className="font-mono font-bold text-primary">{targetCgpa.toFixed(2)} / 10.00</span>
+                <div className="pt-2 border-t border-border/60">
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs font-bold text-foreground">Target Semester CGPA</label>
+                    <span className="font-mono font-bold text-primary text-sm">{targetCgpa.toFixed(2)} / 10.0</span>
                   </div>
                   <input
                     type="range"
-                    min="7.0"
+                    min="5.0"
                     max="10.0"
                     step="0.05"
                     value={targetCgpa}
                     onChange={(e) => setTargetCgpa(parseFloat(e.target.value))}
-                    className="w-full accent-primary cursor-pointer"
+                    className="w-full accent-primary h-2 bg-muted rounded-lg cursor-pointer"
                   />
-                  <div className="flex justify-between text-[0.65rem] font-mono text-muted-foreground">
-                    <span>7.0 (First Class)</span>
-                    <span>8.5 (Distinction)</span>
-                    <span>10.0 (Gold Medalist)</span>
+                  <div className="flex justify-between text-[0.65rem] font-mono text-muted-foreground mt-1">
+                    <span>Pass (5.0)</span>
+                    <span>First Class (7.5)</span>
+                    <span>Distinction (8.5)</span>
+                    <span>Perfect (10.0)</span>
                   </div>
                 </div>
 
@@ -1081,184 +946,20 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
           </div>
         )}
 
-        {/* ================= VIEW 4: ENROLLED SUBJECT FOLDERS ================= */}
-        {activeProfileFolder === "subjects" && (
-          <div className="space-y-5">
-            <div className="flex items-center justify-between border-b border-border/80 pb-3">
-              <div className="flex items-center gap-2">
-                <LibraryBig className="h-5 w-5 text-violet-600 dark:text-violet-400" />
-                <h2 className="font-display font-bold text-lg text-foreground">
-                  {selectedSubjectFolder
-                    ? `${selectedSubjectFolder.code}: ${selectedSubjectFolder.name} Folder`
-                    : `Enrolled Courseware Subject Folders (Semester ${enrolledSemester})`}
-                </h2>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  if (selectedSubjectFolder) {
-                    setSelectedSubjectFolder(null);
-                  } else {
-                    setActiveProfileFolder("all");
-                  }
-                }}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer"
-              >
-                <ArrowLeft className="h-3.5 w-3.5" />
-                <span>{selectedSubjectFolder ? "All Subject Folders" : "Return To All Folders"}</span>
-              </button>
-            </div>
-
-            {/* List of Subject Folders */}
-            {!selectedSubjectFolder ? (
-              <div className="space-y-4">
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {enrolledSubjects.map((sub) => {
-                    const subMaterials = materialsList.filter((m) => m.subject_code === sub.code || m.subject === sub.id);
-                    return (
-                      <div
-                        key={sub.code}
-                        onClick={() => setSelectedSubjectFolder(sub)}
-                        className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border/80 bg-card p-5 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:border-violet-500/50 hover:shadow-lg cursor-pointer min-w-0"
-                      >
-                        <div className="space-y-3 min-w-0">
-                          <div className="flex items-center justify-between border-b border-border/60 pb-3">
-                            <div className="flex items-center gap-2.5 min-w-0">
-                              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-violet-500/10 text-violet-600 dark:text-violet-400 shadow-2xs group-hover:scale-105 transition-transform">
-                                <Folder className="h-5 w-5" />
-                              </div>
-                              <div className="min-w-0">
-                                <span className="text-[0.68rem] font-mono font-bold uppercase tracking-wider text-violet-600 dark:text-violet-400">
-                                  {sub.code} · Subject Folder
-                                </span>
-                                <h4 className="font-display text-sm font-bold text-foreground truncate">
-                                  {sub.name}
-                                </h4>
-                              </div>
-                            </div>
-                            <span className="rounded-full bg-surface border border-border/80 px-2 py-0.5 text-[0.65rem] font-mono font-bold text-foreground shrink-0">
-                              {subMaterials.length} Docs
-                            </span>
-                          </div>
-
-                          <p className="text-xs text-muted-foreground line-clamp-2 min-h-[32px]">
-                            {sub.syllabus_summary || `Official Course Curriculum & Verified Handwritten Notes Repository For ${sub.name}.`}
-                          </p>
-                        </div>
-
-                        <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
-                          <span className="font-mono text-[0.7rem]">{sub.credits ? `${sub.credits} Credits` : "Core Course"}</span>
-                          <div className="inline-flex items-center gap-1 font-bold text-violet-600 dark:text-violet-400 group-hover:translate-x-1 transition-transform text-xs">
-                            <span>Open Subject Folder</span>
-                            <ChevronRight className="h-3.5 w-3.5" />
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ) : (
-              /* Inside Selected Subject Folder: Show Documents */
-              <div className="space-y-4">
-                <div className="rounded-2xl bg-surface/60 border border-border/60 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                  <div>
-                    <h3 className="font-display font-bold text-base text-foreground">
-                      {selectedSubjectFolder.name} ({selectedSubjectFolder.code})
-                    </h3>
-                    <p className="text-xs text-muted-foreground">
-                      Showing All Verified DRM Study Documents &amp; Question Papers In This Subject Folder.
-                    </p>
-                  </div>
-                  {onNavigateTab && (
-                    <button
-                      type="button"
-                      onClick={() => onNavigateTab("notes")}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-primary text-primary-foreground font-bold text-xs shadow-xs hover:bg-primary-deep cursor-pointer"
-                    >
-                      <BookOpen className="h-3.5 w-3.5" />
-                      <span>Open Notes Hub</span>
-                    </button>
-                  )}
-                </div>
-
-                {/* Materials in this subject */}
-                {(() => {
-                  const subMaterials = materialsList.filter(
-                    (m) => m.subject_code === selectedSubjectFolder.code || m.subject === selectedSubjectFolder.id
-                  );
-                  if (subMaterials.length === 0) {
-                    return (
-                      <div className="rounded-3xl border border-dashed border-border bg-card/60 p-10 text-center space-y-3">
-                        <FileText className="h-10 w-10 mx-auto text-muted-foreground/40" />
-                        <h4 className="font-bold text-sm text-foreground">No Published Documents In This Subject Folder Yet</h4>
-                        <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                          New handwritten unit notes, solved university PYQs, and lab manuals will be synchronized here when published by faculty.
-                        </p>
-                      </div>
-                    );
-                  }
-
-                  return (
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                      {subMaterials.map((mat) => (
-                        <div
-                          key={mat.id}
-                          className="rounded-3xl border border-border/80 bg-gradient-to-b from-card via-card to-surface/30 p-5 shadow-xs flex flex-col justify-between space-y-3 hover:border-violet-500/50 hover:shadow-md transition-all"
-                        >
-                          <div className="space-y-2.5">
-                            <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-2.5">
-                              <span className="rounded-xl bg-violet-500/10 border border-violet-500/20 px-2 py-0.5 text-xs font-mono font-bold text-violet-600 dark:text-violet-400">
-                                {mat.material_type || "NOTES"} {mat.unit_number ? `· Unit ${mat.unit_number}` : ""}
-                              </span>
-                              {mat.file && (
-                                <span className="rounded-xl bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 text-[0.68rem] font-bold font-mono text-rose-600 dark:text-rose-400 inline-flex items-center gap-1">
-                                  <FileText className="h-3 w-3" />
-                                  <span>PDF</span>
-                                </span>
-                              )}
-                            </div>
-                            <h4 className="font-display text-sm font-bold text-foreground leading-snug">{mat.title}</h4>
-                            <p className="text-xs text-muted-foreground line-clamp-2">{mat.summary || "Faculty verified study guide & notes."}</p>
-                          </div>
-
-                          <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs">
-                            <span className="font-mono text-[0.7rem] text-muted-foreground">{mat.page_count || 1} Pages</span>
-                            {onOpenReader && (
-                              <button
-                                type="button"
-                                onClick={() => onOpenReader(mat.id)}
-                                className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline cursor-pointer"
-                              >
-                                <span>Preview Document</span>
-                                <Eye className="h-3.5 w-3.5" />
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  );
-                })()}
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ================= VIEW 5: SECURITY FOLDER ================= */}
+        {/* ================= VIEW 4: SECURITY FOLDER ================= */}
         {activeProfileFolder === "security" && (
           <div className="space-y-5">
-            <div className="flex items-center justify-between border-b border-border/80 pb-3">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-                <h2 className="font-display font-bold text-lg text-foreground">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/80 pb-3">
+              <div className="flex items-center gap-2 min-w-0">
+                <ShieldCheck className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0" />
+                <h2 className="font-display font-bold text-base sm:text-lg text-foreground truncate">
                   Academic Security &amp; DRM Governance Folder
                 </h2>
               </div>
               <button
                 type="button"
                 onClick={() => setActiveProfileFolder("all")}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer self-start sm:self-auto shrink-0"
               >
                 <ArrowLeft className="h-3.5 w-3.5" />
                 <span>Return To All Folders</span>
@@ -1267,13 +968,13 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
 
             <div className="grid gap-5 lg:grid-cols-2">
               {/* Account Security Standing Box */}
-              <div className="rounded-3xl border border-border/80 bg-card p-6 shadow-xs space-y-4">
-                <div className="flex items-center justify-between gap-2 border-b border-border/80 pb-3">
+              <div className="rounded-3xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/80 pb-3">
                   <div className="flex items-center gap-2 font-bold text-foreground">
                     <ShieldCheck className="h-5 w-5 text-emerald-500 shrink-0" />
                     <span>Academic Security Standing</span>
                   </div>
-                  <span className="px-2.5 py-0.5 rounded-full text-[0.65rem] font-bold border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20">
+                  <span className="px-2.5 py-0.5 rounded-full text-[0.65rem] font-bold border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 whitespace-nowrap self-start sm:self-auto">
                     VERIFIED SCHOLAR
                   </span>
                 </div>
@@ -1295,51 +996,43 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
                   <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface">
                     <span className="text-muted-foreground">DRM Protection Status:</span>
                     <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
-                      {isDrmDisabled ? "Temporarily Paused" : "Active & Enforced"}
+                      Active &amp; Enforced
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Master DRM Protection Setting Box */}
-              <div className="rounded-3xl border border-border/80 bg-card p-6 shadow-xs space-y-4 flex flex-col justify-between">
+              {/* DRM Content Governance Policy Box */}
+              <div className="rounded-3xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs space-y-4 flex flex-col justify-between">
                 <div className="space-y-3">
-                  <div className="flex items-center justify-between border-b border-border/80 pb-3">
-                    <div className="flex items-center gap-2">
-                      <Lock className="h-5 w-5 text-primary" />
-                      <h3 className="font-display font-bold text-base text-foreground">
-                        Master DRM Sandbox Engine
-                      </h3>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/80 pb-3">
+                    <div className="flex items-center gap-2 font-bold text-foreground">
+                      <Lock className="h-5 w-5 text-primary shrink-0" />
+                      <span>Digital Rights Governance</span>
                     </div>
-                    <span className={cn(
-                      "px-2.5 py-0.5 rounded-full text-[0.65rem] font-bold border font-mono",
-                      isDrmDisabled
-                        ? "bg-amber-500/10 text-amber-600 border-amber-500/30"
-                        : "bg-emerald-500/10 text-emerald-600 border-emerald-500/30"
-                    )}>
-                      {isDrmDisabled ? "DRM OFF" : "DRM ARMED"}
+                    <span className="px-2.5 py-0.5 rounded-full text-[0.65rem] font-bold border bg-primary/10 text-primary border-primary/20 whitespace-nowrap self-start sm:self-auto font-mono">
+                      ACTIVE POLICY
                     </span>
                   </div>
 
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    Toggles the forensic background watermark overlay, tab-switch blur guard, and copy-prevention sandbox for testing or unrestricted presentation.
+                    NIMS Wallah incorporates real-time forensic protections to safeguard intellectual coursework, faculty notes, and examination manuscripts.
                   </p>
-                </div>
 
-                <div className="pt-4 border-t border-border/60">
-                  <button
-                    type="button"
-                    onClick={handleToggleDrm}
-                    className={cn(
-                      "h-11 w-full rounded-2xl font-bold text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-98",
-                      isDrmDisabled
-                        ? "bg-emerald-600 hover:bg-emerald-700 text-white"
-                        : "bg-amber-600 hover:bg-amber-700 text-white"
-                    )}
-                  >
-                    <ShieldCheck className="h-4 w-4" />
-                    <span>{isDrmDisabled ? "Re-Enable Master DRM Protection" : "Temporarily Disable Master DRM Sandbox"}</span>
-                  </button>
+                  <div className="space-y-2 text-xs text-muted-foreground">
+                    <div className="flex items-start gap-2 p-2 rounded-xl bg-surface/60 border border-border/40">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+                      <span><strong>Dynamic Session Watermarking:</strong> Real-time student identity overlay embedded on all viewing sessions.</span>
+                    </div>
+                    <div className="flex items-start gap-2 p-2 rounded-xl bg-surface/60 border border-border/40">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+                      <span><strong>Anti-Capture Screen Shield:</strong> Instant blackout blur upon focus loss or unauthorized capture tool trigger.</span>
+                    </div>
+                    <div className="flex items-start gap-2 p-2 rounded-xl bg-surface/60 border border-border/40">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+                      <span><strong>Academic Integrity Protocol:</strong> Enforced compliance to university examination copyright guidelines.</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

@@ -130,10 +130,20 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
 
     const overwriteClipboard = () => {
       try {
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(
-            "🔒 Protected Academic Material — Copyright NIMS University. Screen capture and copying are strictly prohibited."
-          );
+        if (
+          typeof document !== "undefined" &&
+          document.hasFocus() &&
+          !document.hidden &&
+          navigator.clipboard &&
+          typeof navigator.clipboard.writeText === "function"
+        ) {
+          navigator.clipboard
+            .writeText(
+              "🔒 Protected Academic Material — Copyright NIMS University. Screen Capture And copying are strictly prohibited."
+            )
+            .catch(() => {
+              //
+            });
         }
       } catch {}
     };
@@ -324,10 +334,8 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       isShiftPressed = false;
       isCtrlPressed = false;
 
-      //
       setIsScreenBlurred(true);
       setIsSecurityAlertActive(true);
-      overwriteClipboard();
       logDrmEvent("WINDOW_BLUR_POSSIBLE_SCREENSHOT", {
         is_mobile: isMobile,
         trigger: "window_blur",
@@ -339,19 +347,16 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       isShiftPressed = false;
       isCtrlPressed = false;
 
-      //
       if (!isAccountBlocked && !isMobile) {
         setIsScreenBlurred(false);
         setIsSecurityAlertActive(false);
       }
     };
 
-    // 
     const handleVisibilityChange = () => {
       if (document.hidden) {
         setIsScreenBlurred(true);
         setIsSecurityAlertActive(true);
-        overwriteClipboard();
         logDrmEvent("VISIBILITY_HIDDEN_CAPTURE_GUARD", {
           is_mobile: isMobile,
           visibility_state: document.visibilityState,
@@ -366,7 +371,6 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
 
     const handlePageHide = () => {
       setIsScreenBlurred(true);
-      overwriteClipboard();
       logDrmEvent("PAGE_HIDE_CAPTURE_GUARD", { is_mobile: isMobile });
     };
 
