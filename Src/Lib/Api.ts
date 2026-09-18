@@ -163,6 +163,7 @@ export interface LabExperiment {
   code_snippets?: Record<string, string>;
   output_sample?: string;
   viva_questions?: Array<{ question?: string; answer?: string; q?: string; a?: string }>;
+  theory_procedure?: string;
 }
 
 export interface StudentAssignment {

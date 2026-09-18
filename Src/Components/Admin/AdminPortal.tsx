@@ -1065,8 +1065,17 @@ export function AdminPortal() {
       if (lab.apparatus_required) {
         md += `### Apparatus Required\n${lab.apparatus_required}\n\n`;
       }
-      if (lab.theory_procedure) {
-        md += `### Theory & Procedure\n${lab.theory_procedure}\n\n`;
+      if (lab.theory) {
+        md += `### Theory\n${lab.theory}\n\n`;
+      }
+      if (lab.procedure_steps && Array.isArray(lab.procedure_steps) && lab.procedure_steps.length > 0) {
+        md += `### Procedure Steps\n`;
+        lab.procedure_steps.forEach((step, idx) => {
+          md += `${idx + 1}. ${step}\n`;
+        });
+        md += `\n`;
+      } else if ((lab as any).theory_procedure) {
+        md += `### Theory & Procedure\n${(lab as any).theory_procedure}\n\n`;
       }
       if (lab.code_snippets && typeof lab.code_snippets === "object") {
         md += `### Code Snippets\n`;
