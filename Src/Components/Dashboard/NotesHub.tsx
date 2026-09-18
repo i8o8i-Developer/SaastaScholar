@@ -131,7 +131,7 @@ export function NotesHub({ onOpenReader }: NotesHubProps) {
                 type="text"
                 value={folderSearchQuery}
                 onChange={(e) => setFolderSearchQuery(e.target.value)}
-                placeholder="Search subject folders by name or code..."
+                placeholder="Search Subject Folders By Name Or Code..."
                 className="h-11 w-full rounded-2xl border border-border/80 bg-card pl-10 pr-4 text-xs sm:text-sm font-medium text-foreground placeholder:text-muted-foreground focus:border-emerald-500 focus:outline-none shadow-xs transition-all"
               />
             </div>

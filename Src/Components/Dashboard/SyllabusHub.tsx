@@ -133,12 +133,12 @@ export function SyllabusHub({ onOpenReader }: SyllabusHubProps) {
                 type="text"
                 value={folderSearchQuery}
                 onChange={(e) => setFolderSearchQuery(e.target.value)}
-                placeholder="Search syllabus folders by subject..."
+                placeholder="Search Syllabus Folders By Subject..."
                 className="h-11 w-full rounded-2xl border border-border/80 bg-card pl-10 pr-4 text-xs sm:text-sm font-medium text-foreground placeholder:text-muted-foreground focus:border-teal-500 focus:outline-none shadow-xs transition-all"
               />
             </div>
             <span className="text-xs font-mono text-muted-foreground font-semibold self-end sm:self-center">
-              Showing {filteredSubjects.length} of {subjects.length} Folders
+              Showing {filteredSubjects.length} Of {subjects.length} Folders
             </span>
           </div>
 

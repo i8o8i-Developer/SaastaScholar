@@ -107,12 +107,12 @@ export function FacultyHub({ onOpenReader }: FacultyHubProps) {
                 type="text"
                 value={folderSearchQuery}
                 onChange={(e) => setFolderSearchQuery(e.target.value)}
-                placeholder="Search faculty subject folders..."
+                placeholder="Search Faculty Subject Folders..."
                 className="h-11 w-full rounded-2xl border border-border/80 bg-card pl-10 pr-4 text-xs sm:text-sm font-medium text-foreground placeholder:text-muted-foreground focus:border-blue-500 focus:outline-none shadow-xs transition-all"
               />
             </div>
             <span className="text-xs font-mono text-muted-foreground font-semibold self-end sm:self-center">
-              Showing {filteredSubjects.length} of {subjects.length} Folders
+              Showing {filteredSubjects.length} Of {subjects.length} Folders
             </span>
           </div>
 

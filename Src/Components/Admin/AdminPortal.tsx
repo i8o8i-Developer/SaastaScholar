@@ -49,6 +49,7 @@ import {
   Trash2,
   User,
   Upload,
+  Download,
   UserCheck,
   UserX,
   Users,
@@ -329,7 +330,7 @@ export function AdminPortal() {
     credits: 4,
     syllabus_summary: "",
   });
-  
+
   const [materialUploadMode, setMaterialUploadMode] = useState<"STUDIO" | "FILE">("STUDIO");
   const [materialPages, setMaterialPages] = useState<Array<{ page_number: number; page_title: string; content_html: string }>>([
     {
@@ -352,6 +353,7 @@ export function AdminPortal() {
     tag_input: "",
     file: null as File | null,
   });
+  const [existingMaterialFileUrl, setExistingMaterialFileUrl] = useState<string | null>(null);
 
   const [newLab, setNewLab] = useState({
     subject: "",
@@ -477,7 +479,7 @@ export function AdminPortal() {
       setAuditLogs(extractArray<AdminAuditLog>(auditRes));
       setDrmIncidents(extractArray<DrmSecurityIncident>(incidentsRes));
       setBanners(extractArray<SiteBanner>(bannersRes));
-      
+
       // Community
       setTickets(Array.isArray(ticketsRes) ? ticketsRes : (ticketsRes as any)?.results || []);
       setPosts(Array.isArray(postsRes) ? postsRes : (postsRes as any)?.results || []);
@@ -946,6 +948,7 @@ export function AdminPortal() {
 
   const handleEditMaterial = (mat: AcademicMaterial) => {
     setEditingMaterialId(mat.id);
+    setExistingMaterialFileUrl(mat.file || null);
     setNewMaterial({
       subject: mat.subject || selectedSubjectId || "",
       title: mat.title,
@@ -970,6 +973,127 @@ export function AdminPortal() {
     }
     setActivePageIndex(0);
     setShowMaterialModal(true);
+  };
+
+  const handleDownloadMaterial = async (mat: AcademicMaterial) => {
+    try {
+      if (mat.file) {
+        toast.info(`Preparing download for "${mat.title}"...`);
+        let fileUrl = mat.file;
+        if (!fileUrl.startsWith("http://") && !fileUrl.startsWith("https://") && !fileUrl.startsWith("//")) {
+          const apiUrl = (import.meta as any).env?.VITE_API_URL || "";
+          const base = apiUrl.replace(/\/api\/?$/, "");
+          fileUrl = `${base}${fileUrl.startsWith("/") ? "" : "/"}${fileUrl}`;
+        }
+
+        try {
+          const response = await fetch(fileUrl);
+          if (!response.ok) {
+            throw new Error(`Server returned status ${response.status}`);
+          }
+          const blob = await response.blob();
+          const blobUrl = window.URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = blobUrl;
+          const ext = mat.file.split(".").pop()?.split("?")[0] || "pdf";
+          const sanitizedTitle = mat.title.replace(/[^a-zA-Z0-9_\-\s]/g, "").trim().replace(/\s+/g, "_");
+          link.download = `${sanitizedTitle || "Academic_Material"}.${ext}`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          window.URL.revokeObjectURL(blobUrl);
+          toast.success(`Downloaded "${mat.title}".`);
+        } catch {
+          // Direct fallback if fetch is blocked by CORS or origin
+          const link = document.createElement("a");
+          link.href = fileUrl;
+          link.target = "_blank";
+          link.download = mat.title.replace(/[^a-zA-Z0-9_\-\s]/g, "").trim().replace(/\s+/g, "_");
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          toast.success(`Opening "${mat.title}" for download.`);
+        }
+      } else {
+        toast.info(`Exporting "${mat.title}" as Markdown document...`);
+        let pages = mat.pages;
+        if (!pages || pages.length === 0) {
+          try {
+            const fullMat = await apiFetch<AcademicMaterial>(`/academic/admin/materials/${mat.id}/`);
+            pages = fullMat.pages || [];
+          } catch {
+            pages = [];
+          }
+        }
+
+        let markdownContent = `# ${mat.title}\n\n`;
+        markdownContent += `**Subject**: ${mat.subject_code} - ${mat.subject_name}\n`;
+        markdownContent += `**Type**: ${mat.material_type}\n`;
+        if (mat.unit_number) markdownContent += `**Unit**: ${mat.unit_number}\n`;
+        markdownContent += `**Academic Year**: ${mat.academic_year || "2026-2027"}\n\n`;
+        markdownContent += `### Summary\n${mat.summary || "No summary provided."}\n\n---\n\n`;
+
+        if (pages && pages.length > 0) {
+          markdownContent += pages
+            .map((p) => `## Page ${p.page_number}: ${p.page_title || "Untitled Section"}\n\n${p.content_html || ""}\n`)
+            .join("\n---\n\n");
+        }
+
+        const blob = new Blob([markdownContent], { type: "text/markdown;charset=utf-8;" });
+        const blobUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        const sanitizedTitle = mat.title.replace(/[^a-zA-Z0-9_\-\s]/g, "").trim().replace(/\s+/g, "_");
+        link.download = `${sanitizedTitle || "Studio_Notes"}.md`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(blobUrl);
+        toast.success(`Exported "${mat.title}.md".`);
+      }
+    } catch (err: any) {
+      console.error("Download failed:", err);
+      toast.error("Failed to download material.");
+    }
+  };
+
+  const handleDownloadLab = (lab: LabExperiment) => {
+    try {
+      let md = `# Lab Experiment ${lab.experiment_number}: ${lab.title}\n\n`;
+      md += `**Subject**: ${lab.subject_code} - ${lab.subject_name}\n\n`;
+      md += `### Aim\n${lab.aim}\n\n`;
+      if (lab.apparatus_required) {
+        md += `### Apparatus Required\n${lab.apparatus_required}\n\n`;
+      }
+      if (lab.theory_procedure) {
+        md += `### Theory & Procedure\n${lab.theory_procedure}\n\n`;
+      }
+      if (lab.code_snippets && typeof lab.code_snippets === "object") {
+        md += `### Code Snippets\n`;
+        Object.entries(lab.code_snippets).forEach(([lang, code]) => {
+          md += `#### ${lang.toUpperCase()}\n\`\`\`${lang.toLowerCase()}\n${code}\n\`\`\`\n\n`;
+        });
+      }
+      if (lab.viva_questions && lab.viva_questions.length > 0) {
+        md += `### Viva Voce Q&A Drills\n`;
+        lab.viva_questions.forEach((vq: any, i: number) => {
+          md += `**Q${i + 1}: ${vq.question || vq.q}**\n*Answer*: ${vq.answer || vq.a}\n\n`;
+        });
+      }
+      const blob = new Blob([md], { type: "text/markdown;charset=utf-8;" });
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      const sanitizedTitle = lab.title.replace(/[^a-zA-Z0-9_\-\s]/g, "").trim().replace(/\s+/g, "_");
+      link.download = `Exp_${lab.experiment_number}_${sanitizedTitle}.md`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+      toast.success(`Exported Experiment ${lab.experiment_number}.`);
+    } catch (err) {
+      toast.error("Failed to export practical lab experiment.");
+    }
   };
 
   const handleEditLab = (lab: LabExperiment) => {
@@ -1205,27 +1329,27 @@ export function AdminPortal() {
       formData.append(
         "title",
         newMaterial.title.trim() ||
-          (targetMatType === "SOLVED_PYQ"
-            ? "University Solved PYQ"
-            : targetMatType === "LAB_MANUAL"
+        (targetMatType === "SOLVED_PYQ"
+          ? "University Solved PYQ"
+          : targetMatType === "LAB_MANUAL"
             ? "Practical Lab Manual & Experiments"
             : targetMatType === "SYLLABUS"
-            ? "Official Course Syllabus"
-            : targetMatType === "FACULTY"
-            ? "Faculty Handout Material"
-            : "Unit Notes")
+              ? "Official Course Syllabus"
+              : targetMatType === "FACULTY"
+                ? "Faculty Handout Material"
+                : "Unit Notes")
       );
       formData.append("material_type", targetMatType);
       formData.append("unit_number", String(newMaterial.unit_number || 1));
       formData.append("academic_year", newMaterial.academic_year || "2026-2027");
       formData.append("summary", newMaterial.summary || "");
       formData.append("is_topper_verified", String(newMaterial.is_topper_verified));
-      
+
       const tags = newMaterial.tag_input
         ? newMaterial.tag_input
-            .split(",")
-            .map((t) => t.trim())
-            .filter(Boolean)
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean)
         : [];
       formData.append("tags", JSON.stringify(tags));
 
@@ -1904,8 +2028,8 @@ export function AdminPortal() {
               {!selectedDeptId
                 ? "Select Department First..."
                 : filteredPrograms.length === 0
-                ? "No Specializations Found"
-                : "Select Specialization..."}
+                  ? "No Specializations Found"
+                  : "Select Specialization..."}
             </option>
             {filteredPrograms.map((p) => (
               <option key={p.id} value={p.id}>{p.name} ({p.code})</option>
@@ -1951,8 +2075,8 @@ export function AdminPortal() {
                 {!selectedSemester
                   ? "Select Semester First..."
                   : filteredSections.length === 0
-                  ? "No Sections Found"
-                  : "Select Section..."}
+                    ? "No Sections Found"
+                    : "Select Section..."}
               </option>
               {filteredSections.map((sec) => (
                 <option key={sec.id} value={sec.id}>Section {sec.section} ({sec.academic_year})</option>
@@ -1975,8 +2099,8 @@ export function AdminPortal() {
                 {!selectedSemester
                   ? "Select Semester First..."
                   : filteredSubjects.length === 0
-                  ? "No Subjects Found"
-                  : "Select Subject..."}
+                    ? "No Subjects Found"
+                    : "Select Subject..."}
               </option>
               {filteredSubjects.map((sub) => (
                 <option key={sub.id} value={sub.id}>{sub.code}: {sub.name}</option>
@@ -2725,16 +2849,16 @@ export function AdminPortal() {
                             data={
                               programs.length > 0
                                 ? programs.map((p, idx) => {
-                                    const fills = ["url(#pieGrad0)", "url(#pieGrad1)", "url(#pieGrad2)", "url(#pieGrad3)", "url(#pieGrad4)"];
-                                    const rawColors = ["#10b981", "#06b6d4", "#8b5cf6", "#f59e0b", "#ec4899"];
-                                    return {
-                                      name: p.name || p.code,
-                                      shortCode: p.code || p.name,
-                                      value: subjects.filter((s) => s.program_codes?.includes(p.code) || s.department === p.department).length || 1,
-                                      fill: fills[idx % fills.length],
-                                      color: rawColors[idx % rawColors.length],
-                                    };
-                                  })
+                                  const fills = ["url(#pieGrad0)", "url(#pieGrad1)", "url(#pieGrad2)", "url(#pieGrad3)", "url(#pieGrad4)"];
+                                  const rawColors = ["#10b981", "#06b6d4", "#8b5cf6", "#f59e0b", "#ec4899"];
+                                  return {
+                                    name: p.name || p.code,
+                                    shortCode: p.code || p.name,
+                                    value: subjects.filter((s) => s.program_codes?.includes(p.code) || s.department === p.department).length || 1,
+                                    fill: fills[idx % fills.length],
+                                    color: rawColors[idx % rawColors.length],
+                                  };
+                                })
                                 : [{ name: "Artificial Intelligence & Data Science", shortCode: "B.Tech AI & ML", value: 8, fill: "url(#pieGrad0)", color: "#10b981" }]
                             }
                             innerRadius={52}
@@ -4506,6 +4630,13 @@ export function AdminPortal() {
                               </div>
                               <div className="flex items-center gap-1 shrink-0">
                                 <button
+                                  onClick={() => handleDownloadMaterial(mat)}
+                                  className="rounded-xl p-1.5 text-muted-foreground hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400 cursor-pointer transition-colors"
+                                  title={mat.file ? "Download Uploaded File" : "Export Markdown Notes"}
+                                >
+                                  <Download className="h-4 w-4" />
+                                </button>
+                                <button
                                   onClick={() => handleEditMaterial(mat)}
                                   className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
                                   title="Edit Notes"
@@ -4544,6 +4675,14 @@ export function AdminPortal() {
                             <span className="font-mono text-[0.7rem]">{mat.page_count} Pages · {mat.is_topper_verified ? "Topper Verified" : "Standard"}</span>
                             <div className="flex items-center gap-3">
                               <span className="font-mono text-[0.68rem]">{mat.academic_year || "2026-2027"}</span>
+                              <button
+                                onClick={() => handleDownloadMaterial(mat)}
+                                className="font-bold text-emerald-600 dark:text-emerald-400 hover:underline text-xs cursor-pointer inline-flex items-center gap-1"
+                                title="Download uploaded file"
+                              >
+                                <span>Download</span>
+                                <Download className="h-3.5 w-3.5" />
+                              </button>
                               <button
                                 onClick={() => setPreviewMaterialId(mat.id)}
                                 className="font-bold text-primary hover:underline text-xs cursor-pointer inline-flex items-center gap-1"
@@ -4597,6 +4736,13 @@ export function AdminPortal() {
                               </div>
                               <div className="flex items-center gap-1 shrink-0">
                                 <button
+                                  onClick={() => handleDownloadMaterial(mat)}
+                                  className="rounded-xl p-1.5 text-muted-foreground hover:bg-cyan-500/10 hover:text-cyan-600 dark:hover:text-cyan-400 cursor-pointer transition-colors"
+                                  title={mat.file ? "Download Uploaded Solved PYQ File" : "Export Solved Key"}
+                                >
+                                  <Download className="h-4 w-4" />
+                                </button>
+                                <button
                                   onClick={() => handleEditMaterial(mat)}
                                   className="rounded-xl p-1.5 text-muted-foreground hover:bg-cyan-500/10 hover:text-cyan-500 cursor-pointer transition-colors"
                                   title="Edit Solved PYQ"
@@ -4635,6 +4781,14 @@ export function AdminPortal() {
                             <span className="font-mono text-[0.7rem]">{mat.page_count} Pages · Solved Solutions</span>
                             <div className="flex items-center gap-3">
                               <span className="font-bold text-emerald-600 dark:text-emerald-400 text-xs">Verified</span>
+                              <button
+                                onClick={() => handleDownloadMaterial(mat)}
+                                className="font-bold text-cyan-600 dark:text-cyan-400 hover:underline text-xs cursor-pointer inline-flex items-center gap-1"
+                                title="Download uploaded file"
+                              >
+                                <span>Download</span>
+                                <Download className="h-3.5 w-3.5" />
+                              </button>
                               <button
                                 onClick={() => setPreviewMaterialId(mat.id)}
                                 className="font-bold text-primary hover:underline text-xs cursor-pointer inline-flex items-center gap-1"
@@ -4688,6 +4842,13 @@ export function AdminPortal() {
                               </div>
                               <div className="flex items-center gap-1 shrink-0">
                                 <button
+                                  onClick={() => handleDownloadMaterial(mat)}
+                                  className="rounded-xl p-1.5 text-muted-foreground hover:bg-teal-500/10 hover:text-teal-600 dark:hover:text-teal-400 cursor-pointer transition-colors"
+                                  title={mat.file ? "Download Uploaded Syllabus Document" : "Export Syllabus"}
+                                >
+                                  <Download className="h-4 w-4" />
+                                </button>
+                                <button
                                   onClick={() => handleEditMaterial(mat)}
                                   className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
                                   title="Edit Syllabus"
@@ -4697,7 +4858,7 @@ export function AdminPortal() {
                                 <button
                                   onClick={() => setPreviewMaterialId(mat.id)}
                                   className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
-                                  title="Preview in DRM Secure Reader"
+                                  title="Preview In DRM Secure Reader"
                                 >
                                   <Eye className="h-4 w-4" />
                                 </button>
@@ -4715,13 +4876,23 @@ export function AdminPortal() {
                           </div>
                           <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs text-muted-foreground">
                             <span className="font-mono text-[0.7rem]">{mat.page_count} Pages · Official Syllabus</span>
-                            <button
-                              onClick={() => setPreviewMaterialId(mat.id)}
-                              className="font-bold text-primary hover:underline text-xs cursor-pointer inline-flex items-center gap-1"
-                            >
-                              <span>Preview</span>
-                              <Eye className="h-3.5 w-3.5" />
-                            </button>
+                            <div className="flex items-center gap-3">
+                              <button
+                                onClick={() => handleDownloadMaterial(mat)}
+                                className="font-bold text-teal-600 dark:text-teal-400 hover:underline text-xs cursor-pointer inline-flex items-center gap-1"
+                                title="Download Syllabus Document"
+                              >
+                                <span>Download</span>
+                                <Download className="h-3.5 w-3.5" />
+                              </button>
+                              <button
+                                onClick={() => setPreviewMaterialId(mat.id)}
+                                className="font-bold text-primary hover:underline text-xs cursor-pointer inline-flex items-center gap-1"
+                              >
+                                <span>Preview</span>
+                                <Eye className="h-3.5 w-3.5" />
+                              </button>
+                            </div>
                           </div>
                         </div>
                       ))
@@ -4769,28 +4940,35 @@ export function AdminPortal() {
                               {new Date(material.created_at).toLocaleDateString()}
                             </span>
                             <div className="flex items-center gap-1 shrink-0">
-                                <button
-                                  onClick={() => handleEditMaterial(material)}
-                                  className="rounded-xl p-1.5 text-muted-foreground hover:bg-blue-500/10 hover:text-blue-500 cursor-pointer transition-colors"
-                                  title="Edit Faculty Material"
-                                >
-                                  <Pencil className="h-4 w-4" />
-                                </button>
-                                <button
-                                  onClick={() => setPreviewMaterialId(material.id)}
-                                  className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
-                                  title="Preview in DRM Secure Reader"
-                                >
-                                  <Eye className="h-4 w-4" />
-                                </button>
-                                <button
-                                  onClick={() => handleDeleteItem("/academic/admin/materials/", material.id, material.title, loadAdminData)}
-                                  className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer"
-                                  title="Delete Study Material"
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </button>
-                              </div>
+                              <button
+                                onClick={() => handleDownloadMaterial(material)}
+                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-blue-500/10 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer transition-colors"
+                                title={material.file ? "Download Faculty File" : "Export Material"}
+                              >
+                                <Download className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => handleEditMaterial(material)}
+                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-blue-500/10 hover:text-blue-500 cursor-pointer transition-colors"
+                                title="Edit Faculty Material"
+                              >
+                                <Pencil className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => setPreviewMaterialId(material.id)}
+                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
+                                title="Preview in DRM Secure Reader"
+                              >
+                                <Eye className="h-4 w-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteItem("/academic/admin/materials/", material.id, material.title, loadAdminData)}
+                                className="rounded-xl p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer"
+                                title="Delete Study Material"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
                           </div>
                         </div>
                       ))
@@ -4886,6 +5064,13 @@ export function AdminPortal() {
                                   {lab.subject_code} · Exp {lab.experiment_number}
                                 </span>
                                 <div className="flex items-center gap-1">
+                                  <button
+                                    onClick={() => handleDownloadLab(lab)}
+                                    className="rounded-xl p-1.5 text-muted-foreground hover:bg-amber-500/10 hover:text-amber-600 dark:hover:text-amber-400 cursor-pointer transition-colors"
+                                    title="Export Lab Experiment Markdown"
+                                  >
+                                    <Download className="h-4 w-4" />
+                                  </button>
                                   <button
                                     onClick={() => handleEditLab(lab)}
                                     className="rounded-xl p-1.5 text-muted-foreground hover:bg-amber-500/10 hover:text-amber-500 cursor-pointer transition-colors"
@@ -4988,6 +5173,13 @@ export function AdminPortal() {
                                   </div>
                                   <div className="flex items-center gap-1 shrink-0">
                                     <button
+                                      onClick={() => handleDownloadMaterial(mat)}
+                                      className="rounded-xl p-1.5 text-muted-foreground hover:bg-purple-500/10 hover:text-purple-600 dark:hover:text-purple-400 cursor-pointer transition-colors"
+                                      title={mat.file ? "Download Uploaded Lab Manual" : "Export Manual"}
+                                    >
+                                      <Download className="h-4 w-4" />
+                                    </button>
+                                    <button
                                       onClick={() => handleEditMaterial(mat)}
                                       className="rounded-xl p-1.5 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
                                       title="Edit Lab Manual"
@@ -5030,6 +5222,14 @@ export function AdminPortal() {
                                 </span>
                                 <div className="flex items-center gap-3">
                                   <span className="font-mono text-[0.68rem]">{mat.academic_year || "2026-2027"}</span>
+                                  <button
+                                    onClick={() => handleDownloadMaterial(mat)}
+                                    className="font-bold text-purple-600 dark:text-purple-400 hover:underline text-xs cursor-pointer inline-flex items-center gap-1"
+                                    title="Download lab manual file"
+                                  >
+                                    <span>Download</span>
+                                    <Download className="h-3.5 w-3.5" />
+                                  </button>
                                   <button
                                     onClick={() => setPreviewMaterialId(mat.id)}
                                     className="font-bold text-primary hover:underline text-xs cursor-pointer inline-flex items-center gap-1"
@@ -6090,8 +6290,8 @@ export function AdminPortal() {
                                       log.action_type.includes("BLOCK") || log.action_type.includes("SUSPEND")
                                         ? "bg-rose-500/15 text-rose-600 dark:text-rose-400"
                                         : log.action_type.includes("UNBLOCK") || log.action_type.includes("UNBAN")
-                                        ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
-                                        : "bg-primary/10 text-primary"
+                                          ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                                          : "bg-primary/10 text-primary"
                                     )}
                                   >
                                     {log.action_type.replace(/_/g, " ")}
@@ -6292,14 +6492,14 @@ export function AdminPortal() {
                                   currentDraft.badge_variant === "amber"
                                     ? "bg-amber-500/15 text-amber-600 dark:text-amber-400"
                                     : currentDraft.badge_variant === "purple"
-                                    ? "bg-purple-500/15 text-purple-600 dark:text-purple-400"
-                                    : currentDraft.badge_variant === "rose"
-                                    ? "bg-rose-500/15 text-rose-600 dark:text-rose-400"
-                                    : currentDraft.badge_variant === "cyan"
-                                    ? "bg-cyan-500/15 text-cyan-600 dark:text-cyan-400"
-                                    : currentDraft.badge_variant === "blue"
-                                    ? "bg-blue-500/15 text-blue-600 dark:text-blue-400"
-                                    : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
+                                      ? "bg-purple-500/15 text-purple-600 dark:text-purple-400"
+                                      : currentDraft.badge_variant === "rose"
+                                        ? "bg-rose-500/15 text-rose-600 dark:text-rose-400"
+                                        : currentDraft.badge_variant === "cyan"
+                                          ? "bg-cyan-500/15 text-cyan-600 dark:text-cyan-400"
+                                          : currentDraft.badge_variant === "blue"
+                                            ? "bg-blue-500/15 text-blue-600 dark:text-blue-400"
+                                            : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400",
                                 )}
                               >
                                 {currentDraft.badge_text}
@@ -6597,42 +6797,42 @@ export function AdminPortal() {
                               </button>
                             </div>
 
-                          {/* Link Preview if exists */}
-                          {b.link_url && (
-                            <div className="rounded-xl border border-border/60 bg-surface/60 px-3 py-2 text-[0.7rem] flex items-center justify-between gap-2">
-                              <span className="font-semibold text-foreground truncate">
-                                Button: "{b.link_text || "Learn More"}"
-                              </span>
-                              <span className="font-mono text-muted-foreground text-[0.62rem] truncate max-w-[120px]">
-                                {b.link_url}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Card Footer: Priority & 1-Click Toggle */}
-                        <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs">
-                          <span className="font-mono text-[0.68rem] text-muted-foreground">
-                            Priority: {b.priority || 10}
-                          </span>
-
-                          <button
-                            type="button"
-                            onClick={() => handleToggleBannerActive(b)}
-                            className={cn(
-                              "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[0.68rem] font-bold transition-all cursor-pointer shadow-2xs",
-                              b.is_active
-                                ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/25"
-                                : "bg-muted/50 text-muted-foreground border border-border hover:bg-surface"
+                            {/* Link Preview if exists */}
+                            {b.link_url && (
+                              <div className="rounded-xl border border-border/60 bg-surface/60 px-3 py-2 text-[0.7rem] flex items-center justify-between gap-2">
+                                <span className="font-semibold text-foreground truncate">
+                                  Button: "{b.link_text || "Learn More"}"
+                                </span>
+                                <span className="font-mono text-muted-foreground text-[0.62rem] truncate max-w-[120px]">
+                                  {b.link_url}
+                                </span>
+                              </div>
                             )}
-                          >
-                            <span className={cn("h-2 w-2 rounded-full", b.is_active ? "bg-emerald-500 animate-pulse" : "bg-muted-foreground/40")} />
-                            <span>{b.is_active ? "Live Active" : "Deactivated"}</span>
-                          </button>
+                          </div>
+
+                          {/* Card Footer: Priority & 1-Click Toggle */}
+                          <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs">
+                            <span className="font-mono text-[0.68rem] text-muted-foreground">
+                              Priority: {b.priority || 10}
+                            </span>
+
+                            <button
+                              type="button"
+                              onClick={() => handleToggleBannerActive(b)}
+                              className={cn(
+                                "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[0.68rem] font-bold transition-all cursor-pointer shadow-2xs",
+                                b.is_active
+                                  ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/25"
+                                  : "bg-muted/50 text-muted-foreground border border-border hover:bg-surface"
+                              )}
+                            >
+                              <span className={cn("h-2 w-2 rounded-full", b.is_active ? "bg-emerald-500 animate-pulse" : "bg-muted-foreground/40")} />
+                              <span>{b.is_active ? "Live Active" : "Deactivated"}</span>
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  })}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -6706,8 +6906,8 @@ export function AdminPortal() {
                             className={cn(
                               "rounded-full px-2 py-0.5 text-[0.65rem] font-extrabold",
                               ticket.priority === "URGENT" ? "bg-rose-500/15 text-rose-600 dark:text-rose-400" :
-                              ticket.priority === "HIGH" ? "bg-amber-500/15 text-amber-600 dark:text-amber-400" :
-                              "bg-surface text-muted-foreground"
+                                ticket.priority === "HIGH" ? "bg-amber-500/15 text-amber-600 dark:text-amber-400" :
+                                  "bg-surface text-muted-foreground"
                             )}
                           >
                             {ticket.priority} Priority
@@ -6733,8 +6933,8 @@ export function AdminPortal() {
                             className={cn(
                               "h-8 rounded-xl px-2.5 text-xs font-extrabold border cursor-pointer focus:outline-none",
                               ticket.status === "RESOLVED" ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-600 dark:text-emerald-400" :
-                              ticket.status === "IN_PROGRESS" ? "bg-blue-500/15 border-blue-500/30 text-blue-600 dark:text-blue-400" :
-                              "bg-amber-500/15 border-amber-500/30 text-amber-600 dark:text-amber-400"
+                                ticket.status === "IN_PROGRESS" ? "bg-blue-500/15 border-blue-500/30 text-blue-600 dark:text-blue-400" :
+                                  "bg-amber-500/15 border-amber-500/30 text-amber-600 dark:text-amber-400"
                             )}
                           >
                             <option value="OPEN">OPEN (Pending)</option>
@@ -7436,7 +7636,7 @@ export function AdminPortal() {
                           <input
                             type="checkbox"
                             checked={isSelected}
-                            onChange={() => {}} // 
+                            onChange={() => { }} // 
                             className="h-4 w-4 rounded accent-primary cursor-pointer shrink-0"
                           />
                           <div className="truncate text-left">
@@ -7696,8 +7896,8 @@ export function AdminPortal() {
                     <button
                       type="button"
                       onClick={() => {
-                        const nextNum = materialPages.length > 0 
-                          ? Math.max(...materialPages.map((p) => p.page_number)) + 1 
+                        const nextNum = materialPages.length > 0
+                          ? Math.max(...materialPages.map((p) => p.page_number)) + 1
                           : 1;
                         const isPyq = publisherType === "SOLVED_PYQ";
                         const updated = [
@@ -8161,7 +8361,7 @@ export function AdminPortal() {
                     <span>Add Language</span>
                   </button>
                 </div>
-                
+
                 <div className="rounded-2xl border border-border/60 bg-surface/50 p-4 space-y-4">
                   {labCodes.map((item, index) => (
                     <div key={index} className="space-y-2">
