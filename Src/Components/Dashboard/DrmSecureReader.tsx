@@ -457,7 +457,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
                     <span className="truncate">Secure Sandbox</span>
                   </div>
                   <p className="text-[0.62rem] sm:text-[0.66rem] text-zinc-400 leading-tight">
-                    Viewport isolated from background tools
+                    Viewport Isolated From Background Tools
                   </p>
                 </div>
 
@@ -467,7 +467,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
                     <span className="truncate">Anti-Capture</span>
                   </div>
                   <p className="text-[0.62rem] sm:text-[0.66rem] text-zinc-400 leading-tight">
-                    Gesture triggers instant blackout shield
+                    Gesture Triggers Instant Blackout Shield
                   </p>
                 </div>
 
@@ -477,7 +477,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
                     <span className="truncate">Forensic Stamp</span>
                   </div>
                   <p className="text-[0.62rem] sm:text-[0.66rem] text-zinc-400 leading-tight">
-                    Dynamic verified student session imprint
+                    Dynamic Verified Student Session Imprint
                   </p>
                 </div>
 
@@ -487,7 +487,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
                     <span className="truncate">Live Telemetry</span>
                   </div>
                   <p className="text-[0.62rem] sm:text-[0.66rem] text-zinc-400 leading-tight">
-                    Cybersecurity audit logging active
+                    Cybersecurity Audit Logging Active
                   </p>
                 </div>
               </div>

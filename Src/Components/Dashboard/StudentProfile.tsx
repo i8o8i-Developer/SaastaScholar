@@ -1016,21 +1016,21 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
                   </div>
 
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    NIMS Wallah incorporates real-time forensic protections to safeguard intellectual coursework, faculty notes, and examination manuscripts.
+                    NIMS Wallah Incorporates Real-Time Forensic Protections To Safeguard Intellectual Coursework, Faculty Notes, And Examination Manuscripts.
                   </p>
 
                   <div className="space-y-2 text-xs text-muted-foreground">
                     <div className="flex items-start gap-2 p-2 rounded-xl bg-surface/60 border border-border/40">
                       <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
-                      <span><strong>Dynamic Session Watermarking:</strong> Real-time student identity overlay embedded on all viewing sessions.</span>
+                      <span><strong>Dynamic Session Watermarking:</strong> Real-time Student Identity Overlay Embedded On All Viewing Sessions.</span>
                     </div>
                     <div className="flex items-start gap-2 p-2 rounded-xl bg-surface/60 border border-border/40">
                       <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
-                      <span><strong>Anti-Capture Screen Shield:</strong> Instant blackout blur upon focus loss or unauthorized capture tool trigger.</span>
+                      <span><strong>Anti-Capture Screen Shield:</strong> Instant Blackout Blur Upon Focus Loss Or Unauthorized Capture Tool Trigger.</span>
                     </div>
                     <div className="flex items-start gap-2 p-2 rounded-xl bg-surface/60 border border-border/40">
                       <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
-                      <span><strong>Academic Integrity Protocol:</strong> Enforced compliance to university examination copyright guidelines.</span>
+                      <span><strong>Academic Integrity Protocol:</strong> Enforced compliance to University Examination Copyright Guidelines.</span>
                     </div>
                   </div>
                 </div>
