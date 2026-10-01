@@ -1,8 +1,13 @@
 # ==============================================================================
 # NimsWallah Production Robots.txt
 # Target Domain: https://nimswallah.durgaaisolutions.in
+# Owned & Engineered By Durgaai Solutions (MSME UDYAM-UP-64-0010044)
 # ==============================================================================
 
+Sitemap: https://nimswallah.durgaaisolutions.in/sitemap.xml
+Link: https://nimswallah.durgaaisolutions.in/llms.txt; rel="llms-txt"
+
+# General Web Crawlers
 User-agent: *
 Allow: /
 Allow: /privacy
@@ -18,24 +23,31 @@ Disallow: /drm-vault/
 Disallow: /media/avatars/
 Disallow: /media/academic_materials/
 
-# AI Scraper Anti-Harvesting Directives
-User-agent: GPTBot
-Disallow: /
-
-User-agent: ChatGPT-User
-Disallow: /
-
-User-agent: CCBot
-Disallow: /
-
-User-agent: anthropic-ai
-Disallow: /
-
-User-agent: Claude-Web
-Disallow: /
+# Search Engine Crawlers
+User-agent: Googlebot
+Allow: /
 
 User-agent: Google-Extended
-Disallow: /
+Allow: /
 
-# Canonical XML Sitemap
-Sitemap: https://nimswallah.durgaaisolutions.in/sitemap.xml
+User-agent: Bingbot
+Allow: /
+
+# AI Crawlers & LLM Engines
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /

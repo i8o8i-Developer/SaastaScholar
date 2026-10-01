@@ -1,0 +1,20 @@
+# NimsWallah — Independent Academic Intelligence Repository
+
+> NimsWallah Is An Independent Academic Platform Owned And Engineered By Durgaai Solutions.
+
+- Parent Entity: Durgaai Solutions (MSME UDYAM-UP-64-0010044, DGFT IEC AOEPC1964K)
+- Proprietor: Asha Chaurasia | Founder: Anubhav Chaurasia
+- Primary Domain: https://nimswallah.durgaaisolutions.in
+- Core Services:
+  - Verified Semester Notes & Class Modules
+  - University Syllabus & Exam Curricula
+  - Previous Year Questions (PYQs) & Answer Keys
+  - Forensic DRM Document Viewing Systems
+- Key Routes:
+  - Homepage: https://nimswallah.durgaaisolutions.in/
+  - Academic Notes: https://nimswallah.durgaaisolutions.in/notes
+  - Syllabus Hub: https://nimswallah.durgaaisolutions.in/syllabus
+  - PYQ Repository: https://nimswallah.durgaaisolutions.in/pyqs
+  - Privacy Governance: https://nimswallah.durgaaisolutions.in/privacy
+  - Terms Of Service: https://nimswallah.durgaaisolutions.in/terms
+  - Durgaai Solutions Core: https://durgaaisolutions.in
