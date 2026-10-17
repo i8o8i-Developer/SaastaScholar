@@ -246,11 +246,11 @@ export function Login() {
               <span>
                 {authMode === "admin" ? (
                   <>
-                    <span className="hidden xs:inline">Academic </span>Admin Console
+                    <span className="hidden xs:inline">Academic </span>Admin Portal
                   </>
                 ) : (
                   <>
-                    <span className="hidden sm:inline">Student Dashboard &amp; </span>DRM Hub
+                    <span className="hidden sm:inline">Student Study </span>Portal
                   </>
                 )}
               </span>
@@ -269,12 +269,12 @@ export function Login() {
                 </div>
                 <div className="min-w-0">
                   <h1 className="font-display text-base sm:text-lg font-bold text-foreground truncate">
-                    {authMode === "admin" ? "NimsWallah Administration Control" : "NimsWallah Student Portal"}
+                    {authMode === "admin" ? "NimsWallah Admin Portal" : "NimsWallah Student Portal"}
                   </h1>
                   <p className="text-[0.68rem] sm:text-xs text-muted-foreground truncate">
                     {authMode === "admin"
-                      ? "Department Infrastructure & Circular Broadcasts"
-                      : "Handwritten Notes, Solved PYQs & Lab Manuals"}
+                      ? "Manage Courses, Upload Notes & Send Notices"
+                      : "Handwritten Notes, Solved Papers & Lab Codes"}
                   </p>
                 </div>
               </div>
@@ -342,21 +342,21 @@ export function Login() {
                   <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
                     <Sparkles className="h-3.5 w-3.5" />
                     <span>
-                      {authMode === "register" && "Register Student Account"}
-                      {authMode === "login" && "Access Your Academic Workspace"}
-                      {authMode === "admin" && "Institutional Controller Sign In"}
+                      {authMode === "register" && "Create Free Student Account"}
+                      {authMode === "login" && "Student Login"}
+                      {authMode === "admin" && "Teacher & Admin Sign In"}
                     </span>
                   </div>
 
                   <h2 className="mt-3 text-2xl font-bold tracking-tight text-foreground sm:text-3xl leading-tight">
-                    {authMode === "register" && "Set Up Your Semester Profile."}
-                    {authMode === "login" && "Welcome Back, Student Scholar."}
-                    {authMode === "admin" && "Administrative Master Console."}
+                    {authMode === "register" && "Join NimsWallah."}
+                    {authMode === "login" && "Welcome Back!"}
+                    {authMode === "admin" && "Teacher & Admin Portal"}
                   </h2>
                   <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                    {authMode === "register" && "Personalize Your Study Materials, Lecture Planner, And Lab Viva Banks For Your University Section."}
-                    {authMode === "login" && "Sign In With Your Student Email To Access DRM-Protected Notes, 2020–2025 Solved PYQs, And Assignment Tools."}
-                    {authMode === "admin" && "Manage University Departments, Degree Specializations, Semesters, Sections, And Broadcast Official Circulars."}
+                    {authMode === "register" && "Get All Your Class Notes, Solved Papers, And Practical Codes In One Simple Place."}
+                    {authMode === "login" && "Log In To View Your Subject Notes, Old Exam Papers, And Syllabus."}
+                    {authMode === "admin" && "Upload Notes, Publish Exam Papers, And Post College Notices For Students."}
                   </p>
                 </div>
 
@@ -557,7 +557,7 @@ export function Login() {
 
                   <div>
                     <label className="block text-xs font-bold text-foreground mb-1">
-                      {authMode === "admin" ? "Administrative Controller Email" : "Institutional Email Address"}
+                      {authMode === "admin" ? "Admin Email Address" : "College Email Address"}
                     </label>
                     <div className="relative">
                       <Mail className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -574,7 +574,7 @@ export function Login() {
 
                   <div className={authMode === "register" ? "grid grid-cols-2 gap-3" : "space-y-1"}>
                     <div>
-                      <label className="block text-xs font-bold text-foreground mb-1">Account Password</label>
+                      <label className="block text-xs font-bold text-foreground mb-1">Password</label>
                       <div className="relative">
                         <Lock className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <input
@@ -606,13 +606,12 @@ export function Login() {
                     )}
                   </div>
 
-                  {/* Strict Portal Access Advisory Notice */}
+                  {/* Simple Role Switch Helper */}
                   {authMode === "login" && (
-                    <div className="flex items-start gap-2.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 p-3 text-[0.72rem] text-emerald-900 dark:text-emerald-200">
-                      <GraduationCap className="h-4 w-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                    <div className="flex items-center gap-2 rounded-2xl bg-muted/60 border border-border/80 p-3 text-xs text-muted-foreground">
+                      <GraduationCap className="h-4 w-4 text-primary shrink-0" />
                       <div className="leading-snug">
-                        <span className="font-bold">Student Scholar Portal: </span>
-                        Strictly For Verified Students. Administrator Credentials Are Not Permitted Here. University Controllers And Administrators Must Sign In Via The{" "}
+                        <span>Teacher Or College Staff? </span>
                         <button
                           type="button"
                           onClick={() => {
@@ -620,20 +619,19 @@ export function Login() {
                             setEmail("");
                             setPassword("");
                           }}
-                          className="font-bold underline hover:text-foreground cursor-pointer"
+                          className="font-bold text-primary underline hover:text-primary-deep cursor-pointer"
                         >
-                          Admin Portal
-                        </button>.
+                          Click Here For Admin Portal
+                        </button>
                       </div>
                     </div>
                   )}
 
                   {authMode === "admin" && (
-                    <div className="flex items-start gap-2.5 rounded-2xl bg-rose-500/10 border border-rose-500/25 p-3 text-[0.72rem] text-rose-900 dark:text-rose-200">
-                      <ShieldCheck className="h-4 w-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
+                    <div className="flex items-center gap-2 rounded-2xl bg-muted/60 border border-border/80 p-3 text-xs text-muted-foreground">
+                      <ShieldCheck className="h-4 w-4 text-emerald-600 shrink-0" />
                       <div className="leading-snug">
-                        <span className="font-bold">Restricted Administration Zone: </span>
-                        Institutional Controller Privileges Required. Student Credentials Are Not Permitted Here. For Student Academic Tools And Notes, Sign In Through{" "}
+                        <span>Student Looking For Study Notes? </span>
                         <button
                           type="button"
                           onClick={() => {
@@ -641,10 +639,10 @@ export function Login() {
                             setEmail("");
                             setPassword("");
                           }}
-                          className="font-bold underline hover:text-foreground cursor-pointer"
+                          className="font-bold text-emerald-600 underline hover:text-emerald-700 cursor-pointer"
                         >
-                          Student Sign In
-                        </button>.
+                          Click Here For Student Sign In
+                        </button>
                       </div>
                     </div>
                   )}
@@ -663,9 +661,9 @@ export function Login() {
                     ) : (
                       <>
                         <span>
-                          {authMode === "register" && "Register & Enter Dashboard"}
-                          {authMode === "login" && "Sign In As Student Scholar"}
-                          {authMode === "admin" && "Sign In As Institutional Administrator"}
+                          {authMode === "register" && "Create Free Student Account"}
+                          {authMode === "login" && "Log In to Study"}
+                          {authMode === "admin" && "Sign In as Admin"}
                         </span>
                         <ArrowRight className="h-4 w-4" />
                       </>
@@ -674,14 +672,14 @@ export function Login() {
                 </form>
               </div>
 
-              {/* Right Column: Grounded Offerings, Transparent Pricing Tiers & Protection (5 cols) */}
+              {/* Right Column: Offerings, Pricing & Protection */}
               <div className="lg:col-span-5 min-w-0 flex flex-col justify-between space-y-4">
-                {/* 1. Academic Command Center — What We Serve Card */}
+                {/* 1. What You Get Card */}
                 <div className="rounded-3xl border border-border/80 bg-surface/80 p-5 sm:p-6 min-w-0 space-y-4 shadow-xs">
                   <div>
                     <div className="flex items-center justify-between border-b border-border/80 pb-3">
                       <span className="font-bold text-sm text-foreground">
-                        {authMode === "admin" ? "Institutional Control Center" : "What We Serve (NIMS Ecosystem)"}
+                        {authMode === "admin" ? "Admin Management Tools" : "Everything You Need for Exams"}
                       </span>
                       <Sparkles className="h-4 w-4 text-primary" />
                     </div>
@@ -692,25 +690,25 @@ export function Login() {
                           <div className="flex items-start gap-2.5 text-muted-foreground">
                             <Building2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
                             <span className="leading-snug text-foreground/90 font-medium">
-                              Department &amp; Specialization Curriculum Matrix
+                              Organize Departments, Courses &amp; Student Sections
                             </span>
                           </div>
                           <div className="flex items-start gap-2.5 text-muted-foreground">
                             <FileText className="h-4 w-4 text-cyan-500 shrink-0 mt-0.5" />
                             <span className="leading-snug text-foreground/90 font-medium">
-                              Live Unit Notes &amp; Solved PYQ Publishing Studio
+                              Upload Handwritten Notes &amp; Solved Exam Papers
                             </span>
                           </div>
                           <div className="flex items-start gap-2.5 text-muted-foreground">
                             <FlaskConical className="h-4 w-4 text-purple-500 shrink-0 mt-0.5" />
                             <span className="leading-snug text-foreground/90 font-medium">
-                              Practical Labs, Multi-Language Code &amp; Viva Voce Banks
+                              Publish Lab Experiment Codes &amp; Viva Questions
                             </span>
                           </div>
                           <div className="flex items-start gap-2.5 text-muted-foreground">
                             <Megaphone className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
                             <span className="leading-snug text-foreground/90 font-medium">
-                              Official University Circulars &amp; Timetable Dispatch
+                              Post College Circulars &amp; Class Timetables
                             </span>
                           </div>
                         </>
@@ -719,29 +717,29 @@ export function Login() {
                           <div className="flex items-start gap-2.5">
                             <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
                             <div className="leading-snug">
-                              <span className="font-bold text-foreground block">5-Unit Handwritten &amp; Typed Topper Notes</span>
-                              <span className="text-[0.7rem] text-muted-foreground">Formula Sheets, Derivations &amp; Diagrams Aligned To NIMS syllabus.</span>
+                              <span className="font-bold text-foreground block">Chapter-Wise Handwritten Notes</span>
+                              <span className="text-[0.7rem] text-muted-foreground">Formulas, Diagrams, And Easy Derivations Matched To Your Syllabus.</span>
                             </div>
                           </div>
                           <div className="flex items-start gap-2.5">
                             <FileCheck2 className="h-4 w-4 text-cyan-500 shrink-0 mt-0.5" />
                             <div className="leading-snug">
-                              <span className="font-bold text-foreground block">2020–2025 Solved University PYQs</span>
-                              <span className="text-[0.7rem] text-muted-foreground">Step-By-Step Solved Mid-Sem And End-Sem Papers With Marking Schemes.</span>
+                              <span className="font-bold text-foreground block">Solved Past Exam Papers</span>
+                              <span className="text-[0.7rem] text-muted-foreground">Step-By-Step Solved Mid-Sem And End-Sem Question Papers.</span>
                             </div>
                           </div>
                           <div className="flex items-start gap-2.5">
                             <FlaskConical className="h-4 w-4 text-purple-500 shrink-0 mt-0.5" />
                             <div className="leading-snug">
-                              <span className="font-bold text-foreground block">Lab Manuals &amp; 50+ Viva Voce Banks</span>
-                              <span className="text-[0.7rem] text-muted-foreground">Ready-To-Run Python, C++, Java, DBMS Code And Viva Question Banks.</span>
+                              <span className="font-bold text-foreground block">Lab Manuals &amp; Viva Questions</span>
+                              <span className="text-[0.7rem] text-muted-foreground">Ready-To-Run Practical Code And Top Viva Questions Asked By Teachers.</span>
                             </div>
                           </div>
                           <div className="flex items-start gap-2.5">
                             <Zap className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />
                             <div className="leading-snug">
-                              <span className="font-bold text-foreground block">Real-Time Timetable &amp; Circulars</span>
-                              <span className="text-[0.7rem] text-muted-foreground">Verified Department Notices, Hall Tickets, And Daily Class Countdowns.</span>
+                              <span className="font-bold text-foreground block">Class Schedule &amp; College Notices</span>
+                              <span className="text-[0.7rem] text-muted-foreground">Daily Class Timetables, Exam Date Sheets, And Urgent Circulars.</span>
                             </div>
                           </div>
                         </>
@@ -756,7 +754,7 @@ export function Login() {
                     <div className="flex items-center justify-between border-b border-border/80 pb-2.5">
                       <span className="font-bold text-xs sm:text-sm text-foreground flex items-center gap-1.5">
                         <Award className="h-4 w-4 text-primary" />
-                        <span>Student Access &amp; Pricing Tiers</span>
+                        <span>Simple Student Plans</span>
                       </span>
                       <span className="text-[0.65rem] font-bold uppercase tracking-wider text-primary bg-primary/10 px-2 py-0.5 rounded-full">
                         Pocket Friendly
@@ -767,7 +765,7 @@ export function Login() {
                       {/* Free Tier */}
                       <div className="rounded-2xl border border-border/80 bg-surface/60 p-2.5 flex flex-col justify-between">
                         <div>
-                          <span className="block text-[0.65rem] font-bold text-muted-foreground uppercase">Free Starter</span>
+                          <span className="block text-[0.65rem] font-bold text-muted-foreground uppercase">Free Plan</span>
                           <span className="text-sm font-extrabold text-foreground mt-0.5 block">₹0</span>
                         </div>
                         <span className="text-[0.62rem] text-muted-foreground leading-tight mt-1.5 block">
@@ -775,48 +773,48 @@ export function Login() {
                         </span>
                       </div>
 
-                      {/* Semester Topper */}
+                      {/* Semester Pass */}
                       <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-2.5 flex flex-col justify-between relative shadow-xs">
                         <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-[0.55rem] font-bold bg-emerald-600 text-white px-1.5 py-0.2 rounded-full uppercase">
                           Popular
                         </span>
                         <div>
-                          <span className="block text-[0.65rem] font-bold text-emerald-700 dark:text-emerald-300 uppercase">Topper</span>
+                          <span className="block text-[0.65rem] font-bold text-emerald-700 dark:text-emerald-300 uppercase">Semester Pass</span>
                           <span className="text-sm font-extrabold text-emerald-600 dark:text-emerald-400 mt-0.5 block">
                             ₹499<span className="text-[0.6rem] font-normal text-muted-foreground">/sem</span>
                           </span>
                         </div>
                         <span className="text-[0.62rem] text-emerald-800 dark:text-emerald-200 leading-tight mt-1.5 block">
-                          All 5 Units + Solved PYQs
+                          All 5 Units + Solved Papers
                         </span>
                       </div>
 
-                      {/* VIP Scholar */}
+                      {/* VIP Plan */}
                       <div className="rounded-2xl border border-border/80 bg-surface/60 p-2.5 flex flex-col justify-between">
                         <div>
-                          <span className="block text-[0.65rem] font-bold text-muted-foreground uppercase">VIP Access</span>
+                          <span className="block text-[0.65rem] font-bold text-muted-foreground uppercase">VIP All-Access</span>
                           <span className="text-sm font-extrabold text-foreground mt-0.5 block">
                             ₹899<span className="text-[0.6rem] font-normal text-muted-foreground">/sem</span>
                           </span>
                         </div>
                         <span className="text-[0.62rem] text-muted-foreground leading-tight mt-1.5 block">
-                          Offline PDFs + 1-on-1 Help
+                          Downloadable + 1-on-1 Help
                         </span>
                       </div>
                     </div>
                   </div>
                 )}
 
-                {/* 3. Protected DRM Platform Card */}
+                {/* 3. Clean Reading Card */}
                 <div className="rounded-3xl border border-emerald-500/30 bg-emerald-500/10 p-5 text-xs text-emerald-800 dark:text-emerald-300 space-y-2 shadow-xs">
                   <div className="flex items-center gap-2 font-bold text-sm">
                     <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
-                    <span>{authMode === "admin" ? "Administrative Security Matrix" : "Forensic DRM Protected Reader"}</span>
+                    <span>{authMode === "admin" ? "Secure Administration System" : "Distraction-Free Study Reader"}</span>
                   </div>
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     {authMode === "admin"
-                      ? "Administrative Actions, Curriculum Publications, And Student Telemetry Are Protected With JWT Bearer Tokens And Encrypted Role Permissions."
-                      : "All Study Notes And Solved Papers Are Rendered In Real-Time With Your Dynamic Institutional Forensic Watermark For Clean, High-Speed Learning."}
+                      ? "Administrative Actions, Syllabus Publishing, And Student Updates Are Protected With Secure Cloud Encryption."
+                      : "Study Peacefully With Fast, Crystal-Clear Pages Designed To Help You Read Comfortably And Score Higher In Exams."}
                   </p>
                 </div>
               </div>

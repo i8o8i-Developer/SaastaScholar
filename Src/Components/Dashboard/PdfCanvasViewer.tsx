@@ -325,8 +325,8 @@ export function PdfCanvasViewer({
         <div className="grid h-12 w-12 place-items-center rounded-2xl bg-primary/10 text-primary">
           <Loader2 className="h-6 w-6 animate-spin" />
         </div>
-        <p className="font-bold text-sm text-foreground">Loading DRM Courseware Document...</p>
-        <p className="text-xs text-muted-foreground font-mono">Initializing High-Definition In-Site Canvas Engine</p>
+        <p className="font-bold text-sm text-foreground">Loading Your Notes...</p>
+        <p className="text-xs text-muted-foreground font-mono">Preparing Clear Pages For You</p>
       </div>
     );
   }
@@ -338,9 +338,9 @@ export function PdfCanvasViewer({
           <AlertCircle className="h-6 w-6" />
         </div>
         <div className="space-y-1">
-          <h3 className="font-bold text-sm sm:text-base text-foreground dark:text-zinc-100">Document Renderer Notice</h3>
+          <h3 className="font-bold text-sm sm:text-base text-foreground dark:text-zinc-100">Could Not Open Notes</h3>
           <p className="text-xs text-muted-foreground dark:text-zinc-400 leading-relaxed">
-            {error || "Unable to render PDF binary in canvas stream."}
+            {error || "We Had Trouble Loading This Page. Please Click Try Again."}
           </p>
         </div>
 
@@ -351,7 +351,7 @@ export function PdfCanvasViewer({
             className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold shadow-md hover:bg-primary-deep active:scale-95 transition-all cursor-pointer"
           >
             <RefreshCw className="h-3.5 w-3.5" />
-            <span>Retry Document</span>
+            <span>Try Again</span>
           </button>
         </div>
       </div>
@@ -370,7 +370,7 @@ export function PdfCanvasViewer({
       {rendering && (
         <div className="absolute top-3 right-3 z-40 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-card/95 border border-border/80 shadow-md backdrop-blur-xs text-[0.65rem] font-bold text-muted-foreground font-mono">
           <RefreshCw className="h-3 w-3 animate-spin text-primary" />
-          <span>High-DPI Sharp</span>
+          <span>Sharpening...</span>
         </div>
       )}
 

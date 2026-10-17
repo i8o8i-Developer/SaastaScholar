@@ -100,13 +100,13 @@ export function SyllabusHub({ onOpenReader }: SyllabusHubProps) {
           <div className="min-w-0">
             <div className="inline-flex items-center gap-1.5 rounded-full border border-teal-500/30 bg-teal-500/10 px-2.5 sm:px-3 py-0.5 text-[0.65rem] sm:text-xs font-bold text-teal-700 dark:text-teal-300 mb-1.5">
               <ScrollText className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
-              <span className="truncate">Official Institutional Syllabus &amp; Curriculum Breakdown</span>
+              <span className="truncate">Official University Syllabus &amp; Course Guides</span>
             </div>
             <h1 className="text-lg sm:text-2xl md:text-3xl font-bold tracking-tight text-foreground break-words">
-              Official Syllabus &amp; Curriculum Hub
+              Official Syllabus &amp; Course Guides
             </h1>
             <p className="text-[0.72rem] sm:text-xs md:text-sm text-muted-foreground mt-1 max-w-2xl leading-relaxed break-words">
-              NIMS University Board of Studies Approved Syllabi, Unit Weightage Distributions, Recommended Textbooks, And Marking Schemes.
+              Official University Syllabi, Unit Exam Weightages, Recommended Books, And Marking Schemes To Guide Your Prep.
             </p>
           </div>
 

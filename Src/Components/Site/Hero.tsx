@@ -178,23 +178,23 @@ export function Hero() {
           <div className="mt-7 grid grid-cols-3 gap-2.5 sm:gap-3 min-w-0">
             {[
               {
-                value: "6",
-                label: "Academic Modules",
-                sub: "Notes, PYQs & Labs",
+                value: "100%",
+                label: "Free Notes",
+                sub: "Chapter & Unit Wise",
                 icon: Layers,
                 accent: "from-emerald-500/15 to-teal-500/10 text-emerald-600 dark:text-emerald-400",
               },
               {
-                value: "1",
-                label: "Unified Feed",
-                sub: "Zero WhatsApp Clutter",
-                icon: Zap,
+                value: "5+ Yrs",
+                label: "Solved Papers",
+                sub: "Step-By-Step Answers",
+                icon: BookOpen,
                 accent: "from-teal-500/15 to-cyan-500/10 text-teal-600 dark:text-teal-400",
               },
               {
-                value: "0",
-                label: "Group Noise",
-                sub: "100% Verified Only",
+                value: "Zero",
+                label: "Distractions",
+                sub: "No Spam, Just Study",
                 icon: ShieldCheck,
                 accent: "from-emerald-500/15 to-teal-500/10 text-emerald-600 dark:text-emerald-400",
               },
@@ -297,7 +297,7 @@ export function Hero() {
                   Solved PYQs (2020–2025)
                 </p>
                 <p className="text-[0.65rem] text-muted-foreground truncate">
-                  100% Model Step-by-Step Solutions
+                  100% Model Step-By-Step Solutions
                 </p>
               </div>
             </div>

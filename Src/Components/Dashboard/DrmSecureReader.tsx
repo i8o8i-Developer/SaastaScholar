@@ -193,7 +193,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
     });
 
     setHasMobileCleared(true);
-    toast.success(toTitleCase("DRM Secure Mobile Mode Authorized. Content Protection Active."));
+    toast.success("Ready to read! Fullscreen study mode active.");
   };
 
   // Strictly identify if this is a genuine PDF courseware document
@@ -383,30 +383,30 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
             <div className="space-y-2">
               <div className="inline-flex items-center gap-1.5 rounded-full border border-rose-500/40 bg-rose-500/20 px-3 py-1 text-xs font-bold text-rose-400">
                 <AlertTriangle className="h-3.5 w-3.5" />
-                <span>Security Lockdown · Account Restricted</span>
+                <span>Account Notice</span>
               </div>
 
               <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
-                DRM Access Blocked
+                Reading Paused
               </h2>
 
               <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-md mx-auto">
-                {blockReason || "Unauthorized Screen Capture Attempt Detected On Protected DRM Material."}
+                {blockReason || "Screen Capture Was Detected. Please Contact Teacher Or Support To Continue Reading."}
               </p>
             </div>
 
             <div className="rounded-2xl border border-rose-950 bg-rose-950/30 p-3.5 text-[0.7rem] font-mono text-zinc-400 space-y-1.5 text-left">
               <div className="flex items-center justify-between text-rose-400 font-bold">
-                <span>Student ID / Scholar:</span>
+                <span>Student Roll Number:</span>
                 <span>{user?.roll_number || payload.watermark.roll_number}</span>
               </div>
               <div className="flex items-center justify-between text-zinc-400">
-                <span>Total Violations Recorded:</span>
+                <span>Notices:</span>
                 <span className="text-rose-400 font-bold">{violationsCount || 1}</span>
               </div>
               <div className="flex items-center justify-between text-zinc-500">
-                <span>Enforcement Action:</span>
-                <span className="text-rose-400 font-bold">DRM Content Access Suspended</span>
+                <span>Status:</span>
+                <span className="text-rose-400 font-bold">Reader Temporarily Paused</span>
               </div>
             </div>
 
@@ -415,7 +415,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
               onClick={onClose}
               className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl bg-rose-600 text-white font-bold text-xs shadow-lg transition-all hover:bg-rose-500 active:scale-95 cursor-pointer"
             >
-              <span>Exit Reader &amp; Return To Dashboard</span>
+              <span>Back To Study Dashboard</span>
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>
@@ -437,65 +437,65 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
               <div className="space-y-1">
                 <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-2.5 py-0.5 text-[0.65rem] sm:text-xs font-bold text-emerald-300">
                   <Radio className="h-3 w-3 animate-pulse text-emerald-400" />
-                  <span>Mobile DRM Security Clearance</span>
+                  <span>Easy Reading Mode</span>
                 </div>
 
                 <h2 className="text-lg sm:text-xl font-bold tracking-tight text-white">
-                  DRM Secure Mode Required
+                  Full Screen For Better Reading
                 </h2>
 
                 <p className="text-[0.72rem] sm:text-xs text-zinc-300 leading-snug max-w-xs mx-auto">
-                  Mobile Reading Requires Fullscreen Anti-Capture Protection.
+                  Tap Below To Open Your Notes In Full Screen With Zero Clutter Or Distractions.
                 </p>
               </div>
 
-              {/* Protocols Grid (2x2 for Compact Viewport Height) */}
+              {/* Benefits Grid (2x2 for Compact Viewport Height) */}
               <div className="grid grid-cols-2 gap-2 text-left">
                 <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/70 p-2 sm:p-2.5">
                   <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-[0.7rem] sm:text-[0.75rem] mb-0.5">
                     <Lock className="h-3.5 w-3.5 shrink-0" />
-                    <span className="truncate">Secure Sandbox</span>
+                    <span className="truncate">Distraction Free</span>
                   </div>
                   <p className="text-[0.62rem] sm:text-[0.66rem] text-zinc-400 leading-tight">
-                    Viewport Isolated From Background Tools
+                    Clean View So You Can Focus On Studying
                   </p>
                 </div>
 
                 <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/70 p-2 sm:p-2.5">
                   <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-[0.7rem] sm:text-[0.75rem] mb-0.5">
                     <CameraOff className="h-3.5 w-3.5 shrink-0" />
-                    <span className="truncate">Anti-Capture</span>
+                    <span className="truncate">Safe Notes</span>
                   </div>
                   <p className="text-[0.62rem] sm:text-[0.66rem] text-zinc-400 leading-tight">
-                    Gesture Triggers Instant Blackout Shield
+                    Official Teacher Study Materials
                   </p>
                 </div>
 
                 <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/70 p-2 sm:p-2.5">
                   <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-[0.7rem] sm:text-[0.75rem] mb-0.5">
                     <Sparkles className="h-3.5 w-3.5 shrink-0" />
-                    <span className="truncate">Forensic Stamp</span>
+                    <span className="truncate">Personalized</span>
                   </div>
                   <p className="text-[0.62rem] sm:text-[0.66rem] text-zinc-400 leading-tight">
-                    Dynamic Verified Student Session Imprint
+                    Linked Directly To Your Student Account
                   </p>
                 </div>
 
                 <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/70 p-2 sm:p-2.5">
                   <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-[0.7rem] sm:text-[0.75rem] mb-0.5">
                     <Radio className="h-3.5 w-3.5 shrink-0" />
-                    <span className="truncate">Live Telemetry</span>
+                    <span className="truncate">Fast &amp; Smooth</span>
                   </div>
                   <p className="text-[0.62rem] sm:text-[0.66rem] text-zinc-400 leading-tight">
-                    Cybersecurity Audit Logging Active
+                    Optimized For Smooth Reading On Your Phone
                   </p>
                 </div>
               </div>
 
-              {/* Scholar Identity Verification */}
+              {/* Student Identity Verification */}
               <div className="rounded-xl border border-zinc-800/80 bg-black/60 px-3 py-1.5 text-[0.68rem] font-mono text-zinc-400 flex items-center justify-between">
-                <span>Scholar: {user?.roll_number || payload.watermark.roll_number}</span>
-                <span className="text-emerald-400 font-bold">Verified Session</span>
+                <span>Student: {user?.roll_number || payload.watermark.roll_number}</span>
+                <span className="text-emerald-400 font-bold">Verified Student</span>
               </div>
             </div>
 
@@ -506,7 +506,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
                 onClick={handleAuthorizeMobileDrm}
                 className="inline-flex h-10 sm:h-11 w-full items-center justify-center gap-2 rounded-xl sm:rounded-2xl bg-emerald-500 text-zinc-950 font-bold text-xs shadow-md transition-all hover:bg-emerald-400 active:scale-98 cursor-pointer"
               >
-                <span>Authorize DRM Secure Mode &amp; Begin</span>
+                <span>Open Fullscreen &amp; Start Reading</span>
                 <ArrowRight className="h-4 w-4" />
               </button>
 
@@ -515,7 +515,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
                 onClick={onClose}
                 className="inline-flex h-8 sm:h-9 w-full items-center justify-center gap-1 rounded-lg border border-zinc-800/80 text-zinc-400 font-semibold text-[0.72rem] sm:text-xs hover:text-white hover:bg-zinc-900 active:scale-98 transition-all cursor-pointer"
               >
-                <span>Cancel &amp; Return To Dashboard</span>
+                <span>Back To Study Dashboard</span>
               </button>
             </div>
           </div>
@@ -545,29 +545,29 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
             <div className="space-y-2">
               <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-3 py-1 text-xs font-bold text-emerald-300">
                 <Sparkles className="h-3.5 w-3.5" />
-                <span>Forensic DRM Shield Engaged · Anti-Capture Active</span>
+                <span>Reading Paused</span>
               </div>
 
               <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
-                Screen Capture Neutralized
+                Tap Anywhere To Keep Reading
               </h2>
 
               <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-md mx-auto">
                 {isMobile
-                  ? "Mobile Screenshot Combination Or Gesture Detected. Blackout Shield Engaged. Tap Below To Return."
-                  : "Content Is Secure. Click Anywhere To Instantly Resume Your Reading Session."}
+                  ? "Your Reading Was Paused. Tap The Button Below To Resume Reading."
+                  : "Your Notes Are Safe. Click Anywhere On Screen To Jump Right Back In!"}
               </p>
             </div>
 
             {/* Verification Chip */}
             <div className="rounded-2xl border border-zinc-800 bg-zinc-950/80 p-3 text-[0.7rem] font-mono text-zinc-400 space-y-1">
               <div className="flex items-center justify-between text-emerald-400 font-bold">
-                <span>Authorized Scholar:</span>
+                <span>Student Roll No:</span>
                 <span>{user?.roll_number || payload.watermark.roll_number}</span>
               </div>
               <div className="flex items-center justify-between text-zinc-500">
-                <span>Live Audit Telemetry:</span>
-                <span className="text-emerald-400 font-bold">Active &amp; Logging</span>
+                <span>Protected Reading:</span>
+                <span className="text-emerald-400 font-bold">Active &amp; Ready</span>
               </div>
             </div>
 
@@ -577,7 +577,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
               onClick={() => resumeReading()}
               className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 text-zinc-950 font-bold text-xs shadow-lg transition-all hover:bg-emerald-400 active:scale-95 cursor-pointer"
             >
-              <span>Click To Resume Reading Session</span>
+              <span>Click To Resume Reading</span>
               <ArrowRight className="h-4 w-4" />
             </button>
           </div>
@@ -695,7 +695,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
 
           {/* DRM Engine Status Badge */}
           <div
-            title={isDrmDisabled ? "DRM disabled by administration." : "Forensic DRM active."}
+            title={isDrmDisabled ? "Standard reading mode." : "Protected study view active."}
             className={cn(
               "hidden lg:flex items-center gap-1.5 px-2 py-1 rounded-xl text-[0.65rem] font-bold border select-none transition-all shadow-2xs",
               isDrmDisabled
@@ -704,7 +704,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
             )}
           >
             <ShieldCheck className="h-3 w-3" />
-            <span>{isDrmDisabled ? "DRM Off" : "DRM Armed"}</span>
+            <span>{isDrmDisabled ? "Standard View" : "Protected View"}</span>
           </div>
 
           {/* Fullscreen Toggle */}
@@ -887,8 +887,8 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
               isDark ? "border-zinc-800 text-zinc-500" : "border-slate-200 text-slate-500"
             )}
           >
-            <span>NimsWallah Academic DRM Pipeline · Page {currentPage} Of {payload.total_pages}</span>
-            <span>Student ID: {user?.roll_number || payload.watermark.roll_number}</span>
+            <span>NimsWallah Study Reader · Page {currentPage} Of {payload.total_pages}</span>
+            <span>Student Roll: {user?.roll_number || payload.watermark.roll_number}</span>
           </div>
         </div>
       </div>
@@ -902,9 +902,9 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
             : "bg-white/95 border-slate-200 text-slate-600"
         )}
       >
-        <span className="hidden sm:inline">🔒 Strictly View-Only Protected Academic Record · High-Frequency Forensic Telemetry Active</span>
+        <span className="hidden sm:inline">📖 Distraction-Free Study Reader · Official College Verified Materials</span>
         <span className="font-mono text-emerald-700 dark:text-emerald-400 font-bold mx-auto sm:mx-0">
-          Forensic ID: {user?.roll_number || payload.watermark.roll_number}
+          Student ID: {user?.roll_number || payload.watermark.roll_number}
         </span>
       </div>
     </div>

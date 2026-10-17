@@ -73,9 +73,9 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
         }
         if (res?.is_drm_blocked) {
           setIsAccountBlocked(true);
-          setBlockReason(res.block_reason || "Account Suspended Due To Unauthorized Screen Capture Activity.");
+          setBlockReason(res.block_reason || "Account Temporarily Paused. Please Contact Support.");
           setIsScreenBlurred(true);
-          toast.error("SECURITY LOCKDOWN: Account Blocked For Unauthorized Screen Capture.");
+          toast.error("Reading Paused. Please Contact Support To Continue.");
         }
       })
       .catch(() => {});
@@ -188,14 +188,14 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
         e.preventDefault();
         e.stopPropagation();
         triggerBlackoutShield("SCREENSHOT_HOTKEY_DETECTED", 6000);
-        toast.error(toTitleCase("Screen Capture Intercepted. Blackout Shield Engaged."));
+        toast.error("Reading Paused To Protect Study Notes. Click Anywhere To Resume.");
         return;
       }
 
       // Instant Win+Shift or Ctrl+Shift Snipping Tool Auto Trigger
       if ((isMetaPressed && isShiftPressed) || (isCtrlPressed && isShiftPressed) || (e.altKey && key === "printscreen")) {
         triggerBlackoutShield("SNIPPING_TOOL_SHORTCUT", 6000);
-        toast.error(toTitleCase("Snipping Tool Combination Intercepted."));
+        toast.error("Screenshots Are Paused For Study Materials.");
         return;
       }
     };
@@ -221,7 +221,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       e.preventDefault();
       e.stopPropagation();
       triggerBlackoutShield("CONTEXT_MENU_BLOCKED", 3500);
-      toast.error(toTitleCase("Right-Click Actions And Image Menus Are Disabled."));
+      toast.error("Right-Click Is Turned Off On Notes.");
       return false;
     };
 
@@ -231,7 +231,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       e.stopPropagation();
       overwriteClipboard();
       triggerBlackoutShield("COPY_ATTEMPT_INTERCEPTED", 4000);
-      toast.error(toTitleCase("Text Selection And Copying Are Prohibited By DRM Policy."));
+      toast.error("Copying Is Turned Off To Protect Teacher Notes.");
       return false;
     };
 
@@ -240,7 +240,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
       e.stopPropagation();
       overwriteClipboard();
       triggerBlackoutShield("CUT_ATTEMPT_INTERCEPTED", 4000);
-      toast.error(toTitleCase("Document Content Extraction Is Strictly Restricted."));
+      toast.error("Cutting And Copying Are Turned Off.");
       return false;
     };
 
@@ -267,7 +267,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
         e.preventDefault();
         e.stopPropagation();
         triggerBlackoutShield("SCREENSHOT_HOTKEY_DETECTED", 6000);
-        toast.error(toTitleCase("Screen Capture Intercepted. Blackout Shield Engaged."));
+        toast.error("Reading Paused To Protect Study Notes. Click Anywhere To Resume.");
         return;
       }
 
@@ -280,7 +280,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
         e.preventDefault();
         e.stopPropagation();
         triggerBlackoutShield("SNIPPING_TOOL_SHORTCUT", 6000);
-        toast.error(toTitleCase("Snipping Tool Shortcut Intercepted."));
+        toast.error("Screenshots Are Paused For Study Materials.");
         return;
       }
 
@@ -289,7 +289,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
         e.preventDefault();
         e.stopPropagation();
         triggerBlackoutShield("PRINT_BLOCKED", 4000);
-        toast.error(toTitleCase("Document Printing Is Blocked By DRM Policy."));
+        toast.error("Printing Is Turned Off For This Document.");
         return;
       }
 
@@ -298,7 +298,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
         e.preventDefault();
         e.stopPropagation();
         triggerBlackoutShield("SAVE_BLOCKED", 3500);
-        toast.error(toTitleCase("Saving Protected Document Offline Is Prohibited."));
+        toast.error("Offline Saving Is Turned Off For This Document.");
         return;
       }
 
@@ -314,7 +314,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
         e.stopPropagation();
         setIsDevtoolsOpen(true);
         triggerBlackoutShield("DEVTOOLS_ATTEMPT", 4000);
-        toast.error(toTitleCase("Developer Inspection Tools Are Restricted."));
+        toast.error("Developer Tools Are Turned Off On This Page.");
         return;
       }
 
@@ -323,7 +323,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
         e.preventDefault();
         e.stopPropagation();
         triggerBlackoutShield("COPY_BLOCKED", 3500);
-        toast.error(toTitleCase("Text Selection And Copying Are Prohibited."));
+        toast.error("Copying Is Turned Off To Protect Teacher Notes.");
         return;
       }
     };
@@ -385,7 +385,7 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
         e.stopPropagation();
         overwriteClipboard();
         triggerBlackoutShield("MULTI_FINGER_GESTURE_CAPTURE", 4500);
-        toast.error(toTitleCase("Three-Finger Screenshot Gesture Intercepted. Blackout Shield Engaged."));
+        toast.error("Reading Paused. Tap Anywhere To Continue Reading.");
         return;
       }
     };

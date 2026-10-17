@@ -347,9 +347,9 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
                   type="button"
                   className="px-2.5 py-1 rounded-xl bg-primary/10 text-primary font-bold border border-primary/20 shrink-0 cursor-default"
                 >
-                  {activeProfileFolder === "cohort" && "Institutional Cohort"}
-                  {activeProfileFolder === "preferences" && "Personal Preferences"}
-                  {activeProfileFolder === "security" && "DRM Security"}
+                  {activeProfileFolder === "cohort" && "College & Branch"}
+                  {activeProfileFolder === "preferences" && "Study Preferences"}
+                  {activeProfileFolder === "security" && "Account Security"}
                 </button>
               </>
             )}
@@ -382,7 +382,7 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
               )}
             >
               <Building2 className="h-3.5 w-3.5" />
-              <span>Cohort</span>
+              <span>College &amp; Branch</span>
             </button>
 
             <button
@@ -410,7 +410,7 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
               )}
             >
               <ShieldCheck className="h-3.5 w-3.5" />
-              <span>Security</span>
+              <span>Account Security</span>
             </button>
           </div>
         </div>
@@ -537,28 +537,28 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
                       </div>
                       <div className="min-w-0">
                         <span className="text-[0.68rem] font-mono font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
-                          Forensic Security Folder
+                          Account Security
                         </span>
                         <h4 className="font-display text-base font-bold text-foreground truncate">
-                          DRM Governance &amp; Standing
+                          Study Safety &amp; Status
                         </h4>
                       </div>
                     </div>
                     <span className="rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-[0.68rem] font-mono font-bold text-emerald-700 dark:text-emerald-300 shrink-0">
-                      Authorized Scholar
+                      Active Student
                     </span>
                   </div>
 
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    Anti-Capture Screen Blurring, Forensic Watermarking Telemetry &amp; System Authorization Standing.
+                    Your Account Status, Protected Reader Permissions, And Verified Student Access.
                   </p>
 
                   <div className="flex flex-wrap gap-1.5 pt-1">
                     <span className="rounded-lg bg-surface border border-border/60 px-2 py-0.5 text-[0.68rem] font-mono text-muted-foreground">
-                      🛡️ DRM: Active &amp; Enforced
+                      🛡️ Study Protection: Active
                     </span>
                     <span className="rounded-lg bg-surface border border-border/60 px-2 py-0.5 text-[0.68rem] font-mono text-muted-foreground">
-                      🔒 Zero Policy Violations
+                      ✅ Good Standing
                     </span>
                   </div>
                 </div>
@@ -953,7 +953,7 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
               <div className="flex items-center gap-2 min-w-0">
                 <ShieldCheck className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0" />
                 <h2 className="font-display font-bold text-base sm:text-lg text-foreground truncate">
-                  Academic Security &amp; DRM Governance Folder
+                  Account Security &amp; Safety
                 </h2>
               </div>
               <button
@@ -972,65 +972,65 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/80 pb-3">
                   <div className="flex items-center gap-2 font-bold text-foreground">
                     <ShieldCheck className="h-5 w-5 text-emerald-500 shrink-0" />
-                    <span>Academic Security Standing</span>
+                    <span>Study Safety Standing</span>
                   </div>
                   <span className="px-2.5 py-0.5 rounded-full text-[0.65rem] font-bold border bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 whitespace-nowrap self-start sm:self-auto">
-                    VERIFIED SCHOLAR
+                    ACTIVE STUDENT
                   </span>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Your Academic Account Is In Good Standing. All Courseware Access, Exam Question Banks, And Unit Manuscripts Are Authorized For Semester {enrolledSemester}.
+                  Your Student Account Is In Good Standing. All Subject Notes, Solved Question Papers, And Syllabus Units Are Unlocked For Semester {enrolledSemester}.
                 </p>
 
                 <div className="space-y-2 pt-2 border-t border-border/60 text-xs">
                   <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface">
-                    <span className="text-muted-foreground">Violations Recorded:</span>
-                    <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">0 (Clean Record)</span>
+                    <span className="text-muted-foreground">Account Status:</span>
+                    <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">All Good (0 Issues)</span>
                   </div>
                   <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface">
-                    <span className="text-muted-foreground">Active Session Watermark:</span>
+                    <span className="text-muted-foreground">Student ID Badge:</span>
                     <span className="font-mono font-bold text-foreground truncate max-w-[200px]">
                       {user?.roll_number || "24BCSE102"} · {user?.full_name}
                     </span>
                   </div>
                   <div className="flex items-center justify-between p-2.5 rounded-xl bg-surface">
-                    <span className="text-muted-foreground">DRM Protection Status:</span>
+                    <span className="text-muted-foreground">Study Material Protection:</span>
                     <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
-                      Active &amp; Enforced
+                      Active &amp; Safe
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* DRM Content Governance Policy Box */}
+              {/* Study Material Safety Policy Box */}
               <div className="rounded-3xl border border-border/80 bg-card p-5 sm:p-6 shadow-xs space-y-4 flex flex-col justify-between">
                 <div className="space-y-3">
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/80 pb-3">
                     <div className="flex items-center gap-2 font-bold text-foreground">
                       <Lock className="h-5 w-5 text-primary shrink-0" />
-                      <span>Digital Rights Governance</span>
+                      <span>Study Material Safety</span>
                     </div>
                     <span className="px-2.5 py-0.5 rounded-full text-[0.65rem] font-bold border bg-primary/10 text-primary border-primary/20 whitespace-nowrap self-start sm:self-auto font-mono">
-                      ACTIVE POLICY
+                      VERIFIED
                     </span>
                   </div>
 
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    NIMS Wallah Incorporates Real-Time Forensic Protections To Safeguard Intellectual Coursework, Faculty Notes, And Examination Manuscripts.
+                    NimsWallah Protects Teacher Notes And Solved Exam Papers So Every Student Gets Authentic, Verified Material.
                   </p>
 
                   <div className="space-y-2 text-xs text-muted-foreground">
                     <div className="flex items-start gap-2 p-2 rounded-xl bg-surface/60 border border-border/40">
                       <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
-                      <span><strong>Dynamic Session Watermarking:</strong> Real-time Student Identity Overlay Embedded On All Viewing Sessions.</span>
+                      <span><strong>Student Watermark:</strong> Displays Your Roll Number Gently So Study Materials Stay Safe And Personal To You.</span>
                     </div>
                     <div className="flex items-start gap-2 p-2 rounded-xl bg-surface/60 border border-border/40">
                       <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
-                      <span><strong>Anti-Capture Screen Shield:</strong> Instant Blackout Blur Upon Focus Loss Or Unauthorized Capture Tool Trigger.</span>
+                      <span><strong>Distraction Shield:</strong> Pauses Your Reading Automatically If You Switch Apps Or Windows So You Do Not Lose Your Spot.</span>
                     </div>
                     <div className="flex items-start gap-2 p-2 rounded-xl bg-surface/60 border border-border/40">
                       <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
-                      <span><strong>Academic Integrity Protocol:</strong> Enforced compliance to University Examination Copyright Guidelines.</span>
+                      <span><strong>University Curriculum:</strong> 100% Matched To Your Official NIMS Syllabus And Grading Rules.</span>
                     </div>
                   </div>
                 </div>

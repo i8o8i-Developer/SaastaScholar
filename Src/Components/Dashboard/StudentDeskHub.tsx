@@ -157,10 +157,10 @@ export function StudentDeskHub() {
             </div>
             <div className="min-w-0">
               <h2 className="font-display text-lg sm:text-2xl font-bold tracking-tight text-foreground truncate sm:whitespace-normal">
-                Student Support &amp; Desk
+                Student Help Desk
               </h2>
               <p className="text-[0.7rem] sm:text-xs text-muted-foreground line-clamp-2 sm:line-clamp-1">
-                Direct Official Communication Channel With University Department Administration
+                Ask Questions, Request Notes, Or Get Help Directly From College Teachers
               </p>
             </div>
           </div>

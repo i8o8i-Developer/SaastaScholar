@@ -98,13 +98,13 @@ export function NotesHub({ onOpenReader }: NotesHubProps) {
           <div className="min-w-0">
             <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 sm:px-3 py-0.5 text-[0.65rem] sm:text-xs font-bold text-emerald-700 dark:text-emerald-300 mb-1.5">
               <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
-              <span className="truncate">NIMS Official Syllabus Aligned Records</span>
+              <span className="truncate">Official NIMS Syllabus Notes</span>
             </div>
             <h1 className="text-lg sm:text-2xl md:text-3xl font-bold tracking-tight text-foreground break-words">
-              Handwritten &amp; Structured Notes Hub
+              Handwritten &amp; Typed Study Notes
             </h1>
             <p className="text-[0.72rem] sm:text-xs md:text-sm text-muted-foreground mt-1 max-w-2xl leading-relaxed break-words">
-              Faculty-Reviewed, Topper Handwritten Derivations And Unit-Wise Examination Study Guides. Strictly Protected Under Real-Time View-Only DRM.
+              Teacher-Approved Notes, Topper Formula Sheets, And Chapter Study Guides To Help You Ace Your Exams With Ease.
             </p>
           </div>
 
@@ -318,7 +318,7 @@ export function NotesHub({ onOpenReader }: NotesHubProps) {
                         ) : (
                           <span className="inline-flex items-center gap-1 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 px-2 py-0.5 text-[0.62rem] sm:text-[0.68rem] font-bold font-mono">
                             <Sparkles className="h-3 w-3 shrink-0" />
-                            <span>Manuscript</span>
+                            <span>Study Notes</span>
                           </span>
                         )}
                       </div>

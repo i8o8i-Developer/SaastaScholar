@@ -74,13 +74,13 @@ export function FacultyHub({ onOpenReader }: FacultyHubProps) {
           <div className="min-w-0">
             <div className="inline-flex items-center gap-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 px-2.5 sm:px-3 py-0.5 text-[0.65rem] sm:text-xs font-bold text-blue-700 dark:text-blue-300 mb-1.5">
               <LibraryBig className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
-              <span className="truncate">Official Faculty Courseware &amp; Handouts</span>
+              <span className="truncate">Teacher Slides &amp; Classroom Notes</span>
             </div>
             <h1 className="text-lg sm:text-2xl md:text-3xl font-bold tracking-tight text-foreground break-words">
-              Faculty Materials &amp; Slides Hub
+              Teacher Slides &amp; Class Handouts
             </h1>
             <p className="text-[0.72rem] sm:text-xs md:text-sm text-muted-foreground mt-1 max-w-2xl leading-relaxed break-words">
-              Direct Access To PPT Presentations, PDF Courseware, And Classroom Handouts Uploaded By University Professors. Strictly Protected Under DRM.
+              Direct Access To PPT Slides, PDFs, And Classroom Notes Shared By Your College Teachers.
             </p>
           </div>
 
