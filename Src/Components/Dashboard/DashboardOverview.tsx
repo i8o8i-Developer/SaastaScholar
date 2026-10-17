@@ -167,16 +167,16 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
           </div>
           <div className="space-y-0.5">
             <h4 className="font-display font-bold text-sm text-rose-600 dark:text-rose-400">
-              DRM Content Access Restricted By University Administration
+              Study Reader Temporarily Paused
             </h4>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Reason: <strong className="text-foreground">{blockReason || "Security/Policy Violation"}</strong>. Contact Department Administration or submit a ticket at Student Support Desk to appeal.
+              Reason: <strong className="text-foreground">{blockReason || "Screen Capture Detected"}</strong>. Please Contact Your Teacher Or Send A Message In Help Desk To Resume.
             </p>
           </div>
         </div>
       )}
 
-      {/* DRM Cooldown Banner */}
+      {/* Reading Cooldown Banner */}
       {isCooldownActive && (
         <div className="relative overflow-hidden rounded-3xl border border-amber-500/30 bg-amber-500/10 p-4 sm:p-5 backdrop-blur-md shadow-xs flex items-center gap-3.5">
           <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-amber-500/20 text-amber-600 dark:text-amber-400">
@@ -184,10 +184,10 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
           </div>
           <div className="space-y-0.5">
             <h4 className="font-display font-bold text-sm text-amber-600 dark:text-amber-400">
-              Temporary Security Cooldown Active
+              Reading Cooldown Active
             </h4>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              DRM reading canvas is temporarily locked until <strong className="text-foreground font-mono">{new Date(cooldownUntil).toLocaleString("en-IN")}</strong>.
+              Study Reader Is Taking A Quick Rest Until <strong className="text-foreground font-mono">{new Date(cooldownUntil).toLocaleString("en-IN")}</strong>.
             </p>
           </div>
         </div>
@@ -199,13 +199,13 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
           <div className="space-y-1.5 sm:space-y-2 min-w-0">
             <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 sm:px-3 py-0.5 text-[0.68rem] sm:text-xs font-bold text-emerald-700 dark:text-emerald-300">
               <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-              <span>NIMS Student Scholar Workspace</span>
+              <span>NIMS Student Study Space</span>
             </div>
             <h1 className="font-display text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-foreground">
               Welcome Back, {studentName} 👋
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-2xl">
-              Enrolled In <strong className="text-foreground">{studentProgram}</strong> (Semester {user?.semester || 1} · Section {user?.section || "A"}). All Academic Analytics, DRM Notes, And Solved Papers Are Live.
+              Enrolled In <strong className="text-foreground">{studentProgram}</strong> (Semester {user?.semester || 1} · Section {user?.section || "A"}). All Notes, Timetables, And Solved Papers Are Ready For You.
             </p>
           </div>
 

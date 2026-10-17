@@ -2171,18 +2171,18 @@ export function AdminPortal() {
               {/* Station Navigation List */}
               <nav className="mt-4 space-y-1">
                 {[
-                  { id: "overview", label: "Executive Overview", icon: LayoutDashboard, count: "Live" },
-                  { id: "structure", label: "Academic Blueprint", icon: Building2, count: departments.length },
-                  { id: "publisher", label: "Publishing Studio", icon: Upload, count: materials.length + labs.length },
-                  { id: "timetable", label: "Timetable Grid", icon: Clock, count: timetableSlots.length },
-                  { id: "assignments", label: "Course Assignments", icon: FileText, count: assignments.length },
-                  { id: "notices", label: "Notice Dispatcher", icon: Megaphone, count: notices.length },
-                  { id: "milestones", label: "Exam Milestones", icon: Calendar, count: milestones.length },
-                  { id: "students", label: "Student Registry", icon: Users, count: students.length },
-                  { id: "banners", label: "Broadcast Banners", icon: Radio, count: banners.filter((b) => b.is_active).length },
-                  { id: "badges", label: "Navigation Badges", icon: Sparkles, count: badges.filter((b) => b.is_active && b.badge_text).length },
-                  { id: "support", label: "Support Desk", icon: HelpCircle, count: tickets.length },
-                  { id: "forum", label: "Community Forum", icon: MessageSquare, count: posts.length },
+                  { id: "overview", label: "Admin Overview", icon: LayoutDashboard, count: "Live" },
+                  { id: "structure", label: "College Structure", icon: Building2, count: departments.length },
+                  { id: "publisher", label: "Upload Study Material", icon: Upload, count: materials.length + labs.length },
+                  { id: "timetable", label: "Class Timetables", icon: Clock, count: timetableSlots.length },
+                  { id: "assignments", label: "Student Assignments", icon: FileText, count: assignments.length },
+                  { id: "notices", label: "College Circulars", icon: Megaphone, count: notices.length },
+                  { id: "milestones", label: "Exam Dates & Timers", icon: Calendar, count: milestones.length },
+                  { id: "students", label: "Student Accounts", icon: Users, count: students.length },
+                  { id: "banners", label: "Announcement Banners", icon: Radio, count: banners.filter((b) => b.is_active).length },
+                  { id: "badges", label: "Menu Badges", icon: Sparkles, count: badges.filter((b) => b.is_active && b.badge_text).length },
+                  { id: "support", label: "Help Desk Tickets", icon: HelpCircle, count: tickets.length },
+                  { id: "forum", label: "Student Discussions", icon: MessageSquare, count: posts.length },
                 ].map((station) => {
                   const Icon = station.icon;
                   const isActive = activeStation === station.id;
@@ -2301,18 +2301,18 @@ export function AdminPortal() {
           {/* Station Navigation List */}
           <nav className="mt-4 space-y-1">
             {[
-              { id: "overview", label: "Executive Overview", icon: LayoutDashboard, count: "Live" },
-              { id: "structure", label: "Academic Blueprint", icon: Building2, count: departments.length },
-              { id: "publisher", label: "Publishing Studio", icon: Upload, count: materials.length + labs.length },
-              { id: "timetable", label: "Timetable Grid", icon: Clock, count: timetableSlots.length },
-              { id: "assignments", label: "Course Assignments", icon: FileText, count: assignments.length },
-              { id: "notices", label: "Notice Dispatcher", icon: Megaphone, count: notices.length },
-              { id: "milestones", label: "Exam Milestones", icon: Calendar, count: milestones.length },
-              { id: "students", label: "Student Registry", icon: Users, count: students.length },
-              { id: "banners", label: "Broadcast Banners", icon: Radio, count: banners.filter((b) => b.is_active).length },
-              { id: "badges", label: "Navigation Badges", icon: Sparkles, count: badges.filter((b) => b.is_active && b.badge_text).length },
-              { id: "support", label: "Support Desk", icon: HelpCircle, count: tickets.length },
-              { id: "forum", label: "Community Forum", icon: MessageSquare, count: posts.length },
+              { id: "overview", label: "Admin Overview", icon: LayoutDashboard, count: "Live" },
+              { id: "structure", label: "College Structure", icon: Building2, count: departments.length },
+              { id: "publisher", label: "Upload Study Material", icon: Upload, count: materials.length + labs.length },
+              { id: "timetable", label: "Class Timetables", icon: Clock, count: timetableSlots.length },
+              { id: "assignments", label: "Student Assignments", icon: FileText, count: assignments.length },
+              { id: "notices", label: "College Circulars", icon: Megaphone, count: notices.length },
+              { id: "milestones", label: "Exam Dates & Timers", icon: Calendar, count: milestones.length },
+              { id: "students", label: "Student Accounts", icon: Users, count: students.length },
+              { id: "banners", label: "Announcement Banners", icon: Radio, count: banners.filter((b) => b.is_active).length },
+              { id: "badges", label: "Menu Badges", icon: Sparkles, count: badges.filter((b) => b.is_active && b.badge_text).length },
+              { id: "support", label: "Help Desk Tickets", icon: HelpCircle, count: tickets.length },
+              { id: "forum", label: "Student Discussions", icon: MessageSquare, count: posts.length },
             ].map((station) => {
               const Icon = station.icon;
               const isActive = activeStation === station.id;

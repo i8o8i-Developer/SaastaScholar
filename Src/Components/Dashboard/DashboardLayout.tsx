@@ -63,17 +63,17 @@ interface NotificationItem {
 
 const NAV_ITEMS = [
   { id: "overview", label: "Dashboard Overview", icon: Home, badge: null },
-  { id: "notes", label: "Handwritten Notes", icon: BookOpen, badge: "Topper" },
-  { id: "pyqs", label: "Solved PYQs", icon: FileCheck2, badge: "2020–25" },
-  { id: "syllabus", label: "Official Syllabus", icon: ScrollText, badge: "Curriculum" },
-  { id: "faculty", label: "Faculty Materials", icon: LibraryBig, badge: "Uploads" },
-  { id: "labs", label: "Labs & Viva Voce", icon: FlaskConical, badge: "50+ Q&A" },
-  { id: "assignments", label: "Assignment Tracker", icon: FileText, badge: "AI Tool" },
-  { id: "planner", label: "Timetable & Planner", icon: Calendar, badge: "Live" },
-  { id: "notices", label: "Department Notices", icon: Bell, badge: "New" },
-  { id: "community-forum", label: "Community Forum", icon: MessageSquare, badge: "Active" },
-  { id: "student-desk", label: "Student Support Desk", icon: LifeBuoy, badge: "Help" },
-  { id: "profile", label: "Academic Profile", icon: User, badge: null },
+  { id: "notes", label: "Handwritten Notes", icon: BookOpen, badge: "Top Notes" },
+  { id: "pyqs", label: "Solved Exam Papers", icon: FileCheck2, badge: "Solved" },
+  { id: "syllabus", label: "Official Syllabus", icon: ScrollText, badge: "Official" },
+  { id: "faculty", label: "Teacher Handouts", icon: LibraryBig, badge: "Class Slides" },
+  { id: "labs", label: "Labs & Practical Code", icon: FlaskConical, badge: "Viva Help" },
+  { id: "assignments", label: "Assignment Helper", icon: FileText, badge: "Homework" },
+  { id: "planner", label: "Timetable & Planner", icon: Calendar, badge: "Schedule" },
+  { id: "notices", label: "College Notices", icon: Bell, badge: "Alerts" },
+  { id: "community-forum", label: "Student Forum", icon: MessageSquare, badge: "Discussions" },
+  { id: "student-desk", label: "Student Help Desk", icon: LifeBuoy, badge: "Help" },
+  { id: "profile", label: "Student Profile", icon: User, badge: null },
 ];
 
 export const getDisplayProgram = (user: any): string => {
