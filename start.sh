@@ -24,21 +24,30 @@ cd /app/Backend
 # Ensure Persistent Media and DRM Storage Directories Exist
 mkdir -p /app/Backend/media/avatars /app/Backend/media/academic_materials /app/Backend/drm_vault /app/staticfiles
 
-if [ -n "$POSTGRES_HOST" ]; then
-  echo "-> Waiting For PostgreSQL At $POSTGRES_HOST:${POSTGRES_PORT:-5432}..."
+if [ -n "$DATABASE_URL" ] || [ -n "$POSTGRES_HOST" ]; then
   python - <<END
 import time, socket, os
-host = os.environ.get("POSTGRES_HOST", "db")
-port = int(os.environ.get("POSTGRES_PORT", "5432"))
+from urllib.parse import urlparse
+
+db_url = os.environ.get("DATABASE_URL", "")
+if db_url:
+    parsed = urlparse(db_url)
+    host = parsed.hostname or "localhost"
+    port = parsed.port or 5432
+else:
+    host = os.environ.get("POSTGRES_HOST", "db")
+    port = int(os.environ.get("POSTGRES_PORT", "5432"))
+
+print(f"-> Waiting For PostgreSQL At {host}:{port}...")
 for i in range(40):
     try:
         with socket.create_connection((host, port), timeout=2):
-            print("-> PostgreSQL Is Reachable On Port", port)
+            print(f"-> PostgreSQL Is Reachable On {host}:{port}!")
             break
     except OSError:
         time.sleep(1)
 else:
-    print("-> PostgreSQL Wait Timeout, Proceeding Anyway...")
+    print("-> PostgreSQL Wait Timeout, Proceeding With Migrations Anyway...")
 END
 fi
 
