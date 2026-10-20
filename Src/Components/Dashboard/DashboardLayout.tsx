@@ -74,6 +74,7 @@ const NAV_ITEMS = [
   { id: "notices", label: "College Notices", icon: Bell, badge: "Alerts" },
   { id: "community-forum", label: "Student Forum", icon: MessageSquare, badge: "Discussions" },
   { id: "student-desk", label: "Student Help Desk", icon: LifeBuoy, badge: "Help" },
+  { id: "membership", label: "Upgrade Plan & Pass", icon: Zap, badge: "Upgrade" },
   { id: "profile", label: "Student Profile", icon: User, badge: null },
 ];
 

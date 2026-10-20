@@ -20,7 +20,6 @@ import {
   Sparkles,
   Sun,
   Moon,
-  Tag,
   Zap,
 } from "lucide-react";
 import { type FormEvent, useEffect, useState } from "react";
@@ -76,49 +75,6 @@ export function Login() {
   const [loading, setLoading] = useState<boolean>(false);
   const [signupStep, setSignupStep] = useState<1 | 2 | 3>(1);
   const [selectedPlan, setSelectedPlan] = useState<"FREE" | "BASIC" | "PREMIUM" | "ELITE" | "STARTER" | "SCHOLAR" | "ACHIEVER" | "ELITE_PLUS">("FREE");
-  const [couponCode, setCouponCode] = useState<string>("");
-  const [appliedCoupon, setAppliedCoupon] = useState<{
-    code: string;
-    discount_percent: number;
-    discount_amount_inr: number;
-    final_amount_inr: number;
-    message: string;
-  } | null>(null);
-  const [couponLoading, setCouponLoading] = useState<boolean>(false);
-
-  const handleApplyCoupon = async () => {
-    if (!couponCode.trim()) {
-      toast.error("Please Enter A Valid Coupon Code.");
-      return;
-    }
-    setCouponLoading(true);
-    try {
-      const res = await apiFetch<any>("/subscriptions/apply-coupon/", {
-        method: "POST",
-        body: JSON.stringify({
-          code: couponCode.trim().toUpperCase(),
-          plan_tier: selectedPlan,
-          cycle: "monthly",
-        }),
-      });
-      if (res.valid) {
-        setAppliedCoupon(res);
-        toast.success(res.message || `Coupon "${res.code}" Applied Successfully!`);
-      } else {
-        toast.error(res.error || "Invalid Or Expired Coupon Code.");
-      }
-    } catch (err: any) {
-      toast.error(err.message || "Failed To Apply Coupon Code.");
-    } finally {
-      setCouponLoading(false);
-    }
-  };
-
-  const handleRemoveCoupon = () => {
-    setAppliedCoupon(null);
-    setCouponCode("");
-    toast.info("Coupon Code Removed.");
-  };
 
   // Forgot Password / Reset State
   const [showResetModal, setShowResetModal] = useState<boolean>(false);
@@ -285,34 +241,11 @@ export function Login() {
           access_tier: "FREE",
         });
 
-        if (selectedPlan !== "FREE" && selectedPlan !== "STARTER") {
-          toast.success("Account Created! Connecting Secure Razorpay Gateway...");
-          initiateRazorpayPayment({
-            planTier: selectedPlan,
-            cycle: "monthly",
-            couponCode: appliedCoupon?.code || undefined,
-            onSuccess: () => {
-              const searchParams = new URLSearchParams(window.location.search);
-              const destinationTab = searchParams.get("tab") || "overview";
-              window.location.href = `/dashboard?tab=${encodeURIComponent(destinationTab)}`;
-            },
-            onError: (err) => {
-              toast.error(err?.message || "Payment Gateway Dismissed. You Can Upgrade Anytime From Your Dashboard.");
-              setTimeout(() => {
-                window.location.href = "/dashboard";
-              }, 1500);
-            },
-          });
-          return;
-        }
-
+        toast.success("Account Created Successfully! Welcome To SaastaScholar.");
         const searchParams = new URLSearchParams(window.location.search);
-        const destinationTab = searchParams.get("tab");
-        if (destinationTab) {
-          window.location.href = `/dashboard?tab=${encodeURIComponent(destinationTab)}`;
-        } else {
-          navigate({ to: "/dashboard" });
-        }
+        const destinationTab = searchParams.get("tab") || "overview";
+        window.location.href = `/dashboard?tab=${encodeURIComponent(destinationTab)}`;
+        return;
       } else {
         const targetPortal: "student" | "admin" = authMode === "admin" ? "admin" : "student";
         const authenticatedUser = await login(email, password, targetPortal);
@@ -1012,71 +945,10 @@ export function Login() {
                                 <span className="text-[0.6rem] text-muted-foreground mt-1 leading-tight block line-clamp-2">Premium + Most Expected Question Paper + Sample Practice Papers</span>
                               </button>
                             </div>
-                            <p className="text-[0.62rem] text-muted-foreground/80 italic text-center">
-                              {selectedPlan === "FREE" || selectedPlan === "STARTER"
-                                ? "✓ Free Plan Is Completely Free Forever. You Can Upgrade Anytime."
-                                : `✓ Upgrading To ${selectedPlan} Plan. Secure Payment Via Razorpay Will Open Upon Submission.`}
+                            <p className="text-[0.65rem] text-emerald-600 dark:text-emerald-400 font-semibold text-center">
+                              ✓ Free Student Registration Grants Instant Access. You Can Upgrade Your Academic Plan Anytime In Dashboard Settings.
                             </p>
                           </div>
-
-                          {/* Promotional Discount Voucher / Coupon Input */}
-                          {selectedPlan !== "FREE" && selectedPlan !== "STARTER" && (
-                            <div className="rounded-2xl border border-primary/30 bg-primary/5 p-3.5 space-y-2.5">
-                              <div className="flex items-center justify-between text-xs">
-                                <span className="font-bold text-foreground flex items-center gap-1.5">
-                                  <Tag className="h-3.5 w-3.5 text-primary" />
-                                  Have A Discount Voucher Or Promo Code?
-                                </span>
-                                {appliedCoupon && (
-                                  <span className="font-extrabold text-[0.68rem] text-emerald-500 uppercase tracking-wide">
-                                    {appliedCoupon.discount_percent > 0
-                                      ? `${appliedCoupon.discount_percent}% Discount`
-                                      : `₹${appliedCoupon.discount_amount_inr} Off`}
-                                  </span>
-                                )}
-                              </div>
-
-                              {appliedCoupon ? (
-                                <div className="flex items-center justify-between rounded-xl border border-emerald-500/40 bg-emerald-500/10 px-3 py-2 text-xs">
-                                  <div className="flex items-center gap-2">
-                                    <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                                    <span className="font-bold text-foreground font-mono">{appliedCoupon.code}</span>
-                                    <span className="text-[0.68rem] text-muted-foreground">
-                                      (Payable: <strong className="text-emerald-400 font-extrabold">₹{appliedCoupon.final_amount_inr}</strong>)
-                                    </span>
-                                  </div>
-                                  <button
-                                    type="button"
-                                    onClick={handleRemoveCoupon}
-                                    className="text-xs font-bold text-rose-500 hover:text-rose-400 cursor-pointer"
-                                  >
-                                    Remove
-                                  </button>
-                                </div>
-                              ) : (
-                                <div className="flex items-center gap-2">
-                                  <div className="relative flex-1">
-                                    <Tag className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                                    <input
-                                      type="text"
-                                      value={couponCode}
-                                      onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                                      placeholder="e.g. SAASTA20, FREEDOM100"
-                                      className="h-9 w-full rounded-xl border border-border bg-background pr-3 pl-8 text-xs font-mono uppercase focus:border-primary focus:outline-none transition-colors"
-                                    />
-                                  </div>
-                                  <button
-                                    type="button"
-                                    onClick={handleApplyCoupon}
-                                    disabled={couponLoading || !couponCode.trim()}
-                                    className="h-9 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary-deep transition-all disabled:opacity-50 cursor-pointer shrink-0"
-                                  >
-                                    {couponLoading ? "Applying..." : "Apply"}
-                                  </button>
-                                </div>
-                              )}
-                            </div>
-                          )}
 
                           <p className="text-[0.68rem] text-muted-foreground leading-relaxed">
                             By Registering, You Agree To The{" "}
@@ -1102,7 +974,7 @@ export function Login() {
                                 <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
                               ) : (
                                 <>
-                                  <span>{selectedPlan === "STARTER" ? "Complete Free Registration" : `Continue With ${selectedPlan.replace("_", " ")} Plan`}</span>
+                                  <span>Complete Free Registration</span>
                                   <CheckCircle2 className="h-4 w-4" />
                                 </>
                               )}
@@ -1359,8 +1231,8 @@ export function Login() {
             </DialogTitle>
             <DialogDescription className="text-xs text-muted-foreground">
               {resetStep === 1
-                ? "Enter your registered college email address to receive a secure 6-digit verification code."
-                : `We've sent a 6-digit code to ${resetEmail}. Enter it below along with your new password.`}
+                ? "Enter Your Registered College Email Address To Receive A Secure 6-Digit Verification Code."
+                : `We've Sent A 6-Digit Code To ${resetEmail}. Enter It Below Along With Your New Password.`}
             </DialogDescription>
           </DialogHeader>
 

@@ -73,10 +73,170 @@ PRICING_MATRIX = {
 }
 
 
+# Default Permission Access Matrix Per Plan Tier
+DEFAULT_TIER_PERMISSIONS = {
+    "FREE": {
+        "allowed_tabs": ["overview", "syllabus", "planner", "timetable", "notices", "community-forum", "student-desk", "profile", "membership"],
+        "can_access_notes": True,
+        "can_download_notes": False,
+        "can_access_labs": False,
+        "can_access_pyqs": False,
+        "can_access_faculty": True,
+        "can_access_assignments": False,
+        "max_daily_downloads": 0,
+        "badge_title": "Free Scholar",
+    },
+    "BASIC": {
+        "allowed_tabs": ["overview", "notes", "syllabus", "faculty", "planner", "timetable", "notices", "community-forum", "student-desk", "profile", "membership"],
+        "can_access_notes": True,
+        "can_download_notes": True,
+        "can_access_labs": False,
+        "can_access_pyqs": False,
+        "can_access_faculty": True,
+        "can_access_assignments": False,
+        "max_daily_downloads": 10,
+        "badge_title": "Basic Scholar",
+    },
+    "PREMIUM": {
+        "allowed_tabs": ["overview", "notes", "pyqs", "syllabus", "faculty", "labs", "assignments", "planner", "timetable", "notices", "community-forum", "student-desk", "profile", "membership"],
+        "can_access_notes": True,
+        "can_download_notes": True,
+        "can_access_labs": True,
+        "can_access_pyqs": True,
+        "can_access_faculty": True,
+        "can_access_assignments": True,
+        "max_daily_downloads": 50,
+        "badge_title": "Premium Achiever",
+    },
+    "ELITE": {
+        "allowed_tabs": ["*"],
+        "can_access_notes": True,
+        "can_download_notes": True,
+        "can_access_labs": True,
+        "can_access_pyqs": True,
+        "can_access_faculty": True,
+        "can_access_assignments": True,
+        "max_daily_downloads": 9999,
+        "badge_title": "Elite Lifetime Scholar",
+    },
+}
+
+
 class SubscriptionPlanListView(generics.ListAPIView):
     queryset = SubscriptionPlan.objects.all().order_by("price_monthly")
     serializer_class = SubscriptionPlanSerializer
     permission_classes = [permissions.AllowAny]
+
+    def list(self, request, *args, **kwargs):
+        # Ensure All 4 Core Plans Exist With Default Permissions
+        for tier_key, tier_meta in [("FREE", PRICING_MATRIX["FREE"]), ("BASIC", PRICING_MATRIX["BASIC"]), ("PREMIUM", PRICING_MATRIX["PREMIUM"]), ("ELITE", PRICING_MATRIX["ELITE"])]:
+            plan = SubscriptionPlan.objects.filter(tier__iexact=tier_key).first()
+            default_perms = DEFAULT_TIER_PERMISSIONS.get(tier_key, {})
+            if not plan:
+                SubscriptionPlan.objects.create(
+                    tier=tier_key,
+                    name=tier_meta.get("name", f"{tier_key.title()} Plan"),
+                    tagline=tier_meta.get("description", ""),
+                    price_monthly=round(tier_meta.get("monthly", 0) / 100, 2),
+                    price_semester=round(tier_meta.get("semester", 0) / 100, 2),
+                    permissions=default_perms,
+                    is_popular=(tier_key == "PREMIUM"),
+                    badge="Most Popular" if tier_key == "PREMIUM" else "",
+                )
+            elif not plan.permissions:
+                plan.permissions = default_perms
+                plan.save(update_fields=["permissions"])
+
+        return super().list(request, *args, **kwargs)
+
+
+class UserAccessMatrixView(APIView):
+    """
+    Returns Real-Time Permissions & Allowed Tabs For The Authenticated Scholar
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        tier = (getattr(user, "access_tier", "") or "FREE").strip().upper()
+        if user.is_staff or user.is_superuser:
+            return Response({
+                "tier": "ELITE",
+                "is_admin": True,
+                "allowed_tabs": ["*"],
+                "can_access_notes": True,
+                "can_download_notes": True,
+                "can_access_labs": True,
+                "can_access_pyqs": True,
+                "can_access_faculty": True,
+                "can_access_assignments": True,
+                "max_daily_downloads": 9999,
+                "badge_title": "Administrator",
+            })
+
+        plan = SubscriptionPlan.objects.filter(tier__iexact=tier).first()
+        default_perms = DEFAULT_TIER_PERMISSIONS.get(tier, DEFAULT_TIER_PERMISSIONS["FREE"])
+        perms = plan.permissions if plan and plan.permissions else default_perms
+        return Response({
+            "tier": tier,
+            "is_admin": False,
+            **perms
+        })
+
+
+class AdminPlanAccessMatrixView(APIView):
+    """
+    Allows Admin To View And Fully Customize Page Access, Downloads & Features Per Plan
+    """
+    permission_classes = [permissions.IsAdminUser]
+
+    def get(self, request):
+        plans_data = []
+        for tier_key in ["FREE", "BASIC", "PREMIUM", "ELITE"]:
+            plan = SubscriptionPlan.objects.filter(tier__iexact=tier_key).first()
+            default_perms = DEFAULT_TIER_PERMISSIONS.get(tier_key, {})
+            if not plan:
+                tier_info = PRICING_MATRIX.get(tier_key, {})
+                plan = SubscriptionPlan.objects.create(
+                    tier=tier_key,
+                    name=tier_info.get("name", f"{tier_key.title()} Plan"),
+                    tagline=tier_info.get("description", ""),
+                    price_monthly=round(tier_info.get("monthly", 0) / 100, 2),
+                    price_semester=round(tier_info.get("semester", 0) / 100, 2),
+                    permissions=default_perms,
+                )
+            perms = plan.permissions or default_perms
+            plans_data.append({
+                "id": str(plan.id),
+                "tier": plan.tier,
+                "name": plan.name,
+                "price_monthly": float(plan.price_monthly),
+                "price_semester": float(plan.price_semester),
+                "permissions": perms,
+            })
+        return Response({"matrix": plans_data, "default_matrix": DEFAULT_TIER_PERMISSIONS})
+
+    def patch(self, request):
+        tier = str(request.data.get("tier") or "").strip().upper()
+        new_permissions = request.data.get("permissions")
+        if not tier or not isinstance(new_permissions, dict):
+            return Response({"error": "Tier And Permissions Dictionary Are Required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        plan = SubscriptionPlan.objects.filter(tier__iexact=tier).first()
+        if not plan:
+            return Response({"error": f"Plan Tier '{tier}' Not Found."}, status=status.HTTP_404_NOT_FOUND)
+
+        current = plan.permissions or DEFAULT_TIER_PERMISSIONS.get(tier, {})
+        current.update(new_permissions)
+        plan.permissions = current
+        plan.save(update_fields=["permissions"])
+
+        return Response({
+            "success": True,
+            "message": f"Access Matrix For {plan.name} Updated Successfully.",
+            "tier": plan.tier,
+            "permissions": plan.permissions,
+        })
 
 
 class ApplyCouponView(APIView):

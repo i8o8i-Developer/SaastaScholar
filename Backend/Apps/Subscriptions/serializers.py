@@ -14,6 +14,7 @@ class SubscriptionPlanSerializer(serializers.ModelSerializer):
             "is_popular",
             "badge",
             "features_list",
+            "permissions",
         ]
 
 

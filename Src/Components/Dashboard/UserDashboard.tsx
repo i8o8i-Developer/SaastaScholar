@@ -15,10 +15,14 @@ import { DepartmentNotices } from "./DepartmentNotices";
 import { DrmSecureReader } from "./DrmSecureReader";
 import { StudentDeskHub } from "./StudentDeskHub";
 import { CommunityForumHub } from "./CommunityForumHub";
+import { MembershipUpgradeSection } from "./MembershipUpgradeSection";
+import { PlanPaywallGuard } from "./PlanPaywallGuard";
+import { usePlanAccess } from "@/Hooks/UsePlanAccess";
 
 export function UserDashboard() {
   const navigate = useNavigate();
   const { user, isAuthenticated, isLoading } = useAuth();
+  const { hasTabAccess, getRequiredTierForTab } = usePlanAccess();
   const searchParams = new URLSearchParams(window.location.search);
   const initialTab = searchParams.get("tab") || "overview";
   const [activeTab, setActiveTab] = useState<string>(initialTab);
@@ -42,6 +46,19 @@ export function UserDashboard() {
     setReadingMaterialId(null);
   };
 
+  const renderProtectedTab = (tabId: string, tabTitle: string, component: React.ReactNode) => {
+    if (!hasTabAccess(tabId)) {
+      return (
+        <PlanPaywallGuard
+          tabTitle={tabTitle}
+          requiredTier={getRequiredTierForTab(tabId)}
+          onUpgradeClick={() => setActiveTab("membership")}
+        />
+      );
+    }
+    return component;
+  };
+
   return (
     <>
       {readingMaterialId && (
@@ -60,47 +77,34 @@ export function UserDashboard() {
         onOpenReader={handleOpenReader}
       >
         {activeTab === "overview" && (
-            <DashboardOverview
-              onNavigateTab={(tab) => setActiveTab(tab)}
-              onOpenReader={handleOpenReader}
-            />
-          )}
-          {activeTab === "notes" && (
-            <NotesHub onOpenReader={handleOpenReader} />
-          )}
-          {activeTab === "pyqs" && (
-            <PyqsHub onOpenReader={handleOpenReader} />
-          )}
-          {activeTab === "syllabus" && (
-            <SyllabusHub onOpenReader={handleOpenReader} />
-          )}
-          {activeTab === "faculty" && (
-            <FacultyHub onOpenReader={handleOpenReader} />
-          )}
-          {activeTab === "labs" && (
-            <LabsHub onOpenReader={handleOpenReader} />
-          )}
-          {activeTab === "assignments" && (
-            <AssignmentsTracker />
-          )}
-          {(activeTab === "planner" || activeTab === "timetable") && (
-            <TimetablePlanner />
-          )}
-          {activeTab === "notices" && (
-            <DepartmentNotices />
-          )}
-          {activeTab === "profile" && (
-            <StudentProfile
-              onNavigateTab={(tab) => setActiveTab(tab)}
-              onOpenReader={handleOpenReader}
-            />
-          )}
-          {activeTab === "student-desk" && (
-            <StudentDeskHub />
-          )}
-          {activeTab === "community-forum" && (
-            <CommunityForumHub />
-          )}
+          <DashboardOverview
+            onNavigateTab={(tab) => setActiveTab(tab)}
+            onOpenReader={handleOpenReader}
+          />
+        )}
+        {activeTab === "notes" &&
+          renderProtectedTab("notes", "Handwritten Class Notes Hub", <NotesHub onOpenReader={handleOpenReader} />)}
+        {activeTab === "pyqs" &&
+          renderProtectedTab("pyqs", "Solved Examination Papers (PYQs)", <PyqsHub onOpenReader={handleOpenReader} />)}
+        {activeTab === "syllabus" && <SyllabusHub onOpenReader={handleOpenReader} />}
+        {activeTab === "faculty" && <FacultyHub onOpenReader={handleOpenReader} />}
+        {activeTab === "labs" &&
+          renderProtectedTab("labs", "Handwritten Lab Manuals & Code", <LabsHub onOpenReader={handleOpenReader} />)}
+        {activeTab === "assignments" &&
+          renderProtectedTab("assignments", "Academic Assignment Helper", <AssignmentsTracker />)}
+        {(activeTab === "planner" || activeTab === "timetable") && <TimetablePlanner />}
+        {activeTab === "notices" && <DepartmentNotices />}
+        {activeTab === "profile" && (
+          <StudentProfile
+            onNavigateTab={(tab) => setActiveTab(tab)}
+            onOpenReader={handleOpenReader}
+          />
+        )}
+        {activeTab === "student-desk" && <StudentDeskHub />}
+        {activeTab === "community-forum" && <CommunityForumHub />}
+        {activeTab === "membership" && (
+          <MembershipUpgradeSection onUpgradeSuccess={() => setActiveTab("overview")} />
+        )}
       </DashboardLayout>
     </>
   );

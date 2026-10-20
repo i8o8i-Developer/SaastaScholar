@@ -87,6 +87,7 @@ import { MarkdownContent } from "../Ui/MarkdownContent";
 import { BroadcastBanner } from "../Ui/BroadcastBanner";
 import { AdminOrdersTab } from "./AdminOrdersTab";
 import { AdminCouponsTab } from "./AdminCouponsTab";
+import { AdminPlanMatrixTab } from "./AdminPlanMatrixTab";
 import {
   AcademicMaterial,
   AdminAuditLog,
@@ -145,6 +146,7 @@ type AdminStation =
   | "students"
   | "subscriptions"
   | "coupons"
+  | "plan-matrix"
   | "badges"
   | "banners"
   | "support"

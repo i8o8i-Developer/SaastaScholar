@@ -12,6 +12,7 @@ class SubscriptionPlan(models.Model):
     is_popular = models.BooleanField(default=False)
     badge = models.CharField(max_length=50, blank=True)
     features_list = models.JSONField(default=list)
+    permissions = models.JSONField(default=dict, blank=True, help_text="Configurable Tab And Feature Access Matrix")
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
