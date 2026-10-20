@@ -30,9 +30,74 @@ const DEFAULT_FREE_PERMISSIONS: PlanPermissions = {
   badge_title: "Free Scholar",
 };
 
+const getInitialPermissions = (user: any): PlanPermissions => {
+  const userTier = (user?.access_tier || "FREE").toUpperCase();
+  if (user?.is_staff || user?.is_superuser) {
+    return {
+      tier: "ELITE",
+      is_admin: true,
+      allowed_tabs: ["*"],
+      can_access_notes: true,
+      can_download_notes: true,
+      can_access_labs: true,
+      can_access_pyqs: true,
+      can_access_faculty: true,
+      can_access_assignments: true,
+      max_daily_downloads: 9999,
+      badge_title: "Administrator",
+    };
+  }
+  if (userTier === "ELITE" || userTier === "ELITE_PLUS" || userTier === "VIP") {
+    return {
+      tier: "ELITE",
+      is_admin: false,
+      allowed_tabs: ["*"],
+      can_access_notes: true,
+      can_download_notes: true,
+      can_access_labs: true,
+      can_access_pyqs: true,
+      can_access_faculty: true,
+      can_access_assignments: true,
+      max_daily_downloads: 9999,
+      badge_title: "Elite Lifetime Scholar",
+    };
+  }
+  if (userTier === "PREMIUM" || userTier === "ACHIEVER") {
+    return {
+      tier: "PREMIUM",
+      is_admin: false,
+      allowed_tabs: ["overview", "notes", "pyqs", "syllabus", "faculty", "labs", "assignments", "planner", "timetable", "notices", "community-forum", "student-desk", "profile", "membership"],
+      can_access_notes: true,
+      can_download_notes: true,
+      can_access_labs: true,
+      can_access_pyqs: true,
+      can_access_faculty: true,
+      can_access_assignments: true,
+      max_daily_downloads: 50,
+      badge_title: "Premium Achiever",
+    };
+  }
+  if (userTier === "BASIC" || userTier === "SCHOLAR") {
+    return {
+      tier: "BASIC",
+      is_admin: false,
+      allowed_tabs: ["overview", "notes", "syllabus", "faculty", "planner", "timetable", "notices", "community-forum", "student-desk", "profile", "membership"],
+      can_access_notes: true,
+      can_download_notes: true,
+      can_access_labs: false,
+      can_access_pyqs: false,
+      can_access_faculty: true,
+      can_access_assignments: false,
+      max_daily_downloads: 10,
+      badge_title: "Basic Scholar",
+    };
+  }
+  return DEFAULT_FREE_PERMISSIONS;
+};
+
 export function usePlanAccess() {
   const { user, isAuthenticated } = useAuth();
-  const [permissions, setPermissions] = useState<PlanPermissions>(DEFAULT_FREE_PERMISSIONS);
+  const [permissions, setPermissions] = useState<PlanPermissions>(() => getInitialPermissions(user));
   const [loading, setLoading] = useState<boolean>(true);
 
   const fetchAccessMatrix = async () => {
@@ -46,69 +111,12 @@ export function usePlanAccess() {
       const data = await apiFetch<PlanPermissions>("/subscriptions/my-access/");
       if (data && data.allowed_tabs) {
         setPermissions(data);
+      } else {
+        setPermissions(getInitialPermissions(user));
       }
     } catch {
-      // Fallback Based On User Access Tier
-      const userTier = (user?.access_tier || "FREE").toUpperCase();
-      if (user?.is_staff || user?.is_superuser) {
-        setPermissions({
-          tier: "ELITE",
-          is_admin: true,
-          allowed_tabs: ["*"],
-          can_access_notes: true,
-          can_download_notes: true,
-          can_access_labs: true,
-          can_access_pyqs: true,
-          can_access_faculty: true,
-          can_access_assignments: true,
-          max_daily_downloads: 9999,
-          badge_title: "Administrator",
-        });
-      } else if (userTier === "ELITE" || userTier === "ELITE_PLUS") {
-        setPermissions({
-          tier: "ELITE",
-          is_admin: false,
-          allowed_tabs: ["*"],
-          can_access_notes: true,
-          can_download_notes: true,
-          can_access_labs: true,
-          can_access_pyqs: true,
-          can_access_faculty: true,
-          can_access_assignments: true,
-          max_daily_downloads: 9999,
-          badge_title: "Elite Lifetime Scholar",
-        });
-      } else if (userTier === "PREMIUM" || userTier === "ACHIEVER") {
-        setPermissions({
-          tier: "PREMIUM",
-          is_admin: false,
-          allowed_tabs: ["overview", "notes", "pyqs", "syllabus", "faculty", "labs", "assignments", "planner", "timetable", "notices", "community-forum", "student-desk", "profile", "membership"],
-          can_access_notes: true,
-          can_download_notes: true,
-          can_access_labs: true,
-          can_access_pyqs: true,
-          can_access_faculty: true,
-          can_access_assignments: true,
-          max_daily_downloads: 50,
-          badge_title: "Premium Achiever",
-        });
-      } else if (userTier === "BASIC" || userTier === "SCHOLAR") {
-        setPermissions({
-          tier: "BASIC",
-          is_admin: false,
-          allowed_tabs: ["overview", "notes", "syllabus", "faculty", "planner", "timetable", "notices", "community-forum", "student-desk", "profile", "membership"],
-          can_access_notes: true,
-          can_download_notes: true,
-          can_access_labs: false,
-          can_access_pyqs: false,
-          can_access_faculty: true,
-          can_access_assignments: false,
-          max_daily_downloads: 10,
-          badge_title: "Basic Scholar",
-        });
-      } else {
-        setPermissions(DEFAULT_FREE_PERMISSIONS);
-      }
+      // Fallback Based On Authenticated Scholar Tier
+      setPermissions(getInitialPermissions(user));
     } finally {
       setLoading(false);
     }

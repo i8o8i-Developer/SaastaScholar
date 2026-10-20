@@ -20,6 +20,8 @@ import {
   Sparkles,
   Sun,
   Moon,
+  Tag,
+  X,
   Zap,
 } from "lucide-react";
 import { type FormEvent, useEffect, useState } from "react";
@@ -75,6 +77,86 @@ export function Login() {
   const [loading, setLoading] = useState<boolean>(false);
   const [signupStep, setSignupStep] = useState<1 | 2 | 3>(1);
   const [selectedPlan, setSelectedPlan] = useState<"FREE" | "BASIC" | "PREMIUM" | "ELITE" | "STARTER" | "SCHOLAR" | "ACHIEVER" | "ELITE_PLUS">("FREE");
+
+  // Promotional Discount Coupon & Billing Cycle State
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "semester">("monthly");
+  const [couponCode, setCouponCode] = useState<string>("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    code: string;
+    discount_percent: number;
+    discount_amount_inr: number;
+    final_amount_inr: number;
+    message: string;
+  } | null>(null);
+  const [couponLoading, setCouponLoading] = useState<boolean>(false);
+
+  // Plan Pricing Reference Matrix
+  const DEFAULT_PLAN_PRICING: { monthly: number; semester: number; name: string } = {
+    monthly: 0,
+    semester: 0,
+    name: "Free Starter",
+  };
+  const PLAN_PRICING_MAP: Record<string, { monthly: number; semester: number; name: string }> = {
+    FREE: { monthly: 0, semester: 0, name: "Free Starter" },
+    STARTER: { monthly: 0, semester: 0, name: "Free Starter" },
+    BASIC: { monthly: 99, semester: 499, name: "Basic Scholar" },
+    SCHOLAR: { monthly: 99, semester: 499, name: "Basic Scholar" },
+    PREMIUM: { monthly: 129, semester: 649, name: "Premium Achiever" },
+    ACHIEVER: { monthly: 129, semester: 649, name: "Premium Achiever" },
+    ELITE: { monthly: 159, semester: 799, name: "Elite Scholar" },
+    ELITE_PLUS: { monthly: 159, semester: 799, name: "Elite Scholar" },
+  };
+
+  const isFreePlan = selectedPlan === "FREE" || selectedPlan === "STARTER";
+  const activePlanPricing = PLAN_PRICING_MAP[selectedPlan] ?? DEFAULT_PLAN_PRICING;
+  const currentBasePrice = billingCycle === "semester" ? activePlanPricing.semester : activePlanPricing.monthly;
+  const currentFinalPayable = appliedCoupon ? appliedCoupon.final_amount_inr : currentBasePrice;
+
+  // Handle Validation & Application Of Promotional Discount Coupon
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) {
+      toast.error("Please Enter A Valid Coupon Code.");
+      return;
+    }
+    setCouponLoading(true);
+    try {
+      const canonicalTier =
+        selectedPlan === "SCHOLAR" ? "BASIC" :
+        selectedPlan === "ACHIEVER" ? "PREMIUM" :
+        selectedPlan === "ELITE_PLUS" ? "ELITE" : selectedPlan;
+
+      const res = await apiFetch<any>("/subscriptions/apply-coupon/", {
+        method: "POST",
+        body: JSON.stringify({
+          code: couponCode.trim().toUpperCase(),
+          plan_tier: canonicalTier,
+          cycle: billingCycle,
+        }),
+      });
+
+      if (res && res.valid) {
+        setAppliedCoupon(res);
+        toast.success(res.message || `Coupon "${res.code}" Applied Successfully!`);
+      } else {
+        toast.error(res?.error || "Invalid Or Expired Coupon Code.");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed To Apply Coupon Code.");
+    } finally {
+      setCouponLoading(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode("");
+    toast.info("Coupon Code Removed.");
+  };
+
+  const handleSelectQuickCoupon = (code: string) => {
+    setCouponCode(code);
+    setAppliedCoupon(null);
+  };
 
   // Forgot Password / Reset State
   const [showResetModal, setShowResetModal] = useState<boolean>(false);
@@ -227,6 +309,8 @@ export function Login() {
         const studentTarget: string = targetCgpa.trim() ? targetCgpa.trim() : "9.50";
         const studentCurrent: string = currentCgpa.trim() ? currentCgpa.trim() : "9.00";
 
+        const initialAssignedTier = isFreePlan ? "FREE" : selectedPlan;
+
         await register({
           email,
           password,
@@ -238,9 +322,47 @@ export function Login() {
           roll_number: studentRoll,
           target_cgpa: studentTarget,
           current_cgpa: studentCurrent,
-          access_tier: "FREE",
+          access_tier: initialAssignedTier,
         });
 
+        // 1. Paid Plan With 100% Free Pass Coupon Applied (Zero Payment Required)
+        if (!isFreePlan && currentFinalPayable === 0 && appliedCoupon) {
+          try {
+            await apiFetch<any>("/subscriptions/razorpay/create-order/", {
+              method: "POST",
+              body: JSON.stringify({
+                plan_tier: selectedPlan,
+                cycle: billingCycle,
+                coupon_code: appliedCoupon.code,
+              }),
+            });
+            toast.success(`Welcome! Your ${activePlanPricing.name} Has Been Activated With 100% Free Pass!`);
+          } catch {
+            toast.success("Account Created Successfully! Welcome To SaastaScholar.");
+          }
+          window.location.href = "/dashboard";
+          return;
+        }
+
+        // 2. Paid Plan With Razorpay Payment Gateway Trigger
+        if (!isFreePlan && currentFinalPayable > 0) {
+          initiateRazorpayPayment({
+            planTier: selectedPlan,
+            cycle: billingCycle,
+            couponCode: appliedCoupon?.code,
+            onSuccess: async () => {
+              toast.success(`Payment Verified! Welcome To ${activePlanPricing.name}.`);
+              window.location.href = "/dashboard";
+            },
+            onError: () => {
+              toast.info("Account Created As Free Scholar. You Can Upgrade Your Pass Anytime In Dashboard.");
+              window.location.href = "/dashboard?tab=membership";
+            },
+          });
+          return;
+        }
+
+        // 3. Free Plan Default Registration
         toast.success("Account Created Successfully! Welcome To SaastaScholar.");
         const searchParams = new URLSearchParams(window.location.search);
         const destinationTab = searchParams.get("tab") || "overview";
@@ -722,7 +844,7 @@ export function Login() {
                               type="text"
                               value={rollNumber}
                               onChange={(e) => setRollNumber(e.target.value)}
-                              placeholder="e.g. 24BCSE102"
+                              placeholder="E.g. 24BCSE102"
                               required
                               className="h-11 w-full rounded-2xl border border-border bg-background px-3.5 text-xs font-mono focus:border-primary focus:outline-none transition-colors"
                             />
@@ -735,7 +857,7 @@ export function Login() {
                                 type="text"
                                 value={currentCgpa}
                                 onChange={(e) => setCurrentCgpa(e.target.value)}
-                                placeholder="e.g. 8.50"
+                                placeholder="E.g. 8.50"
                                 className="h-11 w-full rounded-2xl border border-border bg-background px-3 text-xs font-mono focus:border-primary focus:outline-none transition-colors"
                               />
                             </div>
@@ -745,7 +867,7 @@ export function Login() {
                                 type="text"
                                 value={targetCgpa}
                                 onChange={(e) => setTargetCgpa(e.target.value)}
-                                placeholder="e.g. 9.50"
+                                placeholder="E.g. 9.50"
                                 className="h-11 w-full rounded-2xl border border-border bg-background px-3 text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 focus:border-primary focus:outline-none transition-colors"
                               />
                             </div>
@@ -945,9 +1067,161 @@ export function Login() {
                                 <span className="text-[0.6rem] text-muted-foreground mt-1 leading-tight block line-clamp-2">Premium + Most Expected Question Paper + Sample Practice Papers</span>
                               </button>
                             </div>
-                            <p className="text-[0.65rem] text-emerald-600 dark:text-emerald-400 font-semibold text-center">
-                              ✓ Free Student Registration Grants Instant Access. You Can Upgrade Your Academic Plan Anytime In Dashboard Settings.
-                            </p>
+                            {/* Billing Cycle & Coupon Section For Paid Plans */}
+                            {!isFreePlan && (
+                              <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-3.5 space-y-3">
+                                {/* Billing Cycle Toggle */}
+                                <div className="space-y-1.5">
+                                  <label className="text-xs font-bold text-foreground flex items-center justify-between">
+                                    <span>Select Billing Cycle</span>
+                                    <span className="text-[0.62rem] font-bold text-emerald-600 dark:text-emerald-400">
+                                      {billingCycle === "semester" ? "Save 20% With Semester Pass" : "Billed Monthly"}
+                                    </span>
+                                  </label>
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setBillingCycle("monthly");
+                                        setAppliedCoupon(null);
+                                      }}
+                                      className={cn(
+                                        "rounded-xl py-2 px-3 text-xs font-bold border transition-all cursor-pointer text-center",
+                                        billingCycle === "monthly"
+                                          ? "border-primary bg-primary/10 text-primary shadow-xs ring-1 ring-primary/40"
+                                          : "border-border/80 bg-card text-muted-foreground hover:border-primary/40"
+                                      )}
+                                    >
+                                      Monthly (₹{activePlanPricing.monthly}/mo)
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setBillingCycle("semester");
+                                        setAppliedCoupon(null);
+                                      }}
+                                      className={cn(
+                                        "rounded-xl py-2 px-3 text-xs font-bold border transition-all cursor-pointer text-center relative",
+                                        billingCycle === "semester"
+                                          ? "border-emerald-500 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 shadow-xs ring-1 ring-emerald-500/50"
+                                          : "border-border/80 bg-card text-muted-foreground hover:border-emerald-500/40"
+                                      )}
+                                    >
+                                      Semester (₹{activePlanPricing.semester}/sem)
+                                    </button>
+                                  </div>
+                                </div>
+
+                                {/* Promo Discount Coupon Code Box */}
+                                <div className="space-y-2 pt-1 border-t border-emerald-500/20">
+                                  <label className="text-xs font-bold text-foreground flex items-center justify-between">
+                                    <span className="flex items-center gap-1.5">
+                                      <Tag className="h-3.5 w-3.5 text-primary" />
+                                      <span>Apply Promotional Coupon Code</span>
+                                    </span>
+                                    {appliedCoupon && (
+                                      <button
+                                        type="button"
+                                        onClick={handleRemoveCoupon}
+                                        className="text-[0.65rem] font-bold text-rose-500 hover:underline flex items-center gap-0.5 cursor-pointer"
+                                      >
+                                        <X className="h-3 w-3" />
+                                        <span>Remove Coupon</span>
+                                      </button>
+                                    )}
+                                  </label>
+
+                                  <div className="flex gap-2">
+                                    <div className="relative flex-1">
+                                      <input
+                                        type="text"
+                                        value={couponCode}
+                                        onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                                        placeholder="Enter Code (E.g. SAASTA100)"
+                                        disabled={Boolean(appliedCoupon)}
+                                        className="h-10 w-full rounded-xl border border-border bg-card pr-3 pl-3 text-xs font-bold uppercase tracking-wider focus:border-primary focus:outline-none disabled:opacity-60"
+                                      />
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={handleApplyCoupon}
+                                      disabled={couponLoading || !couponCode.trim() || Boolean(appliedCoupon)}
+                                      className="inline-flex h-10 items-center justify-center gap-1 rounded-xl bg-primary px-4 text-xs font-bold text-primary-foreground shadow-xs hover:bg-primary-deep transition-all disabled:opacity-50 cursor-pointer shrink-0"
+                                    >
+                                      {couponLoading ? (
+                                        <span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+                                      ) : (
+                                        <span>Apply</span>
+                                      )}
+                                    </button>
+                                  </div>
+
+                                  {/* Quick Coupon Preset Chips */}
+                                  {!appliedCoupon && (
+                                    <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                                      <span className="text-[0.62rem] text-muted-foreground font-semibold">Presets:</span>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleSelectQuickCoupon("SAASTA100")}
+                                        className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-[0.62rem] font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 cursor-pointer"
+                                      >
+                                        SAASTA100 (100% Free Pass)
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleSelectQuickCoupon("SCHOLAR20")}
+                                        className="rounded-lg border border-border bg-card px-2 py-0.5 text-[0.62rem] font-bold text-muted-foreground hover:text-foreground cursor-pointer"
+                                      >
+                                        SCHOLAR20 (20% Off)
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleSelectQuickCoupon("EXAM50")}
+                                        className="rounded-lg border border-border bg-card px-2 py-0.5 text-[0.62rem] font-bold text-muted-foreground hover:text-foreground cursor-pointer"
+                                      >
+                                        EXAM50 (₹50 Off)
+                                      </button>
+                                    </div>
+                                  )}
+
+                                  {/* Applied Coupon Feedback & Breakdown Card */}
+                                  {appliedCoupon && (
+                                    <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-2.5 space-y-1.5">
+                                      <div className="flex items-center justify-between text-xs">
+                                        <span className="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                                          <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                                          <span>{appliedCoupon.code} Applied</span>
+                                        </span>
+                                        <span className="text-[0.65rem] font-bold bg-emerald-500 text-white px-2 py-0.2 rounded-full">
+                                          {appliedCoupon.discount_percent}% Discount
+                                        </span>
+                                      </div>
+                                      <div className="flex items-center justify-between text-[0.7rem] text-muted-foreground border-t border-emerald-500/20 pt-1">
+                                        <span>Regular Plan Price:</span>
+                                        <span>₹{currentBasePrice}</span>
+                                      </div>
+                                      <div className="flex items-center justify-between text-[0.7rem] text-emerald-600 dark:text-emerald-400 font-bold">
+                                        <span>Voucher Savings:</span>
+                                        <span>-₹{appliedCoupon.discount_amount_inr}</span>
+                                      </div>
+                                      <div className="flex items-center justify-between text-xs font-black text-foreground border-t border-emerald-500/20 pt-1">
+                                        <span>Final Payable Amount:</span>
+                                        <span className="text-emerald-600 dark:text-emerald-400 text-sm">
+                                          ₹{appliedCoupon.final_amount_inr}
+                                          {appliedCoupon.final_amount_inr === 0 && " (100% Free Pass)"}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            )}
+
+                            {isFreePlan && (
+                              <p className="text-[0.65rem] text-emerald-600 dark:text-emerald-400 font-semibold text-center">
+                                ✓ Free Student Registration Grants Instant Access. You Can Upgrade Your Academic Plan Anytime In Dashboard Settings.
+                              </p>
+                            )}
                           </div>
 
                           <p className="text-[0.68rem] text-muted-foreground leading-relaxed">
@@ -974,8 +1248,22 @@ export function Login() {
                                 <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
                               ) : (
                                 <>
-                                  <span>Complete Free Registration</span>
-                                  <CheckCircle2 className="h-4 w-4" />
+                                  {isFreePlan ? (
+                                    <>
+                                      <span>Complete Free Registration</span>
+                                      <CheckCircle2 className="h-4 w-4" />
+                                    </>
+                                  ) : currentFinalPayable === 0 ? (
+                                    <>
+                                      <Sparkles className="h-4 w-4" />
+                                      <span>Activate 100% Free Pass &amp; Complete Registration</span>
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Zap className="h-4 w-4" />
+                                      <span>Pay ₹{currentFinalPayable} &amp; Complete Registration</span>
+                                    </>
+                                  )}
                                 </>
                               )}
                             </button>

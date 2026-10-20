@@ -602,13 +602,13 @@ class PasswordResetRequestView(APIView):
     def post(self, request):
         email = str(request.data.get("email") or "").strip().lower()
         if not email:
-            return Response({"error": "Email address is required."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error": "Email Address Is Required."}, status=status.HTTP_400_BAD_REQUEST)
 
         user = StudentUser.objects.filter(email__iexact=email).first()
         if not user:
             return Response({
                 "success": True,
-                "message": "If an account exists with this email, a 6-digit verification code has been dispatched."
+                "message": "If An Account Exists With This Email, A 6-Digit Verification Code Has Been Dispatched."
             })
 
         otp = f"{random.randint(100000, 999999)}"

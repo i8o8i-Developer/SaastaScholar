@@ -2578,6 +2578,7 @@ export function AdminPortal() {
                   { id: "students", label: "Student Accounts", icon: Users, count: students.length },
                   { id: "subscriptions", label: "Payments & Invoices", icon: Award, count: "Live" },
                   { id: "coupons", label: "Discount Coupons", icon: Tag, count: "Promo" },
+                  { id: "plan-matrix", label: "Plan Access Matrix", icon: ShieldCheck, count: "Matrix" },
                   { id: "banners", label: "Announcement Banners", icon: Radio, count: banners.filter((b) => b.is_active).length },
                   { id: "badges", label: "Menu Badges", icon: Sparkles, count: badges.filter((b) => b.is_active && b.badge_text).length },
                   { id: "support", label: "Help Desk Tickets", icon: HelpCircle, count: tickets.length },
@@ -2710,6 +2711,7 @@ export function AdminPortal() {
               { id: "students", label: "Student Accounts", icon: Users, count: students.length },
               { id: "subscriptions", label: "Payments & Invoices", icon: Award, count: "Live" },
               { id: "coupons", label: "Discount Coupons", icon: Tag, count: "Promo" },
+              { id: "plan-matrix", label: "Plan Access Matrix", icon: ShieldCheck, count: "Matrix" },
               { id: "banners", label: "Announcement Banners", icon: Radio, count: banners.filter((b) => b.is_active).length },
               { id: "badges", label: "Menu Badges", icon: Sparkles, count: badges.filter((b) => b.is_active && b.badge_text).length },
               { id: "support", label: "Help Desk Tickets", icon: HelpCircle, count: tickets.length },
@@ -2853,6 +2855,12 @@ export function AdminPortal() {
                 <>
                   <span className="sm:hidden">Discount Coupons</span>
                   <span className="hidden sm:inline">Promotional Discount Coupons &amp; Offers</span>
+                </>
+              )}
+              {activeStation === "plan-matrix" && (
+                <>
+                  <span className="sm:hidden">Access Matrix</span>
+                  <span className="hidden sm:inline">Plan Permissions &amp; Feature Access Matrix</span>
                 </>
               )}
               {activeStation === "banners" && (
@@ -7137,6 +7145,13 @@ export function AdminPortal() {
           {/* ========================================================================= */}
           {activeStation === "coupons" && (
             <AdminCouponsTab />
+          )}
+
+          {/* ========================================================================= */}
+          {/* STATION: PLAN ACCESS MATRIX */}
+          {/* ========================================================================= */}
+          {activeStation === "plan-matrix" && (
+            <AdminPlanMatrixTab />
           )}
 
           {/* ========================================================================= */}

@@ -366,7 +366,7 @@ export function LegalComplianceHub({
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2">
                 <ShieldCheck className="h-3.5 w-3.5" />
-                SaastaScholar • Trust, Legal &amp; Compliance Hub
+                SaastaScholar | Trust, Legal &amp; Compliance Hub
               </div>
               <DialogTitle className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
                 Academic Legal, GDPR &amp; Commerce Compliance
@@ -496,7 +496,7 @@ export function LegalComplianceHub({
             {/* Quick Actions Footer Inside Modal */}
             <div className="mt-8 pt-4 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400">
               <span className="text-[0.7rem]">
-                Governance Desk: <strong className="text-white">legal@durgaai.com</strong> · <strong className="text-white">privacy@saastascholar.in</strong>
+                Governance Desk: <strong className="text-white">legal@durgaai.com</strong> | <strong className="text-white">privacy@saastascholar.in</strong>
               </span>
               <button
                 type="button"

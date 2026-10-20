@@ -126,7 +126,7 @@ const POLICY_DETAILS: Record<string, { title: string; subtitle: string; content:
   },
   "Trademark & IP Policy": {
     title: "Trademark Ownership, Brand Rights & Intellectual Property Notice",
-    subtitle: "Protected Under The Trade Marks Act, 1999 & The Copyright Act, 1957 · Proprietary Asset Of DurgaAI Solutions",
+    subtitle: "Protected Under The Trade Marks Act, 1999 & The Copyright Act, 1957 | Proprietary Asset Of DurgaAI Solutions",
     content: [
       "Proprietary Brand & Trademark Ownership (Section 28 & 29 Of The Trade Marks Act, 1999): 'SaastaScholar', The SaastaScholar Emblem Insignia, The Official Color Palette (#005F15 Forest Green, #007EAC Ocean Blue, #BA0000 Crimson Red), Typography, And Product Design Tokens Are Proprietary Trademarks And Intellectual Property Wholly Owned By DurgaAI Solutions. Unauthorized Commercial Reproduction, Counterfeit Mirroring, Brand Imitation, Passing Off, Or Domain Spoofing Is Strictly Prohibited And Subject To Immediate Civil And Criminal Litigation Under Applicable Intellectual Property Laws.",
       "Proprietary Software Architecture & Code Rights: All Application Source Code, Dynamic In-Memory DRM Canvas Rendering Mechanisms, Real-Time IST Schedule Planners, Exam Archive Indexing Systems, And User Interfaces Are Original Copyrighted Software Works Owned Exclusively By DurgaAI Solutions Under The Copyright Act, 1957. Reverse Engineering, Decompilation, Or Unauthorized Scraper Harvesting Is Strictly Forbidden.",
@@ -137,7 +137,7 @@ const POLICY_DETAILS: Record<string, { title: string; subtitle: string; content:
   },
   "Privacy Policy": {
     title: "Student Privacy Policy & Digital Personal Data Charter",
-    subtitle: "Fully Compliant With Digital Personal Data Protection Act, 2023 (DPDP Act, 2023) & IT SPDI Rules, 2011 · DurgaAI Solutions Privacy Pledge",
+    subtitle: "Fully Compliant With Digital Personal Data Protection Act, 2023 (DPDP Act, 2023) & IT SPDI Rules, 2011 | DurgaAI Solutions Privacy Pledge",
     content: [
       "Lawful Data Collection & Purpose Limitation (Digital Personal Data Protection Act, 2023 - DPDP Act 2023): We Collect Only Necessary Student Verification Data (Full Name, University Roll Number, Academic Department, Specialization Program, Semester, Section, And Institutional Email) Solely For Workspace Provisioning, Academic Progress Tracking, And Anti-Piracy DRM Protection.",
       "Absolute Non-Commercialization Guarantee: SaastaScholar And DurgaAI Solutions Uphold A Zero-Monetization Privacy Pledge. We Strictly Forbid Selling, Licensing, Renting, Or Disclosing Student Personal Data, Identity Credentials, Or Reading Telemetry To Any External Advertising Networks, Recruiters, Or Commercial Data Brokers.",
@@ -182,7 +182,7 @@ const POLICY_DETAILS: Record<string, { title: string; subtitle: string; content:
   },
   "Cookie Preferences": {
     title: "Cookie & Session Telemetry Policy",
-    subtitle: "Essential Session Authentication Tokens Only · Zero Cross-Site Behavioral Tracking",
+    subtitle: "Essential Session Authentication Tokens Only | Zero Cross-Site Behavioral Tracking",
     content: [
       "Strictly Essential Authentication Tokens Only: SaastaScholar Deploys Only Cryptographically Signed, HTTP-Only Session Cookies Necessary To Maintain Scholar Login Authentication, CSRF Security, And Workspace Preferences.",
       "Zero Behavioral Tracking Pixels: We Do Not Employ Any Third-Party Cross-Site Marketing Cookies, Fingerprinting Telemetry, Or Invasive Tracking Beacons.",
@@ -442,7 +442,7 @@ export function SiteFooter() {
 
             <p className="mt-3.5 max-w-sm text-xs sm:text-sm leading-relaxed text-muted-foreground break-words">
               Empowering University Scholars To Streamline Courses, Organize Practicals, Master
-              Assignments, And Track Target CGPAs — All In One Unified, Distraction-Free Platform.
+              Assignments, And Track Target CGPAs - All In One Unified, Distraction-Free Platform.
             </p>
 
 
@@ -585,13 +585,13 @@ export function SiteFooter() {
             <p className="break-words font-medium">
               © {new Date().getFullYear()} <strong className="text-foreground">SaastaScholar™</strong>. All Rights Reserved.
             </p>
-            <span className="hidden text-muted-foreground/40 sm:inline">•</span>
+            <span className="hidden text-muted-foreground/40 sm:inline">|</span>
             <p className="inline-flex items-center gap-1">
               <span>A</span>
               <strong className="text-foreground font-semibold">DurgaAI Solutions</strong>
               <span>Academic Platform</span>
             </p>
-            <span className="hidden text-muted-foreground/40 sm:inline">•</span>
+            <span className="hidden text-muted-foreground/40 sm:inline">|</span>
             <div className="flex flex-wrap items-center gap-2 justify-center sm:justify-start">
               <button
                 type="button"
@@ -600,7 +600,7 @@ export function SiteFooter() {
               >
                 GDPR &amp; Privacy
               </button>
-              <span>·</span>
+              <span>|</span>
               <button
                 type="button"
                 onClick={() => setActiveModal("refund-policy")}
@@ -608,7 +608,7 @@ export function SiteFooter() {
               >
                 Refund Policy
               </button>
-              <span>·</span>
+              <span>|</span>
               <button
                 type="button"
                 onClick={() => setActiveModal("data-deletion")}
@@ -616,7 +616,7 @@ export function SiteFooter() {
               >
                 Data Deletion
               </button>
-              <span>·</span>
+              <span>|</span>
               <button
                 type="button"
                 onClick={() => window.dispatchEvent(new CustomEvent("open_cookie_preferences"))}
@@ -624,7 +624,7 @@ export function SiteFooter() {
               >
                 Cookies
               </button>
-              <span>·</span>
+              <span>|</span>
               <button
                 type="button"
                 onClick={() => setActiveModal("dpa")}

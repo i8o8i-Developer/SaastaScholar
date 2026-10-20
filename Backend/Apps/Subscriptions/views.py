@@ -158,7 +158,7 @@ class UserAccessMatrixView(APIView):
 
     def get(self, request):
         user = request.user
-        tier = (getattr(user, "access_tier", "") or "FREE").strip().upper()
+        raw_tier = (getattr(user, "access_tier", "") or "FREE").strip().upper()
         if user.is_staff or user.is_superuser:
             return Response({
                 "tier": "ELITE",
@@ -174,11 +174,22 @@ class UserAccessMatrixView(APIView):
                 "badge_title": "Administrator",
             })
 
-        plan = SubscriptionPlan.objects.filter(tier__iexact=tier).first()
-        default_perms = DEFAULT_TIER_PERMISSIONS.get(tier, DEFAULT_TIER_PERMISSIONS["FREE"])
-        perms = plan.permissions if plan and plan.permissions else default_perms
+        tier_alias_map = {
+            "STARTER": "FREE",
+            "SCHOLAR": "BASIC",
+            "ACHIEVER": "PREMIUM",
+            "ELITE_PLUS": "ELITE",
+            "VIP": "ELITE",
+            "SEMESTER_TOPPER": "ELITE",
+        }
+        canonical_tier = tier_alias_map.get(raw_tier, raw_tier)
+        default_perms = DEFAULT_TIER_PERMISSIONS.get(canonical_tier, DEFAULT_TIER_PERMISSIONS["FREE"])
+
+        plan = SubscriptionPlan.objects.filter(tier__iexact=canonical_tier).first()
+        perms = plan.permissions if (plan and plan.permissions and isinstance(plan.permissions, dict) and plan.permissions.get("allowed_tabs")) else default_perms
+
         return Response({
-            "tier": tier,
+            "tier": canonical_tier,
             "is_admin": False,
             **perms
         })
@@ -242,13 +253,22 @@ class AdminPlanAccessMatrixView(APIView):
 class ApplyCouponView(APIView):
     """
     Validates A Promo Discount Coupon And Returns Discounted Price Calculation.
+    Accessible To All Visitors (Including Registration Checkout).
     """
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     def post(self, request):
         code = str(request.data.get("code") or "").strip().upper()
-        plan_tier = str(request.data.get("plan_tier") or "BASIC").strip().upper()
+        raw_plan_tier = str(request.data.get("plan_tier") or "BASIC").strip().upper()
         cycle = str(request.data.get("cycle") or "monthly").strip().lower()
+
+        tier_alias_map = {
+            "STARTER": "FREE",
+            "SCHOLAR": "BASIC",
+            "ACHIEVER": "PREMIUM",
+            "ELITE_PLUS": "ELITE",
+        }
+        plan_tier = tier_alias_map.get(raw_plan_tier, raw_plan_tier)
 
         if not code:
             return Response({"error": "Coupon Code Is Required."}, status=status.HTTP_400_BAD_REQUEST)
@@ -297,9 +317,17 @@ class RazorpayCreateOrderView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        plan_tier = str(request.data.get("plan_tier") or "").strip().upper()
+        raw_plan_tier = str(request.data.get("plan_tier") or "").strip().upper()
         cycle = str(request.data.get("cycle") or "monthly").strip().lower()
         coupon_code = str(request.data.get("coupon_code") or "").strip().upper()
+
+        tier_alias_map = {
+            "STARTER": "FREE",
+            "SCHOLAR": "BASIC",
+            "ACHIEVER": "PREMIUM",
+            "ELITE_PLUS": "ELITE",
+        }
+        plan_tier = tier_alias_map.get(raw_plan_tier, raw_plan_tier)
 
         if plan_tier not in PRICING_MATRIX:
             return Response(
@@ -336,6 +364,22 @@ class RazorpayCreateOrderView(APIView):
                 discount_paise = min(discount_paise, base_amount)
                 final_amount = max(0, base_amount - discount_paise)
                 applied_coupon = coupon
+
+        # Handle 100% Discount Coupons Where Final Amount Becomes Zero (Do Not Call Razorpay For 0 Amount)
+        if final_amount == 0:
+            user = request.user
+            user.access_tier = plan_tier
+            user.save(update_fields=["access_tier"])
+            if applied_coupon:
+                applied_coupon.times_used += 1
+                applied_coupon.save(update_fields=["times_used"])
+            return Response({
+                "free_tier": True,
+                "message": f"{plan_name} Activated Successfully With 100% Discount Pass! No Payment Required.",
+                "plan_tier": plan_tier,
+                "discount_inr": round(discount_paise / 100, 2),
+                "final_amount_inr": 0,
+            })
 
         key_id = getattr(settings, "RAZORPAY_KEY_ID", "").strip()
         key_secret = getattr(settings, "RAZORPAY_KEY_SECRET", "").strip()
