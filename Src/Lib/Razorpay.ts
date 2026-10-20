@@ -57,10 +57,10 @@ export async function initiateRazorpayPayment({
   onError,
 }: {
   planTier: "FREE" | "BASIC" | "PREMIUM" | "ELITE" | "STARTER" | "SCHOLAR" | "ACHIEVER" | "ELITE_PLUS" | string;
-  cycle?: "monthly" | "semester";
-  couponCode?: string;
-  onSuccess?: (res: RazorpayVerifyResponse) => void;
-  onError?: (err: any) => void;
+  cycle?: "monthly" | "semester" | undefined;
+  couponCode?: string | undefined;
+  onSuccess?: ((res: RazorpayVerifyResponse) => void) | undefined;
+  onError?: ((err: any) => void) | undefined;
 }) {
   const loadingToast = toast.loading("Account Created! Opening Secure Payment Gateway...");
 
