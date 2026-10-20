@@ -619,7 +619,7 @@ class PasswordResetRequestView(APIView):
 
         return Response({
             "success": True,
-            "message": "Verification Code Has Been Sent To Your email address." if send_success else f"Email dispatch notice: {send_err or 'Code generated'}",
+            "message": "Verification Code Has Been Sent To Your Email Address." if send_success else f"Email Dispatch Notice: {send_err or 'Code Generated'}",
             "debug_otp": otp if settings.DEBUG else None,
         })
 
@@ -632,12 +632,12 @@ class EmailTestView(APIView):
         success, error = send_system_email(
             subject="SaastaScholar Mail Service Verification Test",
             recipient_email=target_email,
-            text_content="This is a verified test email sent from the SaastaScholar production mail service.",
-            html_content="<h2 style='color:#34d399;'>Mail Service Operational!</h2><p>Your SMTP mail configuration is online and successfully delivering emails to recipient inboxes.</p>",
+            text_content="This Is A Verified Test Email Sent From The SaastaScholar Production Mail Service.",
+            html_content="<h2 style='color:#34d399;'>Mail Service Operational!</h2><p>Your SMTP Mail Configuration Is Online And Successfully Delivering Emails To Recipient Inboxes.</p>",
         )
         if success:
-            return Response({"success": True, "message": f"Verification email successfully delivered to '{target_email}'."})
-        return Response({"error": f"Mail dispatch failed: {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"success": True, "message": f"Verification Email Successfully Delivered To '{target_email}'."})
+        return Response({"error": f"Mail Dispatch Failed: {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class PasswordResetConfirmView(APIView):

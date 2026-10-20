@@ -181,17 +181,17 @@ def send_password_reset_email(user, otp: str) -> tuple:
     """
     full_name = getattr(user, "full_name", "") or getattr(user, "username", "") or "Scholar"
     subject = f"Your Verification Code: {otp} · SaastaScholar Security"
-    preheader = f"Your 6-digit password reset verification code is {otp}."
+    preheader = f"Your 6-Digit Password Reset Verification Code is {otp}."
 
     text_body = f"""Hello {full_name},
 
-You requested to reset your account password on SaastaScholar.
+You Requested To Reset Your Account Password On SaastaScholar.
 
-Your 6-Digit Password Reset Verification Code is:
+Your 6-Digit Password Reset Verification Code Is:
 {otp}
 
-This code is strictly confidential and expires in 15 minutes.
-If you did not make this request, please disregard this email.
+This Code Is Strictly Confidential And Expires In 15 Minutes.
+If You Did Not Make This Request, Please Disregard This Email.
 
 — The SaastaScholar Academic Security Team
 """
@@ -200,17 +200,17 @@ If you did not make this request, please disregard this email.
       <span class="badge">Security Verification</span>
       <h2 style="color:#ffffff; font-size:20px; font-weight:700; margin-top:0;">Password Reset Verification Code</h2>
       <p>Hello <strong>{full_name}</strong>,</p>
-      <p>We received an official request to reset the password for your SaastaScholar account (<code>{user.email}</code>).</p>
+      <p>We Received An Official Request To Reset The Password For Your SaastaScholar Account (<code>{user.email}</code>).</p>
       <div class="otp-box">
         <p style="font-size:12px; color:#94a3b8; text-transform:uppercase; margin:0 0 8px 0; font-weight:700; letter-spacing:1px;">6-Digit Verification Code</p>
         <p class="otp-code">{otp}</p>
       </div>
       <p style="font-size:13px; color:#94a3b8;">
-        ⏱️ <strong>This code will expire in 15 minutes.</strong><br>
-        🔒 For your security, never share this verification code with anyone.
+        ⏱️ <strong>This Code Will Expire In 15 Minutes.</strong><br>
+        🔒 For Your Security, Never Share This Verification Code With Anyone.
       </p>
       <p style="margin-top:24px; font-size:13px; color:#64748b;">
-        If you did not request this password reset, no action is needed — your account remains completely secure.
+        If You Did Not Request This Password Reset, No Action Is Needed — Your Account Remains Completely Secure.
       </p>
     """
 
@@ -228,11 +228,11 @@ def send_welcome_email(user) -> tuple:
     tier = getattr(user, "access_tier", "FREE")
 
     subject = f"Welcome To SaastaScholar, {full_name}! · Academic Portal Activated"
-    preheader = "Your academic workspace is now active. Access verified notes, syllabus and lab manuals."
+    preheader = "Your Academic Workspace Is Now Active. Access Verified Notes, Syllabus And Lab Manuals."
 
-    text_body = f"""Welcome to SaastaScholar, {full_name}!
+    text_body = f"""Welcome To SaastaScholar, {full_name}!
 
-Your student account has been created successfully.
+Your Student Account Has Been Created Successfully.
 
 Academic Profile:
 - Degree Course: {program}
@@ -249,7 +249,7 @@ https://saastascholar.durgaaisolutions.in/login
       <span class="badge">Welcome Scholar</span>
       <h2 style="color:#ffffff; font-size:20px; font-weight:700; margin-top:0;">Welcome To SaastaScholar™</h2>
       <p>Hello <strong>{full_name}</strong>,</p>
-      <p>Congratulations! Your academic account has been initialized successfully. You now have instant access to verified university notes, solved exam papers, lab practicals, and syllabus guides.</p>
+      <p>Congratulations! Your Academic Account Has Been Initialized Successfully. You Now Have Instant Access To Verified University Notes, Solved Exam Papers, Lab Practicals, And Syllabus Guides.</p>
       
       <div style="background-color:#0b140c; border:1px solid #1f3322; border-radius:12px; padding:18px; margin:20px 0;">
         <p style="margin:0 0 6px 0; font-size:13px;"><strong>Program:</strong> <span style="color:#34d399;">{program}</span></p>
@@ -280,11 +280,11 @@ def send_payment_success_email(order) -> tuple:
     payment_id = getattr(order, "payment_id", "Confirmed")
 
     subject = f"Payment Receipt & Invoice [{invoice_no}] · SaastaScholar {plan_tier} Plan"
-    preheader = f"Your payment of ₹{amount_inr} for {plan_tier} Plan has been verified successfully."
+    preheader = f"Your Payment Of ₹{amount_inr} For {plan_tier} Plan Has Been Verified Successfully."
 
     text_body = f"""Dear {full_name},
 
-Thank you for upgrading your SaastaScholar membership.
+Thank You For Upgrading Your SaastaScholar Membership.
 
 Transaction Details:
 - Invoice Number: {invoice_no}
@@ -293,7 +293,7 @@ Transaction Details:
 - Payment ID: {payment_id}
 - Status: Confirmed & Paid
 
-Your account has been upgraded with instant access to premium handwritten notes and lab manuals.
+Your Account Has Been Upgraded With Instant Access To Premium Handwritten Notes And Lab Manuals.
 
 Access Your Dashboard:
 https://saastascholar.durgaaisolutions.in/dashboard
@@ -305,7 +305,7 @@ https://saastascholar.durgaaisolutions.in/dashboard
       <span class="badge">Payment Verified · Official Tax Invoice</span>
       <h2 style="color:#ffffff; font-size:20px; font-weight:700; margin-top:0;">Payment Confirmed!</h2>
       <p>Dear <strong>{full_name}</strong>,</p>
-      <p>Thank you for subscribing to SaastaScholar. Your payment has been captured and verified via our banking gateway.</p>
+      <p>Thank You For Subscribing To SaastaScholar. Your Payment Has Been Captured And Verified Via Our Banking Gateway.</p>
       
       <div style="background-color:#0b140c; border:1px solid #1f3322; border-radius:14px; padding:20px; margin:20px 0;">
         <table style="width:100%; border-collapse:collapse; font-size:13px;">
