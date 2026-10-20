@@ -71,13 +71,14 @@ services:
       - media_data:/app/Backend/media
       - drm_vault_data:/app/Backend/drm_vault
     networks:
-      - saastascholar_net
+      - coolify
     labels:
       - "coolify.managed=true"
 
 networks:
-  saastascholar_net:
-    driver: bridge
+  coolify:
+    name: coolify
+    external: true
 
 volumes:
   media_data:
