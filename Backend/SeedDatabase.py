@@ -103,72 +103,7 @@ def run_seed():
     SubscriptionPlan.objects.get_or_create(tier="SEMESTER_TOPPER", defaults={"name": "Premium", "price_monthly": 129, "price_semester": 649, "is_popular": True})
     SubscriptionPlan.objects.get_or_create(tier="VIP", defaults={"name": "Elite", "price_monthly": 159, "price_semester": 799})
 
-    # 2. Configure Real Academic Departments & Programs
-    print("-> Configuring Real Academic Departments & Programs...")
-    from Apps.Academic.models import Department, ProgramSpecialization, SectionBatch
-
-    dept_cs, _ = Department.objects.get_or_create(
-        code="CS_ENG",
-        defaults={
-            "name": "Computer Science & Engineering",
-            "description": "School of Computer Science, Engineering & Applications",
-            "head_of_department": "Dr. S. K. Sharma",
-        },
-    )
-    dept_pharm, _ = Department.objects.get_or_create(
-        code="PHARM",
-        defaults={
-            "name": "Pharmacy & Pharmaceutical Sciences",
-            "description": "Institute of Pharmaceutical Sciences",
-            "head_of_department": "Dr. R. K. Verma",
-        },
-    )
-    dept_mgmt, _ = Department.objects.get_or_create(
-        code="MGMT",
-        defaults={
-            "name": "Business Administration & Management",
-            "description": "School of Business & Management Studies",
-            "head_of_department": "Prof. A. Mehra",
-        },
-    )
-    dept_eng, _ = Department.objects.get_or_create(
-        code="CORE_ENG",
-        defaults={
-            "name": "Mechanical & Civil Engineering",
-            "description": "Department of Core Engineering Disciplines",
-            "head_of_department": "Dr. P. C. Joshi",
-        },
-    )
-
-    REAL_PROGRAMS_DATA = [
-        {"department": dept_cs, "name": "B.Tech Computer Science & Engineering", "code": "B.Tech CSE", "degree_level": "Undergraduate", "duration_years": 4, "total_semesters": 8},
-        {"department": dept_cs, "name": "B.Tech Artificial Intelligence & Data Science", "code": "B.Tech AI & DS", "degree_level": "Undergraduate", "duration_years": 4, "total_semesters": 8},
-        {"department": dept_cs, "name": "B.Tech Cyber Security & Digital Forensics", "code": "B.Tech Cyber", "degree_level": "Undergraduate", "duration_years": 4, "total_semesters": 8},
-        {"department": dept_cs, "name": "Bachelor Of Computer Applications", "code": "BCA", "degree_level": "Undergraduate", "duration_years": 3, "total_semesters": 6},
-        {"department": dept_cs, "name": "Master Of Computer Applications", "code": "MCA", "degree_level": "Postgraduate", "duration_years": 2, "total_semesters": 4},
-        {"department": dept_cs, "name": "B.Sc Computer Science & Information Technology", "code": "B.Sc CS & IT", "degree_level": "Undergraduate", "duration_years": 3, "total_semesters": 6},
-        {"department": dept_pharm, "name": "Bachelor Of Pharmacy", "code": "B.Pharm", "degree_level": "Undergraduate", "duration_years": 4, "total_semesters": 8},
-        {"department": dept_pharm, "name": "Master Of Pharmacy", "code": "M.Pharm", "degree_level": "Postgraduate", "duration_years": 2, "total_semesters": 4},
-        {"department": dept_mgmt, "name": "Bachelor Of Business Administration", "code": "BBA", "degree_level": "Undergraduate", "duration_years": 3, "total_semesters": 6},
-        {"department": dept_mgmt, "name": "Master Of Business Administration", "code": "MBA", "degree_level": "Postgraduate", "duration_years": 2, "total_semesters": 4},
-        {"department": dept_eng, "name": "B.Tech Mechanical & Civil Engineering", "code": "B.Tech Mech/Civil", "degree_level": "Undergraduate", "duration_years": 4, "total_semesters": 8},
-    ]
-
-    for p_info in REAL_PROGRAMS_DATA:
-        prog_obj, _ = ProgramSpecialization.objects.get_or_create(
-            code=p_info["code"],
-            defaults=p_info,
-        )
-        # Ensure default Section A exists for Semester 1
-        SectionBatch.objects.get_or_create(
-            program=prog_obj,
-            semester=1,
-            section_name="A",
-            batch_code="2026-2027 Batch",
-            defaults={"academic_year": "2026-2027", "max_capacity": 60},
-        )
-
-    # 3. Configure Default Navigation Badges
+    # 2. Configure Default Navigation Badges
     DEFAULT_BADGES = [
         {"id": "notes", "label": "Handwritten Notes", "badge_text": "Top Notes", "badge_variant": "emerald", "is_active": True, "display_order": 1},
         {"id": "pyqs", "label": "Solved PYQs", "badge_text": "2020–25", "badge_variant": "emerald", "is_active": True, "display_order": 2},
@@ -184,7 +119,7 @@ def run_seed():
     for b in DEFAULT_BADGES:
         SidebarBadgeConfig.objects.get_or_create(id=b["id"], defaults=b)
 
-    # 4. Master Administrator Account from Environment Variables
+    # 3. Master Administrator Account from Environment Variables
     admin_email = os.environ.get("ADMIN_EMAIL", "admin@saastascholar.in").strip().lower()
     admin_password = os.environ.get("ADMIN_PASSWORD", "Admin@123")
     admin_name = os.environ.get("ADMIN_NAME", "Saasta Scholar Master Administrator")
