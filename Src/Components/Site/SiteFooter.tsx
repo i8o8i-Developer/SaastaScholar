@@ -191,19 +191,6 @@ const POLICY_DETAILS: Record<string, { title: string; subtitle: string; content:
   },
 };
 
-const DEFAULT_CAMPUS_PROGRAMS = [
-  { name: "B.Tech Computer Science & Engineering", code: "B.Tech CSE", hover: "hover:border-emerald-500/50 hover:text-emerald-500 hover:bg-emerald-500/10" },
-  { name: "B.Tech Artificial Intelligence & Data Science", code: "B.Tech AI & DS", hover: "hover:border-cyan-500/50 hover:text-cyan-500 hover:bg-cyan-500/10" },
-  { name: "B.Tech Cyber Security & Digital Forensics", code: "B.Tech Cyber", hover: "hover:border-indigo-500/50 hover:text-indigo-500 hover:bg-indigo-500/10" },
-  { name: "Bachelor Of Computer Applications", code: "BCA", hover: "hover:border-purple-500/50 hover:text-purple-500 hover:bg-purple-500/10" },
-  { name: "Master Of Computer Applications", code: "MCA", hover: "hover:border-pink-500/50 hover:text-pink-500 hover:bg-pink-500/10" },
-  { name: "B.Sc Computer Science & Information Technology", code: "B.Sc CS & IT", hover: "hover:border-teal-500/50 hover:text-teal-500 hover:bg-teal-500/10" },
-  { name: "Bachelor Of Pharmacy", code: "B.Pharm", hover: "hover:border-rose-500/50 hover:text-rose-500 hover:bg-rose-500/10" },
-  { name: "Master Of Pharmacy", code: "M.Pharm", hover: "hover:border-amber-500/50 hover:text-amber-500 hover:bg-amber-500/10" },
-  { name: "Bachelor Of Business Administration", code: "BBA", hover: "hover:border-orange-500/50 hover:text-orange-500 hover:bg-orange-500/10" },
-  { name: "Master Of Business Administration", code: "MBA", hover: "hover:border-violet-500/50 hover:text-violet-500 hover:bg-violet-500/10" },
-  { name: "B.Tech Mechanical & Civil Engineering", code: "B.Tech Mech/Civil", hover: "hover:border-fuchsia-500/50 hover:text-fuchsia-500 hover:bg-fuchsia-500/10" },
-];
 
 const SOCIAL_LINKS = [
   {
@@ -296,12 +283,12 @@ export function SiteFooter() {
               }))
             );
           } else {
-            setProgramsList(DEFAULT_CAMPUS_PROGRAMS);
+            setProgramsList([]);
           }
         }
       } catch {
         if (active) {
-          setProgramsList(DEFAULT_CAMPUS_PROGRAMS);
+          setProgramsList([]);
         }
       }
     };
@@ -558,37 +545,39 @@ export function SiteFooter() {
           </div>
         </div>
 
-        {/* ===================== Department Badges with Rainbow Hover (Real Database Programs) ===================== */}
-        <div className="mt-10 sm:mt-14 border-t border-border/80 pt-6 sm:pt-8 min-w-0">
-          <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between min-w-0">
-            <div className="flex items-center gap-2 text-[0.7rem] sm:text-xs font-bold text-foreground uppercase tracking-wider shrink-0">
-              <div className="grid h-5 w-5 place-items-center rounded-md bg-gradient-to-r from-emerald-500 to-teal-500 text-white">
-                <GraduationCap className="h-3 w-3 shrink-0" />
+        {/* ===================== Department Badges with Rainbow Hover (Real Database Programs Only) ===================== */}
+        {programsList.length > 0 && (
+          <div className="mt-10 sm:mt-14 border-t border-border/80 pt-6 sm:pt-8 min-w-0">
+            <div className="flex flex-col gap-2.5 lg:flex-row lg:items-center lg:justify-between min-w-0">
+              <div className="flex items-center gap-2 text-[0.7rem] sm:text-xs font-bold text-foreground uppercase tracking-wider shrink-0">
+                <div className="grid h-5 w-5 place-items-center rounded-md bg-gradient-to-r from-emerald-500 to-teal-500 text-white">
+                  <GraduationCap className="h-3 w-3 shrink-0" />
+                </div>
+                <span>Supported Programs:</span>
               </div>
-              <span>Supported Programs:</span>
-            </div>
-            <div className="flex flex-wrap gap-1.5 min-w-0">
-              {programsList.map((prog, idx) => (
-                <a
-                  key={prog.name + idx}
-                  href={`/login?mode=signup&program=${encodeURIComponent(prog.code || prog.name)}`}
-                  className={cn(
-                    "rounded-lg border border-border/70 bg-card/70 px-2.5 py-1 text-[0.65rem] sm:text-xs font-medium text-muted-foreground transition-all duration-200 shadow-2xs backdrop-blur-xs hover:scale-105 cursor-pointer flex items-center gap-1.5",
-                    prog.hover,
-                  )}
-                  title={`Enroll in ${prog.name}`}
-                >
-                  <span>{prog.name}</span>
-                  {prog.code && (
-                    <span className="font-mono text-[0.6rem] font-bold opacity-75">
-                      ({prog.code})
-                    </span>
-                  )}
-                </a>
-              ))}
+              <div className="flex flex-wrap gap-1.5 min-w-0">
+                {programsList.map((prog, idx) => (
+                  <a
+                    key={prog.name + idx}
+                    href={`/login?mode=signup&program=${encodeURIComponent(prog.code || prog.name)}`}
+                    className={cn(
+                      "rounded-lg border border-border/70 bg-card/70 px-2.5 py-1 text-[0.65rem] sm:text-xs font-medium text-muted-foreground transition-all duration-200 shadow-2xs backdrop-blur-xs hover:scale-105 cursor-pointer flex items-center gap-1.5",
+                      prog.hover,
+                    )}
+                    title={`Enroll In ${prog.name}`}
+                  >
+                    <span>{prog.name}</span>
+                    {prog.code && (
+                      <span className="font-mono text-[0.6rem] font-bold opacity-75">
+                        ({prog.code})
+                      </span>
+                    )}
+                  </a>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* ===================== Bottom Copyright & Back-to-Top ===================== */}
         <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-border/80 pt-6 min-w-0">
