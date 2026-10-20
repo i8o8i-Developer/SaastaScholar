@@ -17,6 +17,7 @@ from .serializers import (
     RazorpayOrderSerializer,
     DiscountCouponSerializer,
 )
+from Core.telemetry import start_custom_span
 
 # Standardized Pricing Matrix (Paise: 1 INR = 100 Paise)
 PRICING_MATRIX = {
@@ -556,52 +557,55 @@ class RazorpayWebhookView(APIView):
         event = data.get("event", "")
         payload = data.get("payload", {})
 
-        if event in ("payment.captured", "order.paid"):
-            payment_entity = payload.get("payment", {}).get("entity", {})
-            order_id = payment_entity.get("order_id") or payload.get("order", {}).get("entity", {}).get("id")
-            payment_id = payment_entity.get("id")
+        with start_custom_span("razorpay.process_webhook", {"webhook.event": event}) as span:
+            if event in ("payment.captured", "order.paid"):
+                payment_entity = payload.get("payment", {}).get("entity", {})
+                order_id = payment_entity.get("order_id") or payload.get("order", {}).get("entity", {}).get("id")
+                payment_id = payment_entity.get("id")
 
-            if order_id:
-                try:
-                    order = RazorpayOrder.objects.select_related("user").get(order_id=order_id)
-                    order.status = "paid"
-                    if payment_id and not order.payment_id:
-                        order.payment_id = payment_id
-                    if not order.invoice_number:
-                        order.invoice_number = f"INV-{timezone.now().year}-{uuid.uuid4().hex[:8].upper()}"
-                    order.save()
+                if order_id:
+                    try:
+                        order = RazorpayOrder.objects.select_related("user").get(order_id=order_id)
+                        order.status = "paid"
+                        if payment_id and not order.payment_id:
+                            order.payment_id = payment_id
+                        if not order.invoice_number:
+                            order.invoice_number = f"INV-{timezone.now().year}-{uuid.uuid4().hex[:8].upper()}"
+                        order.save()
 
-                    # Upgrade Scholar Plan Tier
-                    student = order.user
-                    student.access_tier = order.plan_tier
-                    student.save(update_fields=["access_tier"])
-                except RazorpayOrder.DoesNotExist:
-                    pass
+                        # Upgrade Scholar Plan Tier
+                        student = order.user
+                        student.access_tier = order.plan_tier
+                        student.save(update_fields=["access_tier"])
+                        if span:
+                            span.add_event("scholar.tier_upgraded", {"student.email": student.email, "tier": order.plan_tier})
+                    except RazorpayOrder.DoesNotExist:
+                        pass
 
-        elif event == "payment.failed":
-            payment_entity = payload.get("payment", {}).get("entity", {})
-            order_id = payment_entity.get("order_id")
-            if order_id:
-                try:
-                    order = RazorpayOrder.objects.get(order_id=order_id)
-                    order.status = "failed"
-                    order.save(update_fields=["status", "updated_at"])
-                except RazorpayOrder.DoesNotExist:
-                    pass
+            elif event == "payment.failed":
+                payment_entity = payload.get("payment", {}).get("entity", {})
+                order_id = payment_entity.get("order_id")
+                if order_id:
+                    try:
+                        order = RazorpayOrder.objects.get(order_id=order_id)
+                        order.status = "failed"
+                        order.save(update_fields=["status", "updated_at"])
+                    except RazorpayOrder.DoesNotExist:
+                        pass
 
-        elif event == "refund.processed":
-            refund_entity = payload.get("refund", {}).get("entity", {})
-            payment_id = refund_entity.get("payment_id")
-            if payment_id:
-                try:
-                    order = RazorpayOrder.objects.select_related("user").get(payment_id=payment_id)
-                    order.status = "refunded"
-                    order.save(update_fields=["status", "updated_at"])
-                    student = order.user
-                    student.access_tier = "FREE"
-                    student.save(update_fields=["access_tier"])
-                except RazorpayOrder.DoesNotExist:
-                    pass
+            elif event == "refund.processed":
+                refund_entity = payload.get("refund", {}).get("entity", {})
+                payment_id = refund_entity.get("payment_id")
+                if payment_id:
+                    try:
+                        order = RazorpayOrder.objects.select_related("user").get(payment_id=payment_id)
+                        order.status = "refunded"
+                        order.save(update_fields=["status", "updated_at"])
+                        student = order.user
+                        student.access_tier = "FREE"
+                        student.save(update_fields=["access_tier"])
+                    except RazorpayOrder.DoesNotExist:
+                        pass
 
         return Response({"status": "ok", "message": f"Webhook '{event}' Processed Successfully."})
 
