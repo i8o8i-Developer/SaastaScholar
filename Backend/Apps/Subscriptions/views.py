@@ -514,3 +514,94 @@ class AdminCouponDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = DiscountCoupon.objects.all()
     serializer_class = DiscountCouponSerializer
     permission_classes = [permissions.IsAdminUser]
+
+
+class RazorpayWebhookView(APIView):
+    """
+    Official Razorpay Webhook Endpoint
+    Verifies X-Razorpay-Signature using RAZORPAY_WEBHOOK_SECRET and processes:
+    - payment.captured / order.paid: Upgrades scholar access tier
+    - payment.failed: Records failed transaction
+    - refund.processed: Downgrades scholar to FREE
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        secret = getattr(settings, "RAZORPAY_WEBHOOK_SECRET", "")
+        signature = request.headers.get("X-Razorpay-Signature", "")
+        raw_body = request.body
+
+        # Verify Signature If Webhook Secret Is Configured
+        if secret and signature:
+            import hmac
+            import hashlib
+            expected_sig = hmac.new(
+                secret.encode("utf-8"),
+                raw_body,
+                hashlib.sha256,
+            ).hexdigest()
+
+            if not hmac.compare_digest(expected_sig, signature):
+                return Response(
+                    {"error": "Invalid Webhook Cryptographic Signature."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        try:
+            import json
+            data = json.loads(raw_body.decode("utf-8")) if raw_body else {}
+        except Exception:
+            return Response({"error": "Malformed JSON Payload."}, status=status.HTTP_400_BAD_REQUEST)
+
+        event = data.get("event", "")
+        payload = data.get("payload", {})
+
+        if event in ("payment.captured", "order.paid"):
+            payment_entity = payload.get("payment", {}).get("entity", {})
+            order_id = payment_entity.get("order_id") or payload.get("order", {}).get("entity", {}).get("id")
+            payment_id = payment_entity.get("id")
+
+            if order_id:
+                try:
+                    order = RazorpayOrder.objects.select_related("user").get(order_id=order_id)
+                    order.status = "paid"
+                    if payment_id and not order.payment_id:
+                        order.payment_id = payment_id
+                    if not order.invoice_number:
+                        order.invoice_number = f"INV-{timezone.now().year}-{uuid.uuid4().hex[:8].upper()}"
+                    order.save()
+
+                    # Upgrade Scholar Plan Tier
+                    student = order.user
+                    student.access_tier = order.plan_tier
+                    student.save(update_fields=["access_tier"])
+                except RazorpayOrder.DoesNotExist:
+                    pass
+
+        elif event == "payment.failed":
+            payment_entity = payload.get("payment", {}).get("entity", {})
+            order_id = payment_entity.get("order_id")
+            if order_id:
+                try:
+                    order = RazorpayOrder.objects.get(order_id=order_id)
+                    order.status = "failed"
+                    order.save(update_fields=["status", "updated_at"])
+                except RazorpayOrder.DoesNotExist:
+                    pass
+
+        elif event == "refund.processed":
+            refund_entity = payload.get("refund", {}).get("entity", {})
+            payment_id = refund_entity.get("payment_id")
+            if payment_id:
+                try:
+                    order = RazorpayOrder.objects.select_related("user").get(payment_id=payment_id)
+                    order.status = "refunded"
+                    order.save(update_fields=["status", "updated_at"])
+                    student = order.user
+                    student.access_tier = "FREE"
+                    student.save(update_fields=["access_tier"])
+                except RazorpayOrder.DoesNotExist:
+                    pass
+
+        return Response({"status": "ok", "message": f"Webhook '{event}' Processed Successfully."})
+

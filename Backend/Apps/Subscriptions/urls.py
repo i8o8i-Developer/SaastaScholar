@@ -9,6 +9,7 @@ from .views import (
     AdminInvoiceDetailView,
     AdminCouponListCreateView,
     AdminCouponDetailView,
+    RazorpayWebhookView,
 )
 
 urlpatterns = [
@@ -17,6 +18,8 @@ urlpatterns = [
     path("apply-coupon/", ApplyCouponView.as_view(), name="subscription-apply-coupon"),
     path("razorpay/create-order/", RazorpayCreateOrderView.as_view(), name="razorpay-create-order"),
     path("razorpay/verify-payment/", RazorpayVerifyPaymentView.as_view(), name="razorpay-verify-payment"),
+    path("webhook/", RazorpayWebhookView.as_view(), name="razorpay-webhook"),
+    path("razorpay/webhook/", RazorpayWebhookView.as_view(), name="razorpay-webhook-alias"),
 
     # Administrator Management Endpoints
     path("admin/orders/", AdminOrderListView.as_view(), name="admin-orders-list"),
