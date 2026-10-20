@@ -121,6 +121,9 @@ class RegisterSerializer(serializers.ModelSerializer):
         password = validated_data.pop("password")
         email = validated_data.get("email")
         validated_data["username"] = email
+        # Security Policy: All Newly Registered Scholars Must Begin At FREE Tier
+        # Plan Upgrades Occur Strictly Upon Real Verified Razorpay Payment Capture
+        validated_data["access_tier"] = "FREE"
         user = StudentUser(**validated_data)
         user.set_password(password)
         user.save()

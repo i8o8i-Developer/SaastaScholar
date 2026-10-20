@@ -238,11 +238,11 @@ export function Login() {
           roll_number: studentRoll,
           target_cgpa: studentTarget,
           current_cgpa: studentCurrent,
-          access_tier: selectedPlan,
+          access_tier: "FREE",
         });
 
         if (selectedPlan !== "FREE" && selectedPlan !== "STARTER") {
-          toast.success("Account created! Opening payment gateway to activate membership...");
+          toast.success("Account Created! Connecting Secure Razorpay Gateway...");
           initiateRazorpayPayment({
             planTier: selectedPlan,
             cycle: "monthly",
@@ -251,8 +251,11 @@ export function Login() {
               const destinationTab = searchParams.get("tab") || "overview";
               window.location.href = `/dashboard?tab=${encodeURIComponent(destinationTab)}`;
             },
-            onError: () => {
-              window.location.href = "/dashboard";
+            onError: (err) => {
+              toast.error(err?.message || "Payment Gateway Dismissed. You Can Upgrade Anytime From Your Dashboard.");
+              setTimeout(() => {
+                window.location.href = "/dashboard";
+              }, 1500);
             },
           });
           return;

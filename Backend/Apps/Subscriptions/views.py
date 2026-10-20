@@ -177,32 +177,36 @@ class RazorpayCreateOrderView(APIView):
                 final_amount = max(0, base_amount - discount_paise)
                 applied_coupon = coupon
 
-        key_id = getattr(settings, "RAZORPAY_KEY_ID", "rzp_test_mock_saastas")
-        key_secret = getattr(settings, "RAZORPAY_KEY_SECRET", "")
+        key_id = getattr(settings, "RAZORPAY_KEY_ID", "").strip()
+        key_secret = getattr(settings, "RAZORPAY_KEY_SECRET", "").strip()
 
-        order_id = None
-        if key_secret and key_id and not key_id.startswith("rzp_test_mock") and final_amount > 0:
-            try:
-                import razorpay
-                client = razorpay.Client(auth=(key_id, key_secret))
-                rp_order = client.order.create({
-                    "amount": final_amount,
-                    "currency": "INR",
-                    "receipt": f"rcpt_{uuid.uuid4().hex[:10]}",
-                    "notes": {
-                        "user_id": str(request.user.id),
-                        "user_email": request.user.email,
-                        "plan_tier": plan_tier,
-                        "cycle": cycle,
-                        "coupon_code": coupon_code,
-                    },
-                })
-                order_id = rp_order.get("id")
-            except Exception:
-                order_id = None
+        if not key_id or not key_secret:
+            return Response(
+                {"error": "Razorpay Payment Gateway Is Not Configured On The Server. Please Ensure RAZORPAY_KEY_ID And RAZORPAY_KEY_SECRET Are Set."},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
 
-        if not order_id:
-            order_id = f"order_saasta_{uuid.uuid4().hex[:16]}"
+        try:
+            import razorpay
+            client = razorpay.Client(auth=(key_id, key_secret))
+            rp_order = client.order.create({
+                "amount": final_amount,
+                "currency": "INR",
+                "receipt": f"rcpt_{uuid.uuid4().hex[:10]}",
+                "notes": {
+                    "user_id": str(request.user.id),
+                    "user_email": request.user.email,
+                    "plan_tier": plan_tier,
+                    "cycle": cycle,
+                    "coupon_code": coupon_code or "",
+                },
+            })
+            order_id = rp_order["id"]
+        except Exception as exc:
+            return Response(
+                {"error": f"Razorpay Gateway Order Generation Failed: {str(exc)}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         invoice_no = f"INV-{timezone.now().year}-{uuid.uuid4().hex[:8].upper()}"
 
@@ -254,15 +258,9 @@ class RazorpayVerifyPaymentView(APIView):
 
         order_record = RazorpayOrder.objects.filter(order_id=order_id, user=request.user).first()
         if not order_record:
-            tier_to_use = plan_tier or "BASIC"
-            order_record = RazorpayOrder.objects.create(
-                user=request.user,
-                order_id=order_id,
-                amount=PRICING_MATRIX.get(tier_to_use, {}).get("monthly", 9900),
-                currency="INR",
-                plan_tier=tier_to_use,
-                status="created",
-                invoice_number=f"INV-{timezone.now().year}-{uuid.uuid4().hex[:8].upper()}",
+            return Response(
+                {"error": f"No Matching Order Found For ID '{order_id}'."},
+                status=status.HTTP_404_NOT_FOUND,
             )
 
         target_tier = plan_tier or order_record.plan_tier
@@ -275,20 +273,37 @@ class RazorpayVerifyPaymentView(APIView):
         }
         canonical_tier = tier_alias_map.get(target_tier, target_tier)
 
-        key_secret = getattr(settings, "RAZORPAY_KEY_SECRET", "")
-        if key_secret and signature and not order_id.startswith("order_saasta_"):
-            try:
-                import razorpay
-                client = razorpay.Client(auth=(getattr(settings, "RAZORPAY_KEY_ID", ""), key_secret))
-                client.utility.verify_payment_signature({
-                    "razorpay_order_id": order_id,
-                    "razorpay_payment_id": payment_id,
-                    "razorpay_signature": signature,
-                })
-            except Exception as e:
-                order_record.status = "failed"
-                order_record.save()
-                return Response({"error": f"Signature Verification Failed : {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+        key_id = getattr(settings, "RAZORPAY_KEY_ID", "").strip()
+        key_secret = getattr(settings, "RAZORPAY_KEY_SECRET", "").strip()
+
+        if not key_secret:
+            return Response(
+                {"error": "Razorpay Secret Key Is Not Configured On The Server."},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
+
+        if not signature:
+            return Response(
+                {"error": "Cryptographic Razorpay Signature Is Required For Verification."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Enforce Real Cryptographic HMAC Verification
+        try:
+            import razorpay
+            client = razorpay.Client(auth=(key_id, key_secret))
+            client.utility.verify_payment_signature({
+                "razorpay_order_id": order_id,
+                "razorpay_payment_id": payment_id,
+                "razorpay_signature": signature,
+            })
+        except Exception as e:
+            order_record.status = "failed"
+            order_record.save(update_fields=["status", "updated_at"])
+            return Response(
+                {"error": f"Cryptographic Signature Verification Failed: {str(e)}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         if not order_record.invoice_number:
             order_record.invoice_number = f"INV-{timezone.now().year}-{uuid.uuid4().hex[:8].upper()}"
