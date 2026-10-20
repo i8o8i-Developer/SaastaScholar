@@ -49,6 +49,11 @@ class RegisterView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
+        try:
+            from Core.mail import send_welcome_email
+            send_welcome_email(user)
+        except Exception:
+            pass
         
         refresh = RefreshToken.for_user(user)
         return Response(
@@ -587,7 +592,7 @@ class AdminAuditLogClearView(APIView):
 
 
 import random
-from django.core.mail import send_mail
+from Core.mail import send_password_reset_email, send_system_email
 from django.conf import settings
 from .models import PasswordResetToken
 
@@ -610,32 +615,29 @@ class PasswordResetRequestView(APIView):
         PasswordResetToken.objects.filter(email=user.email, is_used=False).update(is_used=True)
         PasswordResetToken.objects.create(email=user.email, otp=otp)
 
-        subject = "SaastaScholar — Password Reset Verification Code"
-        message = (
-            f"Hello {user.full_name or user.username},\n\n"
-            f"You requested to reset your password on SaastaScholar.\n\n"
-            f"Your 6-Digit Password Reset Verification Code is:\n\n"
-            f"      {otp}\n\n"
-            f"This code will expire in 15 minutes.\n"
-            f"If you did not request this reset, please ignore this email.\n\n"
-            f"— The SaastaScholar Academic Security Team"
-        )
-        try:
-            send_mail(
-                subject=subject,
-                message=message,
-                from_email=getattr(settings, "DEFAULT_FROM_EMAIL", "support@saastascholar.in"),
-                recipient_list=[user.email],
-                fail_silently=True,
-            )
-        except Exception:
-            pass
+        send_success, send_err = send_password_reset_email(user, otp)
 
         return Response({
             "success": True,
-            "message": "Verification code has been sent to your email address.",
+            "message": "Verification Code Has Been Sent To Your email address." if send_success else f"Email dispatch notice: {send_err or 'Code generated'}",
             "debug_otp": otp if settings.DEBUG else None,
         })
+
+
+class EmailTestView(APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    def post(self, request):
+        target_email = str(request.data.get("email") or request.user.email).strip().lower()
+        success, error = send_system_email(
+            subject="SaastaScholar Mail Service Verification Test",
+            recipient_email=target_email,
+            text_content="This is a verified test email sent from the SaastaScholar production mail service.",
+            html_content="<h2 style='color:#34d399;'>Mail Service Operational!</h2><p>Your SMTP mail configuration is online and successfully delivering emails to recipient inboxes.</p>",
+        )
+        if success:
+            return Response({"success": True, "message": f"Verification email successfully delivered to '{target_email}'."})
+        return Response({"error": f"Mail dispatch failed: {error}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class PasswordResetConfirmView(APIView):

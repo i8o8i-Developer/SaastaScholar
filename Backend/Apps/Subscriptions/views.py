@@ -339,6 +339,12 @@ class RazorpayVerifyPaymentView(APIView):
             transaction_id=payment_id,
         )
 
+        try:
+            from Core.mail import send_payment_success_email
+            send_payment_success_email(order_record)
+        except Exception:
+            pass
+
         return Response({
             "success": True,
             "message": f"Payment Verified! Your Account Is Now Upgraded To {canonical_tier} Tier.",
@@ -592,6 +598,11 @@ class RazorpayWebhookView(APIView):
                         student = order.user
                         student.access_tier = order.plan_tier
                         student.save(update_fields=["access_tier"])
+                        try:
+                            from Core.mail import send_payment_success_email
+                            send_payment_success_email(order)
+                        except Exception:
+                            pass
                         if span:
                             span.add_event("scholar.tier_upgraded", {"student.email": student.email, "tier": order.plan_tier})
                     except RazorpayOrder.DoesNotExist:

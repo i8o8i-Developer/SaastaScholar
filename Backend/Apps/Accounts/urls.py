@@ -15,6 +15,7 @@ from .views import (
     AdminBulkResetSecurityView,
     PasswordResetRequestView,
     PasswordResetConfirmView,
+    EmailTestView,
 )
 
 urlpatterns = [
@@ -37,4 +38,5 @@ urlpatterns = [
     path("admin/users/<uuid:pk>/security-action/", AdminStudentSecurityActionView.as_view(), name="auth-admin-student-security"),
     path("admin/audit-logs/", AdminAuditLogListView.as_view(), name="auth-admin-audit-logs"),
     path("admin/audit-logs/clear/", AdminAuditLogClearView.as_view(), name="auth-admin-audit-logs-clear"),
+    path("admin/email/test/", EmailTestView.as_view(), name="auth-admin-email-test"),
 ]
