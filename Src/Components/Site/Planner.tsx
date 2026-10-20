@@ -182,12 +182,12 @@ const DAILY_SCHEDULES: Record<string, ScheduleItem[]> = {
 };
 
 const TRACKS = [
-  "Daily Classes & Faculty Timetable",
-  "Lab Manual Experiments & Codes",
-  "Assignment Submission Deadlines",
-  "Solved PYQ Revision Sessions",
-  "Department Notices & Exam Dates",
-  "Personal Focus & Study Blocks",
+  "Daily Lectures & Room Numbers",
+  "Lab Practical Experiments & Code",
+  "Homework Submission Deadlines",
+  "Exam Revision & Solved Papers",
+  "Urgent College Announcements",
+  "Personal Focus Study Time",
 ];
 
 export function Planner() {
@@ -206,9 +206,9 @@ export function Planner() {
 
       <Reveal>
         <SectionHeading
-          eyebrow="Student Planner & Schedule"
-          title="Know What You Need To Do Next."
-          description="A Single Timeline That Merges Your Timetable, Lab Sessions, Deadlines, Exams And Personal Study Blocks Into One Honest View Of The Week."
+          eyebrow="Class Timetable & Daily Planner"
+          title="Your Daily Classes and Deadlines, Simplified."
+          description="See What Class Is Next, Which Lab Needs Prep, And What Assignment Is Due — All On A Clean Daily Timeline."
         />
       </Reveal>
 
@@ -277,10 +277,10 @@ export function Planner() {
                   <Coffee className="h-6 w-6" />
                 </div>
                 <h4 className="font-display font-bold text-sm sm:text-base text-foreground">
-                  No Official Classes Scheduled For Sunday
+                  No Classes Scheduled For Sunday
                 </h4>
                 <p className="mt-1 text-xs text-muted-foreground max-w-xs mx-auto">
-                  Enjoy Your Weekend Or Browse Solved Previous-Year Papers In The Academic Hub At Your Own Pace.
+                  Enjoy Your Break Or Revise At Your Own Pace!
                 </p>
               </div>
             )}
@@ -312,11 +312,11 @@ export function Planner() {
             <div className="mt-6 rounded-xl border border-border/80 bg-surface/90 p-4 min-w-0">
               <div className="flex items-center gap-2 text-xs font-bold text-foreground">
                 <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />
-                <span>Automatic Department Sync</span>
+                <span>Always Synced With Your Department</span>
               </div>
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                Lectures And Practicals Populate Automatically From Your Semester Timetable.
-                Personal Deadlines &amp; Task Notes Remain 100% Private.
+                Classes And Lab Sessions Update Automatically From Your Class Timetable.
+                Your Personal Study Notes Stay Private.
               </p>
             </div>
           </div>

@@ -119,7 +119,7 @@ else:
 # REDIS HIGH-PERFORMANCE CACHING LAYER (PORT 5666)
 # ==============================================================================
 REDIS_HOST = os.environ.get("REDIS_HOST", "127.0.0.1")
-REDIS_PORT = os.environ.get("REDIS_PORT", "5666")
+REDIS_PORT = os.environ.get("REDIS_PORT", "6379")
 REDIS_PASSWORD = os.environ.get("REDIS_PASSWORD", None)
 
 if REDIS_PASSWORD:
@@ -255,9 +255,29 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:7865",
     "http://127.0.0.1:5173",
     "http://127.0.0.1:7865",
+    "https://saastascholar.durgaaisolutions.in",
     "https://nimswallah.durgaaisolutions.in",
 ]
 
 # DRM Security Engine Configuration
-DRM_SIGNING_KEY = os.environ.get("DRM_SIGNING_KEY", "nimswallah-forensic-drm-watermark-key-2026")
+DRM_SIGNING_KEY = os.environ.get("DRM_SIGNING_KEY", "saastascholar-forensic-drm-watermark-key-2026")
 DRM_TOKEN_EXPIRY_SECONDS = 3600  # 1 hour ephemeral session token
+
+# Razorpay Payment Gateway Configuration
+RAZORPAY_KEY_ID = os.environ.get("RAZORPAY_KEY_ID", "rzp_test_mock_saastas")
+RAZORPAY_KEY_SECRET = os.environ.get("RAZORPAY_KEY_SECRET", "")
+RAZORPAY_WEBHOOK_SECRET = os.environ.get("RAZORPAY_WEBHOOK_SECRET", "")
+
+# Email Dispatch Configuration (Password Reset, Welcome & Notifications)
+EMAIL_BACKEND = os.environ.get(
+    "EMAIL_BACKEND",
+    "django.core.mail.backends.console.EmailBackend" if DEBUG else "django.core.mail.backends.smtp.EmailBackend"
+)
+EMAIL_HOST = os.environ.get("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_PORT = int(os.environ.get("EMAIL_PORT", 587))
+EMAIL_USE_TLS = os.environ.get("EMAIL_USE_TLS", "True").lower() in ("true", "1")
+EMAIL_USE_SSL = os.environ.get("EMAIL_USE_SSL", "False").lower() in ("true", "1")
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER", "support@saastascholar.in")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD", "")
+DEFAULT_FROM_EMAIL = os.environ.get("DEFAULT_FROM_EMAIL", "SaastaScholar Support <support@saastascholar.in>")
+EMAIL_TIMEOUT = int(os.environ.get("EMAIL_TIMEOUT", 10))

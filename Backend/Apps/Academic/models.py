@@ -77,6 +77,25 @@ class Subject(models.Model):
     def __str__(self):
         return f"{self.code}: {self.name} (Sem {self.semester})"
 
+class SubjectUnit(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name="units")
+    unit_number = models.PositiveSmallIntegerField(default=1)
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, default="")
+    topics = models.JSONField(default=list, blank=True)
+    marks_weightage = models.PositiveSmallIntegerField(default=15)
+    estimated_hours = models.PositiveSmallIntegerField(default=10)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["subject", "unit_number"]
+        unique_together = ("subject", "unit_number")
+
+    def __str__(self):
+        return f"[{self.subject.code}] Unit {self.unit_number}: {self.title}"
+
 class AcademicMaterial(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name="materials")
@@ -161,6 +180,21 @@ class DepartmentNotice(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.category})"
+
+
+class NoticeReadReceipt(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="read_notices")
+    notice = models.ForeignKey(DepartmentNotice, on_delete=models.CASCADE, related_name="read_receipts")
+    read_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Notice Read Receipt"
+        verbose_name_plural = "Notice Read Receipts"
+        unique_together = ("user", "notice")
+
+    def __str__(self):
+        return f"{self.user} read {self.notice.title}"
 
 
 class SidebarBadgeConfig(models.Model):

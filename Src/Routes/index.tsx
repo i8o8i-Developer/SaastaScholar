@@ -15,7 +15,7 @@ import { SiteFooter } from "@/Components/Site/SiteFooter";
 import { SiteNav } from "@/Components/Site/SiteNav";
 import { BroadcastBanner } from "@/Components/Ui/BroadcastBanner";
 
-const TITLE = "NimsWallah — Your Entire University Life. Organized.";
+const TITLE = "SaastaScholar — Your Entire University Life. Organized.";
 const DESCRIPTION =
   "Notes, assignments, practicals, previous-year papers, notifications and planning — organized around your university, department, semester and section.";
 

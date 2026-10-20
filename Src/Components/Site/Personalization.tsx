@@ -105,22 +105,21 @@ export function Personalization() {
       <div className="grid gap-10 lg:gap-12 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.2fr)] lg:items-center">
         <Reveal>
           <SectionHeading
-            eyebrow="Academic Personalization"
-            title="Your Academic Content, Filtered For You."
-            description="NimsWallah Does Not Show You A Library Of Random Material. It Resolves Your Exact Academic Position — Then Serves Only What Belongs To It."
+            eyebrow="Smart Filter"
+            title="Only What You Need. Never Cluttered."
+            description="No More Digging Through Random PDFs. Tell Us Your Course And Semester, And We Automatically Show Only The Notes, Lab Codes, And Exam Papers Made For Your Class."
           />
           <p className="mt-5 max-w-xl text-sm sm:text-base leading-relaxed text-muted-foreground">
-            Every Note, Solved PYQ Paper, Lab Manual And Deadline Inherits Your Academic Context.
-            Change Your Semester And The Entire Workspace Re-Filters Instantly.
+            Whenever You Switch Subjects Or Semesters, Your Entire Dashboard Updates In One Second.
           </p>
 
           <div className="mt-8 flex flex-wrap items-center gap-4">
             <Cta href="/login" size="lg" className="shadow-md hover:shadow-lg">
-              <span>Access Your Semester Hub</span>
+              <span>Open My Study Hub</span>
               <ArrowRight className="h-4 w-4 shrink-0" />
             </Cta>
             <Cta href="#academic-hub" variant="outline" size="lg">
-              Explore Academic Hub
+              See Course Notes
             </Cta>
           </div>
         </Reveal>
@@ -136,11 +135,11 @@ export function Personalization() {
                     <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
                   </span>
                   <span className="label-caps font-bold text-foreground text-xs whitespace-nowrap">
-                    Academic Scope Chain
+                    How We Find Your Material
                   </span>
                 </div>
                 <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[0.65rem] font-bold text-primary shrink-0 whitespace-nowrap">
-                  Inherited
+                  Automatic
                 </span>
               </div>
 
@@ -201,10 +200,10 @@ export function Personalization() {
                   <div className="flex items-center gap-2 min-w-0">
                     <Filter className="h-4 w-4 text-primary shrink-0" />
                     <span className="label-caps font-bold text-foreground text-xs whitespace-nowrap">
-                      Matched For You
+                      Matched For Your Class
                     </span>
                   </div>
-                  <Pill tone="green" className="shrink-0 whitespace-nowrap">4 Synced</Pill>
+                  <Pill tone="green" className="shrink-0 whitespace-nowrap">4 Ready Now</Pill>
                 </div>
 
                 <ul className="mt-3.5 space-y-2.5 min-w-0">
@@ -244,11 +243,11 @@ export function Personalization() {
                 <div className="flex items-center gap-2 text-xs text-muted-foreground min-w-0">
                   <Lock className="h-3.5 w-3.5 text-primary shrink-0" />
                   <span className="truncate text-[0.72rem] font-medium text-foreground">
-                    412 Irrelevant Items Hidden
+                    412 Unrelated Class PDFs Filtered Out
                   </span>
                 </div>
                 <p className="mt-0.5 text-[0.65rem] text-muted-foreground">
-                  Zero WhatsApp Spam. Zero Random Course Noise.
+                  No Random Group Forwards. No Confusing Files.
                 </p>
               </div>
             </div>

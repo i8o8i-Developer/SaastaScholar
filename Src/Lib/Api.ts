@@ -57,7 +57,7 @@ export interface StudentUser {
   roll_number: string;
   enrollment_no: string;
   avatar_url: string;
-  access_tier: "FREE" | "SEMESTER_TOPPER" | "VIP";
+  access_tier: "FREE" | "BASIC" | "PREMIUM" | "ELITE" | "STARTER" | "SCHOLAR" | "ACHIEVER" | "ELITE_PLUS" | "SEMESTER_TOPPER" | "VIP" | (string & {});
   target_cgpa: string;
   current_cgpa: string;
   is_verified: boolean;
@@ -120,9 +120,26 @@ export interface Subject {
   syllabus_summary?: string;
   faculty_name?: string;
   icon_name?: string;
-  color_accent?: string;
   materials_count?: number;
   experiments_count?: number;
+  units_count?: number;
+}
+
+export interface SubjectUnit {
+  id: string;
+  subject: string;
+  subject_code?: string;
+  subject_name?: string;
+  department_name?: string;
+  semester?: number;
+  unit_number: number;
+  title: string;
+  description?: string;
+  topics?: string[];
+  marks_weightage?: number;
+  estimated_hours?: number;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface AcademicMaterial {
@@ -719,10 +736,47 @@ export const communityApi = {
 // Student Management & Security Shield API
 // --------------------------------------------------------
 export const studentSecurityApi = {
-  getStudents: async (): Promise<StudentUser[]> => {
-    const res = await apiFetch<any>("/accounts/admin/users/");
+  getStudents: async (params?: { semester?: number; program?: string; search?: string }): Promise<StudentUser[]> => {
+    const query = new URLSearchParams();
+    if (params?.semester) query.set("semester", String(params.semester));
+    if (params?.program) query.set("program", params.program);
+    if (params?.search) query.set("search", params.search);
+    const qs = query.toString() ? `?${query.toString()}` : "";
+    const res = await apiFetch<any>(`/accounts/admin/users/${qs}`);
     return Array.isArray(res) ? res : res?.results || [];
   },
+  registerStudent: (data: {
+    email: string;
+    full_name: string;
+    roll_number: string;
+    enrollment_no?: string | undefined;
+    department?: string | undefined;
+    program?: string | undefined;
+    semester: number;
+    section?: string | undefined;
+    access_tier?: string | undefined;
+    password?: string | undefined;
+  }) =>
+    apiFetch<{ message: string; user: StudentUser }>("/accounts/admin/users/", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  upgradeSemester: (data: {
+    mode: "single" | "bulk";
+    student_id?: string | undefined;
+    current_semester?: number | undefined;
+    target_semester?: number | undefined;
+    section?: string | undefined;
+    program?: string | undefined;
+    reason?: string | undefined;
+  }) =>
+    apiFetch<{ message: string; user?: StudentUser; affected_count?: number }>(
+      "/academic/admin/students/semester-upgrade/",
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    ),
   performSecurityAction: (
     userId: string,
     data: {
@@ -731,6 +785,7 @@ export const studentSecurityApi = {
       cooldown_hours?: number | null;
       warning_message?: string;
       access_tier?: string;
+      new_password?: string;
     }
   ) =>
     apiFetch<{ message: string; user: StudentUser; metadata: Record<string, any> }>(
@@ -783,5 +838,100 @@ export const globalDrmApi = {
       body: JSON.stringify({ is_drm_enabled }),
     }),
 };
+
+export const academicUnitApi = {
+  getUnits: async (params?: { subject?: string; semester?: number; department?: string; search?: string }): Promise<SubjectUnit[]> => {
+    const query = new URLSearchParams();
+    if (params?.subject) query.set("subject", params.subject);
+    if (params?.semester) query.set("semester", String(params.semester));
+    if (params?.department) query.set("department", params.department);
+    if (params?.search) query.set("search", params.search);
+    const qs = query.toString() ? `?${query.toString()}` : "";
+    const res = await apiFetch<any>(`/academic/admin/units/${qs}`);
+    return Array.isArray(res) ? res : res?.results || [];
+  },
+  createUnit: (data: Partial<SubjectUnit>) =>
+    apiFetch<SubjectUnit>("/academic/admin/units/", { method: "POST", body: JSON.stringify(data) }),
+  updateUnit: (id: string, data: Partial<SubjectUnit>) =>
+    apiFetch<SubjectUnit>(`/academic/admin/units/${id}/`, { method: "PUT", body: JSON.stringify(data) }),
+  deleteUnit: (id: string) =>
+    apiFetch<void>(`/academic/admin/units/${id}/`, { method: "DELETE" }),
+};
+
+export interface DiscountCoupon {
+  id: string;
+  code: string;
+  discount_percent: number;
+  discount_amount: number;
+  max_uses: number;
+  times_used: number;
+  is_active: boolean;
+  applicable_tier: string;
+  valid_until?: string | null;
+  created_at: string;
+}
+
+export interface RazorpayOrderRecord {
+  id: string;
+  order_id: string;
+  amount: number;
+  amount_inr: number;
+  discount_inr: number;
+  currency: string;
+  plan_tier: string;
+  cycle: string;
+  status: "created" | "paid" | "failed" | "refunded" | string;
+  payment_id?: string;
+  signature?: string;
+  invoice_number?: string;
+  discount_code?: string;
+  created_at: string;
+  updated_at: string;
+  user_email: string;
+  user_name: string;
+  user_roll?: string;
+  user_tier?: string;
+}
+
+export const adminSubscriptionApi = {
+  getOrders: async (params?: { status?: string; search?: string; tier?: string }): Promise<RazorpayOrderRecord[]> => {
+    const query = new URLSearchParams();
+    if (params?.status) query.set("status", params.status);
+    if (params?.search) query.set("search", params.search);
+    if (params?.tier) query.set("tier", params.tier);
+    const qs = query.toString() ? `?${query.toString()}` : "";
+    const res = await apiFetch<any>(`/subscriptions/admin/orders/${qs}`);
+    return Array.isArray(res) ? res : res?.results || [];
+  },
+  orderAction: (id: string, action: "MARK_PAID" | "REFUND" | "REGENERATE_INVOICE", reason?: string) =>
+    apiFetch<any>(`/subscriptions/admin/orders/${id}/action/`, {
+      method: "POST",
+      body: JSON.stringify({ action, reason }),
+    }),
+  getInvoice: (id: string) => apiFetch<any>(`/subscriptions/admin/invoices/${id}/`),
+  getCoupons: async (): Promise<DiscountCoupon[]> => {
+    const res = await apiFetch<any>("/subscriptions/admin/coupons/");
+    return Array.isArray(res) ? res : res?.results || [];
+  },
+  createCoupon: (data: Partial<DiscountCoupon> & { valid_days?: number }) =>
+    apiFetch<any>("/subscriptions/admin/coupons/", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  updateCoupon: (id: string, data: Partial<DiscountCoupon>) =>
+    apiFetch<any>(`/subscriptions/admin/coupons/${id}/`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+  deleteCoupon: (id: string) =>
+    apiFetch<void>(`/subscriptions/admin/coupons/${id}/`, { method: "DELETE" }),
+  applyCoupon: (code: string, plan_tier: string, cycle: string) =>
+    apiFetch<any>("/subscriptions/apply-coupon/", {
+      method: "POST",
+      body: JSON.stringify({ code, plan_tier, cycle }),
+    }),
+};
+
+
 
 

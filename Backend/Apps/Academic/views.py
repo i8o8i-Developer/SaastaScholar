@@ -8,6 +8,7 @@ from .models import (
     AcademicMaterial,
     Department,
     DepartmentNotice,
+    NoticeReadReceipt,
     LabExperiment,
     MaterialPage,
     ProgramSpecialization,
@@ -15,6 +16,7 @@ from .models import (
     SidebarBadgeConfig,
     SiteBanner,
     Subject,
+    SubjectUnit,
     UserBookmark,
 )
 from .serializers import (
@@ -28,6 +30,7 @@ from .serializers import (
     SidebarBadgeConfigSerializer,
     SiteBannerSerializer,
     SubjectSerializer,
+    SubjectUnitSerializer,
 )
 from Apps.Accounts.models import StudentUser
 from Apps.Accounts.models import StudentUser
@@ -290,6 +293,32 @@ class DepartmentNoticeListView(generics.ListAPIView):
 
         return qs.filter(campus_filter | dept_filter | prog_filter).distinct()
 
+
+class MarkNoticeReadView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        try:
+            notice = DepartmentNotice.objects.get(pk=pk)
+            NoticeReadReceipt.objects.get_or_create(user=request.user, notice=notice)
+            return Response({"success": True, "notice_id": str(pk), "is_read": True})
+        except DepartmentNotice.DoesNotExist:
+            return Response({"error": "Notice Not Found"}, status=status.HTTP_404_NOT_FOUND)
+
+
+class MarkAllNoticesReadView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        notices = DepartmentNotice.objects.all()
+        receipts = [
+            NoticeReadReceipt(user=request.user, notice=n)
+            for n in notices
+        ]
+        NoticeReadReceipt.objects.bulk_create(receipts, ignore_conflicts=True)
+        return Response({"success": True, "marked_count": len(receipts)})
+
+
 # ==============================================================================
 # ADMIN PORTAL CONTROLLERS: DEPARTMENTS, SPECIALIZATIONS, SECTIONS & NOTICES
 # ==============================================================================
@@ -395,11 +424,288 @@ class AdminLabDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = LabExperimentSerializer
     permission_classes = [permissions.IsAdminUser]
 
-class AdminStudentsListView(generics.ListAPIView):
-    queryset = StudentUser.objects.all().order_by("-created_at")
+class SubjectUnitListView(generics.ListAPIView):
+    serializer_class = SubjectUnitSerializer
+    permission_classes = [permissions.AllowAny]
+    pagination_class = None
+
+    def get_queryset(self):
+        qs = SubjectUnit.objects.select_related("subject", "subject__department").all()
+        subject_id = self.request.query_params.get("subject")
+        semester = self.request.query_params.get("semester")
+        department = self.request.query_params.get("department")
+        search = self.request.query_params.get("search")
+
+        if subject_id:
+            qs = qs.filter(subject_id=subject_id)
+        if semester:
+            try:
+                qs = qs.filter(subject__semester=int(semester))
+            except (ValueError, TypeError):
+                pass
+        if department:
+            qs = qs.filter(Q(subject__department_id=department) | Q(subject__department__name__icontains=department))
+        if search:
+            qs = qs.filter(
+                Q(title__icontains=search)
+                | Q(description__icontains=search)
+                | Q(subject__name__icontains=search)
+                | Q(subject__code__icontains=search)
+            )
+        return qs.order_by("subject__semester", "subject__code", "unit_number")
+
+class AdminUnitListCreateView(generics.ListCreateAPIView):
+    queryset = SubjectUnit.objects.select_related("subject", "subject__department").all().order_by("subject__semester", "subject__code", "unit_number")
+    serializer_class = SubjectUnitSerializer
+    permission_classes = [permissions.IsAdminUser]
+    pagination_class = None
+
+    def get_queryset(self):
+        qs = SubjectUnit.objects.select_related("subject", "subject__department").all()
+        subject_id = self.request.query_params.get("subject")
+        semester = self.request.query_params.get("semester")
+        search = self.request.query_params.get("search")
+
+        if subject_id:
+            qs = qs.filter(subject_id=subject_id)
+        if semester:
+            try:
+                qs = qs.filter(subject__semester=int(semester))
+            except (ValueError, TypeError):
+                pass
+        if search:
+            qs = qs.filter(
+                Q(title__icontains=search)
+                | Q(description__icontains=search)
+                | Q(subject__name__icontains=search)
+                | Q(subject__code__icontains=search)
+            )
+        return qs.order_by("subject__semester", "subject__code", "unit_number")
+
+class AdminUnitDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = SubjectUnit.objects.all()
+    serializer_class = SubjectUnitSerializer
+    permission_classes = [permissions.IsAdminUser]
+
+class AdminStudentsListView(generics.ListCreateAPIView):
     serializer_class = StudentUserSerializer
     permission_classes = [permissions.IsAdminUser]
     pagination_class = None
+
+    def get_queryset(self):
+        qs = StudentUser.objects.all().order_by("-created_at")
+        semester = self.request.query_params.get("semester")
+        program = self.request.query_params.get("program")
+        department = self.request.query_params.get("department")
+        section = self.request.query_params.get("section")
+        search = self.request.query_params.get("search")
+
+        if semester:
+            try:
+                qs = qs.filter(semester=int(semester))
+            except (ValueError, TypeError):
+                pass
+        if program:
+            qs = qs.filter(Q(program__icontains=program) | Q(program_code__icontains=program))
+        if department:
+            qs = qs.filter(department__icontains=department)
+        if section:
+            qs = qs.filter(section__iexact=section)
+        if search:
+            qs = qs.filter(
+                Q(full_name__icontains=search)
+                | Q(username__icontains=search)
+                | Q(email__icontains=search)
+                | Q(roll_number__icontains=search)
+                | Q(enrollment_no__icontains=search)
+            )
+        return qs
+
+    def create(self, request, *args, **kwargs):
+        email = request.data.get("email", "").strip().lower()
+        if not email:
+            return Response({"error": "Email Address Is Required."}, status=status.HTTP_400_BAD_REQUEST)
+        if StudentUser.objects.filter(email=email).exists():
+            return Response({"error": "A Scholar With This Email Address Is Already Registered."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        full_name = request.data.get("full_name", "").strip() or request.data.get("name", "").strip()
+        roll_number = request.data.get("roll_number", "").strip()
+        enrollment_no = request.data.get("enrollment_no", "").strip() or roll_number
+        try:
+            semester = int(request.data.get("semester", 1))
+        except (ValueError, TypeError):
+            semester = 1
+        section = request.data.get("section", "A").strip().upper() or "A"
+        department = request.data.get("department", "Department Of Computer Science & Engineering").strip()
+        program = request.data.get("program", "B.Tech AI & ML").strip()
+        access_tier = request.data.get("access_tier", "SEMESTER_TOPPER")
+        password = request.data.get("password", "").strip() or "Welcome@123"
+
+        user = StudentUser.objects.create(
+            email=email,
+            username=email,
+            full_name=full_name,
+            roll_number=roll_number,
+            enrollment_no=enrollment_no,
+            semester=semester,
+            section=section,
+            department=department,
+            program=program,
+            access_tier=access_tier,
+            is_active=True,
+            is_verified=True,
+        )
+        user.set_password(password)
+        user.save()
+
+        # Audit log
+        from Apps.Accounts.models import AdminAuditLog, ActionType
+        AdminAuditLog.objects.create(
+            actor=request.user,
+            target_user=user,
+            action_type=ActionType.REGISTER_STUDENT,
+            reason=f"Registered New Scholar: {full_name} ({roll_number}) In Semester {semester} Section {section}",
+            metadata={
+                "email": email,
+                "roll_number": roll_number,
+                "semester": semester,
+                "section": section,
+                "program": program,
+                "access_tier": access_tier,
+            },
+            ip_address=request.META.get("REMOTE_ADDR", "127.0.0.1"),
+        )
+
+        return Response(
+            {
+                "message": f"Scholar Account '{full_name}' Registered Successfully in Semester {semester}.",
+                "user": StudentUserSerializer(user).data,
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
+class AdminStudentSemesterUpgradeView(APIView):
+    permission_classes = [permissions.IsAdminUser]
+
+    def post(self, request):
+        mode = request.data.get("mode", "single")  # "single" or "bulk"
+        reason = request.data.get("reason", "Semester Level Academic Upgrade Executed By Administrator").strip()
+        from Apps.Accounts.models import AdminAuditLog, ActionType
+
+        if mode == "single":
+            student_id = request.data.get("student_id")
+            if not student_id:
+                return Response({"error": "student_id Is Required For Single Student Upgrade."}, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                student = StudentUser.objects.get(id=student_id)
+            except StudentUser.DoesNotExist:
+                return Response({"error": "Scholar Record Not Found."}, status=status.HTTP_404_NOT_FOUND)
+
+            old_semester = student.semester
+            target_semester = request.data.get("target_semester")
+            if target_semester is not None:
+                try:
+                    new_semester = int(target_semester)
+                except (ValueError, TypeError):
+                    new_semester = old_semester + 1
+            else:
+                new_semester = old_semester + 1
+
+            if new_semester > 12:
+                new_semester = 12
+
+            new_section = request.data.get("section")
+            student.semester = new_semester
+            if new_section:
+                student.section = str(new_section).strip().upper()
+            student.save(update_fields=["semester", "section", "updated_at"])
+
+            from Apps.Academic.cache_utils import invalidate_redis_pattern
+            try:
+                invalidate_redis_pattern(f"planner:timetable:{student.program}*")
+                invalidate_redis_pattern(f"academic:subjects:{student.id}*")
+                invalidate_redis_pattern(f"academic:materials:{student.id}*")
+            except Exception:
+                pass
+
+            AdminAuditLog.objects.create(
+                actor=request.user,
+                target_user=student,
+                action_type=ActionType.SEMESTER_UPGRADE,
+                reason=reason,
+                metadata={
+                    "old_semester": old_semester,
+                    "new_semester": new_semester,
+                    "section": student.section,
+                    "student_name": student.full_name or student.username,
+                    "roll_number": student.roll_number,
+                },
+                ip_address=request.META.get("REMOTE_ADDR", "127.0.0.1"),
+            )
+
+            return Response({
+                "message": f"Successfully Promoted {student.full_name or student.username} From Semester {old_semester} To Semester {new_semester}.",
+                "user": StudentUserSerializer(student).data,
+            })
+
+        elif mode == "bulk":
+            current_semester = request.data.get("current_semester")
+            if current_semester is None:
+                return Response({"error": "current_semester Is Required For Bulk Semester Upgrade."}, status=status.HTTP_400_BAD_REQUEST)
+            try:
+                current_sem = int(current_semester)
+            except (ValueError, TypeError):
+                return Response({"error": "current_semester Must Be A Valid Integer."}, status=status.HTTP_400_BAD_REQUEST)
+
+            target_sem_val = request.data.get("target_semester")
+            new_sem = int(target_sem_val) if target_sem_val is not None else current_sem + 1
+            if new_sem > 12:
+                new_sem = 12
+
+            program_filter = request.data.get("program")
+            section_filter = request.data.get("section")
+
+            qs = StudentUser.objects.filter(semester=current_sem, is_active=True, is_staff=False, is_superuser=False)
+            if program_filter:
+                qs = qs.filter(Q(program__icontains=program_filter) | Q(program_code__icontains=program_filter))
+            if section_filter:
+                qs = qs.filter(section__iexact=section_filter)
+
+            count = qs.count()
+            if count == 0:
+                return Response({
+                    "message": f"No Active Scholars Found In Semester {current_sem} Matching The Specified Criteria.",
+                    "affected_count": 0
+                })
+
+            qs.update(semester=new_sem)
+
+            AdminAuditLog.objects.create(
+                actor=request.user,
+                target_user=None,
+                target_email="BATCH_UPGRADE@SYSTEM",
+                target_name=f"Bulk Promotion Semester {current_sem} -> {new_sem}",
+                action_type=ActionType.SEMESTER_UPGRADE_BULK,
+                reason=reason,
+                metadata={
+                    "from_semester": current_sem,
+                    "to_semester": new_sem,
+                    "program_filter": program_filter or "All Programs",
+                    "section_filter": section_filter or "All Sections",
+                    "upgraded_count": count,
+                },
+                ip_address=request.META.get("REMOTE_ADDR", "127.0.0.1"),
+            )
+
+            return Response({
+                "message": f"Successfully Promoted {count} Scholars From Semester {current_sem} To Semester {new_sem}.",
+                "affected_count": count,
+                "from_semester": current_sem,
+                "to_semester": new_sem,
+            })
+
+        else:
+            return Response({"error": f"Unknown upgrade mode '{mode}'. Choose 'single' Or 'bulk'."}, status=status.HTTP_400_BAD_REQUEST)
 
 class AdminStudentDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = StudentUser.objects.all()

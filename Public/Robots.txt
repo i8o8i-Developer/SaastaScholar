@@ -1,15 +1,17 @@
 # ==============================================================================
-# NimsWallah Production Robots.txt
-# Target Domain: https://nimswallah.durgaaisolutions.in
-# Owned & Engineered By Durgaai Solutions (MSME UDYAM-UP-64-0010044)
+# Saasta Scholar Production Robots.txt
+# Target Domain: https://saastascholar.durgaaisolutions.in
+# Owned & Engineered By DurgaAI Solutions (MSME UDYAM-UP-64-0010044)
+# Tagline: Quality Education, Without The Heavy Price.
 # ==============================================================================
 
-Sitemap: https://nimswallah.durgaaisolutions.in/sitemap.xml
-Link: https://nimswallah.durgaaisolutions.in/llms.txt; rel="llms-txt"
+Sitemap: https://saastascholar.durgaaisolutions.in/sitemap.xml
+Link: https://saastascholar.durgaaisolutions.in/llms.txt; rel="llms-txt"
 
 # General Web Crawlers
 User-agent: *
 Allow: /
+Allow: /login
 Allow: /privacy
 Allow: /terms
 Allow: /legal
@@ -17,7 +19,7 @@ Allow: /disclaimer
 
 # Disallow Private Student Workspaces & DRM API Endpoints
 Disallow: /api/
-Disallow: /admin/
+Disallow: /django-admin/
 Disallow: /dashboard/
 Disallow: /drm-vault/
 Disallow: /media/avatars/

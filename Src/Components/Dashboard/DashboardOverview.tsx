@@ -170,7 +170,7 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
               Study Reader Temporarily Paused
             </h4>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Reason: <strong className="text-foreground">{blockReason || "Screen Capture Detected"}</strong>. Please Contact Your Teacher Or Send A Message In Help Desk To Resume.
+              Reason: <strong className="text-foreground">{blockReason || "Screen Capture Detected"}</strong>. Please Contact Platform Administrator Or Send A Message In Help Desk To Resume.
             </p>
           </div>
         </div>

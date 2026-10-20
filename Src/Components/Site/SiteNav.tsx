@@ -4,15 +4,14 @@ import { useEffect, useState } from "react";
 import { useTheme } from "@/Hooks/UseTheme";
 import { cn } from "@/Lib/Utils";
 import { Cta } from "./Primitives";
-import { BroadcastBanner } from "../Ui/BroadcastBanner";
 
 const NAV_ITEMS = [
   { label: "Features", href: "#features" },
-  { label: "Academic Hub", href: "#academic-hub" },
-  { label: "Assignments", href: "#assignments" },
+  { label: "Notes & PYQs", href: "#academic-hub" },
+  { label: "Homework AI", href: "#assignments" },
   { label: "Practicals", href: "#practicals" },
-  { label: "Notifications", href: "#notifications" },
-  { label: "Planner", href: "#planner" },
+  { label: "Notices", href: "#notifications" },
+  { label: "Timetable", href: "#planner" },
   { label: "Pricing", href: "#pricing" },
 ];
 
@@ -40,34 +39,42 @@ export function SiteNav() {
       className={cn(
         "sticky top-0 z-50 border-b transition-all duration-300",
         scrolled
-          ? "border-border bg-background/85 backdrop-blur-md"
+          ? "border-border bg-background/90 backdrop-blur-md shadow-xs"
           : "border-transparent bg-background",
       )}
     >
       <div
         className={cn(
-          "mx-auto flex w-full max-w-[84rem] items-center justify-between px-5 transition-all duration-300 sm:px-8",
+          "mx-auto flex w-full max-w-[84rem] items-center justify-between px-4 sm:px-6 xl:px-8 transition-all duration-300",
           scrolled ? "h-14" : "h-20",
         )}
       >
-        <a href="#top" className="flex items-center gap-2.5 shrink-0 whitespace-nowrap" aria-label="NimsWallah Home">
+        <a href="#top" className="flex items-center gap-2.5 shrink-0 whitespace-nowrap group" aria-label="SaastaScholar Home">
           <img
-            src="/NIMSWallah.png?v=2"
-            alt="NimsWallah Logo"
-            width="32"
-            height="32"
-            className="h-8 w-8 object-contain rounded-md shrink-0"
+            src="/SaastaScholar.png"
+            alt="SaastaScholar Logo"
+            width="34"
+            height="34"
+            className="h-8 w-8 sm:h-9 sm:w-9 object-contain rounded-xl p-0.5 bg-white border border-border/60 shadow-2xs transition-transform group-hover:scale-105 shrink-0"
           />
-          <span className="font-display text-lg font-bold tracking-tight whitespace-nowrap">NimsWallah</span>
+          <div className="flex flex-col min-w-0">
+            <span className="font-display text-lg sm:text-xl font-bold tracking-tight whitespace-nowrap text-logo-gradient">
+              SaastaScholar
+            </span>
+            <span className="text-[0.62rem] font-bold tracking-wider text-muted-foreground uppercase leading-none hidden sm:inline">
+              Academic Portal
+            </span>
+          </div>
         </a>
 
-        <nav aria-label="Primary" className="hidden lg:block min-w-0">
-          <ul className="flex items-center gap-0.5 xl:gap-1">
+        {/* Desktop Navigation Links — Only On XL Screens To Prevent Any Overlap */}
+        <nav aria-label="Primary" className="hidden xl:block min-w-0">
+          <ul className="flex items-center gap-1">
             {NAV_ITEMS.map((item) => (
               <li key={item.href} className="shrink-0">
                 <a
                   href={item.href}
-                  className="rounded-md px-2 py-1.5 text-xs xl:px-3 xl:py-2 xl:text-sm font-medium text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground whitespace-nowrap inline-block"
+                  className="rounded-xl px-3 py-2 text-xs xl:text-sm font-semibold text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground whitespace-nowrap inline-block"
                 >
                   {item.label}
                 </a>
@@ -76,13 +83,14 @@ export function SiteNav() {
           </ul>
         </nav>
 
-        <div className="hidden items-center gap-2 xl:gap-2.5 lg:flex shrink-0">
+        {/* Desktop Right Action Buttons */}
+        <div className="hidden xl:flex items-center gap-2.5 shrink-0">
           {/* Theme Toggle Button */}
           <button
             type="button"
             onClick={toggleTheme}
             className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-border bg-surface text-foreground hover:bg-card cursor-pointer transition-all shadow-2xs"
-            title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            title={isDark ? "Switch To Light Mode" : "Switch To Dark Mode"}
           >
             {isDark ? (
               <Sun className="h-4 w-4 text-amber-400 hover:rotate-45 transition-transform" />
@@ -91,20 +99,21 @@ export function SiteNav() {
             )}
           </button>
 
-          <Cta href="/login" variant="ghost" size="sm" className="whitespace-nowrap shrink-0 text-xs xl:text-sm px-2.5 xl:px-3">
+          <Cta href="/login" variant="ghost" size="sm" className="whitespace-nowrap shrink-0 text-xs xl:text-sm px-3.5">
             Log In
           </Cta>
-          <Cta href="/login?mode=signup" size="sm" className="whitespace-nowrap shrink-0 text-xs xl:text-sm px-3 xl:px-4">
+          <Cta href="/login?mode=signup" size="sm" className="whitespace-nowrap shrink-0 text-xs xl:text-sm px-4">
             Get Started
           </Cta>
         </div>
 
-        <div className="flex items-center gap-2 lg:hidden">
+        {/* Mobile & Tablet Header Controls (Shown Below XL Breakpoint Including 1055px) */}
+        <div className="flex items-center gap-2 xl:hidden shrink-0">
           <button
             type="button"
             onClick={toggleTheme}
             className="grid h-9 w-9 place-items-center rounded-xl border border-border bg-surface text-foreground"
-            title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
+            title={isDark ? "Switch To Light Mode" : "Switch To Dark Mode"}
           >
             {isDark ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-slate-700" />}
           </button>
@@ -112,35 +121,36 @@ export function SiteNav() {
             type="button"
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
-            aria-label={open ? "Close menu" : "Open menu"}
-            className="grid h-9 w-9 place-items-center rounded-xl border border-border text-foreground"
+            aria-label={open ? "Close Menu" : "Open Menu"}
+            className="grid h-9 w-9 place-items-center rounded-xl border border-border text-foreground hover:bg-surface cursor-pointer transition-colors"
           >
             {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
           </button>
         </div>
       </div>
 
+      {/* Slide-Down Mobile Drawer Menu */}
       {open ? (
-        <div className="border-t border-border bg-background lg:hidden">
-          <nav aria-label="Mobile" className="mx-auto max-w-[84rem] px-5 py-4 sm:px-8">
+        <div className="border-t border-border bg-background xl:hidden animate-in fade-in slide-in-from-top-2 duration-200">
+          <nav aria-label="Mobile Navigation" className="mx-auto max-w-[84rem] px-5 py-4 sm:px-8">
             <ul className="grid gap-1">
               {NAV_ITEMS.map((item) => (
                 <li key={item.href}>
                   <a
                     href={item.href}
                     onClick={() => setOpen(false)}
-                    className="block rounded-md px-3 py-3 text-base font-medium text-foreground hover:bg-secondary"
+                    className="block rounded-xl px-3 py-2.5 text-sm font-semibold text-foreground hover:bg-secondary transition-colors"
                   >
                     {item.label}
                   </a>
                 </li>
               ))}
             </ul>
-            <div className="mt-4 grid gap-2 pb-2">
-              <Cta href="/login" variant="outline" size="lg" onClick={() => setOpen(false)}>
+            <div className="mt-4 grid grid-cols-2 gap-2.5 pt-3 border-t border-border/80">
+              <Cta href="/login" variant="outline" size="sm" onClick={() => setOpen(false)} className="w-full text-center">
                 Log In
               </Cta>
-              <Cta href="/login?mode=signup" size="lg" onClick={() => setOpen(false)}>
+              <Cta href="/login?mode=signup" size="sm" onClick={() => setOpen(false)} className="w-full text-center">
                 Get Started
               </Cta>
             </div>

@@ -1,27 +1,27 @@
 {
-  "name": "NimsWallah · Independent Academic Portal | Owned By DurgaAI Solutions",
-  "short_name": "NimsWallah",
-  "description": "Standalone Independent Academic Resource Repository Owned And Engineered By DurgaAI Solutions",
-  "start_url": "https://nimswallah.durgaaisolutions.in/",
-  "scope": "https://nimswallah.durgaaisolutions.in/",
+  "name": "Saasta Scholar · Quality Education, Without The Heavy Price",
+  "short_name": "SaastaScholar",
+  "description": "Affordable Academic Resource Repository Owned And Engineered By DurgaAI Solutions",
+  "start_url": "https://saastascholar.durgaaisolutions.in/",
+  "scope": "https://saastascholar.durgaaisolutions.in/",
   "display": "standalone",
-  "background_color": "#09090b",
-  "theme_color": "#059669",
+  "background_color": "#001805",
+  "theme_color": "#005F15",
   "orientation": "portrait-primary",
   "categories": ["education", "productivity", "utilities"],
   "developer": {
     "name": "DurgaAI Solutions",
-    "url": "https://nimswallah.durgaaisolutions.in/"
+    "url": "https://durgaaisolutions.in/"
   },
   "icons": [
     {
-      "src": "/NIMSWallah.png",
+      "src": "/SaastaScholar.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "/NIMSWallah.png",
+      "src": "/SaastaScholar.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

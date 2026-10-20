@@ -166,10 +166,13 @@ const pillVariants = cva(
     variants: {
       tone: {
         neutral: "border-border bg-secondary text-muted-foreground",
-        green: "border-primary/25 bg-accent text-accent-foreground",
+        green: "border-[#005F15]/30 bg-[#005F15]/10 text-[#005F15] dark:border-emerald-500/30 dark:bg-emerald-500/15 dark:text-emerald-400",
+        blue: "border-[#007EAC]/30 bg-[#007EAC]/10 text-[#007EAC] dark:border-sky-500/30 dark:bg-sky-500/15 dark:text-sky-400",
+        red: "border-[#BA0000]/30 bg-[#BA0000]/10 text-[#BA0000] dark:border-rose-500/30 dark:bg-rose-500/15 dark:text-rose-400",
+        logo: "border-[#007EAC]/40 bg-gradient-to-r from-[#005F15]/10 via-[#007EAC]/10 to-[#BA0000]/10 text-foreground shadow-2xs",
         solid: "border-transparent bg-primary text-primary-foreground",
-        warn: "border-highlight/40 bg-highlight/15 text-foreground",
-        danger: "border-destructive/30 bg-destructive/10 text-destructive",
+        warn: "border-amber-500/30 bg-amber-500/10 text-amber-700 dark:text-amber-400",
+        danger: "border-[#BA0000]/30 bg-[#BA0000]/10 text-[#BA0000] dark:border-rose-500/30 dark:bg-rose-500/15 dark:text-rose-400",
       },
     },
     defaultVariants: { tone: "neutral" },

@@ -377,13 +377,50 @@ class AdminStudentSecurityActionView(APIView):
             target_user.save(update_fields=["drm_violations_count", "updated_at"])
             meta_info["status"] = "Violations Counter Reset to Zero"
 
-        elif action_type == ActionType.CHANGE_TIER:
-            if access_tier in ["FREE", "SEMESTER_TOPPER", "VIP"]:
-                target_user.access_tier = access_tier
+        elif action_type in [ActionType.CHANGE_TIER, "CHANGE_TIER", "UPGRADE_TIER", "DOWNGRADE_TIER"]:
+            valid_tiers = ["FREE", "BASIC", "PREMIUM", "ELITE", "STARTER", "SCHOLAR", "ACHIEVER", "ELITE_PLUS", "SEMESTER_TOPPER", "VIP"]
+            tier_upper = str(access_tier or "").strip().upper()
+            if tier_upper in valid_tiers:
+                alias_map = {
+                    "STARTER": "FREE",
+                    "SCHOLAR": "BASIC",
+                    "ACHIEVER": "PREMIUM",
+                    "ELITE_PLUS": "ELITE",
+                }
+                canonical = alias_map.get(tier_upper, tier_upper)
+                target_user.access_tier = canonical
                 target_user.save(update_fields=["access_tier", "updated_at"])
-                meta_info["new_tier"] = access_tier
+                meta_info["new_tier"] = canonical
+                meta_info["status"] = f"Scholar Membership Successfully Changed To '{canonical}'"
             else:
-                return Response({"error": "Invalid Access Tier Selected."}, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"error": f"Invalid Access Tier '{access_tier}'. Choose from FREE, BASIC, PREMIUM, ELITE."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        elif action_type in [ActionType.BLOCK_STUDENT, "BLOCK_STUDENT"]:
+            target_user.is_login_blocked = True
+            target_user.is_drm_blocked = True
+            target_user.is_active = False
+            target_user.block_reason = reason or "Administratively Blocked"
+            target_user.save(update_fields=["is_login_blocked", "is_drm_blocked", "is_active", "block_reason", "updated_at"])
+            SecuritySession.objects.filter(user=target_user, is_revoked=False).update(is_revoked=True)
+            meta_info["status"] = "Scholar Account Completely Blocked & Sessions Revoked"
+
+        elif action_type in [ActionType.UNBLOCK_STUDENT, "UNBLOCK_STUDENT"]:
+            target_user.is_login_blocked = False
+            target_user.is_drm_blocked = False
+            target_user.is_active = True
+            target_user.block_reason = ""
+            target_user.save(update_fields=["is_login_blocked", "is_drm_blocked", "is_active", "block_reason", "updated_at"])
+            meta_info["status"] = "Scholar Account Unblocked & Reactivated"
+
+        elif action_type in [ActionType.RESET_PASSWORD, "RESET_PASSWORD"]:
+            new_pass = request.data.get("new_password", "").strip() or "Scholar@2026"
+            target_user.set_password(new_pass)
+            target_user.save(update_fields=["password", "updated_at"])
+            meta_info["status"] = "Student Password Successfully Reset By Administrator"
+            meta_info["temporary_password"] = new_pass
 
         elif action_type == ActionType.RESET_FRESH_USER or action_type == "RESET_FRESH_USER":
             target_user.is_drm_blocked = False
@@ -546,4 +583,99 @@ class AdminAuditLogClearView(APIView):
         return Response({
             "message": f"Successfully Cleared {count} Audit Log Records.",
             "deleted_count": count,
+        })
+
+
+import random
+from django.core.mail import send_mail
+from django.conf import settings
+from .models import PasswordResetToken
+
+class PasswordResetRequestView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        email = str(request.data.get("email") or "").strip().lower()
+        if not email:
+            return Response({"error": "Email address is required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = StudentUser.objects.filter(email__iexact=email).first()
+        if not user:
+            return Response({
+                "success": True,
+                "message": "If an account exists with this email, a 6-digit verification code has been dispatched."
+            })
+
+        otp = f"{random.randint(100000, 999999)}"
+        PasswordResetToken.objects.filter(email=user.email, is_used=False).update(is_used=True)
+        PasswordResetToken.objects.create(email=user.email, otp=otp)
+
+        subject = "SaastaScholar — Password Reset Verification Code"
+        message = (
+            f"Hello {user.full_name or user.username},\n\n"
+            f"You requested to reset your password on SaastaScholar.\n\n"
+            f"Your 6-Digit Password Reset Verification Code is:\n\n"
+            f"      {otp}\n\n"
+            f"This code will expire in 15 minutes.\n"
+            f"If you did not request this reset, please ignore this email.\n\n"
+            f"— The SaastaScholar Academic Security Team"
+        )
+        try:
+            send_mail(
+                subject=subject,
+                message=message,
+                from_email=getattr(settings, "DEFAULT_FROM_EMAIL", "support@saastascholar.in"),
+                recipient_list=[user.email],
+                fail_silently=True,
+            )
+        except Exception:
+            pass
+
+        return Response({
+            "success": True,
+            "message": "Verification code has been sent to your email address.",
+            "debug_otp": otp if settings.DEBUG else None,
+        })
+
+
+class PasswordResetConfirmView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        email = str(request.data.get("email") or "").strip().lower()
+        otp = str(request.data.get("otp") or "").strip()
+        new_password = str(request.data.get("new_password") or "")
+
+        if not email or not otp or not new_password:
+            return Response(
+                {"error": "Email, verification OTP, and new password are all required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if len(new_password) < 6:
+            return Response(
+                {"error": "Password must be at least 6 characters long."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user = StudentUser.objects.filter(email__iexact=email).first()
+        if not user:
+            return Response({"error": "No account found matching this email address."}, status=status.HTTP_404_NOT_FOUND)
+
+        token_obj = PasswordResetToken.objects.filter(email=user.email, otp=otp, is_used=False).first()
+        if not token_obj or not token_obj.is_valid():
+            return Response(
+                {"error": "Invalid or expired verification code. Please request a new code."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        user.set_password(new_password)
+        user.save(update_fields=["password"])
+
+        token_obj.is_used = True
+        token_obj.save(update_fields=["is_used"])
+
+        return Response({
+            "success": True,
+            "message": "Password has been successfully updated! You can now log in.",
         })

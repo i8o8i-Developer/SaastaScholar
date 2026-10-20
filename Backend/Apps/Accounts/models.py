@@ -3,9 +3,18 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 class AccessTier(models.TextChoices):
-    FREE = "FREE", "Free Starter"
-    SEMESTER_TOPPER = "SEMESTER_TOPPER", "Semester Topper"
-    VIP = "VIP", "VIP All-Access"
+    FREE = "FREE", "Free"
+    BASIC = "BASIC", "Basic"
+    PREMIUM = "PREMIUM", "Premium"
+    ELITE = "ELITE", "Elite"
+    # Legacy backwards compatibility
+    STARTER = "STARTER", "Free"
+    SCHOLAR = "SCHOLAR", "Basic"
+    ACHIEVER = "ACHIEVER", "Premium"
+    ELITE_PLUS = "ELITE_PLUS", "Elite"
+    SEMESTER_TOPPER = "SEMESTER_TOPPER", "Premium"
+    VIP = "VIP", "Elite"
+
 
 class StudentUser(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -31,7 +40,7 @@ class StudentUser(AbstractUser):
     access_tier = models.CharField(
         max_length=30,
         choices=AccessTier.choices,
-        default=AccessTier.SEMESTER_TOPPER,
+        default=AccessTier.STARTER,
         db_index=True,
     )
     is_verified = models.BooleanField(default=True)
@@ -85,6 +94,14 @@ class ActionType(models.TextChoices):
     REVOKE_SESSIONS = "REVOKE_SESSIONS", "Revoke All Security Sessions"
     RESET_VIOLATIONS = "RESET_VIOLATIONS", "Reset Violations Counter"
     CHANGE_TIER = "CHANGE_TIER", "Change Access Tier"
+    UPGRADE_TIER = "UPGRADE_TIER", "Upgrade Subscription Tier"
+    DOWNGRADE_TIER = "DOWNGRADE_TIER", "Downgrade Subscription Tier"
+    BLOCK_STUDENT = "BLOCK_STUDENT", "Block Student Account"
+    UNBLOCK_STUDENT = "UNBLOCK_STUDENT", "Unblock Student Account"
+    RESET_PASSWORD = "RESET_PASSWORD", "Reset Student Password"
+    REGISTER_STUDENT = "REGISTER_STUDENT", "Register Student Account"
+    SEMESTER_UPGRADE = "SEMESTER_UPGRADE", "Semester Level Upgrade"
+    SEMESTER_UPGRADE_BULK = "SEMESTER_UPGRADE_BULK", "Bulk Semester Level Upgrade"
     HARD_DELETE_USER = "HARD_DELETE_USER", "Hard Delete User Account"
     RESET_FRESH_USER = "RESET_FRESH_USER", "Reset User to Fresh Slate"
     GLOBAL_BULK_RESET = "GLOBAL_BULK_RESET", "Global Reset of All Security Locks"
@@ -117,3 +134,22 @@ class AdminAuditLog(models.Model):
 
     def __str__(self):
         return f"[{self.timestamp}] {self.actor_email} -> {self.action_type} -> {self.target_email}"
+
+
+class PasswordResetToken(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    email = models.EmailField(db_index=True)
+    otp = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_used = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def is_valid(self):
+        from datetime import timedelta
+        from django.utils import timezone
+        return (not self.is_used) and (timezone.now() - self.created_at < timedelta(minutes=15))
+
+    def __str__(self):
+        return f"Reset OTP For {self.email} (Used: {self.is_used})"

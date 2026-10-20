@@ -21,7 +21,7 @@ import {
 import { cn } from "@/Lib/Utils";
 import { Cta, Eyebrow, Pill, Reveal, Section, SectionHeading } from "./Primitives";
 
-type FaqCategory = "All Questions" | "Academic Hub" | "Assignments" | "Practicals & Labs" | "Access & Free Plan";
+type FaqCategory = "All Questions" | "Academic Hub" | "Assignments" | "Practicals & Labs" | "Student Plans & Access";
 
 interface FaqItem {
   question: string;
@@ -35,67 +35,68 @@ const CATEGORIES: { label: FaqCategory; icon: typeof HelpCircle }[] = [
   { label: "Academic Hub", icon: BookOpen },
   { label: "Assignments", icon: GraduationCap },
   { label: "Practicals & Labs", icon: FlaskConical },
-  { label: "Access & Free Plan", icon: ShieldCheck },
+  { label: "Student Plans & Access", icon: ShieldCheck },
 ];
 
 const FAQS_DATA: FaqItem[] = [
   {
     category: "Academic Hub",
     popular: true,
-    question: "What Is The NimsWallah Platform?",
+    question: "What Is SaastaScholar?",
     answer:
-      "NimsWallah Is An All-In-One Student Academic Platform Designed Specifically For University Scholars. It Consolidates Course Notes, Lab Manuals, AI Assignment Assistance, Previous-Year Solved Papers, Direct University Notifications, And Semester CGPA Target Calculators Into One Unified Workspace.",
+      "SaastaScholar Is A Simple Website For College Students. It Keeps All Your Class Notes, Solved Exam Papers, Lab Experiment Codes, And Timetables In One Clean Place So You Never Have To Hunt Through Messy WhatsApp Groups.",
   },
   {
-    category: "Access & Free Plan",
+    category: "Student Plans & Access",
     popular: true,
-    question: "Who Can Use This Academic Workspace?",
+    question: "Who Can Use This Study Platform?",
     answer:
-      "Any Enrolled University Student, Department Scholar, Or Faculty Member Whose University Program Is Supported. Once You Select Your University, Degree, Branch, Semester, And Section, Your Entire Dashboard Instantly Customizes To Match Your Exact Timetable And Syllabus.",
+      "Any Enrolled College Student! Once You Pick Your University, Degree, Branch, Semester, And Section, Your Dashboard Automatically Shows Only The Material For Your Exact Class.",
   },
   {
     category: "Academic Hub",
-    question: "How Does University-Based Personalization Work?",
+    question: "How Does Smart Filtering Work?",
     answer:
-      "Every Single Note, PYQ, And Notice Is Mapped To A Dynamic Hierarchy: Institution → Faculty → Department → Program → Semester → Section → Subject Code. You Will Only Ever See Study Resources And Announcements That Are 100% Relevant To Your Current Enrolled Courses.",
+      "We Sort Every Single File By Branch, Semester, And Section. You Will Only Ever See The Notes And Announcements Meant For You — Zero Clutter Or Spam.",
   },
   {
     category: "Academic Hub",
     popular: true,
-    question: "Can I Download Previous-Year Question Papers With Solutions?",
+    question: "Can I Download Past Exam Papers With Solutions?",
     answer:
-      "Yes. The Academic Hub Contains Complete Archives Of Previous-Year Question Papers (PYQs) Spanning Multiple Years. Verified Model Answer Keys And Step-By-Step Explanations Are Available For Core Subjects And Elective Papers.",
+      "Yes! You Can Download Real University Exam Papers From Previous Years With Clear, Step-By-Step Solved Model Answers To Help You Score Full Marks.",
   },
   {
     category: "Assignments",
     popular: true,
-    question: "How Does The AI Assignment Creator Assist With Coursework?",
+    question: "How Does The AI Homework Helper Work?",
     answer:
-      "The AI Assignment Assistant Helps Structure Your Drafts, Generate Academic Citations (IEEE, APA, Harvard), Format References, And Export Formatted PDF Or Word Documents Tailored To Your Department Guidelines. Final Review And Academic Responsibility Remain With You.",
+      "It Helps You Create Neat Homework Drafts, Generates Proper IEEE And APA Citations, And Formats Everything Neatly Into A Printable PDF Or Word Document.",
   },
   {
     category: "Practicals & Labs",
-    question: "What Practical Lab Resources Are Provided For Each Subject?",
+    question: "What Lab Practicals Do You Provide?",
     answer:
-      "Each Experiment Includes A Full Lab Packet: Official Lab Manual, Theoretical Procedure, Step-By-Step Code Or Apparatus Setup, Printable Record-Book Formats, And Curated Viva Voce Question Banks With Examiner Explanations.",
+      "You Get The Complete Lab Manual, Clean Tested Code, Observation Tables, And 50+ Real Viva Questions With Answers For Every Single Experiment.",
   },
   {
-    category: "Access & Free Plan",
-    question: "How Do Live University Notifications Reach Me?",
+    category: "Student Plans & Access",
+    question: "How Do I Get College Announcements?",
     answer:
-      "Official University Circulars, Departmental Schedules, Exam Date Sheets, And Holiday Notices Are Consolidated Into A Single Live Real-Time Feed. You Can Filter Notifications By Department, Batch, Or Urgent Deadlines.",
+      "All Official College Circulars, Exam Date Sheets, And Holiday Notices Arrive Instantly In Your Notice Feed Filtered Directly For Your Class.",
   },
   {
-    category: "Access & Free Plan",
-    question: "Is The Platform Completely Free For College Students?",
+    category: "Student Plans & Access",
+    popular: true,
+    question: "How Do Student Access Plans Work?",
     answer:
-      "Yes, There Is A Generous Lifetime Free Plan That Grants Access To Standard Course Notes, Live Circulars, Basic Timetable Planning, And Standard PYQs. Premium Upgrades Unlock AI Assignment Drafting, Solved Lab Manuals, And Offline Bundles.",
+      "Every Student Receives Starter Scholar Access Immediately For Course Outlines, Timetables, Notices, And Sample Solved Exam Papers.",
   },
   {
     category: "Academic Hub",
-    question: "Can Professors Or Class Representatives Upload Notes?",
+    question: "Can Class Representatives Or Administrators Upload Notes?",
     answer:
-      "Yes. Verified Department Representatives And Faculty Can Upload Lecture Slides, Lab Code Repositories, And Hand-Written Notes Directly To A Designated Section Or Subject Module For Instant Peer Distribution.",
+      "Yes! Authorized Administrators And Student Class Representatives Can Easily Upload Daily Lecture Slides, Handwritten Notes, And Lab Codes Directly To Their Section.",
   },
 ];
 
@@ -122,11 +123,10 @@ export function Faq() {
           <div>
             <Eyebrow>Frequently Asked Questions</Eyebrow>
             <h2 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl lg:text-[3.2rem]">
-              Clear Answers. No Ambiguity.
+              Got Questions? We Have Simple Answers.
             </h2>
             <p className="mt-4 text-base leading-relaxed text-muted-foreground sm:text-lg">
-              Everything You Need To Know About University Personalization, Assignment Tools, Lab
-              Packs, And Student Access.
+              Everything You Need To Know About Notes, Solved Papers, Lab Practicals, And Student Access.
             </p>
           </div>
 

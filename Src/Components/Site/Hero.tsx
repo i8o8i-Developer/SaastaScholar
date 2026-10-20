@@ -43,7 +43,7 @@ const DASHBOARD_ITEMS = [
     label: "New Assignment",
     title: "Data Structures — Assignment 3",
     meta: "Due in 2 days · 20 marks",
-    tone: "warn" as const,
+    tone: "red" as const,
     tag: "Due Soon",
   },
   {
@@ -51,7 +51,7 @@ const DASHBOARD_ITEMS = [
     label: "Upcoming Practical",
     title: "AI Lab — Experiment 6: A* Search",
     meta: "Tomorrow · 2:00 PM · Lab B2",
-    tone: "neutral" as const,
+    tone: "blue" as const,
     tag: "Prep Ready",
   },
   {
@@ -67,7 +67,7 @@ const DASHBOARD_ITEMS = [
     label: "Previous-Year Paper",
     title: "Discrete Mathematics — 2024 Solved",
     meta: "PDF · 18 pages · Verified",
-    tone: "neutral" as const,
+    tone: "blue" as const,
     tag: "Solved",
   },
   {
@@ -75,19 +75,19 @@ const DASHBOARD_ITEMS = [
     label: "Upcoming Exam",
     title: "Mid-Semester Examination I",
     meta: "Starts 14 Sept · 6 subjects",
-    tone: "warn" as const,
+    tone: "red" as const,
     tag: "24 Days",
   },
 ];
 
 const TRACK_1_ITEMS = [
-  { icon: GraduationCap, text: "NIMS University Syllabus Aligned", tag: "Official", tone: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
+  { icon: GraduationCap, text: "University Curriculum Aligned", tag: "Official", tone: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
   { icon: Cpu, text: "B.Tech Computer Science & AI", tag: "Course", tone: "bg-blue-500/10 text-blue-600 dark:text-blue-400" },
   { icon: FileCheck2, text: "Solved Previous-Year Papers (2020–2025)", tag: "Verified", tone: "bg-amber-500/10 text-amber-600 dark:text-amber-400" },
   { icon: FlaskConical, text: "Lab Manuals & Practical Codes", tag: "Labs", tone: "bg-purple-500/10 text-purple-600 dark:text-purple-400" },
   { icon: BookMarked, text: "Topper Handwritten Unit Notes", tag: "Top Rated", tone: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
   { icon: Sparkles, text: "AI Assignment Creator & Formatter", tag: "AI Tool", tone: "bg-teal-500/10 text-teal-600 dark:text-teal-400" },
-  { icon: ShieldCheck, text: "100% Free Starter Study Bundles", tag: "Free", tone: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
+  { icon: ShieldCheck, text: "Curated Student Study Bundles", tag: "Curriculum", tone: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" },
   { icon: Users, text: "Verified Department Study Portal", tag: "Academic", tone: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400" },
   { icon: Award, text: "Faculty-Verified Model Answers", tag: "Exam Prep", tone: "bg-amber-500/10 text-amber-600 dark:text-amber-400" },
 ];
@@ -105,14 +105,14 @@ const TRACK_2_ITEMS = [
 export function Hero() {
   return (
     <div id="top" className="relative overflow-hidden">
-      {/* Dynamic Colorful Ambient Lighting */}
+      {/* Dynamic Colorful Ambient Lighting Matched to Brand Logo Triad (#005F15, #007EAC, #BA0000) */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-[38rem] w-[54rem] -translate-x-1/2 rounded-full bg-gradient-to-tr from-emerald-500/15 via-teal-400/10 to-indigo-500/15 blur-[120px] opacity-70"
+        className="pointer-events-none absolute -top-40 left-1/2 -z-10 h-[38rem] w-[54rem] -translate-x-1/2 rounded-full bg-gradient-to-tr from-[#005F15]/20 via-[#007EAC]/15 to-[#BA0000]/15 blur-[120px] opacity-75"
       />
       <div
         aria-hidden
-        className="pointer-events-none absolute top-1/3 -right-20 -z-10 h-[24rem] w-[24rem] rounded-full bg-amber-400/10 blur-[90px] opacity-60"
+        className="pointer-events-none absolute top-1/3 -right-20 -z-10 h-[24rem] w-[24rem] rounded-full bg-gradient-to-bl from-[#007EAC]/20 via-[#005F15]/15 to-[#BA0000]/15 blur-[90px] opacity-65"
       />
 
       <div
@@ -127,39 +127,38 @@ export function Hero() {
           <div>
             <Pill tone="green">
               <GraduationCap className="h-3.5 w-3.5 shrink-0" />
-              <span className="truncate">Built For Your University Syllabus</span>
+              <span className="truncate">Made For College Students</span>
             </Pill>
 
             <h1 className="mt-5 text-[2.2rem] leading-[1.04] sm:text-5xl lg:text-[4rem] font-bold tracking-tight text-foreground break-words">
-              Your Entire University Life. Organized.
+              Your Entire University Life.{" "}
+              <span className="text-logo-gradient">Organized.</span>
             </h1>
 
             <p className="mt-5 max-w-xl text-sm sm:text-base leading-relaxed text-muted-foreground break-words">
-              Access Daily Class Notes, Assignments, Practicals, Previous-Year Papers, Exam
-              Updates, University Notices And More — Organized By Your University, Department,
-              Semester And Section.
+              Get Instant Access To Clean Handwritten Notes, Solved Exam Papers, Lab Codes, And Class Timetables — All Neatly Arranged For Your Exact Branch And Semester.
             </p>
 
             {/* CTAs + Social Proof Row */}
             <div className="mt-7 flex flex-col gap-3.5 sm:flex-row sm:items-center min-w-0">
-              <Cta href="/login" size="lg" className="w-full sm:w-auto">
+              <Cta href="/login?mode=signup" size="lg" className="w-full sm:w-auto shadow-md">
                 <span>Get Started</span>
                 <ArrowRight className="h-4 w-4 shrink-0" />
               </Cta>
               <Cta href="#features" variant="outline" size="lg" className="w-full sm:w-auto">
-                Explore Features
+                See How It Works
               </Cta>
             </div>
 
-            {/* Student Rating & Social Proof Bar */}
+            {/* Student Rating & Social Proof Bar with Logo Triad Avatars */}
             <div className="mt-4 flex flex-wrap items-center gap-2.5 text-xs text-muted-foreground">
               <div className="flex -space-x-1.5 shrink-0">
-                {["bg-emerald-500", "bg-teal-600", "bg-indigo-600", "bg-amber-500"].map((bg, idx) => (
+                {["bg-[#005F15]", "bg-[#007EAC]", "bg-[#BA0000]", "bg-emerald-600"].map((bg, idx) => (
                   <div
                     key={idx}
-                    className={`grid h-6 w-6 place-items-center rounded-full border-2 border-background text-[0.6rem] font-bold text-white ${bg}`}
+                    className={`grid h-6 w-6 place-items-center rounded-full border-2 border-background text-[0.6rem] font-bold text-white shadow-xs ${bg}`}
                   >
-                    {["A", "R", "S", "P"][idx]}
+                    {["N", "S", "D", "A"][idx]}
                   </div>
                 ))}
               </div>
@@ -170,46 +169,55 @@ export function Hero() {
                 <span className="font-bold text-foreground ml-0.5">4.9/5</span>
               </div>
               <span>•</span>
-              <span className="font-medium text-foreground/80">Verified University Notes &amp; Solutions</span>
+              <span className="font-medium text-foreground/80">Verified Study Notes &amp; Solutions</span>
             </div>
           </div>
 
-          {/* Attractive Glassmorphic Metric Stat Cards (Left Bottom) */}
+          {/* Attractive Glassmorphic Metric Stat Cards Directly Echoing Logo Triad (#005F15, #007EAC, #BA0000) */}
           <div className="mt-7 grid grid-cols-3 gap-2.5 sm:gap-3 min-w-0">
             {[
               {
                 value: "100%",
-                label: "Free Notes",
-                sub: "Chapter & Unit Wise",
+                label: "Course Notes",
+                sub: "Structured Chapter Guides",
                 icon: Layers,
-                accent: "from-emerald-500/15 to-teal-500/10 text-emerald-600 dark:text-emerald-400",
+                accent: "from-[#005F15]/15 to-[#005F15]/5 text-[#005F15] dark:text-emerald-400",
+                valueClass: "bg-gradient-to-br from-[#005F15] to-emerald-600 dark:from-emerald-400 dark:to-teal-300",
+                borderHover: "hover:border-[#005F15]/50",
               },
               {
                 value: "5+ Yrs",
                 label: "Solved Papers",
                 sub: "Step-By-Step Answers",
                 icon: BookOpen,
-                accent: "from-teal-500/15 to-cyan-500/10 text-teal-600 dark:text-teal-400",
+                accent: "from-[#007EAC]/15 to-[#007EAC]/5 text-[#007EAC] dark:text-sky-400",
+                valueClass: "bg-gradient-to-br from-[#007EAC] to-cyan-600 dark:from-sky-400 dark:to-cyan-300",
+                borderHover: "hover:border-[#007EAC]/50",
               },
               {
                 value: "Zero",
-                label: "Distractions",
-                sub: "No Spam, Just Study",
+                label: "Spam Or Ads",
+                sub: "Just Pure Study",
                 icon: ShieldCheck,
-                accent: "from-emerald-500/15 to-teal-500/10 text-emerald-600 dark:text-emerald-400",
+                accent: "from-[#BA0000]/15 to-[#BA0000]/5 text-[#BA0000] dark:text-rose-400",
+                valueClass: "bg-gradient-to-br from-[#BA0000] to-rose-600 dark:from-rose-400 dark:to-red-300",
+                borderHover: "hover:border-[#BA0000]/50",
               },
             ].map((stat) => {
               const Icon = stat.icon;
               return (
                 <div
                   key={stat.label}
-                  className="group relative flex flex-col justify-between rounded-2xl border border-border/80 bg-card/90 p-3 sm:p-3.5 shadow-2xs backdrop-blur-xs transition-all duration-200 hover:border-primary/50 hover:bg-card hover:-translate-y-0.5 min-w-0"
+                  className={cn(
+                    "group relative flex flex-col justify-between rounded-2xl border border-border/80 bg-card/90 p-3 sm:p-3.5 shadow-2xs backdrop-blur-xs transition-all duration-200 hover:bg-card hover:-translate-y-0.5 min-w-0",
+                    stat.borderHover,
+                  )}
                 >
                   <div className="flex items-center justify-between gap-1 min-w-0">
                     <div className={cn("grid h-7 w-7 place-items-center rounded-lg bg-gradient-to-br shadow-2xs", stat.accent)}>
                       <Icon className="h-3.5 w-3.5 shrink-0" />
                     </div>
-                    <span className="font-display text-xl sm:text-2xl font-black tracking-tight bg-gradient-to-br from-primary via-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                    <span className={cn("font-display text-xl sm:text-2xl font-black tracking-tight bg-clip-text text-transparent", stat.valueClass)}>
                       {stat.value}
                     </span>
                   </div>
@@ -232,14 +240,14 @@ export function Hero() {
         <Reveal delay={120} className="relative min-w-0 flex flex-col justify-between">
           <div className="animate-float-slow min-w-0">
             <MockWindow
-              title="NimsWallah · Dashboard"
+              title="SaastaScholar · Dashboard"
               actions={<Pill tone="green">Sem 1 · Sec A</Pill>}
               className="shadow-[0_24px_70px_-25px_color-mix(in_oklab,var(--color-primary-deep)_35%,transparent)]"
             >
               <div className="border-b border-border bg-card px-4 py-3 sm:px-5 sm:py-3.5 min-w-0">
                 <p className="label-caps text-[0.68rem] text-muted-foreground font-semibold">Good Morning, Aarav</p>
                 <p className="mt-0.5 font-display text-sm sm:text-base font-bold text-foreground truncate">
-                  NIMS University · B.Tech AI &amp; ML
+                  Scholar Study Workspace · B.Tech AI &amp; ML
                 </p>
               </div>
               <ul className="grid gap-px bg-border grid-cols-1 sm:grid-cols-2 min-w-0">
@@ -280,10 +288,10 @@ export function Hero() {
               </div>
               <div className="min-w-0">
                 <p className="text-xs font-bold text-foreground truncate">
-                  NIMS Official Syllabus
+                  Official College Syllabus
                 </p>
                 <p className="text-[0.65rem] text-muted-foreground truncate">
-                  Aligned To Batch 2026 Grading
+                  Matches Your Current Semester
                 </p>
               </div>
             </div>
@@ -294,10 +302,10 @@ export function Hero() {
               </div>
               <div className="min-w-0">
                 <p className="text-xs font-bold text-foreground truncate">
-                  Solved PYQs (2020–2025)
+                  Solved Exam Papers (2020–2025)
                 </p>
                 <p className="text-[0.65rem] text-muted-foreground truncate">
-                  100% Model Step-By-Step Solutions
+                  Clear Answers For Full Marks
                 </p>
               </div>
             </div>

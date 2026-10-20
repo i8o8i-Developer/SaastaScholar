@@ -391,7 +391,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
               </h2>
 
               <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-md mx-auto">
-                {blockReason || "Screen Capture Was Detected. Please Contact Teacher Or Support To Continue Reading."}
+                {blockReason || "Screen Capture Was Detected. Please Contact Platform Administrator Or Support To Continue Reading."}
               </p>
             </div>
 
@@ -887,7 +887,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
               isDark ? "border-zinc-800 text-zinc-500" : "border-slate-200 text-slate-500"
             )}
           >
-            <span>NimsWallah Study Reader · Page {currentPage} Of {payload.total_pages}</span>
+            <span>SaastaScholar Study Reader · Page {currentPage} Of {payload.total_pages}</span>
             <span>Student Roll: {user?.roll_number || payload.watermark.roll_number}</span>
           </div>
         </div>

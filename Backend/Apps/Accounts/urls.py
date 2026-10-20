@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
-from Apps.Academic.views import AdminStudentsListView, AdminStudentDetailView
+from Apps.Academic.views import AdminStudentsListView, AdminStudentDetailView, AdminStudentSemesterUpgradeView
 from .views import (
     AvatarUploadView,
     CurrentUserView,
@@ -13,6 +13,8 @@ from .views import (
     AdminAuditLogListView,
     AdminAuditLogClearView,
     AdminBulkResetSecurityView,
+    PasswordResetRequestView,
+    PasswordResetConfirmView,
 )
 
 urlpatterns = [
@@ -24,9 +26,12 @@ urlpatterns = [
     path("sessions/", SecuritySessionsView.as_view(), name="auth-sessions"),
     path("dashboard-summary/", DashboardSummaryView.as_view(), name="dashboard-summary"),
     path("acknowledge-warning/", AcknowledgeWarningView.as_view(), name="auth-acknowledge-warning"),
+    path("password-reset/", PasswordResetRequestView.as_view(), name="auth-password-reset-request"),
+    path("password-reset-confirm/", PasswordResetConfirmView.as_view(), name="auth-password-reset-confirm"),
     
     # Admin Student Registry & Security Center
     path("admin/users/", AdminStudentsListView.as_view(), name="auth-admin-users"),
+    path("admin/users/semester-upgrade/", AdminStudentSemesterUpgradeView.as_view(), name="auth-admin-student-semester-upgrade"),
     path("admin/users/bulk-reset-security/", AdminBulkResetSecurityView.as_view(), name="auth-admin-bulk-reset-security"),
     path("admin/users/<uuid:pk>/", AdminStudentDetailView.as_view(), name="auth-admin-user-detail"),
     path("admin/users/<uuid:pk>/security-action/", AdminStudentSecurityActionView.as_view(), name="auth-admin-student-security"),

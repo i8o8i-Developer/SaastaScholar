@@ -51,13 +51,15 @@ import {
 } from "@/Lib/Api";
 import { toast } from "sonner";
 import { cn } from "@/Lib/Utils";
+import { initiateRazorpayPayment } from "@/Lib/Razorpay";
+
 interface StudentProfileProps {
   onNavigateTab?: (tab: string) => void;
   onOpenReader?: (materialId: string) => void;
 }
 
 export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfileProps = {}) {
-  const { user, updateProfile, logout } = useAuth();
+  const { user, updateProfile, logout, refreshUser } = useAuth();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   // Folder Explorer Navigation States
@@ -293,6 +295,20 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
                 <span className="rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 px-2.5 py-0.5 text-[0.62rem] sm:text-xs font-bold uppercase tracking-wider border border-emerald-500/20 whitespace-nowrap shrink-0">
                   {user?.access_tier?.replace("_", " ") || "FREE STARTER"}
                 </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    initiateRazorpayPayment({
+                      planTier: "ACHIEVER",
+                      cycle: "monthly",
+                      onSuccess: () => refreshUser(),
+                    });
+                  }}
+                  className="rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:brightness-110 px-3 py-0.5 text-[0.62rem] sm:text-xs font-bold uppercase tracking-wider shadow-xs transition-all cursor-pointer flex items-center gap-1 active:scale-95"
+                >
+                  <Zap className="h-3 w-3 fill-current text-amber-300" />
+                  <span>Upgrade Plan</span>
+                </button>
               </div>
               <p className="text-[0.72rem] sm:text-xs md:text-sm text-muted-foreground break-all sm:break-normal">
                 {user?.email} · <span className="font-mono font-bold text-foreground">ID: {user?.roll_number || "STU01"}</span>
@@ -1016,7 +1032,7 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
                   </div>
 
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    NimsWallah Protects Teacher Notes And Solved Exam Papers So Every Student Gets Authentic, Verified Material.
+                    SaastaScholar Protects Teacher Notes And Solved Exam Papers So Every Student Gets Authentic, Verified Material.
                   </p>
 
                   <div className="space-y-2 text-xs text-muted-foreground">

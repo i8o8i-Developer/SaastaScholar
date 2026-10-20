@@ -5,16 +5,16 @@ import { toast } from "sonner";
 import { MockWindow, Pill, Reveal, Section, SectionHeading } from "./Primitives";
 
 const FEATURES = [
-  ["01", "Daily Class Notes", "Notes Published The Same Day, Mapped To The Class Held."],
-  ["02", "Subject-Wise Notes", "Every Subject Of Your Semester With Its Own Structured Shelf."],
-  ["03", "Unit-Wise Resources", "Material Split Unit By Unit So Revision Follows Your Syllabus."],
-  ["04", "Important Questions", "Repeatedly Asked Questions Surfaced Per Unit And Subject."],
-  ["05", "Previous-Year Papers", "Archive Of Past University Papers For Your Program."],
-  ["06", "Solved Papers", "Worked Solutions For Selected Previous-Year Papers."],
-  ["07", "Official Syllabus", "The Approved Syllabus For Your Program And Semester."],
-  ["08", "Course Outcomes", "Outcome Mapping So You Know What You Are Assessed On."],
-  ["09", "Recommended Resources", "Books, References And Reading Lists Chosen Per Subject."],
-  ["10", "Faculty Materials", "Uploads From Your Own Faculty, Attached To Your Section."],
+  ["01", "Daily Class Notes", "Clean Handwritten Notes Uploaded Daily Right After Your Lectures."],
+  ["02", "Subject Folders", "Each Subject Gets Its Own Folder So You Never Lose Important Files."],
+  ["03", "Unit-By-Unit Study", "Topics Separated By Unit So You Can Revise Step By Step."],
+  ["04", "Important Questions", "Handpicked High-Mark Questions That Often Come in Exams."],
+  ["05", "Past Question Papers", "Real University Exam Papers From Previous Years In One Click."],
+  ["06", "Step-By-Step Solutions", "Clear Model Answers Showing You Exactly How To Score Full Marks."],
+  ["07", "Official Syllabus", "Approved University Syllabus Topics With Real Exam Mark Weights."],
+  ["08", "What To Focus On", "Simple Checklists So You Always Know What Topics Matter Most."],
+  ["09", "Recommended Books", "Top Books And Quick Reading Links Handpicked For Each Subject."],
+  ["10", "Teacher Handouts", "Slides And Classwork Shared Directly For Your Class Section."],
 ];
 
 const RESOURCE_ROWS = [
@@ -46,9 +46,9 @@ export function AcademicHub() {
     <Section id="academic-hub">
       <Reveal>
         <SectionHeading
-          eyebrow="Academic Hub"
-          title="Everything Academic. In One Hub."
-          description="One Structured Shelf Per Subject — Notes, Questions, Papers, Syllabus And Faculty Uploads, All Inheriting Your Semester And Section."
+          eyebrow="Study Notes & PYQs"
+          title="All Your Study Notes in One Place."
+          description="Find Everything You Need For Every Subject — Handwritten Notes, Solved Papers, Important Questions, And Syllabus Guides, All Sorted By Unit."
         />
       </Reveal>
 
@@ -83,7 +83,7 @@ export function AcademicHub() {
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search Course Notes, Past Papers, And Viva Sets..."
+                placeholder="Search By Subject, Topic, Or Question Paper..."
                 className="w-full bg-transparent text-sm placeholder:text-muted-foreground/70 focus:outline-none"
               />
             </div>
@@ -127,9 +127,9 @@ export function AcademicHub() {
             <div className="flex items-center justify-between border-t border-border bg-surface px-4 py-3 text-xs text-muted-foreground">
               <span className="inline-flex items-center gap-1.5">
                 <FolderOpen className="h-3.5 w-3.5 text-primary" />
-                <span>{filteredResources.length} Resources Shown In This View</span>
+                <span>{filteredResources.length} Resources Ready To Read</span>
               </span>
-              <span className="font-semibold text-primary">Live Syllabus Sync</span>
+              <span className="font-semibold text-primary">Synced To Your Syllabus</span>
             </div>
           </MockWindow>
         </Reveal>

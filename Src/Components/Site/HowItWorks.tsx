@@ -3,23 +3,23 @@ import { Reveal, Section, SectionHeading } from "./Primitives";
 const STEPS = [
   [
     "01",
-    "Select Your University",
-    "Find Your Institution And NimsWallah Loads Its Complete Academic Structure — Departments, Degree Programs, And Calendars.",
+    "Pick Your College",
+    "Select Your University So We Can Load Your Department And Subject List.",
   ],
   [
     "02",
-    "Choose Your Academic Profile",
-    "Set Your Department, Program, Semester And Section Once. Everything Downstream Inherits It Automatically.",
+    "Select Your Class",
+    "Choose Your Branch, Current Semester, And Section Just Once.",
   ],
   [
     "03",
-    "Access Your Personalized Academic Hub",
-    "Notes, Solved PYQ Papers, Practicals And Assignment Tools Open Pre-Filtered To Your Exact Subjects.",
+    "Get Your Study Packets",
+    "Your Notes, Solved Question Papers, And Lab Manuals Open Automatically.",
   ],
   [
     "04",
-    "Stay Updated And Organized",
-    "Notices Land In One Unified Feed And Exam Deadlines Flow Straight Into Your Personal Smart Planner.",
+    "Stay Ahead Every Day",
+    "Never Miss A Class Announcement, Lab Record Submission, Or Exam Date.",
   ],
 ];
 
@@ -28,9 +28,9 @@ export function HowItWorks() {
     <Section tone="surface" className="py-16 sm:py-24">
       <Reveal>
         <SectionHeading
-          eyebrow="How It Works"
-          title="Four Steps To A Cleaner Academic Workflow."
-          description="A Simplified, Transparent Process Designed Around How You Study."
+          eyebrow="Simple Setup"
+          title="Get Started in 4 Easy Steps."
+          description="It Takes Less Than 30 Seconds To Set Up Your Academic Workspace."
           align="center"
         />
       </Reveal>

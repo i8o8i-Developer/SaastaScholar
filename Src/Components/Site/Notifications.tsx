@@ -59,13 +59,13 @@ const FEED: {
 ];
 
 const TYPES = [
-  "University Notices",
-  "Department Notices",
-  "Section Announcements",
-  "Exam Notifications",
-  "Assignment Deadlines",
-  "Class Cancellations",
-  "Holiday Notices",
+  "Exam Date Sheets",
+  "Class Announcements",
+  "Homework Deadlines",
+  "Holiday Circulars",
+  "Timetable Changes",
+  "Faculty Notices",
+  "Fee Reminders",
 ];
 
 export function Notifications() {
@@ -77,9 +77,9 @@ export function Notifications() {
       <div className="grid gap-14 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-center">
         <Reveal>
           <SectionHeading
-            eyebrow="Notification Center"
-            title="Stop Checking Five Different Groups For One Notice."
-            description="University, Department And Section Announcements Arrive In One Ordered Feed — Filtered To Your Academic Profile, Never To Someone Else's Batch."
+            eyebrow="College Notices"
+            title="Never Miss An Important College Notice."
+            description="All Your Exam Dates, Holiday Circulars, Fee Deadlines, And Class Timetable Changes In One Clean Feed — Only What Matters For Your Class."
           />
           <ul className="mt-9 flex flex-wrap gap-2">
             {TYPES.map((type) => (
@@ -94,7 +94,7 @@ export function Notifications() {
 
         <Reveal delay={100}>
           <MockWindow
-            title="Notification Feed"
+            title="College Notification Feed"
             actions={
               <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                 <Bell className="h-3.5 w-3.5 text-primary" /> 5 New

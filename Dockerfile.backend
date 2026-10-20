@@ -1,0 +1,44 @@
+# ==============================================================================
+# Saasta Scholar Backend Container (Django + Gunicorn + Python 3.10)
+# ==============================================================================
+FROM python:3.10-slim AS backend
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PORT=8000
+ENV TZ=Asia/Kolkata
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    tzdata \
+    wget \
+    libpq5 \
+    libreoffice-core \
+    libreoffice-writer \
+    libreoffice-impress \
+    libreoffice-calc \
+    fonts-liberation \
+    fonts-dejavu \
+    fonts-crosextra-carlito \
+    fonts-crosextra-caladea \
+    fontconfig \
+    && ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN fc-cache -f -v
+
+WORKDIR /app
+
+COPY Backend/Requirements.txt /app/Backend/Requirements.txt
+RUN pip install --no-cache-dir -r /app/Backend/Requirements.txt
+
+COPY Backend /app/Backend
+COPY start-backend.sh /app/start-backend.sh
+RUN chmod +x /app/start-backend.sh
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:8000/api/academic/departments/ || exit 1
+
+CMD ["/app/start-backend.sh"]

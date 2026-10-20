@@ -123,7 +123,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
       setUser(res.user);
       localStorage.setItem("nimswallah_user", JSON.stringify(res.user));
-      toast.success("Welcome To NimsWallah! Student Profile Registered Successfully.");
+      toast.success("Welcome To SaastaScholar! Student Profile Registered Successfully.");
       return true;
     } catch (error: any) {
       toast.error(toTitleCase(error.message || "Registration Failed. Please Check Provided Details."));

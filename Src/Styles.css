@@ -96,10 +96,33 @@
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
+
+  --color-brand-green: var(--brand-green);
+  --color-brand-green-deep: var(--brand-green-deep);
+  --color-brand-green-soft: var(--brand-green-soft);
+  --color-brand-red: var(--brand-red);
+  --color-brand-red-deep: var(--brand-red-deep);
+  --color-brand-red-soft: var(--brand-red-soft);
+  --color-brand-blue: var(--brand-blue);
+  --color-brand-blue-deep: var(--brand-blue-deep);
+  --color-brand-blue-soft: var(--brand-blue-soft);
 }
 
 :root {
   --radius: 0.75rem;
+
+  /* Official Brand Logo Color Triad: #005F15 (Forest Green), #BA0000 (Crimson Red), #007EAC (Ocean Blue) */
+  --brand-green: #005F15;
+  --brand-green-deep: #00450f;
+  --brand-green-soft: rgba(0, 95, 21, 0.08);
+
+  --brand-red: #BA0000;
+  --brand-red-deep: #8f0000;
+  --brand-red-soft: rgba(186, 0, 0, 0.08);
+
+  --brand-blue: #007EAC;
+  --brand-blue-deep: #005e80;
+  --brand-blue-soft: rgba(0, 126, 172, 0.08);
 
   --background: oklch(0.995 0.002 240);
   --foreground: oklch(0.18 0.02 240);
@@ -110,83 +133,112 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.18 0.02 240);
 
-  /* Vibrant Emerald Primary */
-  --primary: oklch(0.48 0.17 155);
+  /* Primary Brand Theme Token = Logo Green #005F15 */
+  --primary: oklch(0.38 0.165 142);
   --primary-foreground: oklch(0.99 0 0);
-  --primary-soft: oklch(0.94 0.045 155);
-  --primary-deep: oklch(0.35 0.14 155);
+  --primary-soft: oklch(0.95 0.035 142);
+  --primary-deep: oklch(0.28 0.14 142);
 
   --secondary: oklch(0.96 0.008 240);
   --secondary-foreground: oklch(0.24 0.03 240);
   --muted: oklch(0.96 0.006 240);
   --muted-foreground: oklch(0.48 0.02 240);
-  --accent: oklch(0.94 0.04 155);
-  --accent-foreground: oklch(0.35 0.12 155);
-  --highlight: oklch(0.72 0.18 65);
 
-  --destructive: oklch(0.58 0.22 25);
+  /* Accent Theme Token = Logo Ocean Blue #007EAC */
+  --accent: oklch(0.95 0.03 226);
+  --accent-foreground: oklch(0.42 0.12 226);
+
+  /* Highlight = Logo Ocean Blue #007EAC */
+  --highlight: oklch(0.53 0.135 226);
+
+  /* Destructive & Urgent Theme Token = Logo Crimson Red #BA0000 */
+  --destructive: oklch(0.48 0.22 28);
   --destructive-foreground: oklch(0.99 0 0);
 
   --border: oklch(0.91 0.008 240);
   --border-strong: oklch(0.82 0.015 240);
   --input: oklch(0.91 0.008 240);
-  --ring: oklch(0.48 0.17 155);
+  --ring: oklch(0.38 0.165 142);
 
-  --chart-1: oklch(0.48 0.17 155);
-  --chart-2: oklch(0.58 0.18 250);
-  --chart-3: oklch(0.68 0.19 140);
-  --chart-4: oklch(0.72 0.18 65);
-  --chart-5: oklch(0.62 0.22 330);
+  --chart-1: oklch(0.38 0.165 142);
+  --chart-2: oklch(0.53 0.135 226);
+  --chart-3: oklch(0.48 0.22 28);
+  --chart-4: oklch(0.68 0.16 142);
+  --chart-5: oklch(0.62 0.18 226);
 
   --sidebar: oklch(0.975 0.005 240);
   --sidebar-foreground: oklch(0.18 0.02 240);
-  --sidebar-primary: oklch(0.48 0.17 155);
+  --sidebar-primary: oklch(0.38 0.165 142);
   --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.94 0.04 155);
-  --sidebar-accent-foreground: oklch(0.35 0.12 155);
+  --sidebar-accent: oklch(0.95 0.03 226);
+  --sidebar-accent-foreground: oklch(0.42 0.12 226);
   --sidebar-border: oklch(0.91 0.008 240);
-  --sidebar-ring: oklch(0.48 0.17 155);
+  --sidebar-ring: oklch(0.38 0.165 142);
 }
 
 .dark {
-  --background: oklch(0.17 0.012 154);
+  /* Logo Colors in Dark Mode */
+  --brand-green: #10b981;
+  --brand-green-deep: #059669;
+  --brand-green-soft: rgba(16, 185, 129, 0.15);
+
+  --brand-red: #ef4444;
+  --brand-red-deep: #dc2626;
+  --brand-red-soft: rgba(239, 68, 68, 0.15);
+
+  --brand-blue: #0ea5e9;
+  --brand-blue-deep: #0284c7;
+  --brand-blue-soft: rgba(14, 165, 233, 0.15);
+
+  --background: oklch(0.17 0.012 142);
   --foreground: oklch(0.965 0.006 95);
-  --surface: oklch(0.212 0.015 154);
+  --surface: oklch(0.212 0.015 142);
   --surface-foreground: oklch(0.965 0.006 95);
-  --card: oklch(0.222 0.016 154);
+  --card: oklch(0.222 0.016 142);
   --card-foreground: oklch(0.965 0.006 95);
-  --popover: oklch(0.222 0.016 154);
+  --popover: oklch(0.222 0.016 142);
   --popover-foreground: oklch(0.965 0.006 95);
-  --primary: oklch(0.72 0.11 154);
-  --primary-foreground: oklch(0.17 0.012 154);
-  --primary-soft: oklch(0.3 0.045 154);
-  --primary-deep: oklch(0.9 0.05 154);
-  --secondary: oklch(0.26 0.018 154);
+
+  --primary: oklch(0.70 0.16 142);
+  --primary-foreground: oklch(0.15 0.02 142);
+  --primary-soft: oklch(0.28 0.05 142);
+  --primary-deep: oklch(0.85 0.14 142);
+
+  --secondary: oklch(0.25 0.018 142);
   --secondary-foreground: oklch(0.95 0.006 95);
-  --muted: oklch(0.26 0.018 154);
+  --muted: oklch(0.25 0.018 142);
   --muted-foreground: oklch(0.72 0.015 90);
-  --accent: oklch(0.28 0.035 154);
-  --accent-foreground: oklch(0.92 0.04 154);
-  --highlight: oklch(0.8 0.13 84);
-  --destructive: oklch(0.65 0.18 27);
-  --destructive-foreground: oklch(0.98 0.006 95);
+
+  --accent: oklch(0.26 0.04 226);
+  --accent-foreground: oklch(0.85 0.08 226);
+
+  --highlight: oklch(0.72 0.135 226);
+
+  --destructive: oklch(0.68 0.22 28);
+  --destructive-foreground: oklch(0.99 0 0);
+
   --border: oklch(1 0 0 / 12%);
   --border-strong: oklch(1 0 0 / 22%);
   --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.72 0.11 154);
-  --sidebar: oklch(0.212 0.015 154);
+  --ring: oklch(0.70 0.16 142);
+
+  --sidebar: oklch(0.212 0.015 142);
   --sidebar-foreground: oklch(0.965 0.006 95);
-  --sidebar-primary: oklch(0.72 0.11 154);
-  --sidebar-primary-foreground: oklch(0.17 0.012 154);
-  --sidebar-accent: oklch(0.28 0.035 154);
-  --sidebar-accent-foreground: oklch(0.92 0.04 154);
+  --sidebar-primary: oklch(0.70 0.16 142);
+  --sidebar-primary-foreground: oklch(0.15 0.02 142);
+  --sidebar-accent: oklch(0.26 0.04 226);
+  --sidebar-accent-foreground: oklch(0.85 0.08 226);
   --sidebar-border: oklch(1 0 0 / 12%);
-  --sidebar-ring: oklch(0.72 0.11 154);
+  --sidebar-ring: oklch(0.70 0.16 142);
 }
 
 @layer base {
   * {
     border-color: var(--color-border);
+  }
+
+  html {
+    scroll-behavior: smooth;
   }
 
   html,
@@ -377,5 +429,180 @@
 .animate-marquee-reverse:hover {
   animation-play-state: paused !important;
 }
+
+/* =========================================================================
+   Official Brand Logo Color Triad Utilities
+   Directly derived from /public/SaastaScholar.png:
+   - Forest Green: #005F15 (Primary / Academic Identity)
+   - Crimson Red:  #BA0000 (Urgent / Accent / Passion)
+   - Ocean Blue:   #007EAC (Tech / Practicals / Secondary)
+   ========================================================================= */
+
+@utility bg-logo-gradient {
+  background-image: linear-gradient(135deg, #005F15 0%, #007EAC 50%, #BA0000 100%);
+}
+
+@utility text-logo-gradient {
+  background-image: linear-gradient(135deg, #005F15 0%, #007EAC 50%, #BA0000 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.dark .text-logo-gradient {
+  background-image: linear-gradient(135deg, #34d399 0%, #38bdf8 50%, #f87171 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+@utility border-logo-gradient {
+  border-image: linear-gradient(135deg, #005F15 0%, #007EAC 50%, #BA0000 100%) 1;
+}
+
+.logo-glow-green {
+  box-shadow: 0 0 25px -5px rgba(0, 95, 21, 0.45);
+}
+
+.logo-glow-blue {
+  box-shadow: 0 0 25px -5px rgba(0, 126, 172, 0.45);
+}
+
+.logo-glow-red {
+  box-shadow: 0 0 25px -5px rgba(186, 0, 0, 0.45);
+}
+
+/* =========================================================================
+   Ultra-Smooth Motion & Kinetic Animation System
+   ========================================================================= */
+
+@keyframes floatSlow {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes floatGentle {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-4px) scale(1.01);
+  }
+}
+
+@keyframes pulseGlow {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes shimmerSlide {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes subtleBob {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+@keyframes smoothEntrance {
+  0% {
+    opacity: 0;
+    transform: translateY(12px) scale(0.985);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-float-slow {
+  animation: floatSlow 6s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-float-gentle {
+  animation: floatGentle 4.5s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-pulse-glow {
+  animation: pulseGlow 3s ease-in-out infinite;
+}
+
+.animate-subtle-bob {
+  animation: subtleBob 3s ease-in-out infinite;
+}
+
+.animate-smooth-entrance {
+  animation: smoothEntrance 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.smooth-transition {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hover-lift {
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hover-lift:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 28px -10px rgba(0, 95, 21, 0.18), 0 6px 14px -6px rgba(0, 126, 172, 0.12);
+}
+
+.hover-lift-subtle {
+  transition: transform 0.24s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.hover-lift-subtle:hover {
+  transform: translateY(-2px);
+}
+
+.glass-sheen {
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-sheen::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.08),
+    transparent
+  );
+  transform: skewX(-20deg);
+  transition: left 0.75s ease;
+  pointer-events: none;
+}
+
+.glass-sheen:hover::after {
+  left: 150%;
+}
+
 
 

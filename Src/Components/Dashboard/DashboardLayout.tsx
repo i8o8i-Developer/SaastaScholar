@@ -44,6 +44,7 @@ import { apiFetch, DepartmentNotice, SidebarBadgeConfig } from "@/Lib/Api";
 import { MarkdownContent } from "@/Components/Ui/MarkdownContent";
 import { BroadcastBanner } from "@/Components/Ui/BroadcastBanner";
 import { useIstClock } from "@/Lib/IstTime";
+import { initiateRazorpayPayment } from "@/Lib/Razorpay";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -92,7 +93,7 @@ export const getDisplayProgram = (user: any): string => {
 };
 
 export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader }: DashboardLayoutProps) {
-  const { user, logout } = useAuth();
+  const { user, logout, refreshUser } = useAuth();
   const { theme, isDark, toggleTheme } = useTheme();
   const istClock = useIstClock();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -127,6 +128,7 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
   }, []);
 
   // Fetch Live Notices As Real Notifications With LocalStorage Persistence
+  // Fetch Live Notices As Real Notifications With LocalStorage & Server Persistence
   useEffect(() => {
     async function loadLiveNotices() {
       try {
@@ -135,22 +137,26 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
         
         let readIds: string[] = [];
         let clearedIds: string[] = [];
+        const userKey = user?.id ? `nimswallah_read_notices_${user.id}` : null;
         try {
-          readIds = JSON.parse(localStorage.getItem("nimswallah_read_notices") || "[]");
+          const userSpecific = userKey ? JSON.parse(localStorage.getItem(userKey) || "[]") : [];
+          const globalRead = JSON.parse(localStorage.getItem("nimswallah_read_notices") || "[]");
+          readIds = Array.from(new Set([...userSpecific, ...globalRead]));
           clearedIds = JSON.parse(localStorage.getItem("nimswallah_cleared_notices") || "[]");
         } catch {}
 
         const formatted: NotificationItem[] = items
-          .filter((n: DepartmentNotice) => !clearedIds.includes(n.id))
-          .map((n: DepartmentNotice) => {
+          .filter((n: any) => !clearedIds.includes(n.id))
+          .map((n: any) => {
             const dateStr = n.published_at ? new Date(n.published_at).toLocaleDateString("en-IN", { month: "short", day: "numeric" }) : "Recent";
+            const isRead = Boolean(n.is_read || readIds.includes(n.id));
             return {
               id: n.id,
               title: n.title,
               content: n.content,
               category: n.category || "Official Notice",
               time: dateStr,
-              is_read: readIds.includes(n.id),
+              is_read: isRead,
             };
           });
         setNotifications(formatted);
@@ -159,7 +165,7 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
       }
     }
     loadLiveNotices();
-  }, []);
+  }, [user?.id]);
 
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
@@ -180,24 +186,28 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-
   const handleNavClick = (tabId: string) => {
     onSelectTab(tabId);
     setMobileOpen(false);
   };
 
   const handleMarkAllNotificationsRead = () => {
-    setNotifications((prev) => {
-      const updated = prev.map((n) => ({ ...n, is_read: true }));
-      try {
-        const allIds = updated.map((n) => n.id);
-        const existing: string[] = JSON.parse(localStorage.getItem("nimswallah_read_notices") || "[]");
-        const merged = Array.from(new Set([...existing, ...allIds]));
-        localStorage.setItem("nimswallah_read_notices", JSON.stringify(merged));
-      } catch {}
-      return updated;
-    });
+    const allIds = notifications.map((n) => n.id);
+    const userKey = user?.id ? `nimswallah_read_notices_${user.id}` : null;
+    try {
+      const existing: string[] = JSON.parse(localStorage.getItem("nimswallah_read_notices") || "[]");
+      const merged = Array.from(new Set([...existing, ...allIds]));
+      localStorage.setItem("nimswallah_read_notices", JSON.stringify(merged));
+      if (userKey) {
+        localStorage.setItem(userKey, JSON.stringify(merged));
+      }
+    } catch {}
+
+    setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true })));
     toast.success("All Notifications Marked As Read.");
+
+    // Sync to backend database
+    apiFetch("/academic/notices/read-all/", { method: "POST" }).catch(() => {});
   };
 
   const handleClearAllNotifications = () => {
@@ -211,21 +221,46 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
     toast.success("Notification Inbox Cleared.");
   };
 
+  const handleMarkNotificationAsRead = (id: string) => {
+    const userKey = user?.id ? `nimswallah_read_notices_${user.id}` : null;
+    try {
+      const existing: string[] = JSON.parse(localStorage.getItem("nimswallah_read_notices") || "[]");
+      const merged = Array.from(new Set([...existing, id]));
+      localStorage.setItem("nimswallah_read_notices", JSON.stringify(merged));
+      if (userKey) {
+        localStorage.setItem(userKey, JSON.stringify(merged));
+      }
+    } catch {}
+
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, is_read: true } : n)));
+
+    // Sync to backend database
+    apiFetch(`/academic/notices/${id}/read/`, { method: "POST" }).catch(() => {});
+  };
+
   const handleToggleNotificationRead = (id: string) => {
-    setNotifications((prev) => {
-      const updated = prev.map((n) => (n.id === id ? { ...n, is_read: !n.is_read } : n));
-      try {
-        const item = updated.find((n) => n.id === id);
-        let existing: string[] = JSON.parse(localStorage.getItem("nimswallah_read_notices") || "[]");
-        if (item?.is_read) {
-          existing = Array.from(new Set([...existing, id]));
-        } else {
-          existing = existing.filter((x) => x !== id);
-        }
-        localStorage.setItem("nimswallah_read_notices", JSON.stringify(existing));
-      } catch {}
-      return updated;
-    });
+    const item = notifications.find((n) => n.id === id);
+    const newIsRead = item ? !item.is_read : true;
+    const userKey = user?.id ? `nimswallah_read_notices_${user.id}` : null;
+
+    try {
+      let existing: string[] = JSON.parse(localStorage.getItem("nimswallah_read_notices") || "[]");
+      if (newIsRead) {
+        existing = Array.from(new Set([...existing, id]));
+      } else {
+        existing = existing.filter((x) => x !== id);
+      }
+      localStorage.setItem("nimswallah_read_notices", JSON.stringify(existing));
+      if (userKey) {
+        localStorage.setItem(userKey, JSON.stringify(existing));
+      }
+    } catch {}
+
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, is_read: newIsRead } : n)));
+
+    if (newIsRead) {
+      apiFetch(`/academic/notices/${id}/read/`, { method: "POST" }).catch(() => {});
+    }
   };
 
   return (
@@ -252,18 +287,18 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
                 title={sidebarCollapsed ? "Expand Sidebar" : undefined}
               >
                 <img
-                  src="/NIMSWallah.png"
+                  src="/SaastaScholar.png"
                   onError={(e) => {
-                    e.currentTarget.src = "/favicon.png";
+                    e.currentTarget.src = "/SaastaScholar.png";
                   }}
-                  alt="Logo"
-                  className="h-8 w-8 object-contain shrink-0"
+                  alt="SaastaScholar Logo"
+                  className="h-8 w-8 object-contain rounded-xl p-0.5 bg-white border border-border/60 shadow-2xs shrink-0"
                 />
               </button>
               {!sidebarCollapsed && (
                 <div className="min-w-0">
-                  <h2 className="font-display text-lg font-bold tracking-tight bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent truncate">
-                    NimsWallah
+                  <h2 className="font-display text-lg font-bold tracking-tight text-logo-gradient truncate">
+                    SaastaScholar
                   </h2>
                   <p className="text-[0.65rem] font-bold text-muted-foreground uppercase tracking-widest truncate">
                     Academic Engine
@@ -286,37 +321,60 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
 
           {/* Student Profile Quick Strip */}
           {!sidebarCollapsed ? (
-            <div
-              onClick={() => onSelectTab("profile")}
-              className="mt-6 flex items-center gap-3 rounded-2xl border border-border/80 bg-surface/70 p-3 shadow-2xs hover:border-primary/50 transition-all cursor-pointer group"
-            >
-              <div className="relative shrink-0">
-                <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-bold text-sm shadow-xs overflow-hidden">
-                  {user?.avatar_url ? (
-                    <img
-                      src={user.avatar_url}
-                      alt=""
-                      onError={(e) => {
-                        e.currentTarget.style.display = "none";
-                      }}
-                      className="h-full w-full object-cover"
-                    />
-                  ) : null}
-                  <span className="font-bold">{user?.full_name?.charAt(0) || "S"}</span>
+            <div>
+              <div
+                onClick={() => onSelectTab("profile")}
+                className="mt-6 flex items-center gap-3 rounded-2xl border border-border/80 bg-surface/70 p-3 shadow-2xs hover:border-primary/50 transition-all cursor-pointer group"
+              >
+                <div className="relative shrink-0">
+                  <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-bold text-sm shadow-xs overflow-hidden">
+                    {user?.avatar_url ? (
+                      <img
+                        src={user.avatar_url}
+                        alt=""
+                        onError={(e) => {
+                          e.currentTarget.style.display = "none";
+                        }}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : null}
+                    <span className="font-bold">{user?.full_name?.charAt(0) || "S"}</span>
+                  </div>
+                  <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card bg-emerald-500" />
                 </div>
-                <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card bg-emerald-500" />
-              </div>
 
-              <div className="min-w-0 flex-1">
-                <h4 className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">
-                  {user?.full_name || "Scholar Portal"}
-                </h4>
-                <p className="text-[0.65rem] text-muted-foreground font-mono truncate">
-                  {getDisplayProgram(user)} · Sem {user?.semester || 1}
-                </p>
-              </div>
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-xs font-bold text-foreground truncate group-hover:text-primary transition-colors">
+                    {user?.full_name || "Scholar Portal"}
+                  </h4>
+                  <div className="flex items-center gap-1.5 mt-0.5">
+                    <span className="text-[0.6rem] font-bold uppercase tracking-wider px-1.5 py-0.2 rounded-full bg-primary/10 text-primary border border-primary/20">
+                      {user?.access_tier?.replace("_", " ") || "STARTER"}
+                    </span>
+                    <span className="text-[0.6rem] text-muted-foreground font-mono truncate">
+                      Sem {user?.semester || 1}
+                    </span>
+                  </div>
+                </div>
 
-              <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-transform shrink-0" />
+                <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-transform shrink-0" />
+              </div>
+              {(!user?.access_tier || user?.access_tier === "STARTER" || user?.access_tier === "FREE") && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    initiateRazorpayPayment({
+                      planTier: "PREMIUM",
+                      cycle: "monthly",
+                      onSuccess: () => refreshUser(),
+                    });
+                  }}
+                  className="mt-2.5 w-full inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-3 py-1.5 text-[0.7rem] font-bold text-white shadow-xs hover:brightness-110 active:scale-95 cursor-pointer"
+                >
+                  <Zap className="h-3 w-3 fill-current text-amber-300" />
+                  <span>Upgrade To Premium · ₹129</span>
+                </button>
+              )}
             </div>
           ) : (
             <div
@@ -349,9 +407,13 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
               const Icon = item.icon;
               const isActive = activeTab === item.id;
               const dynamicConfig = badgeConfigs[item.id];
-              const badgeText = dynamicConfig !== undefined ? (dynamicConfig.active ? dynamicConfig.text : "") : item.badge;
+              const isNoticeItem = item.id === "notices";
+              const rawBadge = isNoticeItem
+                ? (unreadCount > 0 ? `${unreadCount} New` : "")
+                : (dynamicConfig !== undefined ? (dynamicConfig.active ? dynamicConfig.text : "") : item.badge);
+              const badgeText = rawBadge;
               const hasBadge = Boolean(badgeText && badgeText.trim().length > 0);
-              const variant = dynamicConfig?.variant || "emerald";
+              const variant = isNoticeItem ? "emerald" : (dynamicConfig?.variant || "emerald");
 
               return (
                 <button
@@ -363,7 +425,7 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
                     "flex w-full items-center rounded-2xl text-xs font-bold cursor-pointer transition-all active:scale-[0.98]",
                     sidebarCollapsed ? "justify-center p-2.5" : "justify-between px-3.5 py-2.5",
                     isActive
-                      ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/25"
+                      ? "bg-gradient-to-r from-[#005F15] to-[#007EAC] text-white shadow-md shadow-[#005F15]/25"
                       : "text-slate-900 dark:text-zinc-100 hover:bg-slate-100 dark:hover:bg-zinc-800/70 hover:text-emerald-700 dark:hover:text-emerald-400",
                   )}
                 >
@@ -444,16 +506,16 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
             <div className="flex items-center justify-between border-b border-border/80 pb-3 shrink-0">
               <div className="flex items-center gap-2.5 min-w-0">
                 <img
-                  src="/NIMSWallah.png"
+                  src="/SaastaScholar.png"
                   onError={(e) => {
-                    e.currentTarget.src = "/favicon.png";
+                    e.currentTarget.src = "/SaastaScholar.png";
                   }}
-                  alt="Logo"
+                  alt="SaastaScholar Logo"
                   className="h-7 w-7 object-contain shrink-0"
                 />
                 <div className="min-w-0">
                   <span className="font-bold text-sm bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 bg-clip-text text-transparent truncate block leading-tight">
-                    NimsWallah
+                    SaastaScholar
                   </span>
                   <span className="text-[0.62rem] font-bold text-slate-500 dark:text-zinc-400 uppercase tracking-wider block">
                     Academic Engine
@@ -476,9 +538,13 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
                 const Icon = item.icon;
                 const isActive = activeTab === item.id;
                 const dynamicConfig = badgeConfigs[item.id];
-                const badgeText = dynamicConfig !== undefined ? (dynamicConfig.active ? dynamicConfig.text : "") : item.badge;
+                const isNoticeItem = item.id === "notices";
+                const rawBadge = isNoticeItem
+                  ? (unreadCount > 0 ? `${unreadCount} New` : "")
+                  : (dynamicConfig !== undefined ? (dynamicConfig.active ? dynamicConfig.text : "") : item.badge);
+                const badgeText = rawBadge;
                 const hasBadge = Boolean(badgeText && badgeText.trim().length > 0);
-                const variant = dynamicConfig?.variant || "emerald";
+                const variant = isNoticeItem ? "emerald" : (dynamicConfig?.variant || "emerald");
 
                 return (
                   <button
@@ -487,7 +553,7 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
                     className={cn(
                       "flex w-full items-center justify-between rounded-xl xs:rounded-2xl px-3 py-2.5 text-xs font-bold cursor-pointer transition-all active:scale-[0.98]",
                       isActive
-                        ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/25"
+                        ? "bg-gradient-to-r from-[#005F15] to-[#007EAC] text-white shadow-md shadow-[#005F15]/25"
                         : "text-slate-900 dark:text-zinc-100 hover:bg-slate-100 dark:hover:bg-zinc-800/70 hover:text-emerald-700 dark:hover:text-emerald-400",
                     )}
                   >
@@ -733,7 +799,7 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
                       notifications.map((item) => (
                         <div
                           key={item.id}
-                          onClick={() => handleToggleNotificationRead(item.id)}
+                          onClick={() => handleMarkNotificationAsRead(item.id)}
                           className={cn(
                             "rounded-xl xs:rounded-2xl border p-2.5 xs:p-3 text-xs transition-all cursor-pointer group",
                             item.is_read
@@ -758,10 +824,26 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
                           </div>
 
                           <div className="mt-2 flex items-center justify-between pt-1.5 border-t border-border/40 text-[0.6rem] text-muted-foreground">
-                            <span>{item.is_read ? "Status: Read" : "Status: Unread"}</span>
-                            <span className="text-primary font-bold opacity-0 group-hover:opacity-100 transition-opacity">
-                              {item.is_read ? "Click To Mark Unread" : "Click To Mark Read"}
+                            <span className="flex items-center gap-1 font-semibold">
+                              {item.is_read ? (
+                                <span className="text-muted-foreground">✓ Read</span>
+                              ) : (
+                                <span className="text-emerald-600 dark:text-emerald-400 font-bold font-mono flex items-center gap-1">
+                                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 inline-block animate-pulse" />
+                                  Unread
+                                </span>
+                              )}
                             </span>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleToggleNotificationRead(item.id);
+                              }}
+                              className="text-primary hover:underline font-bold transition-opacity"
+                            >
+                              {item.is_read ? "Mark As Unread" : "Mark As Read"}
+                            </button>
                           </div>
                         </div>
                       ))

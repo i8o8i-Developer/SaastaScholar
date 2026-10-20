@@ -114,6 +114,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             "enrollment_no",
             "target_cgpa",
             "current_cgpa",
+            "access_tier",
         ]
 
     def create(self, validated_data):

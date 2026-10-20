@@ -4,6 +4,7 @@ from .models import (
     AcademicMaterial,
     Department,
     DepartmentNotice,
+    NoticeReadReceipt,
     LabExperiment,
     MaterialPage,
     ProgramSpecialization,
@@ -11,6 +12,7 @@ from .models import (
     SidebarBadgeConfig,
     SiteBanner,
     Subject,
+    SubjectUnit,
     UserBookmark,
 )
 
@@ -115,6 +117,7 @@ class SubjectSerializer(serializers.ModelSerializer):
     department_code = serializers.CharField(source="department.code", read_only=True)
     materials_count = serializers.IntegerField(read_only=True, default=0)
     experiments_count = serializers.IntegerField(read_only=True, default=0)
+    units_count = serializers.IntegerField(source="units.count", read_only=True)
     program = serializers.UUIDField(write_only=True, required=False)
     programs = serializers.PrimaryKeyRelatedField(
         queryset=ProgramSpecialization.objects.all(),
@@ -147,6 +150,33 @@ class SubjectSerializer(serializers.ModelSerializer):
             "color_accent",
             "materials_count",
             "experiments_count",
+            "units_count",
+        ]
+
+class SubjectUnitSerializer(serializers.ModelSerializer):
+    subject_code = serializers.CharField(source="subject.code", read_only=True)
+    subject_name = serializers.CharField(source="subject.name", read_only=True)
+    department_name = serializers.CharField(source="subject.department.name", read_only=True)
+    semester = serializers.IntegerField(source="subject.semester", read_only=True)
+    topics = SafeJSONField(required=False)
+
+    class Meta:
+        model = SubjectUnit
+        fields = [
+            "id",
+            "subject",
+            "subject_code",
+            "subject_name",
+            "department_name",
+            "semester",
+            "unit_number",
+            "title",
+            "description",
+            "topics",
+            "marks_weightage",
+            "estimated_hours",
+            "created_at",
+            "updated_at",
         ]
         extra_kwargs = {
             "department": {"required": False},
@@ -445,6 +475,13 @@ class DepartmentNoticeSerializer(serializers.ModelSerializer):
     department_code = serializers.CharField(source="department.code", read_only=True)
     program_name = serializers.CharField(source="program.name", read_only=True)
     program_code = serializers.CharField(source="program.code", read_only=True)
+    is_read = serializers.SerializerMethodField()
+
+    def get_is_read(self, obj):
+        request = self.context.get("request")
+        if request and request.user and request.user.is_authenticated:
+            return NoticeReadReceipt.objects.filter(user=request.user, notice=obj).exists()
+        return False
 
     class Meta:
         model = DepartmentNotice
@@ -467,6 +504,7 @@ class DepartmentNoticeSerializer(serializers.ModelSerializer):
             "reference_number",
             "published_by",
             "published_at",
+            "is_read",
         ]
 
 

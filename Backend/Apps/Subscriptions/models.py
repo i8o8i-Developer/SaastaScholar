@@ -28,3 +28,47 @@ class UserSubscription(models.Model):
 
     def __str__(self):
         return f"{self.user.email} - {self.plan.name}"
+
+
+class DiscountCoupon(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    code = models.CharField(max_length=50, unique=True, db_index=True)
+    discount_percent = models.PositiveIntegerField(default=0, help_text="Percentage discount (0-100)")
+    discount_amount = models.PositiveIntegerField(default=0, help_text="Flat discount in INR")
+    max_uses = models.PositiveIntegerField(default=100)
+    times_used = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True, db_index=True)
+    applicable_tier = models.CharField(max_length=50, blank=True, default="ALL")
+    valid_until = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.code} ({self.discount_percent}% / ₹{self.discount_amount} off)"
+
+
+class RazorpayOrder(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="razorpay_orders")
+    order_id = models.CharField(max_length=100, unique=True, db_index=True)
+    amount = models.PositiveIntegerField(help_text="Amount in paise")
+    currency = models.CharField(max_length=10, default="INR")
+    plan_tier = models.CharField(max_length=50, db_index=True)
+    cycle = models.CharField(max_length=20, default="monthly")
+    status = models.CharField(max_length=30, default="created", db_index=True)
+    payment_id = models.CharField(max_length=100, blank=True)
+    signature = models.CharField(max_length=255, blank=True)
+    invoice_number = models.CharField(max_length=50, blank=True, db_index=True)
+    discount_code = models.CharField(max_length=50, blank=True)
+    discount_amount_paise = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return f"{self.user.email} - {self.order_id} ({self.status})"
+

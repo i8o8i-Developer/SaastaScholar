@@ -7,13 +7,13 @@
 # Stage 1: Build Static React Frontend Bundle
 FROM node:22-alpine AS frontend-builder
 
-ARG VITE_SITE_URL=https://nimswallah.durgaaisolutions.in
-ARG VITE_SITE_NAME=NimsWallah
-ARG VITE_SITE_DOMAIN=nimswallah.durgaaisolutions.in
+ARG VITE_SITE_URL=https://saastascholar.durgaaisolutions.in
+ARG VITE_SITE_NAME=SaastaScholar
+ARG VITE_SITE_DOMAIN=saastascholar.durgaaisolutions.in
 ARG VITE_PORT=7865
 ARG PORT=7865
 ARG HOST=0.0.0.0
-ARG COOLIFY_FQDN=nimswallah.durgaaisolutions.in
+ARG COOLIFY_FQDN=saastascholar.durgaaisolutions.in
 
 ENV VITE_SITE_URL=$VITE_SITE_URL
 ENV VITE_SITE_NAME=$VITE_SITE_NAME
@@ -50,6 +50,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     nginx \
     wget \
     libpq5 \
+    redis-server \
+    redis-tools \
     libreoffice-core \
     libreoffice-writer \
     libreoffice-impress \
