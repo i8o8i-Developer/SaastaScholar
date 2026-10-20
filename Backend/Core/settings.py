@@ -81,7 +81,7 @@ DB_NAME = os.environ.get("POSTGRES_DB")
 DB_USER = os.environ.get("POSTGRES_USER")
 DB_PASSWORD = os.environ.get("POSTGRES_PASSWORD")
 DB_HOST = os.environ.get("POSTGRES_HOST", "localhost")
-DB_PORT = os.environ.get("POSTGRES_PORT", "4611")
+DB_PORT = os.environ.get("POSTGRES_PORT", "5432")
 
 if DATABASE_URL:
     from urllib.parse import urlparse
@@ -93,7 +93,7 @@ if DATABASE_URL:
             "USER": url.username,
             "PASSWORD": url.password,
             "HOST": url.hostname,
-            "PORT": str(url.port or "4611"),
+            "PORT": str(url.port or "5432"),
         }
     }
 elif DB_NAME and DB_USER and DB_PASSWORD:

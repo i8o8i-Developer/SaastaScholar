@@ -1,39 +1,13 @@
 # ==============================================================================
 # SaastaScholar Production Docker Compose Stack
-# 2-Container High-Performance Architecture:
-# Container 1: APP (Vite Frontend SPA + Django REST API + In-Container Redis Cache + Nginx Gateway)
-# Container 2: DB  (PostgreSQL 16 Relational Database)
-# Fully Compatible With Coolify Traefik Reverse Proxy
+# Architecture: Single High-Performance Full-Stack Container (Frontend SPA + Django REST API + In-Container Redis)
+# Database: External PostgreSQL (Configured via .env / DATABASE_URL)
+# Deployment Port: 7865 | Fully Compatible With Coolify & Traefik Reverse Proxy
 # ==============================================================================
 
 services:
   # ----------------------------------------------------------------------------
-  # Container 2: PostgreSQL 16 Relational Database
-  # ----------------------------------------------------------------------------
-  db:
-    image: postgres:16-alpine
-    container_name: saastascholar_db
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-saastascholar_db}
-      POSTGRES_USER: ${POSTGRES_USER:-saastascholar_admin}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-SaastaScholarDB@Secured2026!}
-      PGPORT: 5432
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - saastascholar_net
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-saastascholar_admin} -d ${POSTGRES_DB:-saastascholar_db} -p 5432 || exit 1"]
-      interval: 8s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
-
-  # ----------------------------------------------------------------------------
-  # Container 1: Full-Stack App (Frontend + Backend + In-Container Redis Cache)
+  # Full-Stack Application (Frontend SPA + Django REST API + In-Container Redis)
   # ----------------------------------------------------------------------------
   app:
     build:
@@ -48,35 +22,33 @@ services:
         HOST: ${HOST:-0.0.0.0}
     container_name: saastascholar_app
     restart: unless-stopped
-    depends_on:
-      db:
-        condition: service_healthy
     ports:
-      - "7865:7865"
+      - "${PORT:-7865}:7865"
     env_file:
       - .env
     environment:
-      PORT: 7865
-      VITE_PORT: 7865
+      PORT: ${PORT:-7865}
+      VITE_PORT: ${VITE_PORT:-7865}
       HOST: 0.0.0.0
-      # PostgreSQL Database Connection
-      POSTGRES_HOST: db
-      POSTGRES_PORT: 5432
-      POSTGRES_DB: ${POSTGRES_DB:-saastascholar_db}
-      POSTGRES_USER: ${POSTGRES_USER:-saastascholar_admin}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-SaastaScholarDB@Secured2026!}
-      DATABASE_URL: postgresql://${POSTGRES_USER:-saastascholar_admin}:${POSTGRES_PASSWORD:-SaastaScholarDB@Secured2026!}@db:5432/${POSTGRES_DB:-saastascholar_db}
-      # In-Container Redis Configuration (Local to App Container)
+      # External PostgreSQL Database Configuration (Passed From .env)
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DATABASE_URL: ${DATABASE_URL:-}
+      # In-Container High-Speed Redis Configuration (127.0.0.1:6379)
       REDIS_HOST: 127.0.0.1
       REDIS_PORT: 6379
       REDIS_URL: redis://127.0.0.1:6379/1
-      # Cryptographic & Administrative Keys
+      # Cryptographic Security & Master Admin Provisioning
       DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-saastascholar-drm-core-secret-key-2026-prod-9a8f7b6c5d4e3f2a1b}
       DRM_SIGNING_KEY: ${DRM_SIGNING_KEY:-saastascholar-drm-forensic-watermark-key-2026-8f7e6d5c4b3a2}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-admin@saastascholar.in}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-i8o8i@CoreDSPortalScureAnubhav}
       ADMIN_NAME: ${ADMIN_NAME:-Saasta Scholar Master Administrator}
       ADMIN_PHONE: ${ADMIN_PHONE:-+91 9532112801}
+      # Razorpay Payment Gateway Configuration
       RAZORPAY_KEY_ID: ${RAZORPAY_KEY_ID:-rzp_test_mock_saastas}
       RAZORPAY_KEY_SECRET: ${RAZORPAY_KEY_SECRET:-}
       RAZORPAY_WEBHOOK_SECRET: ${RAZORPAY_WEBHOOK_SECRET:-}
@@ -90,7 +62,7 @@ services:
       EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD:-}
       DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL:-SaastaScholar Support <support@saastascholar.in>}
       EMAIL_TIMEOUT: ${EMAIL_TIMEOUT:-10}
-      # Observability (SigNoz OpenTelemetry APM & Traces)
+      # Observability (SigNoz OpenTelemetry APM & Tracing)
       OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-http://176.31.163.114:4318}
       OTEL_SERVICE_NAME: ${OTEL_SERVICE_NAME:-saastascholar-app}
       OTEL_EXPORTER_OTLP_PROTOCOL: ${OTEL_EXPORTER_OTLP_PROTOCOL:-http/protobuf}
@@ -108,6 +80,5 @@ networks:
     driver: bridge
 
 volumes:
-  postgres_data:
   media_data:
   drm_vault_data:
