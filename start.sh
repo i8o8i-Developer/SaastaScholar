@@ -58,8 +58,18 @@ python Manage.py migrate --noinput
 echo "-> Checking And Seeding Database Records..."
 python SeedDatabase.py || true
 
-echo "-> Starting Django API Server Via Gunicorn On 127.0.0.1:8000 (Multi-Threaded)..."
-gunicorn Core.wsgi:application --bind 127.0.0.1:8000 --workers 3 --threads 4 --timeout 300 &
+echo "-> Starting Django API Server Via Gunicorn On 127.0.0.1:8000..."
+if [ -n "$OTEL_EXPORTER_OTLP_ENDPOINT" ] && command -v opentelemetry-instrument >/dev/null 2>&1; then
+    echo "-> [SigNoz APM] Launching Gunicorn With opentelemetry-instrument Wrapper..."
+    export DJANGO_SETTINGS_MODULE=Core.settings
+    export OTEL_RESOURCE_ATTRIBUTES="service.name=${OTEL_SERVICE_NAME:-saastascholar-app},deployment.environment=${DEPLOYMENT_ENV:-production}"
+    export OTEL_EXPORTER_OTLP_PROTOCOL="http/protobuf"
+    export OTEL_METRICS_EXPORTER="none"
+    opentelemetry-instrument gunicorn Core.wsgi:application --bind 127.0.0.1:8000 --workers 3 --threads 4 --timeout 300 &
+else
+    echo "-> Launching Gunicorn Server..."
+    gunicorn Core.wsgi:application --bind 127.0.0.1:8000 --workers 3 --threads 4 --timeout 300 &
+fi
 
 # Ensure Gunicorn Is Ready Before Launching Nginx
 echo "-> Verifying Django API Server Status..."
