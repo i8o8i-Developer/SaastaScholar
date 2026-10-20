@@ -1375,7 +1375,7 @@ export function AdminPortal() {
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
-          toast.success(`Opening "${mat.title}" for download.`);
+          toast.success(`Opening "${mat.title}" For Download.`);
         }
       } else {
         toast.info(`Exporting "${mat.title}" as Markdown document...`);
@@ -6688,12 +6688,12 @@ export function AdminPortal() {
                                           const res = await studentSecurityApi.performSecurityAction(st.id, {
                                             action_type: "CHANGE_TIER",
                                             access_tier: newTier,
-                                            reason: `Administrator updated membership plan tier to ${newTier} for ${st.full_name || st.email}`,
+                                            reason: `Administrator Updated Membership Plan Tier To ${newTier} For ${st.full_name || st.email}`,
                                           });
                                           toast.success(`Membership Plan Updated To ${newTier}!`);
                                           loadAdminData();
                                         } catch (err: any) {
-                                          toast.error(err.message || "Failed to update membership tier.");
+                                          toast.error(err.message || "Failed To Update Membership Tier.");
                                         }
                                       }}
                                       title="Change Student Membership Plan Tier"

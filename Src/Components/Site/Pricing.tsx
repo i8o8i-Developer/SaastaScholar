@@ -313,7 +313,7 @@ export function Pricing() {
                       <span>
                         {user?.access_tier?.toUpperCase() === plan.tierCode || user?.access_tier?.toUpperCase() === plan.id.toUpperCase()
                           ? "Current Active Plan"
-                          : `Upgrade to ${plan.name}`}
+                          : `Upgrade To ${plan.name}`}
                       </span>
                       <ArrowRight className="h-3.5 w-3.5 shrink-0" />
                     </button>

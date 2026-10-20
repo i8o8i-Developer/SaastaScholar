@@ -62,7 +62,7 @@ export async function initiateRazorpayPayment({
   onSuccess?: (res: RazorpayVerifyResponse) => void;
   onError?: (err: any) => void;
 }) {
-  const loadingToast = toast.loading(`Connecting To Razorpay Secure Gateway...`);
+  const loadingToast = toast.loading("Account Created! Opening Secure Payment Gateway...");
 
   try {
     // 1. Create Real Order On Backend
@@ -103,14 +103,17 @@ export async function initiateRazorpayPayment({
       throw new Error("Unable To Load Razorpay Checkout Gateway. Please Disable Ad-Blockers And Try Again.");
     }
 
+    const originUrl = typeof window !== "undefined" ? window.location.origin : "https://saastascholar.durgaaisolutions.in";
+    const brandLogoUrl = `${originUrl}/SaastaScholar.png`;
+
     // 3. Launch Real Razorpay Payment Modal
     const options = {
       key: orderData.key_id,
       amount: orderData.amount,
       currency: orderData.currency || "INR",
       name: "SaastaScholar™",
-      description: `${orderData.plan_name} (${cycle === "semester" ? "Semester Pass" : "Monthly Subscription"})`,
-      image: "/SaastaScholar.png",
+      description: `${orderData.plan_name} Membership (${cycle === "semester" ? "Semester Pass" : "Monthly Pass"})`,
+      image: brandLogoUrl,
       order_id: orderData.order_id,
       handler: async function (response: any) {
         const verifyToast = toast.loading("Verifying Cryptographic Payment Signature...");
@@ -146,8 +149,8 @@ export async function initiateRazorpayPayment({
       },
       modal: {
         ondismiss: function () {
-          toast.info("Payment Window Closed By Student.");
-          if (onError) onError(new Error("Payment Window Closed."));
+          toast.info("Payment Window Dismissed By Student.");
+          if (onError) onError(new Error("Payment Window Dismissed By Student."));
         },
       },
     };

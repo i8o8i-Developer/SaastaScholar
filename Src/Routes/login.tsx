@@ -969,14 +969,14 @@ export function Login() {
                             </div>
                             <p className="text-[0.62rem] text-muted-foreground/80 italic text-center">
                               {selectedPlan === "FREE" || selectedPlan === "STARTER"
-                                ? "✓ Free Plan is completely free forever. You can upgrade anytime."
-                                : `✓ Upgrading to ${selectedPlan} Plan. Secure payment via Razorpay will open upon submission.`}
+                                ? "✓ Free Plan Is Completely Free Forever. You Can Upgrade Anytime."
+                                : `✓ Upgrading To ${selectedPlan} Plan. Secure Payment Via Razorpay Will Open Upon Submission.`}
                             </p>
                           </div>
 
                           <p className="text-[0.68rem] text-muted-foreground leading-relaxed">
                             By Registering, You Agree To The{" "}
-                            <span className="font-semibold text-foreground">Terms Of Service</span> and{" "}
+                            <span className="font-semibold text-foreground">Terms Of Service</span> And{" "}
                             <span className="font-semibold text-foreground">Student Privacy Policy (DPDP Act, 2023)</span>.
                           </p>
 
