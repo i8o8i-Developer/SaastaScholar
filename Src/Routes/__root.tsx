@@ -44,7 +44,7 @@ function NotFoundComponent() {
           </span>
           SaastaScholar • Error 404: Route Not Found
         </div>
-        
+
         {/* Radar Telemetry Graphic */}
         <div className="w-28 h-28 mx-auto mb-5 relative flex items-center justify-center">
           <svg className="w-full h-full animate-[spin_40s_linear_infinite]" viewBox="0 0 100 100" fill="none">
@@ -63,7 +63,7 @@ function NotFoundComponent() {
           Academic Material Not Found
         </h1>
         <p className="text-slate-300 max-w-md mx-auto text-xs sm:text-sm leading-relaxed mb-6 font-normal">
-          The requested study note, syllabus unit, or past question paper could not be located in this directory.
+          The Requested Study Note, Syllabus Unit, Or Past Question Paper Could Not Be Located In This Directory.
         </p>
 
         {/* Live Search Input */}
