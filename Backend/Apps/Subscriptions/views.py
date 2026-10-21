@@ -660,9 +660,8 @@ class AdminOrderActionView(APIView):
                                 order.save(update_fields=["payment_id", "updated_at"])
                                 break
                     except Exception as disc_err:
-                        logger.warning(f"Failed To Auto-Discover Razorpay Payment ID For order {order.order_id}: {disc_err}")
+                        logger.warning(f"Failed To Auto-Discover Razorpay Payment ID For Order {order.order_id}: {disc_err}")
 
-                # Execute gateway refund if valid payment id exists and not manual
                 if payment_id and not payment_id.startswith("pay_admin_manual"):
                     try:
                         import razorpay
@@ -676,7 +675,7 @@ class AdminOrderActionView(APIView):
                     except Exception as rp_err:
                         err_str = str(rp_err)
                         if "already" in err_str.lower():
-                            razorpay_refund_msg = " Razorpay reports this payment has already been refunded."
+                            razorpay_refund_msg = " Razorpay Reports This Payment has already been refunded."
                         else:
                             razorpay_refund_msg = f" (Gateway Notice: {err_str})"
                 elif not payment_id:
