@@ -143,36 +143,43 @@ def send_system_email(subject: str, recipient_email: str, text_content: str, htm
     from_email = get_sender_email()
     reply_to_list = reply_to or ["support@saastascholar.in"]
 
+    import time
     with start_custom_span("email.dispatch", {
         "email.recipient": recipient_email,
         "email.subject": subject,
         "email.from": from_email,
     }) as span:
-        try:
-            msg = EmailMultiAlternatives(
-                subject=subject,
-                body=text_content,
-                from_email=from_email,
-                to=[recipient_email],
-                reply_to=reply_to_list,
-            )
-            if html_content:
-                msg.attach_alternative(html_content, "text/html")
+        last_error = "Unknown dispatch failure"
+        for attempt in range(2):
+            try:
+                msg = EmailMultiAlternatives(
+                    subject=subject,
+                    body=text_content,
+                    from_email=from_email,
+                    to=[recipient_email],
+                    reply_to=reply_to_list,
+                )
+                if html_content:
+                    msg.attach_alternative(html_content, "text/html")
 
-            msg.send(fail_silently=False)
+                msg.send(fail_silently=False)
 
-            logger.info(f"-> [Email Dispatch] Successfully Delivered '{subject}' To {recipient_email}")
-            if span:
-                span.set_attribute("email.status", "delivered")
-            return True, None
-        except Exception as exc:
-            err_msg = str(exc)
-            logger.error(f"-> [Email Dispatch Failed] Could Not Send '{subject}' To {recipient_email}: {err_msg}")
-            if span:
-                span.record_exception(exc)
-                span.set_attribute("email.status", "failed")
-                span.set_attribute("email.error", err_msg)
-            return False, err_msg
+                logger.info(f"-> [Email Dispatch] Successfully Delivered '{subject}' To {recipient_email}")
+                if span:
+                    span.set_attribute("email.status", "delivered")
+                return True, None
+            except Exception as exc:
+                last_error = str(exc)
+                logger.warning(f"-> [Email Dispatch Attempt {attempt + 1} Failed] {last_error}")
+                if attempt == 0:
+                    time.sleep(0.6)
+                    continue
+
+        logger.error(f"-> [Email Dispatch Failed] Could Not Send '{subject}' To {recipient_email}: {last_error}")
+        if span:
+            span.set_attribute("email.status", "failed")
+            span.set_attribute("email.error", last_error)
+        return False, last_error
 
 
 def send_password_reset_email(user, otp: str) -> tuple:
@@ -336,4 +343,59 @@ https://saastascholar.durgaaisolutions.in/dashboard
     """
 
     full_html = build_brand_email_template("Payment Receipt & Invoice", preheader, html_content)
+    return send_system_email(subject, user.email, text_body, full_html)
+
+
+def send_password_changed_notification_email(user) -> tuple:
+    """
+    Sends High-Priority Security Notice Email Upon Successful Password Change
+    """
+    full_name = getattr(user, "full_name", "") or getattr(user, "username", "") or "Scholar"
+    from django.utils import timezone
+    now_str = timezone.now().strftime("%d %B %Y, %I:%M %p IST")
+
+    subject = "Security Notice: Your Account Password Was Successfully Changed · SaastaScholar"
+    preheader = f"Your SaastaScholar Account Password was changed on {now_str}."
+
+    text_body = f"""Hello {full_name},
+
+This Is An Official Security Confirmation That The Password For Your SaastaScholar Account ({user.email}) Was Successfully Updated On:
+{now_str}
+
+If You Made This Change:
+No Further Action Is Needed. You Can Log In With Your New Password.
+
+If You Did NOT Make This Change:
+Your Account May Be Compromised. Please Contact The SaastaScholar Academic Security Team Immediately At support@saastascholar.in.
+
+— The SaastaScholar Academic Security Team
+"""
+
+    html_content = f"""
+      <span class="badge" style="background-color:rgba(16, 185, 129, 0.2); color:#34d399;">Security Notice</span>
+      <h2 style="color:#ffffff; font-size:20px; font-weight:700; margin-top:0;">Password Successfully Updated</h2>
+      <p>Hello <strong>{full_name}</strong>,</p>
+      <p>This Is An Automated Confirmation That The Password For Your SaastaScholar Account (<code>{user.email}</code>) Was Successfully Changed On <strong>{now_str}</strong>.</p>
+      
+      <div style="background-color:#0b140c; border:1px solid #1f3322; border-radius:12px; padding:18px; margin:20px 0;">
+        <p style="margin:0 0 6px 0; font-size:13px; color:#94a3b8;"><strong>Timestamp:</strong> <span style="color:#ffffff;">{now_str}</span></p>
+        <p style="margin:0; font-size:13px; color:#94a3b8;"><strong>Status:</strong> <span style="color:#34d399; font-weight:700;">Password Updated &amp; Sessions Synced</span></p>
+      </div>
+
+      <p style="font-size:13px; color:#94a3b8;">
+        🔒 If You Initiated This Password Change, No Further Action Is Required.
+      </p>
+
+      <p style="margin-top:20px; font-size:13px; color:#ef4444; background:rgba(239, 68, 68, 0.1); border:1px solid rgba(239, 68, 68, 0.3); border-radius:10px; padding:12px;">
+        ⚠️ <strong>Did Not Request This Change?</strong> If You Did Not Perform This Password Update, Please Contact Academic Support Immediately At <code>support@saastascholar.in</code> To Lock Your Account.
+      </p>
+
+      <div style="text-align:center; margin:28px 0 10px 0;">
+        <a href="https://saastascholar.durgaaisolutions.in/login" style="display:inline-block; background-color:#005F15; color:#ffffff; font-weight:700; padding:12px 28px; border-radius:9999px; text-decoration:none; font-size:14px; box-shadow:0 4px 15px rgba(0, 95, 21, 0.4);">
+          Log In To Student Portal &rarr;
+        </a>
+      </div>
+    """
+
+    full_html = build_brand_email_template("Password Changed Successfully", preheader, html_content)
     return send_system_email(subject, user.email, text_body, full_html)

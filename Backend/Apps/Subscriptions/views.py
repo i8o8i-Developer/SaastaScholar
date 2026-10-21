@@ -627,8 +627,49 @@ class AdminOrderActionView(APIView):
             student.access_tier = "FREE"
             student.save(update_fields=["access_tier"])
 
+            # Deactivate any active UserSubscriptions
+            UserSubscription.objects.filter(user=student, is_active=True).update(is_active=False)
+
+            # Invalidate Redis caches for student access
+            try:
+                from Apps.Academic.cache_utils import invalidate_redis_pattern
+                invalidate_redis_pattern(f"*{student.id}*")
+                invalidate_redis_pattern(f"subscriptions:access:{student.id}*")
+            except Exception:
+                pass
+
+            # Attempt Razorpay gateway refund if valid payment id exists
+            razorpay_refund_msg = ""
+            if order.payment_id and not order.payment_id.startswith("pay_admin_manual"):
+                key_id = getattr(settings, "RAZORPAY_KEY_ID", "").strip()
+                key_secret = getattr(settings, "RAZORPAY_KEY_SECRET", "").strip()
+                if key_id and key_secret:
+                    try:
+                        import razorpay
+                        client = razorpay.Client(auth=(key_id, key_secret))
+                        client.payment.refund(order.payment_id, {
+                            "amount": order.amount,
+                            "notes": {"reason": reason, "order_id": order.order_id}
+                        })
+                        razorpay_refund_msg = " Razorpay refund initiated successfully."
+                    except Exception as rp_err:
+                        razorpay_refund_msg = f" (Gateway Notice: {str(rp_err)})"
+
+            # Create Audit Log
+            try:
+                from Apps.Accounts.models import AdminAuditLog, ActionType
+                AdminAuditLog.objects.create(
+                    actor=request.user,
+                    target_user=student,
+                    action_type=ActionType.DOWNGRADE_TIER,
+                    reason=f"Refund Order {order.order_id} ({order.plan_tier}): {reason}",
+                    metadata={"order_id": order.order_id, "amount": order.amount, "status": "refunded"},
+                )
+            except Exception:
+                pass
+
             return Response({
-                "message": f"Order Marked As REFUNDED. Scholar '{student.email}' Access Tier Set Back To Free.",
+                "message": f"Order Marked As REFUNDED. Scholar '{student.email}' Access Tier Set Back To Free.{razorpay_refund_msg}",
                 "order": RazorpayOrderSerializer(order).data,
             })
 

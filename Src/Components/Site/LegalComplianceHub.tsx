@@ -248,7 +248,7 @@ export const LEGAL_POLICIES: PolicyDocument[] = [
     sections: [
       {
         heading: "1. Membership Tiers & Inclusions",
-        body: "SaastaScholar Offers 4 Distinct Membership Options: (1) Free (₹0): Syllabus, Timetable, Course Materials, Notices, Exam Dates; (2) Basic (₹99/Mo, ₹499/Sem): Free Features + Handwritten Notes; (3) Premium (₹129/Mo, ₹649/Sem): Basic + Handwritten Lab Manuals, Viva Practice + Solved PYQs; (4) Elite (₹159/Mo, ₹799/Sem): Premium + Most Expected Question Papers + Practice Mocks.",
+        body: "SaastaScholar Offers 4 Distinct Membership Options: (1) Free (INR 0): Syllabus, Timetable, Course Materials, Notices, Exam Dates; (2) Basic (INR 99/Mo, INR 499/Sem): Free Features + Handwritten Notes; (3) Premium (INR 129/Mo, INR 649/Sem): Basic + Handwritten Lab Manuals, Viva Practice + Solved PYQs; (4) Elite (INR 159/Mo, INR 799/Sem): Premium + Most Expected Question Papers + Practice Mocks.",
       },
       {
         heading: "2. Instant Account Activation",

@@ -6,6 +6,7 @@ import {
   Eye,
   FileText,
   Filter,
+  Printer,
   RefreshCw,
   RotateCcw,
   Search,
@@ -77,6 +78,409 @@ export function AdminOrdersTab() {
     } finally {
       setInvoiceLoading(false);
     }
+  };
+
+  const handlePrintInvoice = (inv: any) => {
+    if (!inv) return;
+    const printWindow = window.open("", "_blank", "width=880,height=980");
+    if (!printWindow) {
+      toast.error("Popup Window Blocked By Browser. Please Allow Popups To Save/Print The Official PDF.");
+      return;
+    }
+
+    const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Official Academic Tax Invoice - ${inv.invoice_number}</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 12mm 14mm;
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      padding: 24px;
+      color: #0f172a;
+      background: #ffffff;
+      line-height: 1.45;
+      font-size: 13px;
+    }
+    .invoice-card {
+      max-width: 780px;
+      margin: 0 auto;
+      border: 1px solid #cbd5e1;
+      border-radius: 18px;
+      padding: 32px;
+      position: relative;
+      overflow: hidden;
+      background: #ffffff;
+    }
+    .watermark-bg {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) rotate(-30deg);
+      font-size: 88px;
+      font-weight: 900;
+      color: rgba(16, 185, 129, 0.04);
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 0;
+      user-select: none;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 2px solid #005F15;
+      padding-bottom: 18px;
+      margin-bottom: 22px;
+      position: relative;
+      z-index: 1;
+    }
+    .brand-title {
+      font-size: 24px;
+      font-weight: 900;
+      color: #005F15;
+      margin: 0 0 4px 0;
+      letter-spacing: -0.5px;
+    }
+    .brand-subtitle {
+      font-size: 11px;
+      color: #059669;
+      margin: 0 0 6px 0;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .company-meta {
+      font-size: 11px;
+      color: #64748b;
+      margin: 2px 0;
+    }
+    .status-badge {
+      display: inline-block;
+      background: #ecfdf5;
+      color: #059669;
+      border: 1px solid #a7f3d0;
+      padding: 5px 14px;
+      border-radius: 9999px;
+      font-weight: 800;
+      font-size: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .invoice-num {
+      font-family: monospace;
+      font-weight: 800;
+      font-size: 14px;
+      color: #0f172a;
+      margin: 0 0 2px 0;
+    }
+    .invoice-date {
+      font-size: 11px;
+      color: #64748b;
+      margin: 0;
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 22px;
+      position: relative;
+      z-index: 1;
+    }
+    .info-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .info-label {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: #005F15;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+      display: block;
+    }
+    .scholar-name {
+      font-size: 15px;
+      font-weight: 800;
+      color: #0f172a;
+      margin: 0 0 4px 0;
+    }
+    .info-line {
+      font-size: 11px;
+      color: #475569;
+      margin: 3px 0;
+    }
+    .table-container {
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    th {
+      background: #005F15;
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 12px 16px;
+      text-align: left;
+    }
+    th.text-right, td.text-right {
+      text-align: right;
+    }
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 12px;
+      background: #ffffff;
+    }
+    .plan-name {
+      font-weight: 800;
+      color: #0f172a;
+      font-size: 13px;
+    }
+    .plan-desc {
+      font-size: 11px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+    .coupon-row {
+      background: #f0fdf4 !important;
+      color: #059669;
+      font-weight: 700;
+    }
+    .totals-block {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+    .totals-box {
+      width: 290px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px;
+    }
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 12px;
+      color: #475569;
+    }
+    .grand-total {
+      display: flex;
+      justify-content: space-between;
+      border-top: 2px solid #005F15;
+      padding-top: 8px;
+      margin-top: 6px;
+      font-size: 16px;
+      font-weight: 900;
+      color: #005F15;
+    }
+    .transaction-card {
+      background: #f1f5f9;
+      border: 1px dashed #cbd5e1;
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-family: monospace;
+      font-size: 11px;
+      color: #475569;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid #e2e8f0;
+      padding-top: 16px;
+      font-size: 10px;
+      color: #64748b;
+      position: relative;
+      z-index: 1;
+    }
+    .seal-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid #10b981;
+      padding: 4px 10px;
+      border-radius: 6px;
+      color: #059669;
+      font-weight: 800;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    @media print {
+      body {
+        padding: 0;
+      }
+      .invoice-card {
+        border: none;
+        box-shadow: none;
+        padding: 10px 0;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="no-print" style="max-width: 780px; margin: 0 auto 16px auto; display: flex; justify-content: flex-end; gap: 8px;">
+    <button onclick="window.print()" style="background:#005F15; color:#ffffff; border:none; padding:10px 24px; border-radius:10px; font-weight:800; cursor:pointer; font-size:13px; box-shadow:0 2px 8px rgba(0,95,21,0.3);">
+      🖨️ Print / Save As PDF
+    </button>
+  </div>
+
+  <div class="invoice-card">
+    <div class="watermark-bg">SAASTASCHOLAR</div>
+
+    <div class="header">
+      <div>
+        <h1 class="brand-title">${inv.company?.name || "SaastaScholar™"}</h1>
+        <p class="brand-subtitle">${inv.company?.tagline || "Quality Education, Without The Heavy Price"}</p>
+        <p class="company-meta">A DurgaAI Solutions Academic Venture · Official Tax Receipt</p>
+        <p class="company-meta">Support: ${inv.company?.support_email || "support@saastascholar.in"} · GSTIN: 08AAACD9248L1ZQ</p>
+      </div>
+      <div style="text-align: right;">
+        <div class="status-badge">✓ ${inv.status || "PAID"}</div>
+        <p class="invoice-num">${inv.invoice_number}</p>
+        <p class="invoice-date">Date: ${inv.date}</p>
+      </div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-box">
+        <span class="info-label">Billed To (Student Scholar)</span>
+        <h2 class="scholar-name">${inv.customer?.name || "Enrolled Scholar"}</h2>
+        <p class="info-line"><strong>Email:</strong> ${inv.customer?.email || "—"}</p>
+        <p class="info-line"><strong>Roll No:</strong> ${inv.customer?.roll_number || "—"}</p>
+        <p class="info-line"><strong>University:</strong> ${inv.customer?.university || "NIMS University, Rajasthan"}</p>
+        <p class="info-line"><strong>Course:</strong> ${inv.customer?.department || "Computer Science"} · Sem ${inv.customer?.semester || 1} (${inv.customer?.section || "A"})</p>
+      </div>
+
+      <div class="info-box">
+        <span class="info-label">Order &amp; Billing Specifications</span>
+        <p class="info-line"><strong>Invoice No:</strong> ${inv.invoice_number}</p>
+        <p class="info-line"><strong>Payment ID:</strong> ${inv.payment_id || "Confirmed"}</p>
+        <p class="info-line"><strong>Order ID:</strong> ${inv.order_id}</p>
+        <p class="info-line"><strong>Billing Cycle:</strong> ${inv.billing_cycle || "Monthly"}</p>
+        <p class="info-line"><strong>Payment Mode:</strong> Razorpay Payments (India)</p>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Item Description</th>
+            <th>Cycle</th>
+            <th class="text-right">Rate</th>
+            <th class="text-right">Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="plan-name">${inv.plan_name} Membership</div>
+              <div class="plan-desc">${inv.plan_description || "Verified Notes, Solved Questions & Exam Guides"}</div>
+            </td>
+            <td>${inv.billing_cycle}</td>
+            <td class="text-right">₹${inv.financials?.subtotal_inr}</td>
+            <td class="text-right">₹${inv.financials?.subtotal_inr}</td>
+          </tr>
+          ${inv.financials?.discount_inr > 0 ? `
+          <tr class="coupon-row">
+            <td colspan="3">
+              🎉 Promotional Coupon Applied (${inv.financials?.discount_code || "DISCOUNT"})
+            </td>
+            <td class="text-right">- ₹${inv.financials?.discount_inr}</td>
+          </tr>
+          ` : ""}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="totals-block">
+      <div class="totals-box">
+        <div class="total-row">
+          <span>Subtotal:</span>
+          <span>₹${inv.financials?.subtotal_inr}</span>
+        </div>
+        ${inv.financials?.discount_inr > 0 ? `
+        <div class="total-row" style="color:#059669; font-weight:700;">
+          <span>Voucher Savings:</span>
+          <span>- ₹${inv.financials?.discount_inr}</span>
+        </div>
+        ` : ""}
+        <div class="total-row">
+          <span>Taxes (Included):</span>
+          <span>₹0.00</span>
+        </div>
+        <div class="grand-total">
+          <span>Total Paid:</span>
+          <span>₹${inv.financials?.total_paid_inr}</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="transaction-card">
+      <div style="font-weight:bold; margin-bottom:4px; color:#1e293b;">🔒 Bank Gateway Audit Trail</div>
+      <div>Order ID: ${inv.order_id}</div>
+      <div>Payment ID: ${inv.payment_id}</div>
+      <div>Channel: ${inv.financials?.payment_gateway || "Razorpay Payments (India)"}</div>
+    </div>
+
+    <div class="footer">
+      <div>
+        <p style="margin:0 0 2px 0;">This Is A Digitally Verified Official Proof Of Payment Generated By SaastaScholar™.</p>
+        <p style="margin:0;">Protected under the Digital Personal Data Protection Act, 2023 (DPDP Act). No physical signature required.</p>
+      </div>
+      <div class="seal-badge">
+        <span>🛡️ Digitally Signed &amp; Verified</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    window.onload = function() {
+      setTimeout(function() {
+        window.print();
+      }, 350);
+    };
+  </script>
+</body>
+</html>`;
+
+    printWindow.document.open();
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
   };
 
   // Summary Metrics
@@ -293,7 +697,7 @@ export function AdminOrdersTab() {
                           <FileText className="h-3 w-3 text-primary" />
                           <span>Receipt</span>
                         </button>
-                        {!isPaid && (
+                        {!isPaid && !isRefunded && (
                           <button
                             type="button"
                             onClick={() => handleAction(ord.id, "MARK_PAID")}
@@ -424,14 +828,23 @@ export function AdminOrdersTab() {
               <span className="text-[0.68rem] text-muted-foreground italic">
                 Digitally Generated Academic Proof Of Payment
               </span>
-              <button
-                type="button"
-                onClick={() => window.print()}
-                className="px-4 py-2 rounded-xl bg-primary hover:bg-primary-deep text-primary-foreground font-bold text-xs flex items-center gap-1.5 cursor-pointer"
-              >
-                <Download className="h-3.5 w-3.5" />
-                <span>Print Invoice</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedInvoice(null)}
+                  className="px-3.5 py-2 rounded-xl border border-border bg-card hover:bg-surface text-foreground font-semibold text-xs cursor-pointer"
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handlePrintInvoice(selectedInvoice)}
+                  className="px-4 py-2 rounded-xl bg-primary hover:bg-primary-deep text-primary-foreground font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-md active:scale-95 transition-all"
+                >
+                  <Printer className="h-3.5 w-3.5" />
+                  <span>Print / Save PDF</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

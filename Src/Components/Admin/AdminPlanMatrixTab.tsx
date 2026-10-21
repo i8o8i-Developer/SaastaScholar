@@ -180,7 +180,7 @@ export function AdminPlanMatrixTab() {
               Plan Access & Page Permission Matrix
             </h2>
             <p className="text-xs sm:text-sm text-muted-foreground max-w-2xl leading-relaxed">
-              Configure precisely which academic hubs, DRM readers, and study features are unlocked for Free, Basic, Premium, and Elite scholars.
+              Configure Precisely Which Academic Hubs, DRM Readers, And Study Features Are Unlocked For Free, Basic, Premium, And Elite Scholars.
             </p>
           </div>
 

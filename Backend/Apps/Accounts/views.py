@@ -426,6 +426,11 @@ class AdminStudentSecurityActionView(APIView):
             target_user.save(update_fields=["password", "updated_at"])
             meta_info["status"] = "Student Password Successfully Reset By Administrator"
             meta_info["temporary_password"] = new_pass
+            try:
+                from Core.mail import send_password_changed_notification_email
+                send_password_changed_notification_email(target_user)
+            except Exception:
+                pass
 
         elif action_type == ActionType.RESET_FRESH_USER or action_type == "RESET_FRESH_USER":
             target_user.is_drm_blocked = False
@@ -650,24 +655,24 @@ class PasswordResetConfirmView(APIView):
 
         if not email or not otp or not new_password:
             return Response(
-                {"error": "Email, verification OTP, and new password are all required."},
+                {"error": "Email, Verification OTP, And New Password Are All Required."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
         if len(new_password) < 6:
             return Response(
-                {"error": "Password must be at least 6 characters long."},
+                {"error": "Password Must Be At Least 6 Characters Long."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
         user = StudentUser.objects.filter(email__iexact=email).first()
         if not user:
-            return Response({"error": "No account found matching this email address."}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"error": "No Account Found Matching This Email Address."}, status=status.HTTP_404_NOT_FOUND)
 
         token_obj = PasswordResetToken.objects.filter(email=user.email, otp=otp, is_used=False).first()
         if not token_obj or not token_obj.is_valid():
             return Response(
-                {"error": "Invalid or expired verification code. Please request a new code."},
+                {"error": "Invalid Or Expired Verification Code. Please Request A New Code."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
@@ -677,7 +682,13 @@ class PasswordResetConfirmView(APIView):
         token_obj.is_used = True
         token_obj.save(update_fields=["is_used"])
 
+        try:
+            from Core.mail import send_password_changed_notification_email
+            send_password_changed_notification_email(user)
+        except Exception:
+            pass
+
         return Response({
             "success": True,
-            "message": "Password has been successfully updated! You can now log in.",
+            "message": "Password Has Been Successfully Updated! A security notification has been sent to your email.",
         })
