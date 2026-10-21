@@ -675,20 +675,20 @@ class AdminOrderActionView(APIView):
                     except Exception as rp_err:
                         err_str = str(rp_err)
                         if "already" in err_str.lower():
-                            razorpay_refund_msg = " Razorpay Reports This Payment has already been refunded."
+                            razorpay_refund_msg = " Razorpay Reports This Payment Has Already Been Refunded."
                         else:
                             razorpay_refund_msg = f" (Gateway Notice: {err_str})"
                 elif not payment_id:
-                    razorpay_refund_msg = " (No active Razorpay payment transaction found to reverse.)"
+                    razorpay_refund_msg = " (No Active Razorpay Payment Transaction Found To Reverse.)"
             elif order.amount == 0:
-                razorpay_refund_msg = " (100% Discounted/Zero Amount Order — Gateway refund not applicable.)"
+                razorpay_refund_msg = " (100% Discounted/Zero Amount Order — Gateway Refund Not Applicable.)"
 
             # Dispatch Official Refund Confirmation Email
             try:
                 from Core.mail import send_refund_processed_email
                 send_refund_processed_email(order, refund_amount_paise=order.amount, reason=reason)
             except Exception as mail_err:
-                logger.warning(f"Failed to dispatch refund confirmation email for order {order.order_id}: {mail_err}")
+                logger.warning(f"Failed To Dispatch Refund Confirmation Email For Order {order.order_id}: {mail_err}")
 
             # Create Audit Log
             try:
