@@ -82,7 +82,7 @@ export function AdminOrdersTab() {
 
   const handlePrintInvoice = (inv: any) => {
     if (!inv) return;
-    const printWindow = window.open("", "_blank", "width=880,height=980");
+    const printWindow = window.open("", "_blank", "width=900,height=1000");
     if (!printWindow) {
       toast.error("Popup Window Blocked By Browser. Please Allow Popups To Save/Print The Official PDF.");
       return;
@@ -92,7 +92,7 @@ export function AdminOrdersTab() {
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Official Academic Tax Invoice - ${inv.invoice_number}</title>
+  <title>Tax Invoice - ${inv.invoice_number}</title>
   <style>
     @page {
       size: A4 portrait;
@@ -102,24 +102,23 @@ export function AdminOrdersTab() {
       box-sizing: border-box;
       -webkit-print-color-adjust: exact !important;
       print-color-adjust: exact !important;
+      border-radius: 0 !important;
     }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       margin: 0;
       padding: 24px;
       color: #0f172a;
       background: #ffffff;
-      line-height: 1.45;
-      font-size: 13px;
+      line-height: 1.4;
+      font-size: 12px;
     }
     .invoice-card {
-      max-width: 780px;
+      max-width: 800px;
       margin: 0 auto;
-      border: 1px solid #cbd5e1;
-      border-radius: 18px;
+      border: 1px solid #0f172a;
       padding: 32px;
       position: relative;
-      overflow: hidden;
       background: #ffffff;
     }
     .watermark-bg {
@@ -127,168 +126,176 @@ export function AdminOrdersTab() {
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%) rotate(-30deg);
-      font-size: 88px;
+      font-size: 78px;
       font-weight: 900;
-      color: rgba(16, 185, 129, 0.04);
+      color: rgba(15, 23, 42, 0.03);
       white-space: nowrap;
       pointer-events: none;
       z-index: 0;
       user-select: none;
+      letter-spacing: 6px;
+      font-family: monospace;
     }
     .header {
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
       border-bottom: 2px solid #005F15;
-      padding-bottom: 18px;
-      margin-bottom: 22px;
+      padding-bottom: 16px;
+      margin-bottom: 20px;
       position: relative;
       z-index: 1;
     }
     .brand-title {
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 900;
       color: #005F15;
-      margin: 0 0 4px 0;
+      margin: 0 0 2px 0;
       letter-spacing: -0.5px;
+      text-transform: uppercase;
     }
     .brand-subtitle {
-      font-size: 11px;
-      color: #059669;
-      margin: 0 0 6px 0;
-      font-weight: 700;
+      font-size: 10px;
+      color: #047857;
+      margin: 0 0 5px 0;
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.8px;
     }
     .company-meta {
-      font-size: 11px;
-      color: #64748b;
+      font-size: 10.5px;
+      color: #475569;
       margin: 2px 0;
+      line-height: 1.35;
     }
     .status-badge {
       display: inline-block;
       background: #ecfdf5;
-      color: #059669;
-      border: 1px solid #a7f3d0;
-      padding: 5px 14px;
-      border-radius: 9999px;
+      color: #065f46;
+      border: 1px solid #059669;
+      padding: 4px 12px;
       font-weight: 800;
-      font-size: 12px;
-      letter-spacing: 1px;
+      font-size: 11px;
+      letter-spacing: 1.2px;
       text-transform: uppercase;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
     }
     .invoice-num {
       font-family: monospace;
       font-weight: 800;
-      font-size: 14px;
+      font-size: 13px;
       color: #0f172a;
       margin: 0 0 2px 0;
     }
     .invoice-date {
-      font-size: 11px;
-      color: #64748b;
+      font-size: 10.5px;
+      color: #475569;
       margin: 0;
     }
     .info-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 18px;
-      margin-bottom: 22px;
+      gap: 16px;
+      margin-bottom: 20px;
       position: relative;
       z-index: 1;
     }
     .info-box {
       background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 16px;
+      border: 1px solid #cbd5e1;
+      padding: 14px 16px;
     }
     .info-label {
-      font-size: 10px;
+      font-size: 9.5px;
       font-weight: 800;
       text-transform: uppercase;
       color: #005F15;
       letter-spacing: 1px;
       margin-bottom: 6px;
       display: block;
+      border-bottom: 1px solid #e2e8f0;
+      padding-bottom: 4px;
     }
     .scholar-name {
-      font-size: 15px;
+      font-size: 14px;
       font-weight: 800;
       color: #0f172a;
       margin: 0 0 4px 0;
     }
     .info-line {
       font-size: 11px;
-      color: #475569;
+      color: #334155;
       margin: 3px 0;
     }
     .table-container {
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       position: relative;
       z-index: 1;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      border-radius: 12px;
-      overflow: hidden;
+      border: 1px solid #cbd5e1;
     }
     th {
       background: #005F15;
       color: #ffffff;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      padding: 12px 16px;
+      letter-spacing: 0.8px;
+      padding: 9px 12px;
       text-align: left;
+      border: 1px solid #005F15;
     }
     th.text-right, td.text-right {
       text-align: right;
     }
+    th.text-center, td.text-center {
+      text-align: center;
+    }
     td {
-      padding: 12px 16px;
-      border-bottom: 1px solid #e2e8f0;
-      font-size: 12px;
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      font-size: 11.5px;
       background: #ffffff;
     }
     .plan-name {
       font-weight: 800;
       color: #0f172a;
-      font-size: 13px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
     }
     .plan-desc {
-      font-size: 11px;
+      font-size: 10.5px;
       color: #64748b;
       margin-top: 2px;
     }
     .coupon-row {
       background: #f0fdf4 !important;
-      color: #059669;
+      color: #065f46;
       font-weight: 700;
     }
     .totals-block {
       display: flex;
       justify-content: flex-end;
-      margin-bottom: 20px;
+      margin-bottom: 18px;
       position: relative;
       z-index: 1;
     }
     .totals-box {
-      width: 290px;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      padding: 16px;
+      width: 320px;
+      background: #ffffff;
+      border: 1px solid #0f172a;
+      padding: 14px 16px;
     }
     .total-row {
       display: flex;
       justify-content: space-between;
-      margin-bottom: 6px;
-      font-size: 12px;
-      color: #475569;
+      margin-bottom: 5px;
+      font-size: 11.5px;
+      color: #334155;
     }
     .grand-total {
       display: flex;
@@ -296,30 +303,38 @@ export function AdminOrdersTab() {
       border-top: 2px solid #005F15;
       padding-top: 8px;
       margin-top: 6px;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 900;
       color: #005F15;
     }
     .transaction-card {
-      background: #f1f5f9;
-      border: 1px dashed #cbd5e1;
-      border-radius: 10px;
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
       padding: 12px 16px;
       font-family: monospace;
       font-size: 11px;
-      color: #475569;
-      margin-bottom: 20px;
+      color: #334155;
+      margin-bottom: 18px;
       position: relative;
       z-index: 1;
+    }
+    .transaction-card-title {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-weight: 800;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 6px;
+      color: #005F15;
     }
     .footer {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      border-top: 1px solid #e2e8f0;
-      padding-top: 16px;
-      font-size: 10px;
-      color: #64748b;
+      border-top: 1px solid #0f172a;
+      padding-top: 12px;
+      font-size: 9.5px;
+      color: #475569;
       position: relative;
       z-index: 1;
     }
@@ -327,23 +342,23 @@ export function AdminOrdersTab() {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      border: 1px solid #10b981;
-      padding: 4px 10px;
-      border-radius: 6px;
-      color: #059669;
+      border: 1px solid #005F15;
+      background: #f0fdf4;
+      padding: 5px 12px;
+      color: #005F15;
       font-weight: 800;
-      font-size: 10px;
+      font-size: 9.5px;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.8px;
     }
     @media print {
       body {
         padding: 0;
       }
       .invoice-card {
-        border: none;
+        border: 1px solid #0f172a;
         box-shadow: none;
-        padding: 10px 0;
+        padding: 24px;
       }
       .no-print {
         display: none !important;
@@ -352,9 +367,9 @@ export function AdminOrdersTab() {
   </style>
 </head>
 <body>
-  <div class="no-print" style="max-width: 780px; margin: 0 auto 16px auto; display: flex; justify-content: flex-end; gap: 8px;">
-    <button onclick="window.print()" style="background:#005F15; color:#ffffff; border:none; padding:10px 24px; border-radius:10px; font-weight:800; cursor:pointer; font-size:13px; box-shadow:0 2px 8px rgba(0,95,21,0.3);">
-      🖨️ Print / Save As PDF
+  <div class="no-print" style="max-width: 800px; margin: 0 auto 14px auto; display: flex; justify-content: flex-end; gap: 8px;">
+    <button onclick="window.print()" style="background:#005F15; color:#ffffff; border:1px solid #00450f; padding:9px 22px; font-weight:800; cursor:pointer; font-size:12px; text-transform:uppercase; letter-spacing:0.5px;">
+      Print / Save As PDF
     </button>
   </div>
 
@@ -365,13 +380,14 @@ export function AdminOrdersTab() {
       <div>
         <h1 class="brand-title">${inv.company?.name || "SaastaScholar™"}</h1>
         <p class="brand-subtitle">${inv.company?.tagline || "Quality Education, Without The Heavy Price"}</p>
-        <p class="company-meta">A DurgaAI Solutions Academic Venture · Official Tax Receipt</p>
-        <p class="company-meta">Support: ${inv.company?.support_email || "support@saastascholar.in"} · GSTIN: 08AAACD9248L1ZQ</p>
+        <p class="company-meta">A DurgaAI Solutions Academic Enterprise · Official Academic Tax Receipt</p>
+        <p class="company-meta">Support: ${inv.company?.support_email || "support@saastascholar.in"} </p>
       </div>
       <div style="text-align: right;">
-        <div class="status-badge">✓ ${inv.status || "PAID"}</div>
-        <p class="invoice-num">${inv.invoice_number}</p>
-        <p class="invoice-date">Date: ${inv.date}</p>
+        <div class="status-badge">PAYMENT STATUS: ${inv.status || "PAID"}</div>
+        <p class="invoice-num">INVOICE NO: ${inv.invoice_number}</p>
+        <p class="invoice-date">DATE: ${inv.date}</p>
+        <p class="invoice-date">PLACE OF SUPPLY: Rajasthan (08)</p>
       </div>
     </div>
 
@@ -382,7 +398,7 @@ export function AdminOrdersTab() {
         <p class="info-line"><strong>Email:</strong> ${inv.customer?.email || "—"}</p>
         <p class="info-line"><strong>Roll No:</strong> ${inv.customer?.roll_number || "—"}</p>
         <p class="info-line"><strong>University:</strong> ${inv.customer?.university || "NIMS University, Rajasthan"}</p>
-        <p class="info-line"><strong>Course:</strong> ${inv.customer?.department || "Computer Science"} · Sem ${inv.customer?.semester || 1} (${inv.customer?.section || "A"})</p>
+        <p class="info-line"><strong>Course:</strong> ${inv.customer?.department || "Engineering & Technology"} · Sem ${inv.customer?.semester || 1} (${inv.customer?.section || "A"})</p>
       </div>
 
       <div class="info-box">
@@ -390,8 +406,8 @@ export function AdminOrdersTab() {
         <p class="info-line"><strong>Invoice No:</strong> ${inv.invoice_number}</p>
         <p class="info-line"><strong>Payment ID:</strong> ${inv.payment_id || "Confirmed"}</p>
         <p class="info-line"><strong>Order ID:</strong> ${inv.order_id}</p>
-        <p class="info-line"><strong>Billing Cycle:</strong> ${inv.billing_cycle || "Monthly"}</p>
-        <p class="info-line"><strong>Payment Mode:</strong> Razorpay Payments (India)</p>
+        <p class="info-line"><strong>Billing Term:</strong> ${inv.billing_cycle || "Monthly"}</p>
+        <p class="info-line"><strong>Payment Channel:</strong> Razorpay Payments (India)</p>
       </div>
     </div>
 
@@ -399,26 +415,28 @@ export function AdminOrdersTab() {
       <table>
         <thead>
           <tr>
-            <th>Item Description</th>
-            <th>Cycle</th>
-            <th class="text-right">Rate</th>
-            <th class="text-right">Total</th>
+            <th style="width: 45%;">Description of Service</th>
+            <th class="text-center" style="width: 15%;">SAC Code</th>
+            <th class="text-center" style="width: 15%;">Term</th>
+            <th class="text-right" style="width: 12%;">Rate</th>
+            <th class="text-right" style="width: 13%;">Amount (INR)</th>
           </tr>
         </thead>
         <tbody>
           <tr>
             <td>
               <div class="plan-name">${inv.plan_name} Membership</div>
-              <div class="plan-desc">${inv.plan_description || "Verified Notes, Solved Questions & Exam Guides"}</div>
+              <div class="plan-desc">${inv.plan_description || "Curated Lecture Notes, Verified Solutions & Question Banks"}</div>
             </td>
-            <td>${inv.billing_cycle}</td>
+            <td class="text-center" style="font-family: monospace;">999293</td>
+            <td class="text-center">${inv.billing_cycle}</td>
             <td class="text-right">₹${inv.financials?.subtotal_inr}</td>
             <td class="text-right">₹${inv.financials?.subtotal_inr}</td>
           </tr>
           ${inv.financials?.discount_inr > 0 ? `
           <tr class="coupon-row">
-            <td colspan="3">
-              🎉 Promotional Coupon Applied (${inv.financials?.discount_code || "DISCOUNT"})
+            <td colspan="4">
+              PROMOTIONAL DISCOUNT APPLIED (COUPON: ${inv.financials?.discount_code || "DISCOUNT"})
             </td>
             <td class="text-right">- ₹${inv.financials?.discount_inr}</td>
           </tr>
@@ -430,40 +448,45 @@ export function AdminOrdersTab() {
     <div class="totals-block">
       <div class="totals-box">
         <div class="total-row">
-          <span>Subtotal:</span>
+          <span>Gross Subtotal:</span>
           <span>₹${inv.financials?.subtotal_inr}</span>
         </div>
         ${inv.financials?.discount_inr > 0 ? `
-        <div class="total-row" style="color:#059669; font-weight:700;">
-          <span>Voucher Savings:</span>
+        <div class="total-row" style="color:#065f46; font-weight:700;">
+          <span>Promotional Discount:</span>
           <span>- ₹${inv.financials?.discount_inr}</span>
         </div>
         ` : ""}
         <div class="total-row">
-          <span>Taxes (Included):</span>
+          <span>Integrated GST (IGST @ 0%):</span>
+          <span>₹0.00</span>
+        </div>
+        <div class="total-row">
+          <span>Central &amp; State GST (CGST/SGST @ 0%):</span>
           <span>₹0.00</span>
         </div>
         <div class="grand-total">
-          <span>Total Paid:</span>
+          <span>Total Settled (INR):</span>
           <span>₹${inv.financials?.total_paid_inr}</span>
         </div>
       </div>
     </div>
 
     <div class="transaction-card">
-      <div style="font-weight:bold; margin-bottom:4px; color:#1e293b;">🔒 Bank Gateway Audit Trail</div>
-      <div>Order ID: ${inv.order_id}</div>
-      <div>Payment ID: ${inv.payment_id}</div>
-      <div>Channel: ${inv.financials?.payment_gateway || "Razorpay Payments (India)"}</div>
+      <div class="transaction-card-title">Bank Gateway Transaction Audit Trail</div>
+      <div>ORDER IDENTIFIER: ${inv.order_id}</div>
+      <div>GATEWAY TRANSACTION ID: ${inv.payment_id}</div>
+      <div>SETTLEMENT CHANNEL: ${inv.financials?.payment_gateway || "Razorpay Payments (India)"}</div>
+      <div>TRANSACTION STATUS: CAPTURED &amp; VERIFIED</div>
     </div>
 
     <div class="footer">
       <div>
-        <p style="margin:0 0 2px 0;">This Is A Digitally Verified Official Proof Of Payment Generated By SaastaScholar™.</p>
-        <p style="margin:0;">Protected Under The Digital Personal Data Protection Act, 2023 (DPDP Act). No Physical Signature Required.</p>
+        <p style="margin:0 0 2px 0;">This is a digitally verified official proof of payment generated by SaastaScholar™.</p>
+        <p style="margin:0;">Protected under the Digital Personal Data Protection Act, 2023 (DPDP Act). Electronic receipt, no physical signature required.</p>
       </div>
       <div class="seal-badge">
-        <span>🛡️ Digitally Signed &amp; Verified</span>
+        <span>DIGITALLY SIGNED &amp; VERIFIED</span>
       </div>
     </div>
   </div>
@@ -732,21 +755,21 @@ export function AdminOrdersTab() {
       {/* Invoice Viewer Modal */}
       {selectedInvoice && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/75 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="relative w-full max-w-xl rounded-3xl border border-border bg-card shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+          <div className="relative w-full max-w-xl rounded-none border border-border bg-card shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
             <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-surface/60">
               <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 flex items-center justify-center">
+                <div className="h-8 w-8 rounded-none bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center justify-center">
                   <FileText className="h-4 w-4" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm text-foreground">Official Academic Invoice</h3>
+                  <h3 className="font-bold text-sm text-foreground uppercase tracking-wide">Official Academic Invoice</h3>
                   <p className="text-[0.68rem] font-mono text-muted-foreground">{selectedInvoice.invoice_number}</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setSelectedInvoice(null)}
-                className="h-8 w-8 rounded-full flex items-center justify-center hover:bg-surface text-muted-foreground hover:text-foreground cursor-pointer"
+                className="h-8 w-8 rounded-none border border-border/80 flex items-center justify-center hover:bg-surface text-muted-foreground hover:text-foreground cursor-pointer"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -756,7 +779,7 @@ export function AdminOrdersTab() {
               {/* Institution Header */}
               <div className="flex items-center justify-between border-b border-border/80 pb-4">
                 <div>
-                  <h4 className="font-display font-black text-base text-foreground tracking-tight">
+                  <h4 className="font-display font-black text-base text-foreground tracking-tight uppercase">
                     {selectedInvoice.company?.name}
                   </h4>
                   <p className="text-[0.7rem] text-muted-foreground">{selectedInvoice.company?.tagline}</p>
@@ -765,7 +788,7 @@ export function AdminOrdersTab() {
                   </p>
                 </div>
                 <div className="text-right">
-                  <span className="rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold px-3 py-1 text-[0.65rem] font-mono">
+                  <span className="rounded-none border border-emerald-600/60 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold px-3 py-1 text-[0.65rem] font-mono uppercase tracking-wider">
                     STATUS: {selectedInvoice.status}
                   </span>
                   <p className="text-[0.68rem] text-muted-foreground mt-1.5 font-mono">Date: {selectedInvoice.date}</p>
@@ -773,8 +796,8 @@ export function AdminOrdersTab() {
               </div>
 
               {/* Billed Scholar Section */}
-              <div className="rounded-2xl border border-border bg-surface/40 p-4 space-y-1">
-                <span className="text-[0.62rem] uppercase font-bold text-primary tracking-wider block">Billed Scholar</span>
+              <div className="rounded-none border border-border bg-surface/40 p-4 space-y-1">
+                <span className="text-[0.62rem] uppercase font-bold text-primary tracking-wider block border-b border-border/60 pb-1 mb-2">Billed Scholar</span>
                 <h5 className="font-bold text-sm text-foreground">{selectedInvoice.customer?.name}</h5>
                 <p className="text-[0.7rem] text-muted-foreground">{selectedInvoice.customer?.email}</p>
                 <div className="grid grid-cols-2 gap-2 text-[0.7rem] pt-1.5 text-muted-foreground border-t border-border/60 mt-2 font-mono">
@@ -784,15 +807,15 @@ export function AdminOrdersTab() {
               </div>
 
               {/* Line Items */}
-              <div className="rounded-2xl border border-border overflow-hidden">
-                <div className="bg-surface/80 p-3 font-bold text-[0.68rem] uppercase tracking-wider text-muted-foreground flex justify-between">
+              <div className="rounded-none border border-border overflow-hidden">
+                <div className="bg-surface/80 p-3 font-bold text-[0.68rem] uppercase tracking-wider text-muted-foreground flex justify-between border-b border-border">
                   <span>Description</span>
                   <span>Amount</span>
                 </div>
                 <div className="p-4 space-y-2 text-xs">
                   <div className="flex justify-between font-bold text-foreground">
                     <div>
-                      <span>{selectedInvoice.plan_name}</span>
+                      <span className="uppercase">{selectedInvoice.plan_name}</span>
                       <p className="text-[0.68rem] text-muted-foreground font-normal">
                         {selectedInvoice.plan_description} ({selectedInvoice.billing_cycle})
                       </p>
@@ -802,13 +825,13 @@ export function AdminOrdersTab() {
 
                   {selectedInvoice.financials?.discount_inr > 0 && (
                     <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-semibold text-[0.72rem]">
-                      <span>Promo Coupon Applied ({selectedInvoice.financials?.discount_code})</span>
+                      <span>Voucher Discount ({selectedInvoice.financials?.discount_code})</span>
                       <span className="font-mono">- ₹{selectedInvoice.financials?.discount_inr}</span>
                     </div>
                   )}
 
                   <div className="flex justify-between border-t border-border/80 pt-2 font-black text-sm text-foreground">
-                    <span>Total Amount Paid</span>
+                    <span>Total Settled (INR)</span>
                     <span className="font-mono text-emerald-600 dark:text-emerald-400">
                       ₹{selectedInvoice.financials?.total_paid_inr}
                     </span>
@@ -817,29 +840,30 @@ export function AdminOrdersTab() {
               </div>
 
               {/* Transaction ID */}
-              <div className="text-[0.65rem] font-mono text-muted-foreground space-y-0.5">
+              <div className="rounded-none border border-border/80 bg-surface/30 p-3 text-[0.68rem] font-mono text-muted-foreground space-y-0.5">
+                <div className="text-[0.62rem] font-sans font-bold text-primary uppercase tracking-wider mb-1">Transaction Audit Trail</div>
                 <p>Order ID: {selectedInvoice.order_id}</p>
                 <p>Payment Transaction ID: {selectedInvoice.payment_id}</p>
-                <p>Gateway: {selectedInvoice.financials?.payment_gateway}</p>
+                <p>Channel: {selectedInvoice.financials?.payment_gateway}</p>
               </div>
             </div>
 
             <div className="px-6 py-3.5 border-t border-border bg-surface/60 flex items-center justify-between">
-              <span className="text-[0.68rem] text-muted-foreground italic">
+              <span className="text-[0.68rem] text-muted-foreground">
                 Digitally Generated Academic Proof Of Payment
               </span>
               <div className="flex items-center gap-2">
                 <button
                   type="button"
                   onClick={() => setSelectedInvoice(null)}
-                  className="px-3.5 py-2 rounded-xl border border-border bg-card hover:bg-surface text-foreground font-semibold text-xs cursor-pointer"
+                  className="px-4 py-2 rounded-none border border-border bg-card hover:bg-surface text-foreground font-semibold text-xs cursor-pointer uppercase tracking-wider"
                 >
                   Close
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePrintInvoice(selectedInvoice)}
-                  className="px-4 py-2 rounded-xl bg-primary hover:bg-primary-deep text-primary-foreground font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-md active:scale-95 transition-all"
+                  className="px-5 py-2 rounded-none bg-primary hover:bg-primary-deep text-primary-foreground font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-md uppercase tracking-wider"
                 >
                   <Printer className="h-3.5 w-3.5" />
                   <span>Print / Save PDF</span>
