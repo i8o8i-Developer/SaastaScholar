@@ -30,6 +30,10 @@ def build_brand_email_template(title: str, preheader: str, content_html: str) ->
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{title}</title>
   <style>
+    * {{
+      box-sizing: border-box;
+      border-radius: 0 !important;
+    }}
     body {{
       margin: 0;
       padding: 0;
@@ -43,47 +47,46 @@ def build_brand_email_template(title: str, preheader: str, content_html: str) ->
       margin: 32px auto;
       background-color: #121c14;
       border: 1px solid #1f3322;
-      border-radius: 20px;
       overflow: hidden;
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     }}
     .header {{
-      background: linear-gradient(135deg, #005F15 0%, #00360c 100%);
-      padding: 32px 24px;
+      background: #005F15;
+      padding: 28px 24px;
       text-align: center;
-      border-bottom: 1px solid #1f3322;
+      border-bottom: 2px solid #10b981;
     }}
     .logo-text {{
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 800;
       color: #ffffff;
       letter-spacing: -0.5px;
       margin: 0;
+      text-transform: uppercase;
     }}
     .tagline {{
-      font-size: 12px;
+      font-size: 11px;
       color: #a7f3d0;
-      margin: 6px 0 0 0;
+      margin: 5px 0 0 0;
       text-transform: uppercase;
-      letter-spacing: 1.5px;
-      font-weight: 600;
+      letter-spacing: 1.2px;
+      font-weight: 700;
     }}
     .body {{
-      padding: 36px 32px;
+      padding: 32px 28px;
       color: #cbd5e1;
-      font-size: 15px;
+      font-size: 14px;
       line-height: 1.6;
     }}
     .otp-box {{
-      margin: 28px 0;
+      margin: 24px 0;
       background-color: #0b140c;
-      border: 1px dashed #10b981;
-      border-radius: 14px;
+      border: 1px solid #10b981;
       padding: 20px;
       text-align: center;
     }}
     .otp-code {{
-      font-size: 36px;
+      font-size: 34px;
       font-weight: 900;
       color: #34d399;
       letter-spacing: 8px;
@@ -91,11 +94,11 @@ def build_brand_email_template(title: str, preheader: str, content_html: str) ->
       margin: 0;
     }}
     .footer {{
-      padding: 24px 32px;
+      padding: 20px 28px;
       background-color: #0b140c;
       border-top: 1px solid #1a2c1d;
       text-align: center;
-      font-size: 12px;
+      font-size: 11px;
       color: #64748b;
     }}
     .badge {{
@@ -103,9 +106,11 @@ def build_brand_email_template(title: str, preheader: str, content_html: str) ->
       padding: 4px 10px;
       background-color: rgba(16, 185, 129, 0.15);
       color: #34d399;
-      border-radius: 9999px;
-      font-size: 12px;
-      font-weight: 700;
+      border: 1px solid #10b981;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
       margin-bottom: 16px;
     }}
   </style>
@@ -123,8 +128,8 @@ def build_brand_email_template(title: str, preheader: str, content_html: str) ->
       {content_html}
     </div>
     <div class="footer">
-      <p style="margin: 0 0 8px 0;">&copy; 2026 <strong>SaastaScholar</strong> · Owned & Engineered By DurgaAI Solutions.</p>
-      <p style="margin: 0; font-size: 11px;">Protected Under The Digital Personal Data Protection Act, 2023 (DPDP Act).</p>
+      <p style="margin: 0 0 6px 0;">&copy; 2026 <strong>SaastaScholar</strong> · Owned & Engineered By DurgaAI Solutions.</p>
+      <p style="margin: 0; font-size: 10.5px;">Protected Under The Digital Personal Data Protection Act, 2023 (DPDP Act).</p>
     </div>
   </div>
 </body>
@@ -205,19 +210,19 @@ If You Did Not Make This Request, Please Disregard This Email.
 
     html_content = f"""
       <span class="badge">Security Verification</span>
-      <h2 style="color:#ffffff; font-size:20px; font-weight:700; margin-top:0;">Password Reset Verification Code</h2>
+      <h2 style="color:#ffffff; font-size:18px; font-weight:800; margin-top:0; text-transform:uppercase; letter-spacing:0.5px;">Password Reset Verification Code</h2>
       <p>Hello <strong>{full_name}</strong>,</p>
       <p>We Received An Official Request To Reset The Password For Your SaastaScholar Account (<code>{user.email}</code>).</p>
       <div class="otp-box">
-        <p style="font-size:12px; color:#94a3b8; text-transform:uppercase; margin:0 0 8px 0; font-weight:700; letter-spacing:1px;">6-Digit Verification Code</p>
+        <p style="font-size:11px; color:#94a3b8; text-transform:uppercase; margin:0 0 8px 0; font-weight:800; letter-spacing:1.2px;">6-Digit Verification Code</p>
         <p class="otp-code">{otp}</p>
       </div>
-      <p style="font-size:13px; color:#94a3b8;">
-        ⏱️ <strong>This Code Will Expire In 15 Minutes.</strong><br>
-        🔒 For Your Security, Never Share This Verification Code With Anyone.
-      </p>
-      <p style="margin-top:24px; font-size:13px; color:#64748b;">
-        If You Did Not Request This Password Reset, No Action Is Needed — Your Account Remains Completely Secure.
+      <div style="background-color:#0b140c; border:1px solid #1f3322; padding:12px 16px; margin:20px 0; font-size:12px; color:#94a3b8; line-height:1.5;">
+        <p style="margin:0 0 4px 0;"><strong>CONFIDENTIALITY NOTICE:</strong> This Verification Code Will Expire In 15 Minutes.</p>
+        <p style="margin:0;"><strong>SECURITY ADVISORY:</strong> For Your Account Protection, Never Disclose This Code To Anyone.</p>
+      </div>
+      <p style="margin-top:20px; font-size:12px; color:#64748b;">
+        If You Did Not Request This Password Reset, No Action Is Needed — Your Account Remains Secure.
       </p>
     """
 
@@ -254,19 +259,19 @@ https://saastascholar.durgaaisolutions.in/login
 
     html_content = f"""
       <span class="badge">Welcome Scholar</span>
-      <h2 style="color:#ffffff; font-size:20px; font-weight:700; margin-top:0;">Welcome To SaastaScholar™</h2>
+      <h2 style="color:#ffffff; font-size:18px; font-weight:800; margin-top:0; text-transform:uppercase; letter-spacing:0.5px;">Welcome To SaastaScholar™</h2>
       <p>Hello <strong>{full_name}</strong>,</p>
-      <p>Congratulations! Your Academic Account Has Been Initialized Successfully. You Now Have Instant Access To Verified University Notes, Solved Exam Papers, Lab Practicals, And Syllabus Guides.</p>
+      <p>Your Academic Account Has Been Initialized Successfully. You Now Have Instant Access To Verified University Notes, Solved Exam Papers, Lab Practicals, And Syllabus Guides.</p>
       
-      <div style="background-color:#0b140c; border:1px solid #1f3322; border-radius:12px; padding:18px; margin:20px 0;">
-        <p style="margin:0 0 6px 0; font-size:13px;"><strong>Program:</strong> <span style="color:#34d399;">{program}</span></p>
-        <p style="margin:0 0 6px 0; font-size:13px;"><strong>Roll Number:</strong> <span style="color:#34d399;">{roll}</span></p>
-        <p style="margin:0; font-size:13px;"><strong>Membership Tier:</strong> <span style="color:#34d399;">{tier}</span></p>
+      <div style="background-color:#0b140c; border:1px solid #1f3322; padding:16px; margin:20px 0;">
+        <p style="margin:0 0 6px 0; font-size:12.5px;"><strong>Degree Program:</strong> <span style="color:#34d399; font-weight:700;">{program}</span></p>
+        <p style="margin:0 0 6px 0; font-size:12.5px;"><strong>Roll Number:</strong> <span style="color:#34d399; font-family:monospace;">{roll}</span></p>
+        <p style="margin:0; font-size:12.5px;"><strong>Membership Tier:</strong> <span style="color:#34d399; font-weight:700;">{tier}</span></p>
       </div>
 
       <div style="text-align:center; margin:28px 0;">
-        <a href="https://saastascholar.durgaaisolutions.in/login" style="display:inline-block; background-color:#005F15; color:#ffffff; font-weight:700; padding:12px 28px; border-radius:9999px; text-decoration:none; font-size:14px; box-shadow:0 4px 15px rgba(0, 95, 21, 0.4);">
-          Open Student Study Portal &rarr;
+        <a href="https://saastascholar.durgaaisolutions.in/login" style="display:inline-block; background-color:#005F15; color:#ffffff; font-weight:800; padding:12px 28px; text-decoration:none; font-size:13px; text-transform:uppercase; letter-spacing:0.8px; border:1px solid #00450f;">
+          Open Student Study Portal
         </a>
       </div>
     """
@@ -310,34 +315,34 @@ https://saastascholar.durgaaisolutions.in/dashboard
 
     html_content = f"""
       <span class="badge">Payment Verified · Official Tax Invoice</span>
-      <h2 style="color:#ffffff; font-size:20px; font-weight:700; margin-top:0;">Payment Confirmed!</h2>
+      <h2 style="color:#ffffff; font-size:18px; font-weight:800; margin-top:0; text-transform:uppercase; letter-spacing:0.5px;">Payment Confirmed</h2>
       <p>Dear <strong>{full_name}</strong>,</p>
-      <p>Thank You For Subscribing To SaastaScholar. Your Payment Has Been Captured And Verified Via Our Banking Gateway.</p>
+      <p>Thank You For Subscribing To SaastaScholar. Your Payment Has Been Captured And Verified Via The Razorpay Banking Gateway.</p>
       
-      <div style="background-color:#0b140c; border:1px solid #1f3322; border-radius:14px; padding:20px; margin:20px 0;">
-        <table style="width:100%; border-collapse:collapse; font-size:13px;">
+      <div style="background-color:#0b140c; border:1px solid #1f3322; padding:18px; margin:20px 0;">
+        <table style="width:100%; border-collapse:collapse; font-size:12.5px;">
           <tr>
             <td style="padding:6px 0; color:#94a3b8;">Invoice Number:</td>
-            <td style="padding:6px 0; text-align:right; font-weight:700; color:#ffffff;">{invoice_no}</td>
+            <td style="padding:6px 0; text-align:right; font-weight:700; color:#ffffff; font-family:monospace;">{invoice_no}</td>
           </tr>
           <tr>
             <td style="padding:6px 0; color:#94a3b8;">Plan Tier:</td>
-            <td style="padding:6px 0; text-align:right; font-weight:700; color:#34d399;">{plan_tier} Membership</td>
+            <td style="padding:6px 0; text-align:right; font-weight:700; color:#34d399; text-transform:uppercase;">{plan_tier} Membership</td>
           </tr>
           <tr>
             <td style="padding:6px 0; color:#94a3b8;">Payment Reference:</td>
             <td style="padding:6px 0; text-align:right; font-family:monospace; color:#cbd5e1;">{payment_id}</td>
           </tr>
           <tr style="border-top:1px solid #1f3322;">
-            <td style="padding:10px 0 0 0; color:#ffffff; font-weight:700; font-size:15px;">Total Paid:</td>
-            <td style="padding:10px 0 0 0; text-align:right; font-weight:800; font-size:17px; color:#34d399;">₹{amount_inr}</td>
+            <td style="padding:10px 0 0 0; color:#ffffff; font-weight:800; font-size:14px; text-transform:uppercase;">Total Paid:</td>
+            <td style="padding:10px 0 0 0; text-align:right; font-weight:900; font-size:16px; color:#34d399;">₹{amount_inr}</td>
           </tr>
         </table>
       </div>
 
       <div style="text-align:center; margin:28px 0;">
-        <a href="https://saastascholar.durgaaisolutions.in/dashboard" style="display:inline-block; background-color:#005F15; color:#ffffff; font-weight:700; padding:12px 28px; border-radius:9999px; text-decoration:none; font-size:14px; box-shadow:0 4px 15px rgba(0, 95, 21, 0.4);">
-          Launch Scholar Dashboard &rarr;
+        <a href="https://saastascholar.durgaaisolutions.in/dashboard" style="display:inline-block; background-color:#005F15; color:#ffffff; font-weight:800; padding:12px 28px; text-decoration:none; font-size:13px; text-transform:uppercase; letter-spacing:0.8px; border:1px solid #00450f;">
+          Launch Scholar Dashboard
         </a>
       </div>
     """
@@ -372,27 +377,24 @@ Your Account May Be Compromised. Please Contact The SaastaScholar Academic Secur
 """
 
     html_content = f"""
-      <span class="badge" style="background-color:rgba(16, 185, 129, 0.2); color:#34d399;">Security Notice</span>
-      <h2 style="color:#ffffff; font-size:20px; font-weight:700; margin-top:0;">Password Successfully Updated</h2>
+      <span class="badge">Security Notice</span>
+      <h2 style="color:#ffffff; font-size:18px; font-weight:800; margin-top:0; text-transform:uppercase; letter-spacing:0.5px;">Password Successfully Updated</h2>
       <p>Hello <strong>{full_name}</strong>,</p>
       <p>This Is An Automated Confirmation That The Password For Your SaastaScholar Account (<code>{user.email}</code>) Was Successfully Changed On <strong>{now_str}</strong>.</p>
       
-      <div style="background-color:#0b140c; border:1px solid #1f3322; border-radius:12px; padding:18px; margin:20px 0;">
-        <p style="margin:0 0 6px 0; font-size:13px; color:#94a3b8;"><strong>Timestamp:</strong> <span style="color:#ffffff;">{now_str}</span></p>
-        <p style="margin:0; font-size:13px; color:#94a3b8;"><strong>Status:</strong> <span style="color:#34d399; font-weight:700;">Password Updated &amp; Sessions Synced</span></p>
+      <div style="background-color:#0b140c; border:1px solid #1f3322; padding:16px; margin:20px 0;">
+        <p style="margin:0 0 6px 0; font-size:12.5px; color:#94a3b8;"><strong>Timestamp:</strong> <span style="color:#ffffff;">{now_str}</span></p>
+        <p style="margin:0; font-size:12.5px; color:#94a3b8;"><strong>Status:</strong> <span style="color:#34d399; font-weight:700;">Password Updated &amp; Sessions Synced</span></p>
       </div>
 
-      <p style="font-size:13px; color:#94a3b8;">
-        🔒 If You Initiated This Password Change, No Further Action Is Required.
-      </p>
-
-      <p style="margin-top:20px; font-size:13px; color:#ef4444; background:rgba(239, 68, 68, 0.1); border:1px solid rgba(239, 68, 68, 0.3); border-radius:10px; padding:12px;">
-        ⚠️ <strong>Did Not Request This Change?</strong> If You Did Not Perform This Password Update, Please Contact Academic Support Immediately At <code>support@saastascholar.in</code> To Lock Your Account.
-      </p>
+      <div style="background-color:#0b140c; border:1px solid #1f3322; padding:12px 16px; margin:20px 0; font-size:12px; color:#94a3b8; line-height:1.5;">
+        <p style="margin:0 0 4px 0;"><strong>VERIFICATION NOTICE:</strong> If You Initiated This Password Change, No Further Action Is Required.</p>
+        <p style="margin:0; color:#f87171;"><strong>SECURITY ALERT:</strong> If You Did Not Perform This Password Update, Contact Academic Support Immediately At support@saastascholar.in To Lock Your Account.</p>
+      </div>
 
       <div style="text-align:center; margin:28px 0 10px 0;">
-        <a href="https://saastascholar.durgaaisolutions.in/login" style="display:inline-block; background-color:#005F15; color:#ffffff; font-weight:700; padding:12px 28px; border-radius:9999px; text-decoration:none; font-size:14px; box-shadow:0 4px 15px rgba(0, 95, 21, 0.4);">
-          Log In To Student Portal &rarr;
+        <a href="https://saastascholar.durgaaisolutions.in/login" style="display:inline-block; background-color:#005F15; color:#ffffff; font-weight:800; padding:12px 28px; text-decoration:none; font-size:13px; text-transform:uppercase; letter-spacing:0.8px; border:1px solid #00450f;">
+          Log In To Student Portal
         </a>
       </div>
     """
@@ -439,13 +441,13 @@ If You Have Any Questions Regarding This Transaction, Please Reply Directly To s
 """
 
     html_content = f"""
-      <span class="badge" style="background-color:rgba(239, 68, 68, 0.2); color:#f87171;">Refund Processed</span>
-      <h2 style="color:#ffffff; font-size:20px; font-weight:700; margin-top:0;">Refund Processed Successfully</h2>
+      <span class="badge" style="background-color:rgba(239, 68, 68, 0.15); color:#f87171; border:1px solid #ef4444;">Refund Processed</span>
+      <h2 style="color:#ffffff; font-size:18px; font-weight:800; margin-top:0; text-transform:uppercase; letter-spacing:0.5px;">Refund Processed Successfully</h2>
       <p>Hello <strong>{full_name}</strong>,</p>
       <p>Your Refund Of <strong>₹{amount_inr}</strong> For Order <code>{order.order_id}</code> Has Been Successfully Initiated Via The Razorpay Payment Gateway On <strong>{now_str}</strong>.</p>
       
-      <div style="background-color:#0b140c; border:1px solid #1f3322; border-radius:12px; padding:18px; margin:20px 0;">
-        <table style="width:100%; font-size:13px; color:#cbd5e1; border-collapse:collapse;">
+      <div style="background-color:#0b140c; border:1px solid #1f3322; padding:16px; margin:20px 0;">
+        <table style="width:100%; font-size:12.5px; color:#cbd5e1; border-collapse:collapse;">
           <tr>
             <td style="padding:6px 0; color:#94a3b8;"><strong>Order ID:</strong></td>
             <td style="padding:6px 0; font-family:monospace; text-align:right; color:#ffffff;">{order.order_id}</td>
@@ -460,22 +462,22 @@ If You Have Any Questions Regarding This Transaction, Please Reply Directly To s
           </tr>
           <tr>
             <td style="padding:6px 0; color:#94a3b8;"><strong>Refund Amount:</strong></td>
-            <td style="padding:6px 0; font-weight:800; text-align:right; color:#34d399; font-size:15px;">₹{amount_inr}</td>
+            <td style="padding:6px 0; font-weight:800; text-align:right; color:#34d399; font-size:14px;">₹{amount_inr}</td>
           </tr>
           <tr>
             <td style="padding:6px 0; color:#94a3b8;"><strong>Access Tier:</strong></td>
-            <td style="padding:6px 0; text-align:right; color:#f87171; font-weight:700;">Reverted To FREE</td>
+            <td style="padding:6px 0; text-align:right; color:#f87171; font-weight:700; text-transform:uppercase;">Reverted To FREE</td>
           </tr>
         </table>
       </div>
 
-      <div style="background-color:rgba(59, 130, 246, 0.1); border:1px solid rgba(59, 130, 246, 0.3); border-radius:10px; padding:14px; margin-bottom:20px;">
-        <p style="margin:0; font-size:12px; color:#93c5fd; line-height:1.5;">
-          ℹ️ <strong>Expected Credit Timeline:</strong> Under Standard Banking Protocols, Funds Typically Reflect In Your Source Account (Bank / UPI / Card) Within <strong>5 To 7 Working Days</strong>.
+      <div style="background-color:#0b140c; border:1px solid #1f3322; padding:12px 16px; margin-bottom:20px;">
+        <p style="margin:0; font-size:11.5px; color:#94a3b8; line-height:1.5;">
+          <strong>EXPECTED SETTLEMENT TIMELINE:</strong> Under Standard Banking Protocols, Funds Typically Reflect In Your Source Account (Bank / UPI / Card) Within <strong>5 To 7 Working Days</strong>.
         </p>
       </div>
 
-      <p style="font-size:12px; color:#94a3b8;">
+      <p style="font-size:11.5px; color:#64748b;">
         If You Need Any Further Assistance Or Did Not Request This Action, Please Reach Out To Our Support Desk At <code>support@saastascholar.in</code>.
       </p>
     """
