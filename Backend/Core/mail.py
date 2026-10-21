@@ -149,7 +149,7 @@ def send_system_email(subject: str, recipient_email: str, text_content: str, htm
         "email.subject": subject,
         "email.from": from_email,
     }) as span:
-        last_error = "Unknown dispatch failure"
+        last_error = "Unknown Dispatch Failure"
         for attempt in range(2):
             try:
                 msg = EmailMultiAlternatives(
@@ -399,3 +399,87 @@ Your Account May Be Compromised. Please Contact The SaastaScholar Academic Secur
 
     full_html = build_brand_email_template("Password Changed Successfully", preheader, html_content)
     return send_system_email(subject, user.email, text_body, full_html)
+
+
+def send_refund_processed_email(order, refund_amount_paise: int = None, reason: str = "") -> tuple:
+    """
+    Sends Official Refund Confirmation Email When An Order Is Reversed Via Razorpay
+    """
+    user = order.user
+    full_name = getattr(user, "full_name", "") or getattr(user, "username", "") or "Scholar"
+    from django.utils import timezone
+    now_str = timezone.now().strftime("%d %B %Y, %I:%M %p IST")
+
+    amount_paise = refund_amount_paise if refund_amount_paise is not None else order.amount
+    amount_inr = round(amount_paise / 100, 2)
+
+    subject = f"Refund Confirmation: ₹{amount_inr} For Order {order.order_id} · SaastaScholar"
+    preheader = f"Your refund of ₹{amount_inr} for order {order.order_id} has been initiated."
+
+    text_body = f"""Hello {full_name},
+
+This Is An Official Confirmation That A Refund Of ₹{amount_inr} For Your Order ({order.order_id}) Was Successfully Initiated On:
+{now_str}
+
+Refund Details:
+- Order ID: {order.order_id}
+- Transaction ID: {order.payment_id or 'Online Payment'}
+- Invoice Number: {order.invoice_number or 'N/A'}
+- Refunded Amount: ₹{amount_inr}
+- Subscription Tier: {order.plan_tier}
+- Updated Access Tier: FREE Tier
+{f"- Reason: {reason}" if reason else ""}
+
+Timeline For Credit:
+According To Razorpay And RBI Banking Standards, The Refunded Amount Will Credit Directly Back To Your Original Payment Source (UPI / NetBanking / Debit Card) Within 5-7 Working Days.
+
+If You Have Any Questions Regarding This Transaction, Please Reply Directly To support@saastascholar.in.
+
+— The SaastaScholar Accounts & Billing Team
+"""
+
+    html_content = f"""
+      <span class="badge" style="background-color:rgba(239, 68, 68, 0.2); color:#f87171;">Refund Processed</span>
+      <h2 style="color:#ffffff; font-size:20px; font-weight:700; margin-top:0;">Refund Processed Successfully</h2>
+      <p>Hello <strong>{full_name}</strong>,</p>
+      <p>Your Refund Of <strong>₹{amount_inr}</strong> For Order <code>{order.order_id}</code> Has Been Successfully Initiated Via The Razorpay Payment Gateway On <strong>{now_str}</strong>.</p>
+      
+      <div style="background-color:#0b140c; border:1px solid #1f3322; border-radius:12px; padding:18px; margin:20px 0;">
+        <table style="width:100%; font-size:13px; color:#cbd5e1; border-collapse:collapse;">
+          <tr>
+            <td style="padding:6px 0; color:#94a3b8;"><strong>Order ID:</strong></td>
+            <td style="padding:6px 0; font-family:monospace; text-align:right; color:#ffffff;">{order.order_id}</td>
+          </tr>
+          <tr>
+            <td style="padding:6px 0; color:#94a3b8;"><strong>Payment ID:</strong></td>
+            <td style="padding:6px 0; font-family:monospace; text-align:right; color:#ffffff;">{order.payment_id or 'Online Payment'}</td>
+          </tr>
+          <tr>
+            <td style="padding:6px 0; color:#94a3b8;"><strong>Invoice Number:</strong></td>
+            <td style="padding:6px 0; font-family:monospace; text-align:right; color:#ffffff;">{order.invoice_number or 'N/A'}</td>
+          </tr>
+          <tr>
+            <td style="padding:6px 0; color:#94a3b8;"><strong>Refund Amount:</strong></td>
+            <td style="padding:6px 0; font-weight:800; text-align:right; color:#34d399; font-size:15px;">₹{amount_inr}</td>
+          </tr>
+          <tr>
+            <td style="padding:6px 0; color:#94a3b8;"><strong>Access Tier:</strong></td>
+            <td style="padding:6px 0; text-align:right; color:#f87171; font-weight:700;">Reverted To FREE</td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="background-color:rgba(59, 130, 246, 0.1); border:1px solid rgba(59, 130, 246, 0.3); border-radius:10px; padding:14px; margin-bottom:20px;">
+        <p style="margin:0; font-size:12px; color:#93c5fd; line-height:1.5;">
+          ℹ️ <strong>Expected Credit Timeline:</strong> Under Standard Banking Protocols, Funds Typically Reflect In Your Source Account (Bank / UPI / Card) Within <strong>5 To 7 Working Days</strong>.
+        </p>
+      </div>
+
+      <p style="font-size:12px; color:#94a3b8;">
+        If You Need Any Further Assistance Or Did Not Request This Action, Please Reach Out To Our Support Desk At <code>support@saastascholar.in</code>.
+      </p>
+    """
+
+    full_html = build_brand_email_template("Refund Confirmation", preheader, html_content)
+    return send_system_email(subject, user.email, text_body, full_html)
+

@@ -638,22 +638,58 @@ class AdminOrderActionView(APIView):
             except Exception:
                 pass
 
-            # Attempt Razorpay gateway refund if valid payment id exists
+            # Automatic Razorpay Gateway Refund Processing
             razorpay_refund_msg = ""
-            if order.payment_id and not order.payment_id.startswith("pay_admin_manual"):
-                key_id = getattr(settings, "RAZORPAY_KEY_ID", "").strip()
-                key_secret = getattr(settings, "RAZORPAY_KEY_SECRET", "").strip()
-                if key_id and key_secret:
+            key_id = getattr(settings, "RAZORPAY_KEY_ID", "").strip()
+            key_secret = getattr(settings, "RAZORPAY_KEY_SECRET", "").strip()
+
+            if order.amount > 0 and key_id and key_secret:
+                payment_id = order.payment_id
+
+                
+                if not payment_id and order.order_id and not order.order_id.startswith("order_admin_"):
                     try:
                         import razorpay
                         client = razorpay.Client(auth=(key_id, key_secret))
-                        client.payment.refund(order.payment_id, {
+                        order_payments = client.order.payments(order.order_id)
+                        items = order_payments.get("items", []) if isinstance(order_payments, dict) else []
+                        for item in items:
+                            if item.get("status") in ("captured", "authorized"):
+                                payment_id = item.get("id")
+                                order.payment_id = payment_id
+                                order.save(update_fields=["payment_id", "updated_at"])
+                                break
+                    except Exception as disc_err:
+                        logger.warning(f"Failed To Auto-Discover Razorpay Payment ID For order {order.order_id}: {disc_err}")
+
+                # Execute gateway refund if valid payment id exists and not manual
+                if payment_id and not payment_id.startswith("pay_admin_manual"):
+                    try:
+                        import razorpay
+                        client = razorpay.Client(auth=(key_id, key_secret))
+                        refund_res = client.payment.refund(payment_id, {
                             "amount": order.amount,
-                            "notes": {"reason": reason, "order_id": order.order_id}
+                            "notes": {"reason": reason or "Admin Initiated Refund", "order_id": order.order_id}
                         })
-                        razorpay_refund_msg = " Razorpay refund initiated successfully."
+                        rfnd_id = refund_res.get("id") if isinstance(refund_res, dict) else "Processed"
+                        razorpay_refund_msg = f" Razorpay Gateway Refund '{rfnd_id}' Executed Successfully."
                     except Exception as rp_err:
-                        razorpay_refund_msg = f" (Gateway Notice: {str(rp_err)})"
+                        err_str = str(rp_err)
+                        if "already" in err_str.lower():
+                            razorpay_refund_msg = " Razorpay reports this payment has already been refunded."
+                        else:
+                            razorpay_refund_msg = f" (Gateway Notice: {err_str})"
+                elif not payment_id:
+                    razorpay_refund_msg = " (No active Razorpay payment transaction found to reverse.)"
+            elif order.amount == 0:
+                razorpay_refund_msg = " (100% Discounted/Zero Amount Order — Gateway refund not applicable.)"
+
+            # Dispatch Official Refund Confirmation Email
+            try:
+                from Core.mail import send_refund_processed_email
+                send_refund_processed_email(order, refund_amount_paise=order.amount, reason=reason)
+            except Exception as mail_err:
+                logger.warning(f"Failed to dispatch refund confirmation email for order {order.order_id}: {mail_err}")
 
             # Create Audit Log
             try:
@@ -662,7 +698,7 @@ class AdminOrderActionView(APIView):
                     actor=request.user,
                     target_user=student,
                     action_type=ActionType.DOWNGRADE_TIER,
-                    reason=f"Refund Order {order.order_id} ({order.plan_tier}): {reason}",
+                    reason=f"Refund Order {order.order_id} ({order.plan_tier}): {reason}{razorpay_refund_msg}",
                     metadata={"order_id": order.order_id, "amount": order.amount, "status": "refunded"},
                 )
             except Exception:
@@ -864,19 +900,46 @@ class RazorpayWebhookView(APIView):
                     except RazorpayOrder.DoesNotExist:
                         pass
 
-            elif event == "refund.processed":
+            elif event in ("refund.processed", "refund.created", "payment.refunded"):
                 refund_entity = payload.get("refund", {}).get("entity", {})
-                payment_id = refund_entity.get("payment_id")
+                payment_entity = payload.get("payment", {}).get("entity", {})
+                payment_id = refund_entity.get("payment_id") or payment_entity.get("id")
+                order_id = refund_entity.get("order_id") or payment_entity.get("order_id")
+
+                order = None
                 if payment_id:
+                    order = RazorpayOrder.objects.select_related("user").filter(payment_id=payment_id).first()
+                if not order and order_id:
+                    order = RazorpayOrder.objects.select_related("user").filter(order_id=order_id).first()
+
+                if order:
+                    order.status = "refunded"
+                    order.save(update_fields=["status", "updated_at"])
+                    student = order.user
+                    student.access_tier = "FREE"
+                    student.save(update_fields=["access_tier"])
+
+                    # Deactivate active UserSubscriptions
+                    UserSubscription.objects.filter(user=student, is_active=True).update(is_active=False)
+
+                    # Invalidate Redis caches
                     try:
-                        order = RazorpayOrder.objects.select_related("user").get(payment_id=payment_id)
-                        order.status = "refunded"
-                        order.save(update_fields=["status", "updated_at"])
-                        student = order.user
-                        student.access_tier = "FREE"
-                        student.save(update_fields=["access_tier"])
-                    except RazorpayOrder.DoesNotExist:
+                        from Apps.Academic.cache_utils import invalidate_redis_pattern
+                        invalidate_redis_pattern(f"*{student.id}*")
+                        invalidate_redis_pattern(f"subscriptions:access:{student.id}*")
+                    except Exception:
                         pass
+
+                    # Dispatch refund confirmation email
+                    try:
+                        from Core.mail import send_refund_processed_email
+                        send_refund_processed_email(
+                            order,
+                            refund_amount_paise=refund_entity.get("amount") or order.amount,
+                            reason="Razorpay Gateway Automated Refund Processing"
+                        )
+                    except Exception as mail_err:
+                        logger.warning(f"Failed to dispatch webhook refund email for order {order.order_id}: {mail_err}")
 
         return Response({"status": "ok", "message": f"Webhook '{event}' Processed Successfully."})
 
