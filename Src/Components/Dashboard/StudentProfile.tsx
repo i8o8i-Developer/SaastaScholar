@@ -132,6 +132,7 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
 
   const [isEditingAcademicRecord, setIsEditingAcademicRecord] = useState<boolean>(false);
   const [uploadingAvatar, setUploadingAvatar] = useState<boolean>(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [saving, setSaving] = useState<boolean>(false);
   const [savingAcademic, setSavingAcademic] = useState<boolean>(false);
 
@@ -232,6 +233,10 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
       return;
     }
 
+    // Instant Visual Feedback
+    const previewUrl = URL.createObjectURL(file);
+    setAvatarPreview(previewUrl);
+
     try {
       setUploadingAvatar(true);
       const formData = new FormData();
@@ -251,13 +256,16 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
         if (data.avatar_url && user) {
           user.avatar_url = data.avatar_url;
         }
+        await refreshUser();
         toast.success("Profile Avatar Uploaded Successfully.");
       } else {
         const err = await res.json().catch(() => ({}));
         toast.error(toTitleCase(err.error || "Failed To Upload Avatar."));
+        setAvatarPreview(null);
       }
     } catch (err: any) {
       toast.error("Network Error While Uploading Profile Photo.");
+      setAvatarPreview(null);
     } finally {
       setUploadingAvatar(false);
     }
@@ -343,17 +351,16 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
               <div className="grid h-16 w-16 sm:h-20 sm:w-20 place-items-center rounded-2xl sm:rounded-3xl text-white font-bold text-xl sm:text-2xl shadow-lg transition-transform group-hover:scale-105 bg-gradient-to-tr from-emerald-600 to-teal-500 overflow-hidden border border-border/60">
                 {uploadingAvatar ? (
                   <Loader2 className="h-7 w-7 animate-spin text-white" />
-                ) : user?.avatar_url ? (
+                ) : (avatarPreview || user?.avatar_url) ? (
                   <img
-                    src={user.avatar_url}
-                    alt=""
+                    src={avatarPreview || user?.avatar_url || ""}
+                    alt="Student Avatar"
                     onError={(e) => {
                       e.currentTarget.style.display = "none";
                     }}
                     className="h-full w-full object-cover"
                   />
-                ) : null}
-                {!uploadingAvatar && !user?.avatar_url && (
+                ) : (
                   <span className="font-bold">{(user?.full_name || "A").charAt(0).toUpperCase()}</span>
                 )}
               </div>

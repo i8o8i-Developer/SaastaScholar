@@ -38,6 +38,14 @@ from .views import (
     SiteBannerListView,
     SubjectListView,
     SubjectUnitListView,
+    NewsletterSubscribeView,
+    NewsletterUnsubscribeView,
+    AdminMarketingStatsView,
+    AdminMarketingSubscribersView,
+    AdminMarketingSubscriberDetailView,
+    AdminMarketingBroadcastLogsView,
+    AdminMarketingBroadcastDispatchView,
+    AdminEmailDeliverabilityDiagnosticView,
 )
 
 urlpatterns = [
@@ -82,5 +90,15 @@ urlpatterns = [
     path("admin/badges/<str:pk>/", AdminSidebarBadgeDetailView.as_view(), name="admin-badge-detail"),
     path("admin/banners/", AdminSiteBannerListCreateView.as_view(), name="admin-banners"),
     path("admin/banners/<uuid:pk>/", AdminSiteBannerDetailView.as_view(), name="admin-banner-detail"),
+
+    # ================= Marketing & Weekly Dispatch Endpoints =================
+    path("newsletter/subscribe/", NewsletterSubscribeView.as_view(), name="newsletter-subscribe"),
+    path("newsletter/unsubscribe/", NewsletterUnsubscribeView.as_view(), name="newsletter-unsubscribe"),
+    path("admin/marketing/stats/", AdminMarketingStatsView.as_view(), name="admin-marketing-stats"),
+    path("admin/marketing/subscribers/", AdminMarketingSubscribersView.as_view(), name="admin-marketing-subscribers"),
+    path("admin/marketing/subscribers/<uuid:pk>/", AdminMarketingSubscriberDetailView.as_view(), name="admin-marketing-subscriber-detail"),
+    path("admin/marketing/logs/", AdminMarketingBroadcastLogsView.as_view(), name="admin-marketing-logs"),
+    path("admin/marketing/broadcast/", AdminMarketingBroadcastDispatchView.as_view(), name="admin-marketing-broadcast"),
+    path("admin/marketing/diagnostic/", AdminEmailDeliverabilityDiagnosticView.as_view(), name="admin-marketing-diagnostic"),
 ]
 

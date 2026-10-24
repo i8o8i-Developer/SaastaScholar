@@ -24,6 +24,7 @@ urlpatterns = [
     path("refresh/", TokenRefreshView.as_view(), name="auth-refresh"),
     path("me/", CurrentUserView.as_view(), name="auth-me"),
     path("avatar/", AvatarUploadView.as_view(), name="auth-avatar"),
+    path("profile/avatar/", AvatarUploadView.as_view(), name="auth-profile-avatar"),
     path("sessions/", SecuritySessionsView.as_view(), name="auth-sessions"),
     path("dashboard-summary/", DashboardSummaryView.as_view(), name="dashboard-summary"),
     path("acknowledge-warning/", AcknowledgeWarningView.as_view(), name="auth-acknowledge-warning"),

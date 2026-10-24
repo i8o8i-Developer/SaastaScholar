@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta
 from django.utils import timezone
 from rest_framework import generics, permissions, status
@@ -5,6 +6,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
+
+logger = logging.getLogger("saastascholar.accounts")
 
 from .models import StudentUser, SecuritySession, AdminAuditLog, ActionType
 from .serializers import (
@@ -81,7 +84,63 @@ class CurrentUserView(generics.RetrieveUpdateAPIView):
         return user
 
     def perform_update(self, serializer):
+        user_before = self.get_object()
+        old_email = str(user_before.email or "").strip().lower()
+        old_full_name = user_before.full_name
+        old_phone = user_before.phone_number
+        old_bio = user_before.bio
+        old_target_cgpa = str(user_before.target_cgpa)
+        old_program = user_before.program
+        old_semester = user_before.semester
+        old_section = user_before.section
+
         user = serializer.save()
+
+        # Check for Email change
+        new_email = str(user.email or "").strip().lower()
+        ip = get_client_ip(self.request)
+        ua = self.request.META.get("HTTP_USER_AGENT", "Web Browser")[:150]
+
+        from Core.mail import (
+            send_email_changed_notification,
+            send_account_details_updated_email,
+            send_cohort_updated_email,
+        )
+
+        if old_email and new_email and (old_email != new_email):
+            try:
+                send_email_changed_notification(user, old_email, new_email, ip, ua)
+            except Exception as exc:
+                logger.error(f"Failed To Dispatch Email Changed Notification: {exc}")
+
+        # Check for Profile Details changes
+        profile_changes = {}
+        if (user.full_name or "") != (old_full_name or ""):
+            profile_changes["Full Name"] = (old_full_name, user.full_name)
+        if (user.phone_number or "") != (old_phone or ""):
+            profile_changes["Phone Number"] = (old_phone, user.phone_number)
+        if (user.bio or "") != (old_bio or ""):
+            profile_changes["Academic Bio"] = (old_bio, user.bio)
+        if str(user.target_cgpa) != old_target_cgpa:
+            profile_changes["Target CGPA"] = (old_target_cgpa, str(user.target_cgpa))
+
+        if profile_changes:
+            try:
+                send_account_details_updated_email(user, profile_changes, ip)
+            except Exception as exc:
+                logger.error(f"Failed To Dispatch Profile Details Update Email: {exc}")
+
+        # Check for Academic Cohort changes
+        if (user.program != old_program) or (user.semester != old_semester) or (user.section != old_section):
+            try:
+                send_cohort_updated_email(
+                    user,
+                    {"program": old_program, "semester": old_semester, "section": old_section},
+                    {"program": user.program, "semester": user.semester, "section": user.section},
+                )
+            except Exception as exc:
+                logger.error(f"Failed To Dispatch Cohort Updated Email: {exc}")
+
         from Apps.Academic.cache_utils import invalidate_redis_pattern
         try:
             invalidate_redis_pattern(f"planner:timetable:{user.program}*")
@@ -128,8 +187,16 @@ class AvatarUploadView(APIView):
             return Response({"error": "No Avatar Image File Provided."}, status=status.HTTP_400_BAD_REQUEST)
         
         user.avatar_image = avatar_file
-        user.avatar_url = user.avatar_image.url if hasattr(user.avatar_image, "url") else f"/media/avatars/{avatar_file.name}"
         user.save()
+        user.avatar_url = user.avatar_image.url if hasattr(user.avatar_image, "url") else f"/media/avatars/{avatar_file.name}"
+        user.save(update_fields=["avatar_url"])
+
+        # Dispatch Avatar Photo Updated Notification
+        try:
+            from Core.mail import send_avatar_updated_email
+            send_avatar_updated_email(user)
+        except Exception as exc:
+            logger.error(f"Failed To Dispatch Avatar Updated Email: {exc}")
         
         return Response({
             "message": "Avatar Photo Updated Successfully.",

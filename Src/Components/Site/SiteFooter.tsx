@@ -31,7 +31,7 @@ import {
   DialogTitle,
 } from "@/Components/Ui/Dialog";
 import { LegalComplianceHub } from "./LegalComplianceHub";
-import { apiFetch } from "@/Lib/Api";
+import { apiFetch, toTitleCase } from "@/Lib/Api";
 import { cn } from "@/Lib/Utils";
 
 interface FooterLink {
@@ -299,19 +299,26 @@ export function SiteFooter() {
     };
   }, []);
 
-  const handleSubscribe = (e: FormEvent) => {
+  const handleSubscribe = async (e: FormEvent) => {
     e.preventDefault();
     if (!email || !email.includes("@")) {
       toast.error("Please Enter A Valid Student Email Address.");
       return;
     }
 
-    setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
+    try {
+      setLoading(true);
+      await apiFetch("/academic/newsletter/subscribe/", {
+        method: "POST",
+        body: JSON.stringify({ email: email.trim().toLowerCase(), source: "Footer Newsletter" }),
+      });
       setSubscribed(true);
       toast.success("Welcome Aboard! You Will Now Receive Critical Term Updates & Resources.");
-    }, 600);
+    } catch (err: any) {
+      toast.error(toTitleCase(err?.message || "Failed To Subscribe To Weekly Dispatch."));
+    } finally {
+      setLoading(false);
+    }
   };
 
   const scrollToTop = () => {
@@ -413,9 +420,10 @@ export function SiteFooter() {
                   </button>
                 </form>
               )}
-              <p className="mt-2 text-[0.7rem] sm:text-[0.75rem] text-muted-foreground">
-                Zero Spam. Unsubscribe Anytime With A Single Click.
-              </p>
+              <div className="mt-2.5 flex items-center gap-2 text-[0.72rem] sm:text-[0.78rem] text-foreground/85 font-medium tracking-wide">
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
+                <span>Zero Spam · Unsubscribe Anytime With A Single Click.</span>
+              </div>
             </div>
           </div>
         </div>

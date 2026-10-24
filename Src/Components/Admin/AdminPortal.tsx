@@ -78,6 +78,7 @@ import {
   EyeOff,
   Bot,
   TrendingUp,
+  Mail,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/Hooks/UseAuth";
@@ -89,6 +90,7 @@ import { BroadcastBanner } from "../Ui/BroadcastBanner";
 import { AdminOrdersTab } from "./AdminOrdersTab";
 import { AdminCouponsTab } from "./AdminCouponsTab";
 import { AdminPlanMatrixTab } from "./AdminPlanMatrixTab";
+import { AdminMarketingTab } from "./AdminMarketingTab";
 import {
   AcademicMaterial,
   AdminAuditLog,
@@ -151,7 +153,8 @@ type AdminStation =
   | "badges"
   | "banners"
   | "support"
-  | "forum";
+  | "forum"
+  | "marketing";
 
 type PublisherContentType =
   | "NOTES"
@@ -2641,6 +2644,7 @@ export function AdminPortal() {
                   { id: "badges", label: "Menu Badges", icon: Sparkles, count: badges.filter((b) => b.is_active && b.badge_text).length },
                   { id: "support", label: "Help Desk Tickets", icon: HelpCircle, count: tickets.length },
                   { id: "forum", label: "Student Discussions", icon: MessageSquare, count: posts.length },
+                  { id: "marketing", label: "Marketing & Dispatches", icon: Mail, count: "Reach" },
                 ].map((station) => {
                   const Icon = station.icon;
                   const isActive = activeStation === station.id;
@@ -2774,6 +2778,7 @@ export function AdminPortal() {
               { id: "badges", label: "Menu Badges", icon: Sparkles, count: badges.filter((b) => b.is_active && b.badge_text).length },
               { id: "support", label: "Help Desk Tickets", icon: HelpCircle, count: tickets.length },
               { id: "forum", label: "Student Discussions", icon: MessageSquare, count: posts.length },
+              { id: "marketing", label: "Marketing & Dispatches", icon: Mail, count: "Reach" },
             ].map((station) => {
               const Icon = station.icon;
               const isActive = activeStation === station.id;
@@ -2943,6 +2948,12 @@ export function AdminPortal() {
                 <>
                   <span className="sm:hidden">Discussions</span>
                   <span className="hidden sm:inline">Student Discussion Forum &amp; Community</span>
+                </>
+              )}
+              {activeStation === "marketing" && (
+                <>
+                  <span className="sm:hidden">Marketing</span>
+                  <span className="hidden sm:inline">Marketing Emails &amp; Weekly Academic Dispatch</span>
                 </>
               )}
             </span>
@@ -8097,6 +8108,10 @@ export function AdminPortal() {
                 )}
               </div>
             </div>
+          )}
+
+          {activeStation === "marketing" && (
+            <AdminMarketingTab />
           )}
 
         </div>

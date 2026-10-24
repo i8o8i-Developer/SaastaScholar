@@ -249,3 +249,52 @@ class SiteBanner(models.Model):
     def __str__(self):
         return f"[{self.tag}] {self.title} ({'Active' if self.is_active else 'Inactive'})"
 
+
+class NewsletterSubscriber(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    email = models.EmailField(unique=True, db_index=True)
+    is_active = models.BooleanField(default=True, db_index=True)
+    source = models.CharField(max_length=100, default="Footer Newsletter")
+    unsubscribe_token = models.CharField(max_length=64, default=uuid.uuid4, editable=False)
+    subscribed_at = models.DateTimeField(default=timezone.now)
+    unsubscribed_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ["-subscribed_at"]
+        verbose_name = "Newsletter Subscriber"
+        verbose_name_plural = "Newsletter Subscribers"
+
+    def __str__(self):
+        return f"{self.email} ({'Subscribed' if self.is_active else 'Unsubscribed'})"
+
+
+class BroadcastAudience(models.TextChoices):
+    ALL = "ALL", "All Registered Students & Subscribers"
+    STUDENTS = "STUDENTS", "All Registered Students"
+    SUBSCRIBERS = "SUBSCRIBERS", "Newsletter Subscribers Only"
+    FREE_TIER = "FREE_TIER", "Free Tier Scholars"
+    PREMIUM_TIER = "PREMIUM_TIER", "Premium & Elite Scholars"
+
+
+class MarketingBroadcastLog(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    subject = models.CharField(max_length=255)
+    preheader = models.CharField(max_length=255, blank=True, default="")
+    audience = models.CharField(max_length=40, choices=BroadcastAudience.choices, default=BroadcastAudience.ALL)
+    content_html = models.TextField()
+    total_targeted = models.PositiveIntegerField(default=0)
+    total_delivered = models.PositiveIntegerField(default=0)
+    total_failed = models.PositiveIntegerField(default=0)
+    status = models.CharField(max_length=30, default="COMPLETED")
+    sent_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Marketing Broadcast Log"
+        verbose_name_plural = "Marketing Broadcast Logs"
+
+    def __str__(self):
+        return f"{self.subject} ({self.audience} - {self.total_delivered}/{self.total_targeted} Delivered)"
+
+

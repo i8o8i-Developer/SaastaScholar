@@ -14,6 +14,8 @@ from .models import (
     Subject,
     SubjectUnit,
     UserBookmark,
+    NewsletterSubscriber,
+    MarketingBroadcastLog,
 )
 
 class SafeJSONField(serializers.Field):
@@ -540,5 +542,45 @@ class SiteBannerSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+
+
+class NewsletterSubscriberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NewsletterSubscriber
+        fields = [
+            "id",
+            "email",
+            "is_active",
+            "source",
+            "subscribed_at",
+            "unsubscribed_at",
+        ]
+
+
+class MarketingBroadcastLogSerializer(serializers.ModelSerializer):
+    sent_by_name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = MarketingBroadcastLog
+        fields = [
+            "id",
+            "subject",
+            "preheader",
+            "audience",
+            "content_html",
+            "total_targeted",
+            "total_delivered",
+            "total_failed",
+            "status",
+            "sent_by",
+            "sent_by_name",
+            "created_at",
+        ]
+
+    def get_sent_by_name(self, obj):
+        if obj.sent_by:
+            return getattr(obj.sent_by, "full_name", "") or obj.sent_by.email
+        return "Academic System Dispatcher"
+
 
 
