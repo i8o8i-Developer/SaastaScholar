@@ -377,151 +377,125 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
       </div>
 
       {/* ================= FOLDER EXPLORER CONTROLS & BREADCRUMBS ================= */}
-      <div className="space-y-3.5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-2 sm:p-2.5 rounded-2xl bg-surface/80 border border-border/80 shadow-2xs">
-          {/* Breadcrumb Navigation */}
-          <div className="flex items-center gap-1.5 text-xs font-bold overflow-x-auto no-scrollbar scroll-smooth">
-            <button
-              type="button"
-              onClick={() => setActiveProfileFolder("all")}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-card border border-border/60 text-muted-foreground hover:text-foreground cursor-pointer shrink-0 transition-colors"
-            >
-              <FolderOpen className="h-3.5 w-3.5 text-primary" />
-              <span>Profile Explorer</span>
-            </button>
-
-            {activeProfileFolder !== "all" && (
-              <>
-                <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
-                <button
-                  type="button"
-                  className="px-2.5 py-1 rounded-xl bg-primary/10 text-primary font-bold border border-primary/20 shrink-0 cursor-default"
-                >
-                  {activeProfileFolder === "cohort" && "College & Branch"}
-                  {activeProfileFolder === "preferences" && "Study Preferences"}
-                  {activeProfileFolder === "security" && "Account Security"}
-                </button>
-              </>
+      {/* ================= FOLDER EXPLORER CONTROLS & BREADCRUMBS ================= */}
+      <div className="space-y-4">
+        {/* Modern Responsive Navigation Bar (Zero Truncation) */}
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 p-1.5 rounded-2xl bg-surface/80 border border-border/80 shadow-2xs">
+          <button
+            type="button"
+            onClick={() => setActiveProfileFolder("all")}
+            className={cn(
+              "px-3 py-2 rounded-xl font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 text-center active:scale-95",
+              activeProfileFolder === "all"
+                ? "bg-primary text-primary-foreground shadow-xs font-extrabold"
+                : "text-muted-foreground hover:bg-card hover:text-foreground"
             )}
-          </div>
+          >
+            <Folder className="h-3.5 w-3.5 shrink-0" />
+            <span className="truncate">All Folders</span>
+          </button>
 
-          {/* Quick Segmented Folder Navigation Pills */}
-          <div className="flex items-center gap-1 overflow-x-auto no-scrollbar scroll-smooth shrink-0">
-            <button
-              type="button"
-              onClick={() => setActiveProfileFolder("all")}
-              className={cn(
-                "px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-xs transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 shrink-0",
-                activeProfileFolder === "all"
-                  ? "bg-primary text-primary-foreground shadow-xs"
-                  : "text-muted-foreground hover:bg-card hover:text-foreground"
-              )}
-            >
-              <Folder className="h-3.5 w-3.5" />
-              <span>All Folders</span>
-            </button>
+          <button
+            type="button"
+            onClick={() => setActiveProfileFolder("cohort")}
+            className={cn(
+              "px-3 py-2 rounded-xl font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 text-center active:scale-95",
+              activeProfileFolder === "cohort"
+                ? "bg-gradient-to-r from-cyan-600 to-teal-600 text-white shadow-xs font-extrabold"
+                : "text-muted-foreground hover:bg-card hover:text-foreground"
+            )}
+          >
+            <Building2 className="h-3.5 w-3.5 shrink-0" />
+            <span className="truncate">College &amp; Branch</span>
+          </button>
 
-            <button
-              type="button"
-              onClick={() => setActiveProfileFolder("cohort")}
-              className={cn(
-                "px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-xs transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 shrink-0",
-                activeProfileFolder === "cohort"
-                  ? "bg-gradient-to-r from-cyan-600 to-teal-600 text-white shadow-xs"
-                  : "text-muted-foreground hover:bg-card hover:text-foreground"
-              )}
-            >
-              <Building2 className="h-3.5 w-3.5" />
-              <span>College &amp; Branch</span>
-            </button>
+          <button
+            type="button"
+            onClick={() => setActiveProfileFolder("preferences")}
+            className={cn(
+              "px-3 py-2 rounded-xl font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 text-center active:scale-95",
+              activeProfileFolder === "preferences"
+                ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-xs font-extrabold"
+                : "text-muted-foreground hover:bg-card hover:text-foreground"
+            )}
+          >
+            <User className="h-3.5 w-3.5 shrink-0" />
+            <span className="truncate">Preferences</span>
+          </button>
 
-            <button
-              type="button"
-              onClick={() => setActiveProfileFolder("preferences")}
-              className={cn(
-                "px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-xs transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 shrink-0",
-                activeProfileFolder === "preferences"
-                  ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-xs"
-                  : "text-muted-foreground hover:bg-card hover:text-foreground"
-              )}
-            >
-              <User className="h-3.5 w-3.5" />
-              <span>Preferences</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveProfileFolder("security")}
-              className={cn(
-                "px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-xs transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 shrink-0",
-                activeProfileFolder === "security"
-                  ? "bg-gradient-to-r from-amber-600 to-emerald-600 text-white shadow-xs"
-                  : "text-muted-foreground hover:bg-card hover:text-foreground"
-              )}
-            >
-              <ShieldCheck className="h-3.5 w-3.5" />
-              <span>Account Security</span>
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={() => setActiveProfileFolder("security")}
+            className={cn(
+              "px-3 py-2 rounded-xl font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5 text-center active:scale-95",
+              activeProfileFolder === "security"
+                ? "bg-gradient-to-r from-amber-600 to-emerald-600 text-white shadow-xs font-extrabold"
+                : "text-muted-foreground hover:bg-card hover:text-foreground"
+            )}
+          >
+            <ShieldCheck className="h-3.5 w-3.5 shrink-0" />
+            <span className="truncate">Account Security</span>
+          </button>
         </div>
 
         {/* ================= VIEW 1: ALL FOLDERS OVERVIEW GRID ================= */}
         {activeProfileFolder === "all" && (
-          <div className="space-y-4">
+          <div className="space-y-3.5">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 px-1">
-              <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider font-mono">
-                Academic Identity &amp; System Directory (3 Root Folders)
+              <span className="text-xs font-bold text-foreground uppercase tracking-wider flex items-center gap-1.5">
+                <span className="h-2 w-2 rounded-full bg-primary shrink-0" />
+                Academic Identity &amp; System Directory
               </span>
-              <span className="text-xs font-mono text-primary font-bold">
-                Cohort {user?.program ? user.program : "B.Tech"} · Sem {enrolledSemester}
+              <span className="text-xs text-muted-foreground">
+                Cohort: <strong className="text-primary font-mono">{user?.program || "B.Tech"}</strong> · Sem {enrolledSemester}
               </span>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">
               {/* Folder 1: Institutional Cohort */}
               <div
                 onClick={() => setActiveProfileFolder("cohort")}
-                className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-br from-card via-card to-cyan-500/5 p-5 sm:p-6 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:border-cyan-500/50 hover:shadow-lg cursor-pointer min-w-0"
+                className="group relative flex flex-col justify-between overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-br from-card via-card to-cyan-500/5 p-4 sm:p-5 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-cyan-500/50 hover:shadow-md cursor-pointer min-w-0"
               >
-                <div className="space-y-3 min-w-0">
-                  <div className="flex items-center justify-between border-b border-border/60 pb-3">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 shadow-2xs group-hover:scale-105 transition-transform">
-                        <Building2 className="h-5 w-5" />
+                <div className="space-y-2.5 min-w-0">
+                  <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 shadow-2xs group-hover:scale-105 transition-transform">
+                        <Building2 className="h-4.5 w-4.5" />
                       </div>
                       <div className="min-w-0">
-                        <span className="text-[0.68rem] font-mono font-bold uppercase tracking-wider text-cyan-600 dark:text-cyan-400">
+                        <span className="text-[0.62rem] font-mono font-bold uppercase tracking-wider text-cyan-600 dark:text-cyan-400 block">
                           Institutional Record
                         </span>
-                        <h4 className="font-display text-base font-bold text-foreground truncate">
+                        <h4 className="font-display text-sm sm:text-base font-bold text-foreground truncate">
                           Academic Cohort
                         </h4>
                       </div>
                     </div>
-                    <span className="rounded-full bg-cyan-500/15 border border-cyan-500/30 px-2.5 py-0.5 text-[0.68rem] font-mono font-bold text-cyan-700 dark:text-cyan-300 shrink-0">
+                    <span className="rounded-full bg-cyan-500/15 border border-cyan-500/30 px-2.5 py-0.5 text-[0.65rem] font-mono font-bold text-cyan-700 dark:text-cyan-300 shrink-0">
                       Sem {enrolledSemester}
                     </span>
                   </div>
 
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    Official Department, Degree Specialization, Registered Semester &amp; Assigned Classroom Section.
+                  <p className="text-[0.72rem] sm:text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                    Official Department, Degree Specialization, Registered Semester &amp; Classroom Section.
                   </p>
 
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    <span className="rounded-lg bg-surface border border-border/60 px-2 py-0.5 text-[0.68rem] font-mono text-muted-foreground">
+                  <div className="flex flex-wrap gap-1.5 pt-0.5">
+                    <span className="rounded-lg bg-surface border border-border/60 px-2 py-0.5 text-[0.65rem] font-mono text-muted-foreground">
                       🎓 {user?.program || "Registered Program"}
                     </span>
-                    <span className="rounded-lg bg-surface border border-border/60 px-2 py-0.5 text-[0.68rem] font-mono text-muted-foreground">
+                    <span className="rounded-lg bg-surface border border-border/60 px-2 py-0.5 text-[0.65rem] font-mono text-muted-foreground">
                       🏢 Section {user?.section || "A"}
                     </span>
                   </div>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
-                  <span className="font-mono text-[0.7rem]">{user?.roll_number || "STU01"}</span>
+                <div className="mt-3.5 pt-2.5 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
+                  <span className="font-mono text-[0.68rem]">{user?.roll_number || "STU01"}</span>
                   <div className="inline-flex items-center gap-1 font-bold text-cyan-600 dark:text-cyan-400 group-hover:translate-x-1 transition-transform text-xs">
-                    <span>Open Cohort Folder</span>
-                    <ChevronRight className="h-3.5 w-3.5" />
+                    <span>Open Cohort</span>
+                    <ChevronRight className="h-3 w-3" />
                   </div>
                 </div>
               </div>
@@ -529,47 +503,47 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
               {/* Folder 2: Preferences & Bio */}
               <div
                 onClick={() => setActiveProfileFolder("preferences")}
-                className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-br from-card via-card to-emerald-500/5 p-5 sm:p-6 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:border-emerald-500/50 hover:shadow-lg cursor-pointer min-w-0"
+                className="group relative flex flex-col justify-between overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-br from-card via-card to-emerald-500/5 p-4 sm:p-5 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-500/50 hover:shadow-md cursor-pointer min-w-0"
               >
-                <div className="space-y-3 min-w-0">
-                  <div className="flex items-center justify-between border-b border-border/60 pb-3">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shadow-2xs group-hover:scale-105 transition-transform">
-                        <User className="h-5 w-5" />
+                <div className="space-y-2.5 min-w-0">
+                  <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shadow-2xs group-hover:scale-105 transition-transform">
+                        <User className="h-4.5 w-4.5" />
                       </div>
                       <div className="min-w-0">
-                        <span className="text-[0.68rem] font-mono font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                        <span className="text-[0.62rem] font-mono font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 block">
                           Personal Profile
                         </span>
-                        <h4 className="font-display text-base font-bold text-foreground truncate">
+                        <h4 className="font-display text-sm sm:text-base font-bold text-foreground truncate">
                           Preferences &amp; Goals
                         </h4>
                       </div>
                     </div>
-                    <span className="rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-[0.68rem] font-mono font-bold text-emerald-700 dark:text-emerald-300 shrink-0">
+                    <span className="rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-[0.65rem] font-mono font-bold text-emerald-700 dark:text-emerald-300 shrink-0">
                       Target {targetCgpa}
                     </span>
                   </div>
 
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    Student Bio Statement, Academic Interests, Target Semester GPA &amp; Career Aspirations.
+                  <p className="text-[0.72rem] sm:text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                    Student Bio Statement, Academic Focus, Target Semester GPA &amp; Career Aspirations.
                   </p>
 
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    <span className="rounded-lg bg-surface border border-border/60 px-2 py-0.5 text-[0.68rem] font-mono text-muted-foreground">
+                  <div className="flex flex-wrap gap-1.5 pt-0.5">
+                    <span className="rounded-lg bg-surface border border-border/60 px-2 py-0.5 text-[0.65rem] font-mono text-muted-foreground">
                       🎯 Target CGPA: {targetCgpa}
                     </span>
-                    <span className="rounded-lg bg-surface border border-border/60 px-2 py-0.5 text-[0.68rem] font-mono text-muted-foreground">
+                    <span className="rounded-lg bg-surface border border-border/60 px-2 py-0.5 text-[0.65rem] font-mono text-muted-foreground">
                       📞 {phoneNumber ? "Phone Linked" : "No Phone"}
                     </span>
                   </div>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
-                  <span className="font-mono text-[0.7rem] truncate max-w-[150px]">{user?.email}</span>
+                <div className="mt-3.5 pt-2.5 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
+                  <span className="font-mono text-[0.68rem] truncate max-w-[130px]">{user?.email}</span>
                   <div className="inline-flex items-center gap-1 font-bold text-emerald-600 dark:text-emerald-400 group-hover:translate-x-1 transition-transform text-xs">
-                    <span>Open Preferences Folder</span>
-                    <ChevronRight className="h-3.5 w-3.5" />
+                    <span>Open Preferences</span>
+                    <ChevronRight className="h-3 w-3" />
                   </div>
                 </div>
               </div>
@@ -577,47 +551,47 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
               {/* Folder 3: DRM Security & Standing */}
               <div
                 onClick={() => setActiveProfileFolder("security")}
-                className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-br from-card via-card to-amber-500/5 p-5 sm:p-6 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:border-amber-500/50 hover:shadow-lg cursor-pointer min-w-0"
+                className="group relative flex flex-col justify-between overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-br from-card via-card to-amber-500/5 p-4 sm:p-5 shadow-xs transition-all duration-200 hover:-translate-y-0.5 hover:border-amber-500/50 hover:shadow-md cursor-pointer min-w-0"
               >
-                <div className="space-y-3 min-w-0">
-                  <div className="flex items-center justify-between border-b border-border/60 pb-3">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-amber-500/10 text-amber-600 dark:text-amber-400 shadow-2xs group-hover:scale-105 transition-transform">
-                        <ShieldCheck className="h-5 w-5" />
+                <div className="space-y-2.5 min-w-0">
+                  <div className="flex items-center justify-between border-b border-border/60 pb-2.5">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 shadow-2xs group-hover:scale-105 transition-transform">
+                        <ShieldCheck className="h-4.5 w-4.5" />
                       </div>
                       <div className="min-w-0">
-                        <span className="text-[0.68rem] font-mono font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                        <span className="text-[0.62rem] font-mono font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 block">
                           Account Security
                         </span>
-                        <h4 className="font-display text-base font-bold text-foreground truncate">
+                        <h4 className="font-display text-sm sm:text-base font-bold text-foreground truncate">
                           Study Safety &amp; Status
                         </h4>
                       </div>
                     </div>
-                    <span className="rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-[0.68rem] font-mono font-bold text-emerald-700 dark:text-emerald-300 shrink-0">
+                    <span className="rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-[0.65rem] font-mono font-bold text-emerald-700 dark:text-emerald-300 shrink-0">
                       Active Student
                     </span>
                   </div>
 
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    Your Account Status, Protected Reader Permissions, And Verified Student Access.
+                  <p className="text-[0.72rem] sm:text-xs text-muted-foreground leading-relaxed line-clamp-2">
+                    Account Status, Protected Reader Permissions &amp; Verified Institutional Student Access.
                   </p>
 
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    <span className="rounded-lg bg-surface border border-border/60 px-2 py-0.5 text-[0.68rem] font-mono text-muted-foreground">
-                      🛡️ Study Protection: Active
+                  <div className="flex flex-wrap gap-1.5 pt-0.5">
+                    <span className="rounded-lg bg-surface border border-border/60 px-2 py-0.5 text-[0.65rem] font-mono text-muted-foreground">
+                      🛡️ DRM: Active
                     </span>
-                    <span className="rounded-lg bg-surface border border-border/60 px-2 py-0.5 text-[0.68rem] font-mono text-muted-foreground">
+                    <span className="rounded-lg bg-surface border border-border/60 px-2 py-0.5 text-[0.65rem] font-mono text-muted-foreground">
                       ✅ Good Standing
                     </span>
                   </div>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
-                  <span className="font-mono text-[0.7rem]">Protected Real-Time Sandbox</span>
+                <div className="mt-3.5 pt-2.5 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
+                  <span className="font-mono text-[0.68rem]">Protected Real-Time</span>
                   <div className="inline-flex items-center gap-1 font-bold text-amber-600 dark:text-amber-400 group-hover:translate-x-1 transition-transform text-xs">
-                    <span>Open Security Folder</span>
-                    <ChevronRight className="h-3.5 w-3.5" />
+                    <span>Open Security</span>
+                    <ChevronRight className="h-3 w-3" />
                   </div>
                 </div>
               </div>
