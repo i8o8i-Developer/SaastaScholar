@@ -6706,47 +6706,69 @@ export function AdminPortal() {
                       </p>
                     </div>
                   ) : (
-                    <div className="overflow-x-auto rounded-3xl border border-border bg-card shadow-xs">
-                      <table className="w-full text-left text-xs">
-                        <thead className="bg-surface/80 border-b border-border/80 text-[0.65rem] uppercase font-bold text-muted-foreground tracking-wider">
+                    <div className="overflow-x-auto rounded-3xl border border-border/80 bg-card/85 shadow-xl backdrop-blur-xl">
+                      <table className="w-full text-left text-xs border-collapse">
+                        <thead className="bg-surface/85 border-b border-border/80 text-[0.68rem] uppercase font-black text-muted-foreground tracking-wider backdrop-blur-md">
                           <tr>
-                            <th className="p-4">Scholar &amp; Credentials</th>
-                            <th className="p-4">Cohort &amp; Program</th>
-                            <th className="p-4">Membership Plan</th>
-                            <th className="p-4">DRM Access</th>
-                            <th className="p-4">Login Status</th>
-                            <th className="p-4">Cooldown / Lock</th>
-                            <th className="p-4">Violations</th>
-                            <th className="p-4 text-right">Security &amp; Subscription Actions</th>
+                            <th className="py-4.5 px-5">Scholar &amp; Credentials</th>
+                            <th className="py-4.5 px-4">Cohort &amp; Program</th>
+                            <th className="py-4.5 px-4 text-center">Membership Plan</th>
+                            <th className="py-4.5 px-3 text-center">DRM Access</th>
+                            <th className="py-4.5 px-3 text-center">Login Status</th>
+                            <th className="py-4.5 px-3 text-center">Cooldown / Lock</th>
+                            <th className="py-4.5 px-3 text-center">Violations</th>
+                            <th className="py-4.5 px-5 text-right">Security &amp; Subscription Actions</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-border/60">
+                        <tbody className="divide-y divide-border/50">
                           {filteredStudents.map((st) => {
                             const hasActiveCooldown = st.cooldown_until && new Date(st.cooldown_until) > new Date();
                             return (
-                              <tr key={st.id} className="hover:bg-surface/50 transition-colors">
-                                <td className="p-4">
+                              <tr key={st.id} className="group hover:bg-surface/60 transition-all duration-200">
+                                <td className="py-4 px-5">
                                   <div className="flex items-center gap-3">
-                                    <div className="grid h-9 w-9 place-items-center rounded-2xl bg-primary text-primary-foreground font-bold text-xs shrink-0">
+                                    <div className="relative grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-emerald-500/25 via-emerald-600/15 to-teal-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-extrabold text-sm shadow-inner shrink-0 group-hover:scale-105 group-hover:border-emerald-500/50 transition-all">
                                       {st.full_name?.charAt(0) || "S"}
+                                      <span
+                                        className={cn(
+                                          "absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border-2 border-card ring-1 ring-black/10",
+                                          st.is_login_blocked || st.is_active === false
+                                            ? "bg-rose-500"
+                                            : "bg-emerald-500"
+                                        )}
+                                      />
                                     </div>
-                                    <div className="min-w-0">
-                                      <span className="font-bold text-foreground block truncate">{st.full_name || "Scholar"}</span>
-                                      <span className="text-[0.65rem] text-muted-foreground block truncate">{st.email}</span>
-                                      <span className="text-[0.65rem] font-mono text-primary font-semibold">{st.roll_number || "—"}</span>
+                                    <div className="min-w-0 space-y-0.5">
+                                      <div className="flex items-center gap-1.5">
+                                        <span className="font-bold text-sm text-foreground tracking-tight group-hover:text-primary transition-colors truncate">
+                                          {st.full_name || "Scholar"}
+                                        </span>
+                                      </div>
+                                      <span className="text-[0.68rem] text-muted-foreground block truncate font-medium">
+                                        {st.email}
+                                      </span>
+                                      <div className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md font-mono text-[0.62rem] font-bold bg-primary/10 text-primary border border-primary/20">
+                                        <span>ID:</span>
+                                        <span className="tracking-wide">{st.roll_number || "—"}</span>
+                                      </div>
                                     </div>
                                   </div>
                                 </td>
-                                <td className="p-4">
-                                  <div className="space-y-0.5">
-                                    <span className="font-semibold text-foreground block">{st.program || "B.Tech"}</span>
-                                    <span className="font-mono text-muted-foreground text-[0.68rem]">
-                                      Sem {st.semester} · Sec {st.section}
+                                <td className="py-4 px-4 min-w-[180px]">
+                                  <div className="space-y-1">
+                                    <span className="font-semibold text-xs text-foreground block leading-snug truncate" title={st.program || "B.Tech"}>
+                                      {st.program || "B.Tech"}
                                     </span>
+                                    <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-surface border border-border/80 text-muted-foreground font-mono text-[0.65rem] font-bold">
+                                      <GraduationCap className="h-3 w-3 text-primary shrink-0" />
+                                      <span>Sem {st.semester || 1}</span>
+                                      <span className="text-border">·</span>
+                                      <span>Sec {st.section || "A"}</span>
+                                    </div>
                                   </div>
                                 </td>
-                                <td className="p-4">
-                                  <div className="relative inline-flex items-center">
+                                <td className="py-4 px-4 text-center">
+                                  <div className="relative inline-flex items-center justify-center">
                                     <select
                                       value={st.access_tier || "FREE"}
                                       onChange={async (e) => {
@@ -6766,14 +6788,14 @@ export function AdminPortal() {
                                       }}
                                       title="Change Student Membership Plan Tier"
                                       className={cn(
-                                        "h-7 rounded-xl border text-[0.68rem] font-extrabold px-2.5 py-0.5 focus:outline-none cursor-pointer transition-all shadow-2xs hover:opacity-90",
+                                        "h-8 rounded-full border text-[0.7rem] font-extrabold px-3 py-1 focus:outline-none cursor-pointer transition-all shadow-xs hover:scale-105 active:scale-95 text-center appearance-none pr-7 pl-3.5",
                                         st.access_tier === "ELITE"
-                                          ? "border-amber-500/50 bg-amber-500/15 text-amber-600 dark:text-amber-400"
+                                          ? "border-amber-500/50 bg-gradient-to-r from-amber-500/20 to-amber-600/10 text-amber-500 shadow-amber-500/10"
                                           : st.access_tier === "PREMIUM"
-                                          ? "border-purple-500/50 bg-purple-500/15 text-purple-600 dark:text-purple-400"
+                                          ? "border-purple-500/50 bg-gradient-to-r from-purple-500/20 to-purple-600/10 text-purple-400 shadow-purple-500/10"
                                           : st.access_tier === "BASIC"
-                                          ? "border-teal-500/50 bg-teal-500/15 text-teal-600 dark:text-teal-400"
-                                          : "border-slate-500/50 bg-slate-500/15 text-slate-600 dark:text-slate-400"
+                                          ? "border-emerald-500/50 bg-gradient-to-r from-emerald-500/20 to-teal-500/10 text-emerald-500 shadow-emerald-500/10"
+                                          : "border-border/80 bg-surface/80 text-muted-foreground hover:text-foreground"
                                       )}
                                     >
                                       <option value="FREE">Free · ₹0</option>
@@ -6781,54 +6803,59 @@ export function AdminPortal() {
                                       <option value="PREMIUM">Premium · ₹129</option>
                                       <option value="ELITE">Elite · ₹159</option>
                                     </select>
+                                    <ChevronDown className="pointer-events-none absolute right-2.5 h-3 w-3 opacity-60 text-current" />
                                   </div>
                                 </td>
-                                <td className="p-4">
+                                <td className="py-4 px-3 text-center">
                                   {st.is_drm_blocked ? (
-                                    <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/15 text-rose-600 dark:text-rose-400 px-2.5 py-0.5 text-[0.65rem] font-bold">
-                                      <Lock className="h-3 w-3" />
+                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-500/10 border border-rose-500/25 text-rose-500 px-2.5 py-1 text-[0.65rem] font-bold shadow-2xs">
+                                      <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
                                       <span>Blocked</span>
                                     </span>
                                   ) : (
-                                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 px-2.5 py-0.5 text-[0.65rem] font-bold">
-                                      <ShieldCheck className="h-3 w-3" />
+                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-500 dark:text-emerald-400 px-2.5 py-1 text-[0.65rem] font-bold shadow-2xs">
+                                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                                       <span>Allowed</span>
                                     </span>
                                   )}
                                 </td>
-                                <td className="p-4">
+                                <td className="py-4 px-3 text-center">
                                   {st.is_login_blocked || st.is_active === false ? (
-                                    <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/15 text-rose-600 dark:text-rose-400 px-2.5 py-0.5 text-[0.65rem] font-bold">
-                                      <UserX className="h-3 w-3" />
+                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-rose-500/10 border border-rose-500/25 text-rose-500 px-2.5 py-1 text-[0.65rem] font-bold shadow-2xs">
+                                      <span className="h-1.5 w-1.5 rounded-full bg-rose-500" />
                                       <span>Suspended</span>
                                     </span>
                                   ) : (
-                                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 px-2.5 py-0.5 text-[0.65rem] font-bold">
-                                      <UserCheck className="h-3 w-3" />
+                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-500 dark:text-emerald-400 px-2.5 py-1 text-[0.65rem] font-bold shadow-2xs">
+                                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                                       <span>Active</span>
                                     </span>
                                   )}
                                 </td>
-                                <td className="p-4">
+                                <td className="py-4 px-3 text-center">
                                   {hasActiveCooldown ? (
-                                    <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-400 px-2.5 py-0.5 text-[0.65rem] font-bold font-mono">
-                                      <Timer className="h-3 w-3" />
+                                    <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-500 px-2.5 py-1 text-[0.65rem] font-bold font-mono animate-pulse shadow-2xs">
+                                      <Timer className="h-3 w-3 shrink-0" />
                                       <span>In Cooldown</span>
                                     </span>
                                   ) : (
-                                    <span className="text-muted-foreground text-[0.7rem]">—</span>
+                                    <span className="text-muted-foreground/60 text-[0.75rem] font-mono">—</span>
                                   )}
                                 </td>
-                                <td className="p-4 font-mono">
+                                <td className="py-4 px-3 text-center font-mono">
                                   {(st.drm_violations_count || 0) > 0 ? (
-                                    <span className="rounded-full bg-rose-500/10 text-rose-600 dark:text-rose-400 px-2 py-0.5 text-[0.65rem] font-bold">
-                                      {st.drm_violations_count} Alerts
+                                    <span className="inline-flex items-center gap-1 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-500 px-2.5 py-0.5 text-[0.65rem] font-bold shadow-2xs">
+                                      <AlertTriangle className="h-3 w-3 shrink-0" />
+                                      <span>{st.drm_violations_count} Alerts</span>
                                     </span>
                                   ) : (
-                                    <span className="text-muted-foreground text-[0.7rem]">0 Clean</span>
+                                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-500 dark:text-emerald-400 px-2.5 py-0.5 text-[0.65rem] font-bold shadow-2xs">
+                                      <CheckCircle2 className="h-3 w-3 shrink-0" />
+                                      <span>0 Clean</span>
+                                    </span>
                                   )}
                                 </td>
-                                <td className="p-4 text-right">
+                                <td className="py-4 px-5 text-right">
                                   <div className="flex items-center justify-end gap-1.5 whitespace-nowrap">
                                     {/* 1. Academic Semester Promotion */}
                                     <button
@@ -6847,7 +6874,7 @@ export function AdminPortal() {
                                         setShowUpgradeSemesterModal(true);
                                       }}
                                       title={`Promote ${st.full_name || "Scholar"} To Semester ${(st.semester || 1) + 1}`}
-                                      className="inline-flex h-8 items-center gap-1 rounded-xl border border-teal-500/30 bg-teal-500/10 px-2.5 text-xs font-bold text-teal-600 dark:text-teal-400 hover:bg-teal-500 hover:text-white transition-all cursor-pointer shadow-2xs"
+                                      className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-teal-500/30 bg-teal-500/10 px-2.5 text-xs font-bold text-teal-600 dark:text-teal-400 hover:bg-teal-500 hover:text-white transition-all cursor-pointer shadow-2xs active:scale-95"
                                     >
                                       <TrendingUp className="h-3.5 w-3.5" />
                                       <span>+1 Sem</span>
@@ -6859,7 +6886,7 @@ export function AdminPortal() {
                                       onClick={() => handleQuickToggleBlock(st)}
                                       title={st.is_login_blocked || st.is_active === false ? "Click to Reactivate Student Account" : "Click to Suspend Student Account"}
                                       className={cn(
-                                        "inline-flex h-8 items-center gap-1 rounded-xl border px-2.5 text-xs font-bold transition-all cursor-pointer shadow-2xs",
+                                        "inline-flex h-8 items-center gap-1.5 rounded-xl border px-2.5 text-xs font-bold transition-all cursor-pointer shadow-2xs active:scale-95",
                                         st.is_login_blocked || st.is_active === false
                                           ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white"
                                           : "border-amber-500/40 bg-amber-500/15 text-amber-600 dark:text-amber-400 hover:bg-amber-500 hover:text-white"
@@ -6894,7 +6921,7 @@ export function AdminPortal() {
                                         setShowSecurityModal(true);
                                       }}
                                       title="Set New Student Password"
-                                      className="inline-flex h-8 items-center gap-1 rounded-xl border border-purple-500/30 bg-purple-500/10 px-2.5 text-xs font-bold text-purple-600 dark:text-purple-400 hover:bg-purple-500 hover:text-white transition-all cursor-pointer shadow-2xs"
+                                      className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-purple-500/30 bg-purple-500/10 px-2.5 text-xs font-bold text-purple-600 dark:text-purple-400 hover:bg-purple-500 hover:text-white transition-all cursor-pointer shadow-2xs active:scale-95"
                                     >
                                       <Key className="h-3.5 w-3.5" />
                                       <span>Password</span>
@@ -6905,11 +6932,14 @@ export function AdminPortal() {
                                       type="button"
                                       onClick={() => handleQuickFreshSlate(st)}
                                       title="Fresh Slate: Lift all DRM locks, cooldowns, and zero violations"
-                                      className="inline-flex h-8 items-center gap-1 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-2.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all cursor-pointer shadow-2xs"
+                                      className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-2.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all cursor-pointer shadow-2xs active:scale-95"
                                     >
                                       <Sparkles className="h-3.5 w-3.5" />
                                       <span>Fresh</span>
                                     </button>
+
+                                    {/* Divider */}
+                                    <div className="h-4 w-px bg-border/80 mx-0.5" />
 
                                     {/* 5. Advanced DRM Security Settings */}
                                     <button
@@ -6927,7 +6957,7 @@ export function AdminPortal() {
                                         setShowSecurityModal(true);
                                       }}
                                       title="DRM Reading Vault Controls & Cooldowns"
-                                      className="grid h-8 w-8 place-items-center rounded-xl border border-border bg-surface text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all cursor-pointer shadow-2xs"
+                                      className="grid h-8 w-8 place-items-center rounded-xl border border-border/90 bg-surface/80 text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all cursor-pointer shadow-2xs active:scale-95"
                                     >
                                       <Shield className="h-3.5 w-3.5" />
                                     </button>
@@ -6948,7 +6978,7 @@ export function AdminPortal() {
                                         setShowSecurityModal(true);
                                       }}
                                       title="Permanently Delete Student Account"
-                                      className="grid h-8 w-8 place-items-center rounded-xl border border-rose-500/30 bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all cursor-pointer shadow-2xs"
+                                      className="grid h-8 w-8 place-items-center rounded-xl border border-rose-500/30 bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all cursor-pointer shadow-2xs active:scale-95"
                                     >
                                       <Trash2 className="h-3.5 w-3.5" />
                                     </button>
