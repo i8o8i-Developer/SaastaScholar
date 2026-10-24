@@ -564,7 +564,7 @@ class RazorpayVerifyPaymentView(APIView):
 # ADMINISTRATOR CONTROLLERS FOR SUBSCRIPTIONS, ORDERS, INVOICES & COUPONS
 # ==============================================================================
 
-class AdminOrderListView(generics.ListAPIView):
+class AdminOrderListView(generics.ListCreateAPIView):
     serializer_class = RazorpayOrderSerializer
     permission_classes = [permissions.IsAdminUser]
 
@@ -589,9 +589,125 @@ class AdminOrderListView(generics.ListAPIView):
             )
         return qs
 
+    def post(self, request, *args, **kwargs):
+        """Create a manual administrative order for a student."""
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+
+        student_email = str(request.data.get("user_email") or "").strip()
+        plan_tier = str(request.data.get("plan_tier") or "BASIC").strip().upper()
+        cycle = str(request.data.get("cycle") or "monthly").strip().lower()
+        amount_inr = float(request.data.get("amount_inr") or 0)
+        order_status = str(request.data.get("status") or "created").strip().lower()
+
+        if not student_email:
+            return Response({"error": "Student Email Is Required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        student = User.objects.filter(email__iexact=student_email).first()
+        if not student:
+            return Response({"error": f"No Scholar Found With Email '{student_email}'."}, status=status.HTTP_404_NOT_FOUND)
+
+        amount_paise = int(round(amount_inr * 100))
+        custom_order_id = f"order_manual_{uuid.uuid4().hex[:12]}"
+        invoice_no = f"INV-{timezone.now().year}-{uuid.uuid4().hex[:8].upper()}"
+
+        payment_id = ""
+        if order_status == "paid":
+            payment_id = f"pay_admin_manual_{uuid.uuid4().hex[:10]}"
+
+        order = RazorpayOrder.objects.create(
+            user=student,
+            order_id=custom_order_id,
+            amount=amount_paise,
+            currency="INR",
+            plan_tier=plan_tier,
+            cycle=cycle,
+            status=order_status,
+            payment_id=payment_id,
+            invoice_number=invoice_no,
+        )
+
+        if order_status == "paid":
+            student.access_tier = plan_tier
+            student.save(update_fields=["access_tier"])
+
+            duration_days = 180 if cycle == "semester" else 30
+            now = timezone.now()
+            plan_obj = SubscriptionPlan.objects.filter(tier__iexact=plan_tier).first()
+            if plan_obj:
+                UserSubscription.objects.create(
+                    user=student,
+                    plan=plan_obj,
+                    start_date=now,
+                    end_date=now + timedelta(days=duration_days),
+                    is_active=True,
+                    transaction_id=payment_id,
+                )
+            try:
+                from Apps.Academic.cache_utils import invalidate_redis_pattern
+                invalidate_redis_pattern(f"*{student.id}*")
+                invalidate_redis_pattern(f"subscriptions:access:{student.id}*")
+            except Exception:
+                pass
+
+        return Response(
+            {
+                "success": True,
+                "message": f"Order '{custom_order_id}' Created Successfully For Scholar '{student.email}'.",
+                "order": RazorpayOrderSerializer(order).data,
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
 
 class AdminOrderActionView(APIView):
     permission_classes = [permissions.IsAdminUser]
+
+    def delete(self, request, pk):
+        """Delete an order record completely (full CRUD delete)."""
+        try:
+            order = RazorpayOrder.objects.select_related("user").get(id=pk)
+            order_id_num = order.order_id
+            order.delete()
+            return Response({
+                "success": True,
+                "message": f"Order '{order_id_num}' Deleted Successfully From System.",
+            })
+        except RazorpayOrder.DoesNotExist:
+            return Response({"error": "Order Record Not Found."}, status=status.HTTP_404_NOT_FOUND)
+
+    def put(self, request, pk):
+        """Update order details (full CRUD update)."""
+        try:
+            order = RazorpayOrder.objects.select_related("user").get(id=pk)
+        except RazorpayOrder.DoesNotExist:
+            return Response({"error": "Order Record Not Found."}, status=status.HTTP_404_NOT_FOUND)
+
+        if "plan_tier" in request.data:
+            order.plan_tier = str(request.data["plan_tier"]).strip().upper()
+        if "cycle" in request.data:
+            order.cycle = str(request.data["cycle"]).strip().lower()
+        if "amount_inr" in request.data:
+            order.amount = int(round(float(request.data["amount_inr"]) * 100))
+        if "status" in request.data:
+            new_status = str(request.data["status"]).strip().lower()
+            order.status = new_status
+            if new_status == "paid":
+                student = order.user
+                student.access_tier = order.plan_tier
+                student.save(update_fields=["access_tier"])
+        if "invoice_number" in request.data:
+            order.invoice_number = str(request.data["invoice_number"]).strip().upper()
+
+        order.save()
+        return Response({
+            "success": True,
+            "message": f"Order '{order.order_id}' Updated Successfully.",
+            "order": RazorpayOrderSerializer(order).data,
+        })
+
+    def patch(self, request, pk):
+        return self.put(request, pk)
 
     def post(self, request, pk):
         try:
@@ -603,6 +719,13 @@ class AdminOrderActionView(APIView):
         reason = str(request.data.get("reason") or "Administrative Manual Intervention").strip()
 
         if action == "MARK_PAID":
+            # Guard against marking already failed orders if not intentionally allowed
+            if order.status == "failed" and not request.data.get("force"):
+                return Response(
+                    {"error": "Failed transactions cannot be marked paid directly. Please merge with a successful order or use a new checkout."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
             order.status = "paid"
             if not order.payment_id:
                 order.payment_id = f"pay_admin_manual_{uuid.uuid4().hex[:10]}"
@@ -614,8 +737,57 @@ class AdminOrderActionView(APIView):
             student.access_tier = order.plan_tier
             student.save(update_fields=["access_tier"])
 
+            # Establish UserSubscription record
+            duration_days = 180 if order.cycle == "semester" else 30
+            now = timezone.now()
+            plan_obj = SubscriptionPlan.objects.filter(tier__iexact=order.plan_tier).first()
+            if plan_obj:
+                UserSubscription.objects.create(
+                    user=student,
+                    plan=plan_obj,
+                    start_date=now,
+                    end_date=now + timedelta(days=duration_days),
+                    is_active=True,
+                    transaction_id=order.payment_id,
+                )
+
+            # Invalidate Redis cache
+            try:
+                from Apps.Academic.cache_utils import invalidate_redis_pattern
+                invalidate_redis_pattern(f"*{student.id}*")
+                invalidate_redis_pattern(f"subscriptions:access:{student.id}*")
+            except Exception:
+                pass
+
             return Response({
                 "message": f"Order Marked As PAID. Scholar '{student.email}' Access Tier Updated To '{order.plan_tier}'.",
+                "order": RazorpayOrderSerializer(order).data,
+            })
+
+        elif action == "MERGE_DUPLICATES":
+            """
+            Merge failed or duplicate checkout orders for the same student.
+            If the current or second order is paid, keeps the paid order active,
+            merges metadata, and archives/cleans up the failed/duplicate order.
+            """
+            student = order.user
+            duplicate_orders = RazorpayOrder.objects.filter(
+                user=student
+            ).exclude(id=order.id).filter(
+                status__in=["failed", "created", "refunded"]
+            )
+            deleted_count = duplicate_orders.count()
+            if deleted_count == 0:
+                return Response({
+                    "success": True,
+                    "message": f"No redundant or failed checkout records found to merge for scholar '{student.email}'.",
+                    "order": RazorpayOrderSerializer(order).data,
+                })
+
+            duplicate_orders.delete()
+            return Response({
+                "success": True,
+                "message": f"Successfully Merged Scholar Orders: Cleaned Up {deleted_count} Failed/Pending Attempt(s) For '{student.email}'.",
                 "order": RazorpayOrderSerializer(order).data,
             })
 

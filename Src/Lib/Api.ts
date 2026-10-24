@@ -903,7 +903,21 @@ export const adminSubscriptionApi = {
     const res = await apiFetch<any>(`/subscriptions/admin/orders/${qs}`);
     return Array.isArray(res) ? res : res?.results || [];
   },
-  orderAction: (id: string, action: "MARK_PAID" | "REFUND" | "REGENERATE_INVOICE", reason?: string) =>
+  createOrder: (data: { user_email: string; plan_tier: string; cycle: string; amount_inr: number; status: string }) =>
+    apiFetch<any>("/subscriptions/admin/orders/", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  updateOrder: (id: string, data: { plan_tier?: string; cycle?: string; amount_inr?: number; status?: string; invoice_number?: string }) =>
+    apiFetch<any>(`/subscriptions/admin/orders/${id}/action/`, {
+      method: "PATCH",
+      body: JSON.stringify(data),
+    }),
+  deleteOrder: (id: string) =>
+    apiFetch<any>(`/subscriptions/admin/orders/${id}/action/`, {
+      method: "DELETE",
+    }),
+  orderAction: (id: string, action: "MARK_PAID" | "REFUND" | "REGENERATE_INVOICE" | "MERGE_DUPLICATES", reason?: string) =>
     apiFetch<any>(`/subscriptions/admin/orders/${id}/action/`, {
       method: "POST",
       body: JSON.stringify({ action, reason }),

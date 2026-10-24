@@ -15,6 +15,11 @@ import {
   User,
   X,
   Zap,
+  Plus,
+  Trash2,
+  Edit,
+  GitMerge,
+  AlertTriangle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { adminSubscriptionApi, RazorpayOrderRecord } from "@/Lib/Api";
@@ -28,6 +33,27 @@ export function AdminOrdersTab() {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedInvoice, setSelectedInvoice] = useState<any | null>(null);
   const [invoiceLoading, setInvoiceLoading] = useState<boolean>(false);
+
+  // CRUD Modals State
+  const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
+  const [createForm, setCreateForm] = useState({
+    user_email: "",
+    plan_tier: "BASIC",
+    cycle: "monthly",
+    amount_inr: 9.9,
+    status: "paid",
+  });
+  const [createSubmitting, setCreateSubmitting] = useState<boolean>(false);
+
+  const [editingOrder, setEditingOrder] = useState<RazorpayOrderRecord | null>(null);
+  const [editForm, setEditForm] = useState({
+    plan_tier: "BASIC",
+    cycle: "monthly",
+    amount_inr: 0,
+    status: "created",
+    invoice_number: "",
+  });
+  const [editSubmitting, setEditSubmitting] = useState<boolean>(false);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -49,12 +75,14 @@ export function AdminOrdersTab() {
     fetchOrders();
   }, [statusFilter, tierFilter]);
 
-  const handleAction = async (id: string, action: "MARK_PAID" | "REFUND" | "REGENERATE_INVOICE") => {
+  const handleAction = async (id: string, action: "MARK_PAID" | "REFUND" | "REGENERATE_INVOICE" | "MERGE_DUPLICATES") => {
     const actionName =
       action === "MARK_PAID"
         ? "Mark This Order As Paid And Upgrade The Student's Account"
         : action === "REFUND"
         ? "Mark This Transaction As Refunded And Downgrade The Student Back To Free"
+        : action === "MERGE_DUPLICATES"
+        ? "Merge And Clean Up All Duplicate / Failed Orders For This Scholar"
         : "Regenerate New Invoice Number";
 
     if (!confirm(`Are You Sure You Want To ${actionName}?`)) return;
@@ -65,6 +93,71 @@ export function AdminOrdersTab() {
       fetchOrders();
     } catch (err: any) {
       toast.error(err.message || "Failed To Execute Order Action.");
+    }
+  };
+
+  const handleDeleteOrder = async (order: RazorpayOrderRecord) => {
+    if (!confirm(`Are You Sure You Want To Permanently Delete Order ${order.order_id} For ${order.user_email}? This Action Cannot Be Undone.`)) return;
+
+    try {
+      const res = await adminSubscriptionApi.deleteOrder(order.id);
+      toast.success(res.message || `Order ${order.order_id} Deleted Successfully.`);
+      fetchOrders();
+    } catch (err: any) {
+      toast.error(err.message || "Failed To Delete Order Record.");
+    }
+  };
+
+  const handleCreateOrder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!createForm.user_email.trim()) {
+      toast.error("Scholar Email Is Required.");
+      return;
+    }
+    setCreateSubmitting(true);
+    try {
+      const res = await adminSubscriptionApi.createOrder(createForm);
+      toast.success(res.message || "Manual Order Created Successfully.");
+      setShowCreateModal(false);
+      setCreateForm({
+        user_email: "",
+        plan_tier: "BASIC",
+        cycle: "monthly",
+        amount_inr: 9.9,
+        status: "paid",
+      });
+      fetchOrders();
+    } catch (err: any) {
+      toast.error(err.message || "Failed To Create Order Record.");
+    } finally {
+      setCreateSubmitting(false);
+    }
+  };
+
+  const handleOpenEdit = (order: RazorpayOrderRecord) => {
+    setEditingOrder(order);
+    setEditForm({
+      plan_tier: order.plan_tier,
+      cycle: order.cycle,
+      amount_inr: order.amount_inr || order.amount / 100,
+      status: order.status,
+      invoice_number: order.invoice_number || "",
+    });
+  };
+
+  const handleSaveEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingOrder) return;
+    setEditSubmitting(true);
+    try {
+      const res = await adminSubscriptionApi.updateOrder(editingOrder.id, editForm);
+      toast.success(res.message || `Order ${editingOrder.order_id} Updated Successfully.`);
+      setEditingOrder(null);
+      fetchOrders();
+    } catch (err: any) {
+      toast.error(err.message || "Failed To Update Order.");
+    } finally {
+      setEditSubmitting(false);
     }
   };
 
@@ -562,7 +655,7 @@ export function AdminOrdersTab() {
         <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
           {/* Status Tabs */}
           <div className="flex items-center gap-1 rounded-xl bg-background border border-border p-1 text-xs">
-            {["ALL", "PAID", "CREATED", "REFUNDED"].map((st) => (
+            {["ALL", "PAID", "CREATED", "FAILED", "REFUNDED"].map((st) => (
               <button
                 key={st}
                 type="button"
@@ -593,14 +686,14 @@ export function AdminOrdersTab() {
           </select>
         </div>
 
-        {/* Search Input & Refresh */}
+        {/* Search Input, Create Manual Order & Refresh */}
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <form
             onSubmit={(e) => {
               e.preventDefault();
               fetchOrders();
             }}
-            className="relative flex-1 sm:w-64"
+            className="relative flex-1 sm:w-56"
           >
             <Search className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <input
@@ -611,10 +704,21 @@ export function AdminOrdersTab() {
               className="h-9 w-full rounded-xl border border-border bg-background pr-3 pl-9 text-xs focus:border-primary focus:outline-none"
             />
           </form>
+
+          <button
+            type="button"
+            onClick={() => setShowCreateModal(true)}
+            className="h-9 px-3 rounded-xl bg-primary hover:bg-primary-deep text-primary-foreground text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs whitespace-nowrap"
+            title="Create Manual Order / Upgrade Scholar"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            <span>Create Order</span>
+          </button>
+
           <button
             type="button"
             onClick={fetchOrders}
-            className="h-9 px-3.5 rounded-xl border border-border bg-card text-foreground hover:bg-surface text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+            className="h-9 px-3 rounded-xl border border-border bg-card text-foreground hover:bg-surface text-xs font-bold flex items-center gap-1.5 cursor-pointer"
           >
             <RefreshCw className={cn("h-3.5 w-3.5", loading && "animate-spin")} />
             <span>Refresh</span>
@@ -646,8 +750,15 @@ export function AdminOrdersTab() {
               </tr>
             ) : (
               orders.map((ord) => {
-                const isPaid = ord.status === "paid";
-                const isRefunded = ord.status === "refunded";
+                const isPaid = ord.status.toLowerCase() === "paid";
+                const isRefunded = ord.status.toLowerCase() === "refunded";
+                const isFailed = ord.status.toLowerCase() === "failed";
+                const isCreated = ord.status.toLowerCase() === "created";
+
+                // Count if this scholar has multiple orders
+                const scholarOrders = orders.filter((o) => o.user_email === ord.user_email);
+                const hasDuplicates = scholarOrders.length > 1;
+
                 return (
                   <tr key={ord.id} className="hover:bg-surface/40 transition-colors">
                     <td className="p-4">
@@ -690,10 +801,12 @@ export function AdminOrdersTab() {
                         className={cn(
                           "rounded-full px-2.5 py-0.5 text-[0.62rem] font-bold uppercase",
                           isPaid
-                            ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                            ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30"
                             : isRefunded
-                            ? "bg-rose-500/15 text-rose-600 dark:text-rose-400"
-                            : "bg-amber-500/15 text-amber-600 dark:text-amber-400"
+                            ? "bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30"
+                            : isFailed
+                            ? "bg-amber-500/15 text-amber-500 border border-amber-500/30"
+                            : "bg-sky-500/15 text-sky-600 dark:text-sky-400 border border-sky-500/30"
                         )}
                       >
                         {ord.status}
@@ -710,17 +823,33 @@ export function AdminOrdersTab() {
                       })}
                     </td>
                     <td className="p-4 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
+                      <div className="flex items-center justify-end gap-1.5 flex-wrap">
+                        {/* Receipt Button */}
                         <button
                           type="button"
                           onClick={() => handleViewInvoice(ord.id)}
-                          className="h-7 px-2.5 rounded-lg border border-border bg-card hover:bg-surface text-foreground font-semibold text-[0.68rem] flex items-center gap-1 cursor-pointer"
+                          className="h-7 px-2 rounded-lg border border-border bg-card hover:bg-surface text-foreground font-semibold text-[0.68rem] flex items-center gap-1 cursor-pointer"
                           title="View Official Receipt"
                         >
                           <FileText className="h-3 w-3 text-primary" />
                           <span>Receipt</span>
                         </button>
-                        {!isPaid && !isRefunded && (
+
+                        {/* Merge Button: Only shown if scholar has redundant/duplicate orders */}
+                        {hasDuplicates && (
+                          <button
+                            type="button"
+                            onClick={() => handleAction(ord.id, "MERGE_DUPLICATES")}
+                            className="h-7 px-2 rounded-lg border border-purple-500/30 bg-purple-500/10 text-purple-600 dark:text-purple-400 hover:bg-purple-500/20 font-bold text-[0.68rem] flex items-center gap-1 cursor-pointer"
+                            title="Merge failed/duplicate checkouts for this scholar into one clean record"
+                          >
+                            <GitMerge className="h-3 w-3" />
+                            <span>Merge</span>
+                          </button>
+                        )}
+
+                        {/* Mark Paid Button: STRICTLY DISABLED FOR FAILED ORDERS */}
+                        {isCreated && !isFailed && !isPaid && !isRefunded && (
                           <button
                             type="button"
                             onClick={() => handleAction(ord.id, "MARK_PAID")}
@@ -731,6 +860,8 @@ export function AdminOrdersTab() {
                             <span>Mark Paid</span>
                           </button>
                         )}
+
+                        {/* Refund Button: Only for Paid Orders */}
                         {isPaid && (
                           <button
                             type="button"
@@ -742,6 +873,26 @@ export function AdminOrdersTab() {
                             <span>Refund</span>
                           </button>
                         )}
+
+                        {/* Edit Button (CRUD) */}
+                        <button
+                          type="button"
+                          onClick={() => handleOpenEdit(ord)}
+                          className="h-7 w-7 rounded-lg border border-border bg-card hover:bg-surface text-muted-foreground hover:text-foreground flex items-center justify-center cursor-pointer"
+                          title="Edit Order Attributes (CRUD)"
+                        >
+                          <Edit className="h-3 w-3" />
+                        </button>
+
+                        {/* Delete Button (CRUD) */}
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteOrder(ord)}
+                          className="h-7 w-7 rounded-lg border border-rose-500/20 bg-rose-500/10 text-rose-600 hover:bg-rose-500/20 flex items-center justify-center cursor-pointer"
+                          title="Delete Order (CRUD)"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -751,6 +902,252 @@ export function AdminOrdersTab() {
           </tbody>
         </table>
       </div>
+
+      {/* CRUD: Create Manual Order Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="relative w-full max-w-lg rounded-2xl border border-border bg-card shadow-2xl overflow-hidden p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold">
+                  <Plus className="h-4 w-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm text-foreground">Create Manual Order / Upgrade</h3>
+                  <p className="text-[0.68rem] text-muted-foreground">Directly register a verified payment or order record</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowCreateModal(false)}
+                className="h-8 w-8 rounded-lg hover:bg-surface flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateOrder} className="space-y-3.5">
+              <div>
+                <label className="block text-[0.7rem] font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                  Scholar Email Address <span className="text-rose-500">*</span>
+                </label>
+                <input
+                  type="email"
+                  required
+                  placeholder="e.g. anmol.2026engg0624@student.nimsuniversity.org"
+                  value={createForm.user_email}
+                  onChange={(e) => setCreateForm({ ...createForm, user_email: e.target.value })}
+                  className="h-9 w-full rounded-xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[0.7rem] font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                    Plan Tier
+                  </label>
+                  <select
+                    value={createForm.plan_tier}
+                    onChange={(e) => setCreateForm({ ...createForm, plan_tier: e.target.value })}
+                    className="h-9 w-full rounded-xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
+                  >
+                    <option value="BASIC">BASIC</option>
+                    <option value="PREMIUM">PREMIUM</option>
+                    <option value="ELITE">ELITE</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[0.7rem] font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                    Billing Cycle
+                  </label>
+                  <select
+                    value={createForm.cycle}
+                    onChange={(e) => setCreateForm({ ...createForm, cycle: e.target.value })}
+                    className="h-9 w-full rounded-xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
+                  >
+                    <option value="monthly">Monthly</option>
+                    <option value="semester">Semester (180 Days)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[0.7rem] font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                    Amount (₹ INR)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={createForm.amount_inr}
+                    onChange={(e) => setCreateForm({ ...createForm, amount_inr: parseFloat(e.target.value) || 0 })}
+                    className="h-9 w-full rounded-xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[0.7rem] font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                    Order Status
+                  </label>
+                  <select
+                    value={createForm.status}
+                    onChange={(e) => setCreateForm({ ...createForm, status: e.target.value })}
+                    className="h-9 w-full rounded-xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
+                  >
+                    <option value="paid">Paid (Auto-Upgrades Account)</option>
+                    <option value="created">Created (Pending)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2 border-t border-border">
+                <button
+                  type="button"
+                  onClick={() => setShowCreateModal(false)}
+                  className="px-4 py-2 rounded-xl border border-border hover:bg-surface text-xs font-semibold cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={createSubmitting}
+                  className="px-5 py-2 rounded-xl bg-primary hover:bg-primary-deep text-primary-foreground text-xs font-bold flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  {createSubmitting ? "Creating..." : "Create Order Record"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* CRUD: Edit Order Modal */}
+      {editingOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/75 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="relative w-full max-w-lg rounded-2xl border border-border bg-card shadow-2xl overflow-hidden p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-border pb-3">
+              <div className="flex items-center gap-2">
+                <div className="h-8 w-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold">
+                  <Edit className="h-4 w-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-sm text-foreground">Edit Order Details</h3>
+                  <p className="text-[0.68rem] text-muted-foreground font-mono">{editingOrder.order_id}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingOrder(null)}
+                className="h-8 w-8 rounded-lg hover:bg-surface flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEdit} className="space-y-3.5">
+              <div>
+                <label className="block text-[0.7rem] font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                  Scholar
+                </label>
+                <p className="text-xs font-bold text-foreground">{editingOrder.user_name} ({editingOrder.user_email})</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[0.7rem] font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                    Plan Tier
+                  </label>
+                  <select
+                    value={editForm.plan_tier}
+                    onChange={(e) => setEditForm({ ...editForm, plan_tier: e.target.value })}
+                    className="h-9 w-full rounded-xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
+                  >
+                    <option value="BASIC">BASIC</option>
+                    <option value="PREMIUM">PREMIUM</option>
+                    <option value="ELITE">ELITE</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-[0.7rem] font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                    Billing Cycle
+                  </label>
+                  <select
+                    value={editForm.cycle}
+                    onChange={(e) => setEditForm({ ...editForm, cycle: e.target.value })}
+                    className="h-9 w-full rounded-xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
+                  >
+                    <option value="monthly">Monthly</option>
+                    <option value="semester">Semester</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[0.7rem] font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                    Amount (₹ INR)
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={editForm.amount_inr}
+                    onChange={(e) => setEditForm({ ...editForm, amount_inr: parseFloat(e.target.value) || 0 })}
+                    className="h-9 w-full rounded-xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[0.7rem] font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                    Status
+                  </label>
+                  <select
+                    value={editForm.status}
+                    onChange={(e) => setEditForm({ ...editForm, status: e.target.value })}
+                    className="h-9 w-full rounded-xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
+                  >
+                    <option value="paid">PAID</option>
+                    <option value="created">CREATED</option>
+                    <option value="failed">FAILED</option>
+                    <option value="refunded">REFUNDED</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[0.7rem] font-bold uppercase tracking-wider text-muted-foreground mb-1">
+                  Invoice Number
+                </label>
+                <input
+                  type="text"
+                  value={editForm.invoice_number}
+                  onChange={(e) => setEditForm({ ...editForm, invoice_number: e.target.value })}
+                  placeholder="e.g. INV-2026-9B317051"
+                  className="h-9 w-full rounded-xl border border-border bg-background px-3 text-xs font-mono focus:border-primary focus:outline-none"
+                />
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2 border-t border-border">
+                <button
+                  type="button"
+                  onClick={() => setEditingOrder(null)}
+                  className="px-4 py-2 rounded-xl border border-border hover:bg-surface text-xs font-semibold cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={editSubmitting}
+                  className="px-5 py-2 rounded-xl bg-primary hover:bg-primary-deep text-primary-foreground text-xs font-bold flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                >
+                  {editSubmitting ? "Saving..." : "Save Changes"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Invoice Viewer Modal */}
       {selectedInvoice && (
