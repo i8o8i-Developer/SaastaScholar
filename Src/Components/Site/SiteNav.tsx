@@ -45,20 +45,20 @@ export function SiteNav() {
     >
       <div
         className={cn(
-          "mx-auto flex w-full max-w-[84rem] items-center justify-between px-4 sm:px-6 xl:px-8 transition-all duration-300",
-          scrolled ? "h-14" : "h-20",
+          "mx-auto flex w-full max-w-[84rem] items-center justify-between px-2.5 min-[340px]:px-4 sm:px-6 xl:px-8 transition-all duration-300",
+          scrolled ? "h-14" : "h-16 sm:h-20",
         )}
       >
-        <a href="#top" className="flex items-center gap-2.5 shrink-0 whitespace-nowrap group" aria-label="SaastaScholar Home">
+        <a href="#top" className="flex items-center gap-1.5 min-[340px]:gap-2.5 shrink-0 whitespace-nowrap group" aria-label="SaastaScholar Home">
           <img
             src="/SaastaScholar.png"
             alt="SaastaScholar Logo"
             width="34"
             height="34"
-            className="h-8 w-8 sm:h-9 sm:w-9 object-contain rounded-xl p-0.5 bg-white border border-border/60 shadow-2xs transition-transform group-hover:scale-105 shrink-0"
+            className="h-7 w-7 min-[340px]:h-8 min-[340px]:w-8 sm:h-9 sm:w-9 object-contain rounded-xl p-0.5 bg-white border border-border/60 shadow-2xs transition-transform group-hover:scale-105 shrink-0"
           />
           <div className="flex flex-col min-w-0">
-            <span className="font-display text-lg sm:text-xl font-bold tracking-tight whitespace-nowrap text-logo-gradient">
+            <span className="font-display text-base min-[340px]:text-lg sm:text-xl font-bold tracking-tight whitespace-nowrap text-logo-gradient">
               SaastaScholar
             </span>
             <span className="text-[0.62rem] font-bold tracking-wider text-muted-foreground uppercase leading-none hidden sm:inline">
@@ -108,11 +108,11 @@ export function SiteNav() {
         </div>
 
         {/* Mobile & Tablet Header Controls (Shown Below XL Breakpoint Including 1055px) */}
-        <div className="flex items-center gap-2 xl:hidden shrink-0">
+        <div className="flex items-center gap-1.5 min-[340px]:gap-2 xl:hidden shrink-0">
           <button
             type="button"
             onClick={toggleTheme}
-            className="grid h-9 w-9 place-items-center rounded-xl border border-border bg-surface text-foreground"
+            className="grid h-8 w-8 min-[340px]:h-9 min-[340px]:w-9 place-items-center rounded-xl border border-border bg-surface text-foreground"
             title={isDark ? "Switch To Light Mode" : "Switch To Dark Mode"}
           >
             {isDark ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-slate-700" />}
@@ -122,7 +122,7 @@ export function SiteNav() {
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
             aria-label={open ? "Close Menu" : "Open Menu"}
-            className="grid h-9 w-9 place-items-center rounded-xl border border-border text-foreground hover:bg-surface cursor-pointer transition-colors"
+            className="grid h-8 w-8 min-[340px]:h-9 min-[340px]:w-9 place-items-center rounded-xl border border-border text-foreground hover:bg-surface cursor-pointer transition-colors"
           >
             {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
           </button>

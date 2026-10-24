@@ -71,7 +71,7 @@ export function Section({
         className,
       )}
     >
-      <div className="mx-auto w-full max-w-[84rem] px-3.5 sm:px-8 min-w-0">{children}</div>
+      <div className="mx-auto w-full max-w-[84rem] px-2.5 min-[340px]:px-3.5 sm:px-8 min-w-0">{children}</div>
     </section>
   );
 }

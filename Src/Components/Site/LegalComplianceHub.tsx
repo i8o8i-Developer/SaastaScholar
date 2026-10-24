@@ -22,6 +22,7 @@ import {
   Mail,
   Search,
   ExternalLink,
+  ArrowLeft,
 } from "lucide-react";
 import { cn } from "@/Lib/Utils";
 
@@ -60,7 +61,7 @@ export const LEGAL_POLICIES: PolicyDocument[] = [
       },
       {
         heading: "4. Data Protection Officer (DPO) & Supervisory Authority Escalation",
-        body: "Our Designated Data Protection Officer Oversees Compliance And Can Be Contacted Directly At dpo@saastascholar.in Or legal@durgaai.com. In Case Of Unresolved Concerns, EU Residents May Lodge A Complaint With Their Local Data Protection Authority, And Indian Scholars With The Data Protection Board Of India.",
+        body: "Our Designated Data Protection Officer Oversees Compliance And Can Be Contacted Directly At dpo@saastascholar.in Or legal@durgaaisolutions.in. In Case Of Unresolved Concerns, EU Residents May Lodge A Complaint With Their Local Data Protection Authority, And Indian Scholars With The Data Protection Board Of India.",
       },
     ],
   },
@@ -334,12 +335,14 @@ export function LegalComplianceHub({
   const [selectedId, setSelectedId] = useState(initialPolicyId);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("all");
+  const [mobileView, setMobileView] = useState<"list" | "reader">("reader");
 
   useEffect(() => {
     if (initialPolicyId) {
       setSelectedId(initialPolicyId);
+      setMobileView("reader");
     }
-  }, [initialPolicyId]);
+  }, [initialPolicyId, open]);
 
   const activeDoc: PolicyDocument =
     LEGAL_POLICIES.find((p) => p.id === selectedId) || LEGAL_POLICIES[0]!;
@@ -360,36 +363,37 @@ export function LegalComplianceHub({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl p-0 overflow-hidden bg-[#040806] border border-emerald-500/25 text-slate-100 shadow-[0_25px_70px_rgba(0,0,0,0.9),0_0_40px_rgba(5,150,105,0.2)] rounded-3xl">
-        <DialogHeader className="p-6 border-b border-white/[0.08] bg-[#081610]/90 backdrop-blur-xl">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-xs font-bold uppercase tracking-wider mb-2">
-                <ShieldCheck className="h-3.5 w-3.5" />
-                SaastaScholar | Trust, Legal &amp; Compliance Hub
-              </div>
-              <DialogTitle className="text-xl sm:text-2xl font-extrabold text-white tracking-tight">
-                Academic Legal, GDPR &amp; Commerce Compliance
-              </DialogTitle>
-              <DialogDescription className="text-xs sm:text-sm text-slate-400 mt-1">
-                Fully Compliant With The DPDP Act 2023, EU GDPR, EPrivacy Directive, IT Act 2000, And Indian Consumer Protection Laws.
-              </DialogDescription>
+      <DialogContent className="max-w-4xl w-[96vw] sm:w-full p-0 overflow-hidden bg-[#040806] border border-emerald-500/25 text-slate-100 shadow-[0_25px_70px_rgba(0,0,0,0.9),0_0_40px_rgba(5,150,105,0.2)] rounded-2xl sm:rounded-3xl max-h-[92dvh] sm:max-h-[85vh] flex flex-col gap-0">
+        <DialogHeader className="p-3.5 sm:p-6 border-b border-white/[0.08] bg-[#081610]/90 backdrop-blur-xl shrink-0">
+          <div className="flex flex-col gap-1 min-w-0">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-[0.65rem] sm:text-xs font-bold uppercase tracking-wider mb-1 max-w-full">
+              <ShieldCheck className="h-3 w-3 shrink-0" />
+              <span className="truncate">SaastaScholar | Legal &amp; Compliance Hub</span>
             </div>
+            <DialogTitle className="text-base sm:text-2xl font-extrabold text-white tracking-tight break-words">
+              Academic Legal &amp; Commerce Compliance
+            </DialogTitle>
+            <DialogDescription className="text-[0.68rem] sm:text-xs text-slate-400 mt-0.5 break-words leading-relaxed line-clamp-2 sm:line-clamp-none">
+              Fully Compliant With DPDP Act 2023, EU GDPR, EPrivacy Directive, IT Act 2000, And Indian Consumer Protection Laws.
+            </DialogDescription>
           </div>
 
           {/* Search & Category Filter Pills */}
-          <div className="mt-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <div className="mt-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 min-w-0">
+            <div className="relative flex-1 min-w-0">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 shrink-0" />
               <input
                 type="text"
                 placeholder="Search Policies, Terms, Refund, Deletion..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 rounded-xl bg-white/5 border border-white/10 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500/50"
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  if (mobileView === "reader") setMobileView("list");
+                }}
+                className="w-full pl-8 pr-3 py-1.5 sm:pl-9 sm:pr-4 sm:py-2 rounded-xl bg-white/5 border border-white/10 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500/50 min-w-0"
               />
             </div>
-            <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 text-xs">
+            <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto min-w-0 max-w-full scrollbar-none py-0.5 text-xs shrink-0 touch-pan-x">
               {[
                 { id: "all", label: "All Policies" },
                 { id: "privacy", label: "Privacy & GDPR" },
@@ -400,9 +404,12 @@ export function LegalComplianceHub({
                 <button
                   key={cat.id}
                   type="button"
-                  onClick={() => setActiveCategory(cat.id)}
+                  onClick={() => {
+                    setActiveCategory(cat.id);
+                    setMobileView("list");
+                  }}
                   className={cn(
-                    "px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap",
+                    "px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl text-[0.7rem] sm:text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0",
                     activeCategory === cat.id
                       ? "bg-emerald-600 text-white shadow-sm"
                       : "bg-white/5 text-slate-400 hover:text-white hover:bg-white/10"
@@ -416,9 +423,20 @@ export function LegalComplianceHub({
         </DialogHeader>
 
         {/* Master Layout: Left Sidebar Navigation + Right Document Reader */}
-        <div className="grid grid-cols-1 md:grid-cols-12 min-h-[480px] max-h-[68vh] overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-12 flex-1 min-h-0 overflow-hidden">
           {/* Navigation Sidebar */}
-          <div className="md:col-span-4 border-r border-white/[0.08] bg-[#06100b]/60 overflow-y-auto p-3 space-y-1.5">
+          <div
+            className={cn(
+              "md:col-span-4 border-r border-white/[0.08] bg-[#06100b]/60 overflow-y-auto p-2.5 sm:p-3 space-y-1.5 min-w-0",
+              mobileView === "reader" ? "hidden md:block" : "block"
+            )}
+          >
+            {/* Mobile Header in List View showing Count */}
+            <div className="flex md:hidden items-center justify-between pb-1 px-1 text-[0.7rem] text-slate-400">
+              <span className="font-semibold uppercase tracking-wider">Select Policy To Read</span>
+              <span className="font-mono text-emerald-400 font-bold">{filteredPolicies.length} Available</span>
+            </div>
+
             {filteredPolicies.map((p) => {
               const Icon = p.icon;
               const isSelected = selectedId === p.id;
@@ -426,12 +444,15 @@ export function LegalComplianceHub({
                 <button
                   key={p.id}
                   type="button"
-                  onClick={() => setSelectedId(p.id)}
+                  onClick={() => {
+                    setSelectedId(p.id);
+                    setMobileView("reader");
+                  }}
                   className={cn(
-                    "w-full text-left p-3 rounded-xl transition-all cursor-pointer flex items-start gap-2.5",
+                    "w-full text-left p-2.5 sm:p-3 rounded-xl transition-all cursor-pointer flex items-start gap-2.5 min-w-0",
                     isSelected
                       ? "bg-emerald-500/15 border border-emerald-500/30 text-white shadow-sm"
-                      : "hover:bg-white/[0.04] text-slate-400 hover:text-slate-200"
+                      : "hover:bg-white/[0.04] text-slate-400 hover:text-slate-200 border border-transparent"
                   )}
                 >
                   <Icon
@@ -444,7 +465,7 @@ export function LegalComplianceHub({
                     <div className="flex items-center justify-between gap-1">
                       <span className="text-xs font-bold truncate block">{p.title}</span>
                     </div>
-                    <span className="text-[0.65rem] text-slate-400 block truncate mt-0.5">
+                    <span className="text-[0.62rem] sm:text-[0.65rem] text-slate-400 block truncate mt-0.5">
                       {p.badge}
                     </span>
                   </div>
@@ -460,33 +481,53 @@ export function LegalComplianceHub({
           </div>
 
           {/* Document Content View */}
-          <div className="md:col-span-8 p-6 overflow-y-auto space-y-6 bg-[#040806]/40">
-            <div>
-              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-300 text-[0.7rem] font-bold">
+          <div
+            className={cn(
+              "md:col-span-8 p-3.5 sm:p-6 overflow-y-auto space-y-4 sm:space-y-6 bg-[#040806]/40 min-w-0",
+              mobileView === "list" ? "hidden md:block" : "block"
+            )}
+          >
+            {/* Mobile Top Navigation Bar: Back to List Button */}
+            <div className="flex md:hidden items-center justify-between gap-2 pb-2.5 border-b border-white/[0.08]">
+              <button
+                type="button"
+                onClick={() => setMobileView("list")}
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-400 hover:text-emerald-300 py-1 px-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/25 active:scale-95 transition-all cursor-pointer shrink-0"
+              >
+                <ArrowLeft className="h-3.5 w-3.5 shrink-0" />
+                <span>All Policies</span>
+              </button>
+              <span className="text-[0.62rem] text-emerald-300 font-semibold truncate bg-white/5 px-2 py-0.5 rounded-md border border-white/5">
+                {activeDoc.badge}
+              </span>
+            </div>
+
+            <div className="min-w-0">
+              <div className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-300 text-[0.7rem] font-bold">
                 <CheckCircle2 className="h-3 w-3" />
                 {activeDoc.badge}
               </div>
-              <h3 className="text-xl font-extrabold text-white tracking-tight mt-2">
+              <h3 className="text-base sm:text-xl font-extrabold text-white tracking-tight mt-1 sm:mt-2 break-words">
                 {activeDoc.title}
               </h3>
-              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
+              <p className="text-[0.72rem] sm:text-xs text-slate-400 mt-1 leading-relaxed break-words">
                 {activeDoc.subtitle}
               </p>
             </div>
 
-            <div className="space-y-5">
+            <div className="space-y-3.5 sm:space-y-5 min-w-0">
               {activeDoc.sections.map((sec, idx) => (
                 <div
                   key={idx}
-                  className="rounded-2xl border border-white/[0.08] bg-white/[0.02] p-4 text-xs leading-relaxed"
+                  className="rounded-xl sm:rounded-2xl border border-white/[0.08] bg-white/[0.02] p-3 sm:p-4 text-xs leading-relaxed min-w-0"
                 >
-                  <h4 className="text-sm font-bold text-emerald-300 mb-2 flex items-center gap-2">
-                    <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500/15 border border-emerald-500/30 text-[0.68rem] text-emerald-400 font-mono">
+                  <h4 className="text-xs sm:text-sm font-bold text-emerald-300 mb-1.5 flex items-start gap-2 break-words">
+                    <span className="flex h-4.5 w-4.5 sm:h-5 sm:w-5 items-center justify-center rounded-full bg-emerald-500/15 border border-emerald-500/30 text-[0.62rem] sm:text-[0.68rem] text-emerald-400 font-mono shrink-0 mt-0.5">
                       {idx + 1}
                     </span>
-                    {sec.heading}
+                    <span className="min-w-0 break-words flex-1">{sec.heading}</span>
                   </h4>
-                  <p className="text-slate-300 text-[0.78rem] leading-relaxed">
+                  <p className="text-slate-300 text-[0.72rem] sm:text-[0.78rem] leading-relaxed break-words pl-6.5 sm:pl-7">
                     {sec.body}
                   </p>
                 </div>
@@ -494,9 +535,9 @@ export function LegalComplianceHub({
             </div>
 
             {/* Quick Actions Footer Inside Modal */}
-            <div className="mt-8 pt-4 border-t border-white/[0.08] flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400">
-              <span className="text-[0.7rem]">
-                Governance Desk: <strong className="text-white">legal@durgaai.com</strong> | <strong className="text-white">privacy@saastascholar.in</strong>
+            <div className="mt-6 sm:mt-8 pt-3 sm:pt-4 border-t border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-slate-400 min-w-0">
+              <span className="text-[0.65rem] sm:text-[0.7rem] break-words">
+                Governance Desk: <strong className="text-white">legal@durgaaisolutions.in</strong>
               </span>
               <button
                 type="button"
@@ -504,9 +545,9 @@ export function LegalComplianceHub({
                   window.dispatchEvent(new CustomEvent("open_cookie_preferences"));
                   onOpenChange(false);
                 }}
-                className="inline-flex items-center gap-1.5 text-emerald-400 hover:text-emerald-300 font-semibold cursor-pointer"
+                className="inline-flex items-center gap-1.5 text-[0.7rem] sm:text-xs text-emerald-400 hover:text-emerald-300 font-semibold cursor-pointer shrink-0"
               >
-                Manage Cookie Preferences <ExternalLink className="h-3 w-3" />
+                <span>Manage Cookie Preferences</span> <ExternalLink className="h-3 w-3 shrink-0" />
               </button>
             </div>
           </div>

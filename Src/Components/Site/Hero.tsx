@@ -121,7 +121,7 @@ export function Hero() {
       />
 
       {/* Hero Main Grid Container */}
-      <div className="relative mx-auto grid w-full max-w-[84rem] gap-10 px-3.5 pt-10 pb-12 sm:px-8 sm:pt-14 sm:pb-14 lg:pt-16 lg:pb-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:items-start lg:gap-12 min-w-0">
+      <div className="relative mx-auto grid w-full max-w-[84rem] gap-10 px-2.5 min-[340px]:px-3.5 pt-10 pb-12 sm:px-8 sm:pt-14 sm:pb-14 lg:pt-16 lg:pb-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:items-start lg:gap-12 min-w-0">
         {/* Left Column */}
         <Reveal className="min-w-0 flex flex-col justify-between">
           <div>
@@ -130,7 +130,7 @@ export function Hero() {
               <span className="truncate">Made For College Students</span>
             </Pill>
 
-            <h1 className="mt-5 text-[2.2rem] leading-[1.04] sm:text-5xl lg:text-[4rem] font-bold tracking-tight text-foreground break-words">
+            <h1 className="mt-5 text-[1.8rem] min-[360px]:text-[2.2rem] leading-[1.08] sm:text-5xl lg:text-[4rem] font-bold tracking-tight text-foreground break-words">
               Your Entire University Life.{" "}
               <span className="text-logo-gradient">Organized.</span>
             </h1>
@@ -174,7 +174,7 @@ export function Hero() {
           </div>
 
           {/* Attractive Glassmorphic Metric Stat Cards Directly Echoing Logo Triad (#005F15, #007EAC, #BA0000) */}
-          <div className="mt-7 grid grid-cols-3 gap-2.5 sm:gap-3 min-w-0">
+          <div className="mt-7 grid grid-cols-1 min-[420px]:grid-cols-3 gap-2 sm:gap-3 min-w-0">
             {[
               {
                 value: "100%",
@@ -209,20 +209,31 @@ export function Hero() {
                 <div
                   key={stat.label}
                   className={cn(
-                    "group relative flex flex-col justify-between rounded-2xl border border-border/80 bg-card/90 p-3 sm:p-3.5 shadow-2xs backdrop-blur-xs transition-all duration-200 hover:bg-card hover:-translate-y-0.5 min-w-0",
+                    "group relative flex flex-row min-[420px]:flex-col items-center min-[420px]:items-stretch justify-between rounded-2xl border border-border/80 bg-card/90 p-2.5 sm:p-3.5 shadow-2xs backdrop-blur-xs transition-all duration-200 hover:bg-card hover:-translate-y-0.5 min-w-0 gap-2.5 min-[420px]:gap-0",
                     stat.borderHover,
                   )}
                 >
-                  <div className="flex items-center justify-between gap-1 min-w-0">
-                    <div className={cn("grid h-7 w-7 place-items-center rounded-lg bg-gradient-to-br shadow-2xs", stat.accent)}>
+                  <div className="flex items-center gap-2.5 min-[420px]:justify-between min-[420px]:gap-1 min-w-0 flex-1">
+                    <div className={cn("grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-gradient-to-br shadow-2xs", stat.accent)}>
                       <Icon className="h-3.5 w-3.5 shrink-0" />
                     </div>
-                    <span className={cn("font-display text-xl sm:text-2xl font-black tracking-tight bg-clip-text text-transparent", stat.valueClass)}>
+                    {/* Mobile (<420px) Text Block */}
+                    <div className="min-w-0 block min-[420px]:hidden">
+                      <p className="font-semibold text-xs text-foreground leading-tight truncate">
+                        {stat.label}
+                      </p>
+                      <p className="mt-0.5 text-[0.65rem] text-muted-foreground truncate">
+                        {stat.sub}
+                      </p>
+                    </div>
+                    {/* Desktop/Tablet (>=420px) Metric Value */}
+                    <span className={cn("hidden min-[420px]:inline-block font-display text-xl sm:text-2xl font-black tracking-tight bg-clip-text text-transparent shrink-0 whitespace-nowrap", stat.valueClass)}>
                       {stat.value}
                     </span>
                   </div>
 
-                  <div className="mt-2 min-w-0">
+                  {/* Desktop/Tablet (>=420px) Text Block */}
+                  <div className="mt-2 min-w-0 hidden min-[420px]:block">
                     <p className="font-semibold text-xs text-foreground leading-tight truncate">
                       {stat.label}
                     </p>
@@ -230,6 +241,11 @@ export function Hero() {
                       {stat.sub}
                     </p>
                   </div>
+
+                  {/* Mobile (<420px) Metric Value on Right */}
+                  <span className={cn("inline-block min-[420px]:hidden font-display text-base min-[320px]:text-lg font-black tracking-tight bg-clip-text text-transparent shrink-0 whitespace-nowrap text-right pl-2", stat.valueClass)}>
+                    {stat.value}
+                  </span>
                 </div>
               );
             })}

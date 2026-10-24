@@ -2513,7 +2513,7 @@ export function AdminPortal() {
       <div className="space-y-1 max-w-sm mx-auto">
         <h3 className="font-display font-bold text-base text-foreground">No {entityName} Found</h3>
         <p className="text-xs text-muted-foreground leading-relaxed">
-          No records match your selected filters. Try clearing filters or creating a new record.
+          No Records Match Your Selected Filters. Try Clearing Filters Or Creating A New Record.
         </p>
       </div>
       {(selectedDeptId || selectedProgramId || selectedSemester || selectedSectionId || selectedSubjectId || adminSearchQuery) && (
@@ -4033,7 +4033,7 @@ export function AdminPortal() {
                                   </span>
                                 </div>
                                 <p className="text-xs text-muted-foreground line-clamp-2 min-h-[32px]">
-                                  {dept.description || "Academic department and degree curriculum architecture."}
+                                  {dept.description || "Academic Department And Degree Curriculum Architecture."}
                                 </p>
                               </div>
 
@@ -6178,7 +6178,7 @@ export function AdminPortal() {
                   <h3 className="font-display font-bold text-base text-foreground">No Official Circulars In This Scope</h3>
                   <p className="text-xs text-muted-foreground max-w-sm mx-auto">
                     {noticeFilterScope === "context"
-                      ? "No notices currently targeted to this specific Department / Specialization. Switch to 'All Campus' or broadcast a new notice."
+                      ? "No Notices Currently Targeted To This Specific Department / Specialization. Switch To 'All Campus' Or Broadcast A New Notice."
                       : "Broadcast Examination Notifications And Department Updates To Student Dashboards."}
                   </p>
                 </div>

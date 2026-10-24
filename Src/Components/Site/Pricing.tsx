@@ -138,13 +138,13 @@ export function Pricing() {
       </Reveal>
 
       {/* Billing Cycle Toggle */}
-      <Reveal delay={60} className="mt-8 flex justify-center">
-        <div className="inline-flex items-center gap-1 rounded-full border border-border/80 bg-card/90 p-1 shadow-2xs backdrop-blur-xs">
+      <Reveal delay={60} className="mt-8 flex justify-center px-1">
+        <div className="inline-flex items-center gap-1 rounded-full border border-border/80 bg-card/90 p-1 shadow-2xs backdrop-blur-xs max-w-full">
           <button
             type="button"
             onClick={() => setBillingCycle("monthly")}
             className={cn(
-              "rounded-full px-4 py-1.5 text-xs sm:text-sm font-semibold transition-all cursor-pointer",
+              "rounded-full px-2.5 min-[340px]:px-4 py-1.5 text-[0.7rem] min-[340px]:text-xs sm:text-sm font-semibold transition-all cursor-pointer whitespace-nowrap",
               !isSemester
                 ? "bg-primary text-primary-foreground shadow-xs"
                 : "text-muted-foreground hover:text-foreground",
@@ -156,7 +156,7 @@ export function Pricing() {
             type="button"
             onClick={() => setBillingCycle("semester")}
             className={cn(
-              "inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs sm:text-sm font-semibold transition-all cursor-pointer",
+              "inline-flex items-center gap-1 min-[340px]:gap-1.5 rounded-full px-2.5 min-[340px]:px-4 py-1.5 text-[0.7rem] min-[340px]:text-xs sm:text-sm font-semibold transition-all cursor-pointer whitespace-nowrap",
               isSemester
                 ? "bg-primary text-primary-foreground shadow-xs"
                 : "text-muted-foreground hover:text-foreground",
@@ -165,7 +165,7 @@ export function Pricing() {
             <span>Semester Pass</span>
             <span
               className={cn(
-                "rounded-full px-2 py-0.5 text-[0.62rem] font-bold uppercase",
+                "rounded-full px-1.5 min-[340px]:px-2 py-0.5 text-[0.58rem] min-[340px]:text-[0.62rem] font-bold uppercase shrink-0",
                 isSemester
                   ? "bg-white/20 text-white"
                   : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-300",

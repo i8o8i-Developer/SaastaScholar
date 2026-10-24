@@ -132,7 +132,7 @@ const POLICY_DETAILS: Record<string, { title: string; subtitle: string; content:
       "Proprietary Software Architecture & Code Rights: All Application Source Code, Dynamic In-Memory DRM Canvas Rendering Mechanisms, Real-Time IST Schedule Planners, Exam Archive Indexing Systems, And User Interfaces Are Original Copyrighted Software Works Owned Exclusively By DurgaAI Solutions Under The Copyright Act, 1957. Reverse Engineering, Decompilation, Or Unauthorized Scraper Harvesting Is Strictly Forbidden.",
       "Nominative Trademark Fair Use Doctrine (Section 30(2)(d) Of The Trade Marks Act, 1999): Institutional Names, University Titles, And Degree Acronyms Are Referenced Strictly Under The Statutory Nominative Fair Use Doctrine To Facilitate Departmental Courseware Cataloging. Such References Do Not Imply Any Corporate Affiliation, University Sponsorship, Or Institutional Endorsement.",
       "Brand Protection & Anti-Counterfeiting Enforcement: DurgaAI Solutions Proactively Monitors Digital Channels And Enforces Rapid Takedowns Against Cloned Portals, Counterfeit Web Applications, Or Unauthorized Distributed Content Archives.",
-      "Designated Intellectual Property Contact: Formal Inquiries Regarding Trademark Licensing, Institutional Partnerships, Or Corporate Rights Verification Should Be Directed To DurgaAI Solutions Legal Division At legal@durgaai.com Or trademarks@saastascholar.in.",
+      "Designated Intellectual Property Contact: Formal Inquiries Regarding Trademark Licensing, Institutional Partnerships, Or Corporate Rights Verification Should Be Directed To DurgaAI Solutions Legal Division At legal@durgaaisolutions.in Or trademarks@saastascholar.in.",
     ],
   },
   "Privacy Policy": {
@@ -340,9 +340,9 @@ export function SiteFooter() {
         className="grid-lines pointer-events-none absolute inset-0 opacity-[0.04]"
       />
 
-      <div className="relative mx-auto w-full max-w-[84rem] px-3.5 pt-12 pb-10 sm:px-8 sm:pt-16 sm:pb-12 min-w-0">
+      <div className="relative mx-auto w-full max-w-[84rem] px-2.5 min-[340px]:px-3.5 pt-10 pb-8 sm:px-8 sm:pt-16 sm:pb-12 min-w-0">
         {/* ===================== Top Newsletter Card (Clean Original Palette) ===================== */}
-        <div className="mb-12 sm:mb-16 overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-card/80 p-5 sm:p-10 shadow-[0_12px_40px_-20px_color-mix(in_oklab,var(--color-primary-deep)_25%,transparent)] backdrop-blur-sm min-w-0">
+        <div className="mb-12 sm:mb-16 overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-card/80 p-3.5 sm:p-10 shadow-[0_12px_40px_-20px_color-mix(in_oklab,var(--color-primary-deep)_25%,transparent)] backdrop-blur-sm min-w-0">
           <div className="grid items-center gap-6 sm:gap-8 lg:grid-cols-[1.2fr_1fr] min-w-0">
             <div className="min-w-0">
               <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-accent/60 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[0.65rem] sm:text-xs font-semibold text-accent-foreground max-w-full">
