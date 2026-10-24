@@ -921,18 +921,36 @@ export function Login() {
                           </div>
 
                           <div>
-                            <label className="block text-xs font-bold text-foreground mb-1">College Email Address</label>
+                            <div className="flex items-center justify-between mb-1">
+                              <label className="block text-xs font-bold text-foreground">College Email Address</label>
+                              <span className="text-[0.62rem] font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+                                @student.nimsuniversity.org
+                              </span>
+                            </div>
                             <div className="relative">
                               <Mail className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                               <input
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                placeholder="student@nims.edu.in"
+                                onBlur={() => {
+                                  let val = email.trim().toLowerCase();
+                                  if (val && !val.includes("@student.nimsuniversity.org")) {
+                                    const domain = val.split("@")[1] || "";
+                                    if (domain.includes("nims") || domain.includes("student")) {
+                                      const prefix = val.split("@")[0];
+                                      setEmail(`${prefix}@student.nimsuniversity.org`);
+                                    }
+                                  }
+                                }}
+                                placeholder="name.2026engg0000@student.nimsuniversity.org"
                                 required
-                                className="h-11 w-full rounded-2xl border border-border bg-background pr-3.5 pl-10 text-xs sm:text-sm focus:border-primary focus:outline-none transition-colors"
+                                className="h-11 w-full rounded-2xl border border-border bg-background pr-3.5 pl-10 text-xs sm:text-sm font-mono focus:border-primary focus:outline-none transition-colors"
                               />
                             </div>
+                            <p className="text-[0.65rem] text-muted-foreground mt-1">
+                              Institutional email verification auto-formats typos to <span className="font-mono text-primary font-bold">@student.nimsuniversity.org</span>
+                            </p>
                           </div>
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

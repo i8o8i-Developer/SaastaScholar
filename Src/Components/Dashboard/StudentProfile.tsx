@@ -48,6 +48,7 @@ import {
   SectionBatch,
   Subject,
   AcademicMaterial,
+  StudentUser,
 } from "@/Lib/Api";
 import { toast } from "sonner";
 import { cn } from "@/Lib/Utils";
@@ -68,6 +69,7 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
   >("all");
 
   const [fullName, setFullName] = useState<string>(user?.full_name || "");
+  const [emailAddress, setEmailAddress] = useState<string>(user?.email || "");
   const [phoneNumber, setPhoneNumber] = useState<string>(user?.phone_number || "");
   const [targetCgpa, setTargetCgpa] = useState<number>(user?.target_cgpa ? Number(user.target_cgpa) : 9.5);
   const [bio, setBio] = useState<string>(user?.bio || "");
@@ -129,6 +131,7 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
   useEffect(() => {
     if (user) {
       setFullName(user.full_name || "");
+      setEmailAddress(user.email || "");
       setPhoneNumber(user.phone_number || "");
       setTargetCgpa(user.target_cgpa ? Number(user.target_cgpa) : 9.5);
       setBio(user.bio || "");
@@ -220,7 +223,33 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
     e.preventDefault();
     setSaving(true);
     try {
-      await updateProfile({
+      let cleanEmail = emailAddress.trim().toLowerCase();
+      if (cleanEmail) {
+        const domain = cleanEmail.split("@")[-1] || cleanEmail.split("@")[1] || "";
+        const typoDomains = [
+          "student.nimsuniversity.org",
+          "student.nimsuniversity.ac.in",
+          "student.nimsuniversity.in",
+          "student.nimsuniveristy.org",
+          "student.nimsunivercity.org",
+          "student.nimsuniversiy.org",
+          "student.nimsunversity.org",
+          "student.nimsuniversity.com",
+          "nimsuniversity.org",
+          "student.nims.org",
+          "student.nims.ac.in",
+          "student.nims.edu.in",
+          "nims.edu.in",
+        ];
+        if (typoDomains.includes(domain) || domain.includes("nims")) {
+          const prefix = cleanEmail.split("@")[0];
+          cleanEmail = `${prefix}@student.nimsuniversity.org`;
+          setEmailAddress(cleanEmail);
+        }
+      }
+
+      const finalEmail = cleanEmail || user?.email || "";
+      const payload: Partial<StudentUser> = {
         full_name: fullName,
         phone_number: phoneNumber,
         bio: bio,
@@ -231,9 +260,14 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
         semester: Number(semester),
         section: section.toUpperCase(),
         target_cgpa: String(targetCgpa),
-      });
+      };
+      if (finalEmail) {
+        payload.email = finalEmail;
+      }
+
+      await updateProfile(payload);
       setIsEditingAcademicRecord(false);
-      toast.success("Academic Profile Details Updated Successfully.");
+      toast.success("Academic Profile Details & Email Updated Successfully.");
     } catch (err: any) {
       toast.error(toTitleCase(err.message || "Failed To Update Profile."));
     } finally {
@@ -881,6 +915,38 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
                   </div>
 
                   <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="block text-xs font-bold text-foreground">Scholar Email Address</label>
+                      <span className="text-[0.62rem] font-mono text-emerald-600 dark:text-emerald-400 font-bold">
+                        @student.nimsuniversity.org
+                      </span>
+                    </div>
+                    <div className="relative">
+                      <Mail className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                      <input
+                        type="email"
+                        value={emailAddress}
+                        onChange={(e) => setEmailAddress(e.target.value)}
+                        onBlur={() => {
+                          let val = emailAddress.trim().toLowerCase();
+                          if (val && !val.includes("@student.nimsuniversity.org")) {
+                            const domain = val.split("@")[1] || "";
+                            if (domain.includes("nims") || domain.includes("student")) {
+                              const prefix = val.split("@")[0];
+                              setEmailAddress(`${prefix}@student.nimsuniversity.org`);
+                            }
+                          }
+                        }}
+                        placeholder="e.g. anubhav.2026engg1094@student.nimsuniversity.org"
+                        required
+                        className="h-10 w-full rounded-2xl border border-border bg-background pr-3 pl-9 text-xs font-mono focus:border-primary focus:outline-none"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                  <div>
                     <label className="block text-xs font-bold text-foreground mb-1">Contact Phone Number</label>
                     <input
                       type="tel"
@@ -890,20 +956,7 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
                       className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
                     />
                   </div>
-                </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-foreground mb-1">Academic Statement / Bio</label>
-                  <textarea
-                    value={bio}
-                    onChange={(e) => setBio(e.target.value)}
-                    placeholder="Share Your Academic Interests, Focus Areas, Or Study Objectives..."
-                    rows={3}
-                    className="w-full rounded-2xl border border-border bg-background p-3 text-xs focus:border-primary focus:outline-none leading-relaxed"
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <div>
                     <label className="block text-xs font-bold text-foreground mb-1">Academic Focus Area / Electives</label>
                     <input
@@ -925,6 +978,17 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
                       className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
                     />
                   </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-foreground mb-1">Academic Statement / Bio</label>
+                  <textarea
+                    value={bio}
+                    onChange={(e) => setBio(e.target.value)}
+                    placeholder="Share Your Academic Interests, Focus Areas, Or Study Objectives..."
+                    rows={3}
+                    className="w-full rounded-2xl border border-border bg-background p-3 text-xs focus:border-primary focus:outline-none leading-relaxed"
+                  />
                 </div>
 
                 <div className="pt-2 border-t border-border/60">

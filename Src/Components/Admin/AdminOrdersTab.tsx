@@ -755,7 +755,6 @@ export function AdminOrdersTab() {
                 const isFailed = ord.status.toLowerCase() === "failed";
                 const isCreated = ord.status.toLowerCase() === "created";
 
-                // Count if this scholar has multiple orders
                 const scholarOrders = orders.filter((o) => o.user_email === ord.user_email);
                 const hasDuplicates = scholarOrders.length > 1;
 
@@ -835,7 +834,7 @@ export function AdminOrdersTab() {
                           <span>Receipt</span>
                         </button>
 
-                        {/* Merge Button: Only shown if scholar has redundant/duplicate orders */}
+                        {/* Merge Button */}
                         {hasDuplicates && (
                           <button
                             type="button"
@@ -914,7 +913,7 @@ export function AdminOrdersTab() {
                 </div>
                 <div>
                   <h3 className="font-bold text-sm text-foreground">Create Manual Order / Upgrade</h3>
-                  <p className="text-[0.68rem] text-muted-foreground">Directly register a verified payment or order record</p>
+                  <p className="text-[0.68rem] text-muted-foreground">Directly Register A Verified Payment Or Order Record</p>
                 </div>
               </div>
               <button

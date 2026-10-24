@@ -95,13 +95,13 @@ interface MembershipUpgradeSectionProps {
 }
 
 export function MembershipUpgradeSection({
-  initialTier = "PREMIUM",
+  initialTier,
   onUpgradeSuccess,
 }: MembershipUpgradeSectionProps) {
   const { user, refreshUser } = useAuth();
   const currentTier = (user?.access_tier || "FREE").toUpperCase();
   const [billingCycle, setBillingCycle] = useState<"monthly" | "semester">("monthly");
-  const [selectedTier, setSelectedTier] = useState<"BASIC" | "PREMIUM" | "ELITE">(initialTier);
+  const [selectedTier, setSelectedTier] = useState<"BASIC" | "PREMIUM" | "ELITE" | null>(initialTier || null);
 
   // Discount Coupon State
   const [couponCode, setCouponCode] = useState<string>("");
@@ -115,8 +115,8 @@ export function MembershipUpgradeSection({
   const [couponLoading, setCouponLoading] = useState<boolean>(false);
   const [upgrading, setUpgrading] = useState<boolean>(false);
 
-  const selectedPlan = PLANS.find((p) => p.tier === selectedTier) ?? (PLANS[2] as (typeof PLANS)[number]);
-  const basePrice = billingCycle === "semester" ? selectedPlan.priceSemester : selectedPlan.priceMonthly;
+  const selectedPlan = selectedTier ? (PLANS.find((p) => p.tier === selectedTier) ?? null) : null;
+  const basePrice = selectedPlan ? (billingCycle === "semester" ? selectedPlan.priceSemester : selectedPlan.priceMonthly) : 0;
 
   const handleApplyCoupon = async () => {
     if (!couponCode.trim()) {
@@ -158,6 +158,10 @@ export function MembershipUpgradeSection({
   };
 
   const handleInitiateUpgrade = () => {
+    if (!selectedTier || !selectedPlan) {
+      toast.error("Please Select An Academic Plan First.");
+      return;
+    }
     setUpgrading(true);
     initiateRazorpayPayment({
       planTier: selectedTier,
@@ -350,69 +354,83 @@ export function MembershipUpgradeSection({
       </div>
 
       {/* Checkout & Coupon Section For Selected Plan */}
-      {Boolean(selectedPlan) && (
-        <div className="overflow-hidden rounded-3xl border border-primary/30 bg-card p-6 sm:p-8 shadow-2xl space-y-6">
+      {selectedPlan ? (
+        <div id="checkout-summary-section" className="overflow-hidden rounded-3xl border border-primary/30 bg-card p-5 sm:p-8 shadow-2xl space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-300">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border/80">
             <div>
-              <span className="text-xs font-bold uppercase tracking-wider text-primary">
-                Checkout Summary
-              </span>
-              <h2 className="text-xl font-extrabold text-foreground mt-0.5">
-                Upgrading To {selectedPlan.name} ({billingCycle === "semester" ? "Semester Pass" : "Monthly Pass"})
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-primary">
+                  Step 2 · Checkout &amp; Access Activation
+                </span>
+                <span className="rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 px-2 py-0.5 text-[0.65rem] font-bold">
+                  {selectedPlan.tier} Tier Selected
+                </span>
+              </div>
+              <h2 className="text-lg sm:text-2xl font-black text-foreground mt-1">
+                Upgrading To {selectedPlan.name} ({billingCycle === "semester" ? "Semester Pass · 180 Days" : "Monthly Pass · 30 Days"})
               </h2>
             </div>
-            <div className="text-right">
-              <span className="text-xs text-muted-foreground">Standard Price</span>
-              <p className="text-xl font-black text-foreground">₹{basePrice}</p>
+            <div className="text-left sm:text-right bg-surface/60 sm:bg-transparent p-3 sm:p-0 rounded-2xl border border-border/60 sm:border-0">
+              <span className="text-[0.7rem] text-muted-foreground uppercase font-bold tracking-wider block">Standard Price</span>
+              <p className="text-xl sm:text-2xl font-black text-foreground font-mono">₹{basePrice}</p>
             </div>
           </div>
 
-          {/* Promotional Coupon Voucher Box */}
-          <div className="rounded-2xl border border-primary/20 bg-primary/5 p-5 space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <Tag className="h-4 w-4 text-primary shrink-0" />
-                <span className="text-xs font-bold text-foreground">
-                  Have A Promotional Discount Coupon Or Voucher?
-                </span>
+          {/* Redesigned Promotional Coupon Voucher Box */}
+          <div className="rounded-3xl border border-border/80 bg-gradient-to-br from-surface via-card to-primary/5 p-4 sm:p-6 space-y-4 shadow-sm">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+              <div className="space-y-0.5">
+                <div className="flex items-center gap-2 text-foreground font-bold text-xs sm:text-sm">
+                  <Tag className="h-4 w-4 text-primary shrink-0" />
+                  <span>Promotional Coupon &amp; Institutional Voucher</span>
+                </div>
+                <p className="text-[0.7rem] text-muted-foreground">
+                  Apply your student scholarship code or semester voucher to unlock instant fee waiver.
+                </p>
               </div>
-              <div className="flex items-center gap-1.5 flex-wrap">
-                <span className="text-[0.68rem] text-muted-foreground">Popular Vouchers:</span>
+
+              {/* Quick Preset Badges */}
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-[0.68rem] text-muted-foreground font-bold uppercase tracking-wider">Quick Codes:</span>
                 <button
                   type="button"
                   onClick={() => handlePresetCoupon("SAASTA20")}
-                  className="rounded-lg border border-primary/30 bg-background px-2.5 py-1 text-[0.65rem] font-bold text-primary hover:bg-primary/10 transition-colors cursor-pointer"
+                  className="rounded-xl border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-bold text-primary hover:bg-primary/20 transition-all cursor-pointer shadow-2xs font-mono"
                 >
-                  SAASTA20 (20% Off)
+                  SAASTA20 (20% OFF)
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePresetCoupon("FREEDOM100")}
-                  className="rounded-lg border border-emerald-500/30 bg-background px-2.5 py-1 text-[0.65rem] font-bold text-emerald-500 hover:bg-emerald-500/10 transition-colors cursor-pointer"
+                  className="rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 transition-all cursor-pointer shadow-2xs font-mono"
                 >
-                  FREEDOM100 (100% Free)
+                  FREEDOM100 (100% FREE)
                 </button>
               </div>
             </div>
 
             {appliedCoupon ? (
-              <div className="flex items-center justify-between rounded-xl border border-emerald-500/50 bg-emerald-500/10 p-3 text-xs">
-                <div className="flex items-center gap-2.5">
-                  <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0" />
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-4 text-xs">
+                <div className="flex items-center gap-3">
+                  <div className="h-9 w-9 rounded-xl bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="h-5 w-5" />
+                  </div>
                   <div>
-                    <span className="font-mono font-bold text-foreground">{appliedCoupon.code}</span>
-                    <span className="ml-2 font-semibold text-emerald-500">
-                      {appliedCoupon.discount_percent > 0
-                        ? `${appliedCoupon.discount_percent}% Off Applied`
-                        : `₹${appliedCoupon.discount_amount_inr} Off Applied`}
-                    </span>
-                    <p className="text-[0.68rem] text-muted-foreground mt-0.5">{appliedCoupon.message}</p>
+                    <div className="flex items-center gap-2">
+                      <span className="font-mono font-black text-sm text-foreground">{appliedCoupon.code}</span>
+                      <span className="rounded-full bg-emerald-500/20 border border-emerald-500/40 px-2 py-0.5 text-[0.65rem] font-bold text-emerald-600 dark:text-emerald-400">
+                        {appliedCoupon.discount_percent > 0
+                          ? `${appliedCoupon.discount_percent}% SAVINGS APPLIED`
+                          : `₹${appliedCoupon.discount_amount_inr} OFF`}
+                      </span>
+                    </div>
+                    <p className="text-[0.7rem] text-muted-foreground mt-0.5">{appliedCoupon.message}</p>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={handleRemoveCoupon}
-                  className="text-xs font-bold text-rose-500 hover:text-rose-400 cursor-pointer"
+                  className="px-3 py-1.5 rounded-xl border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-bold transition-colors cursor-pointer self-start sm:self-auto"
                 >
                   Remove Voucher
                 </button>
@@ -425,15 +443,15 @@ export function MembershipUpgradeSection({
                     type="text"
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                    placeholder="Enter Coupon Code (e.g. SAASTA20)"
-                    className="h-11 w-full rounded-xl border border-border bg-background pr-3 pl-10 text-xs font-mono uppercase focus:border-primary focus:outline-none transition-colors"
+                    placeholder="Enter Coupon Code (e.g. SAASTA20 or FREEDOM100)"
+                    className="h-11 w-full rounded-2xl border border-border bg-background pr-3 pl-10 text-xs font-mono uppercase focus:border-primary focus:outline-none transition-colors"
                   />
                 </div>
                 <button
                   type="button"
                   onClick={handleApplyCoupon}
                   disabled={couponLoading || !couponCode.trim()}
-                  className="h-11 w-full sm:w-auto px-6 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary-deep transition-all disabled:opacity-50 cursor-pointer shrink-0"
+                  className="h-11 w-full sm:w-auto px-6 rounded-2xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary-deep transition-all disabled:opacity-50 cursor-pointer shrink-0 shadow-md"
                 >
                   {couponLoading ? "Validating..." : "Apply Coupon"}
                 </button>
@@ -442,22 +460,24 @@ export function MembershipUpgradeSection({
           </div>
 
           {/* Final Payable & Upgrade Action */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-6 pt-2">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 pt-2">
             <div>
-              <span className="text-xs text-muted-foreground">Total Payable Amount</span>
-              <div className="flex items-baseline gap-2 mt-0.5">
+              <span className="text-[0.7rem] uppercase font-bold tracking-wider text-muted-foreground block">
+                Total Payable Amount
+              </span>
+              <div className="flex items-baseline gap-2 mt-0.5 flex-wrap">
                 {appliedCoupon ? (
                   <>
-                    <span className="text-base text-muted-foreground line-through">₹{basePrice}</span>
-                    <span className="text-3xl font-black text-emerald-500">
+                    <span className="text-base text-muted-foreground line-through font-mono">₹{basePrice}</span>
+                    <span className="text-2xl sm:text-3xl font-black text-emerald-500 font-mono">
                       ₹{appliedCoupon.final_amount_inr}
                     </span>
                   </>
                 ) : (
-                  <span className="text-3xl font-black text-foreground">₹{basePrice}</span>
+                  <span className="text-2xl sm:text-3xl font-black text-foreground font-mono">₹{basePrice}</span>
                 )}
                 <span className="text-xs text-muted-foreground">
-                  (Includes GST & Razorpay Gateway)
+                  (Includes GST &amp; Razorpay Gateway)
                 </span>
               </div>
             </div>
@@ -483,9 +503,9 @@ export function MembershipUpgradeSection({
             </button>
           </div>
 
-          <div className="flex items-center justify-center gap-6 pt-2 text-[0.68rem] text-muted-foreground border-t border-border/40">
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
+          <div className="flex flex-wrap items-center justify-center sm:justify-start gap-4 pt-2 text-[0.68rem] text-muted-foreground border-t border-border/60">
+            <span className="flex items-center gap-1">
+              <ShieldCheck className="h-3.5 w-3.5 text-primary" />
               256-Bit Encrypted Razorpay Gateway
             </span>
             <span>•</span>
@@ -493,6 +513,16 @@ export function MembershipUpgradeSection({
             <span>•</span>
             <span>Official Digital Tax Invoice Generated</span>
           </div>
+        </div>
+      ) : (
+        <div className="rounded-3xl border border-dashed border-border/80 bg-surface/30 p-8 text-center space-y-2">
+          <div className="mx-auto h-12 w-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center font-bold">
+            <Zap className="h-6 w-6" />
+          </div>
+          <h3 className="font-bold text-base text-foreground">Step 1: Choose Your Academic Plan Above</h3>
+          <p className="text-xs text-muted-foreground max-w-md mx-auto">
+            Select Basic Scholar, Premium Achiever, or Elite Scholar above to review the curriculum features and proceed to voucher application &amp; checkout.
+          </p>
         </div>
       )}
     </div>

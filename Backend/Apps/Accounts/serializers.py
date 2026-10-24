@@ -94,6 +94,36 @@ class StudentUserSerializer(serializers.ModelSerializer):
             return f"{prefix}-{suffix}" if suffix else prefix
         return p[:10].upper()
 
+    def validate_email(self, value):
+        if not value:
+            raise serializers.ValidationError("Student Email Address Is Required.")
+        email_clean = str(value).strip().lower()
+        
+        #
+        domain = email_clean.split("@")[-1] if "@" in email_clean else ""
+        typo_domains = [
+            "student.nimsuniversity.org",
+        ]
+        
+        if domain in typo_domains or "nims" in domain:
+            prefix = email_clean.split("@")[0]
+            email_clean = f"{prefix}@student.nimsuniversity.org"
+            
+        instance = getattr(self, "instance", None)
+        existing = StudentUser.objects.filter(email__iexact=email_clean)
+        if instance:
+            existing = existing.exclude(id=instance.id)
+        if existing.exists():
+            raise serializers.ValidationError(f"The Email Address '{email_clean}' Is Already Registered.")
+            
+        return email_clean
+
+    def update(self, instance, validated_data):
+        if "email" in validated_data:
+            instance.username = validated_data["email"]
+        return super().update(instance, validated_data)
+
+
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, min_length=6)
     target_cgpa = serializers.DecimalField(max_digits=4, decimal_places=2, required=False, allow_null=True)
@@ -116,6 +146,37 @@ class RegisterSerializer(serializers.ModelSerializer):
             "current_cgpa",
             "access_tier",
         ]
+
+    def validate_email(self, value):
+        if not value:
+            raise serializers.ValidationError("Student Email Address Is Required.")
+        email_clean = str(value).strip().lower()
+        
+        domain = email_clean.split("@")[-1] if "@" in email_clean else ""
+        typo_domains = [
+            "student.nimsuniversity.org",
+            "student.nimsuniversity.ac.in",
+            "student.nimsuniversity.in",
+            "student.nimsuniveristy.org",
+            "student.nimsunivercity.org",
+            "student.nimsuniversiy.org",
+            "student.nimsunversity.org",
+            "student.nimsuniversity.com",
+            "nimsuniversity.org",
+            "student.nims.org",
+            "student.nims.ac.in",
+            "student.nims.edu.in",
+            "nims.edu.in",
+        ]
+        
+        if domain in typo_domains or "nims" in domain:
+            prefix = email_clean.split("@")[0]
+            email_clean = f"{prefix}@student.nimsuniversity.org"
+            
+        if StudentUser.objects.filter(email__iexact=email_clean).exists():
+            raise serializers.ValidationError(f"An Account With Email '{email_clean}' Already Exists. Please Sign In.")
+            
+        return email_clean
 
     def create(self, validated_data):
         password = validated_data.pop("password")
