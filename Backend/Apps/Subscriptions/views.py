@@ -765,11 +765,7 @@ class AdminOrderActionView(APIView):
             })
 
         elif action == "MERGE_DUPLICATES":
-            """
-            Merge failed or duplicate checkout orders for the same student.
-            If the current or second order is paid, keeps the paid order active,
-            merges metadata, and archives/cleans up the failed/duplicate order.
-            """
+            
             student = order.user
             duplicate_orders = RazorpayOrder.objects.filter(
                 user=student
@@ -780,7 +776,7 @@ class AdminOrderActionView(APIView):
             if deleted_count == 0:
                 return Response({
                     "success": True,
-                    "message": f"No redundant or failed checkout records found to merge for scholar '{student.email}'.",
+                    "message": f"No Redundant Or Failed Checkout Records Found To Merge For Scholar '{student.email}'.",
                     "order": RazorpayOrderSerializer(order).data,
                 })
 

@@ -1151,40 +1151,40 @@ export function AdminOrdersTab() {
       {/* Invoice Viewer Modal */}
       {selectedInvoice && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/75 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="relative w-full max-w-xl rounded-none border border-border bg-card shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-            <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-surface/60">
-              <div className="flex items-center gap-3">
-                <div className="h-8 w-8 rounded-none bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 flex items-center justify-center">
+          <div className="relative w-full max-w-xl rounded-2xl sm:rounded-3xl border border-border bg-card shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+            <div className="px-4 py-3 sm:px-6 sm:py-4 border-b border-border flex items-center justify-between bg-surface/60 gap-2">
+              <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+                <div className="h-8 w-8 rounded-xl bg-primary/10 text-primary border border-primary/25 flex items-center justify-center shrink-0">
                   <FileText className="h-4 w-4" />
                 </div>
-                <div>
-                  <h3 className="font-bold text-sm text-foreground uppercase tracking-wide">Official Academic Invoice</h3>
-                  <p className="text-[0.68rem] font-mono text-muted-foreground">{selectedInvoice.invoice_number}</p>
+                <div className="min-w-0">
+                  <h3 className="font-bold text-xs sm:text-sm text-foreground uppercase tracking-wide truncate">Official Academic Invoice</h3>
+                  <p className="text-[0.65rem] sm:text-[0.68rem] font-mono text-muted-foreground truncate">{selectedInvoice.invoice_number}</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setSelectedInvoice(null)}
-                className="h-8 w-8 rounded-none border border-border/80 flex items-center justify-center hover:bg-surface text-muted-foreground hover:text-foreground cursor-pointer"
+                className="h-8 w-8 rounded-xl border border-border/80 flex items-center justify-center hover:bg-surface text-muted-foreground hover:text-foreground cursor-pointer shrink-0"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
 
-            <div className="p-6 overflow-y-auto space-y-5 text-xs flex-1">
+            <div className="p-4 sm:p-6 overflow-y-auto space-y-4 sm:space-y-5 text-xs flex-1">
               {/* Institution Header */}
-              <div className="flex items-center justify-between border-b border-border/80 pb-4">
-                <div>
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 border-b border-border/80 pb-4">
+                <div className="min-w-0">
                   <h4 className="font-display font-black text-base text-foreground tracking-tight uppercase">
                     {selectedInvoice.company?.name}
                   </h4>
                   <p className="text-[0.7rem] text-muted-foreground">{selectedInvoice.company?.tagline}</p>
-                  <p className="text-[0.65rem] text-muted-foreground mt-0.5">
+                  <p className="text-[0.65rem] text-muted-foreground mt-0.5 break-words">
                     Parent: {selectedInvoice.company?.parent} · Support: {selectedInvoice.company?.support_email}
                   </p>
                 </div>
-                <div className="text-right">
-                  <span className="rounded-none border border-emerald-600/60 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold px-3 py-1 text-[0.65rem] font-mono uppercase tracking-wider">
+                <div className="sm:text-right shrink-0">
+                  <span className="rounded-full border border-emerald-600/60 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold px-3 py-1 text-[0.65rem] font-mono uppercase tracking-wider inline-block">
                     STATUS: {selectedInvoice.status}
                   </span>
                   <p className="text-[0.68rem] text-muted-foreground mt-1.5 font-mono">Date: {selectedInvoice.date}</p>
@@ -1192,43 +1192,43 @@ export function AdminOrdersTab() {
               </div>
 
               {/* Billed Scholar Section */}
-              <div className="rounded-none border border-border bg-surface/40 p-4 space-y-1">
+              <div className="rounded-2xl border border-border bg-surface/40 p-3.5 sm:p-4 space-y-1">
                 <span className="text-[0.62rem] uppercase font-bold text-primary tracking-wider block border-b border-border/60 pb-1 mb-2">Billed Scholar</span>
-                <h5 className="font-bold text-sm text-foreground">{selectedInvoice.customer?.name}</h5>
-                <p className="text-[0.7rem] text-muted-foreground">{selectedInvoice.customer?.email}</p>
-                <div className="grid grid-cols-2 gap-2 text-[0.7rem] pt-1.5 text-muted-foreground border-t border-border/60 mt-2 font-mono">
+                <h5 className="font-bold text-sm text-foreground break-words">{selectedInvoice.customer?.name}</h5>
+                <p className="text-[0.7rem] text-muted-foreground break-all">{selectedInvoice.customer?.email}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[0.7rem] pt-1.5 text-muted-foreground border-t border-border/60 mt-2 font-mono">
                   <span>Roll: {selectedInvoice.customer?.roll_number}</span>
                   <span>Semester {selectedInvoice.customer?.semester} ({selectedInvoice.customer?.section})</span>
                 </div>
               </div>
 
               {/* Line Items */}
-              <div className="rounded-none border border-border overflow-hidden">
+              <div className="rounded-2xl border border-border overflow-hidden">
                 <div className="bg-surface/80 p-3 font-bold text-[0.68rem] uppercase tracking-wider text-muted-foreground flex justify-between border-b border-border">
                   <span>Description</span>
                   <span>Amount</span>
                 </div>
-                <div className="p-4 space-y-2 text-xs">
-                  <div className="flex justify-between font-bold text-foreground">
-                    <div>
+                <div className="p-3.5 sm:p-4 space-y-2 text-xs">
+                  <div className="flex justify-between font-bold text-foreground gap-2">
+                    <div className="min-w-0">
                       <span className="uppercase">{selectedInvoice.plan_name}</span>
-                      <p className="text-[0.68rem] text-muted-foreground font-normal">
+                      <p className="text-[0.68rem] text-muted-foreground font-normal break-words">
                         {selectedInvoice.plan_description} ({selectedInvoice.billing_cycle})
                       </p>
                     </div>
-                    <span className="font-mono">₹{selectedInvoice.financials?.subtotal_inr}</span>
+                    <span className="font-mono shrink-0">₹{selectedInvoice.financials?.subtotal_inr}</span>
                   </div>
 
                   {selectedInvoice.financials?.discount_inr > 0 && (
-                    <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-semibold text-[0.72rem]">
-                      <span>Voucher Discount ({selectedInvoice.financials?.discount_code})</span>
-                      <span className="font-mono">- ₹{selectedInvoice.financials?.discount_inr}</span>
+                    <div className="flex justify-between text-emerald-600 dark:text-emerald-400 font-semibold text-[0.72rem] gap-2">
+                      <span className="truncate">Voucher Discount ({selectedInvoice.financials?.discount_code})</span>
+                      <span className="font-mono shrink-0">- ₹{selectedInvoice.financials?.discount_inr}</span>
                     </div>
                   )}
 
-                  <div className="flex justify-between border-t border-border/80 pt-2 font-black text-sm text-foreground">
+                  <div className="flex justify-between border-t border-border/80 pt-2 font-black text-sm text-foreground gap-2">
                     <span>Total Settled (INR)</span>
-                    <span className="font-mono text-emerald-600 dark:text-emerald-400">
+                    <span className="font-mono text-emerald-600 dark:text-emerald-400 shrink-0">
                       ₹{selectedInvoice.financials?.total_paid_inr}
                     </span>
                   </div>
@@ -1236,7 +1236,7 @@ export function AdminOrdersTab() {
               </div>
 
               {/* Transaction ID */}
-              <div className="rounded-none border border-border/80 bg-surface/30 p-3 text-[0.68rem] font-mono text-muted-foreground space-y-0.5">
+              <div className="rounded-2xl border border-border/80 bg-surface/30 p-3 text-[0.68rem] font-mono text-muted-foreground space-y-0.5 break-all">
                 <div className="text-[0.62rem] font-sans font-bold text-primary uppercase tracking-wider mb-1">Transaction Audit Trail</div>
                 <p>Order ID: {selectedInvoice.order_id}</p>
                 <p>Payment Transaction ID: {selectedInvoice.payment_id}</p>
@@ -1244,25 +1244,25 @@ export function AdminOrdersTab() {
               </div>
             </div>
 
-            <div className="px-6 py-3.5 border-t border-border bg-surface/60 flex items-center justify-between">
-              <span className="text-[0.68rem] text-muted-foreground">
+            <div className="p-3.5 sm:px-6 sm:py-4 border-t border-border bg-surface/60 flex flex-col-reverse sm:flex-row sm:items-center justify-between gap-3">
+              <span className="text-[0.68rem] text-muted-foreground text-center sm:text-left">
                 Digitally Generated Academic Proof Of Payment
               </span>
-              <div className="flex items-center gap-2">
+              <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 w-full sm:w-auto">
                 <button
                   type="button"
                   onClick={() => setSelectedInvoice(null)}
-                  className="px-4 py-2 rounded-none border border-border bg-card hover:bg-surface text-foreground font-semibold text-xs cursor-pointer uppercase tracking-wider"
+                  className="px-4 py-2 rounded-xl border border-border bg-card hover:bg-surface text-foreground font-semibold text-xs cursor-pointer uppercase tracking-wider text-center active:scale-95 transition-all"
                 >
                   Close
                 </button>
                 <button
                   type="button"
                   onClick={() => handlePrintInvoice(selectedInvoice)}
-                  className="px-5 py-2 rounded-none bg-primary hover:bg-primary-deep text-primary-foreground font-bold text-xs flex items-center gap-1.5 cursor-pointer shadow-md uppercase tracking-wider"
+                  className="px-4 py-2 rounded-xl bg-primary hover:bg-primary-deep text-primary-foreground font-bold text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-md uppercase tracking-wider text-center active:scale-95 transition-all"
                 >
-                  <Printer className="h-3.5 w-3.5" />
-                  <span>Print / Save PDF</span>
+                  <Printer className="h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate">Print / PDF</span>
                 </button>
               </div>
             </div>

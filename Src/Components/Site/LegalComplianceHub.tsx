@@ -363,25 +363,25 @@ export function LegalComplianceHub({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl w-[96vw] sm:w-full p-0 overflow-hidden bg-[#040806] border border-emerald-500/25 text-slate-100 shadow-[0_25px_70px_rgba(0,0,0,0.9),0_0_40px_rgba(5,150,105,0.2)] rounded-2xl sm:rounded-3xl max-h-[92dvh] sm:max-h-[85vh] flex flex-col gap-0">
-        <DialogHeader className="p-3.5 sm:p-6 border-b border-white/[0.08] bg-[#081610]/90 backdrop-blur-xl shrink-0">
+      <DialogContent className="max-w-4xl w-[94vw] sm:w-[90vw] md:w-full p-0 overflow-hidden bg-card border border-border text-foreground shadow-2xl rounded-2xl sm:rounded-3xl max-h-[88vh] sm:max-h-[82vh] flex flex-col gap-0">
+        <DialogHeader className="p-3.5 sm:p-5 border-b border-border/80 bg-surface/80 backdrop-blur-md shrink-0">
           <div className="flex flex-col gap-1 min-w-0">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-400 text-[0.65rem] sm:text-xs font-bold uppercase tracking-wider mb-1 max-w-full">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/10 border border-primary/25 text-primary text-[0.65rem] sm:text-xs font-bold uppercase tracking-wider mb-1 max-w-full">
               <ShieldCheck className="h-3 w-3 shrink-0" />
               <span className="truncate">SaastaScholar | Legal &amp; Compliance Hub</span>
             </div>
-            <DialogTitle className="text-base sm:text-2xl font-extrabold text-white tracking-tight break-words">
+            <DialogTitle className="text-base sm:text-xl font-black text-foreground tracking-tight break-words">
               Academic Legal &amp; Commerce Compliance
             </DialogTitle>
-            <DialogDescription className="text-[0.68rem] sm:text-xs text-slate-400 mt-0.5 break-words leading-relaxed line-clamp-2 sm:line-clamp-none">
+            <DialogDescription className="text-[0.68rem] sm:text-xs text-muted-foreground mt-0.5 break-words leading-relaxed line-clamp-2 sm:line-clamp-none">
               Fully Compliant With DPDP Act 2023, EU GDPR, EPrivacy Directive, IT Act 2000, And Indian Consumer Protection Laws.
             </DialogDescription>
           </div>
 
           {/* Search & Category Filter Pills */}
-          <div className="mt-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 min-w-0">
+          <div className="mt-3 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 min-w-0">
             <div className="relative flex-1 min-w-0">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400 shrink-0" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground shrink-0" />
               <input
                 type="text"
                 placeholder="Search Policies, Terms, Refund, Deletion..."
@@ -390,7 +390,7 @@ export function LegalComplianceHub({
                   setSearchQuery(e.target.value);
                   if (mobileView === "reader") setMobileView("list");
                 }}
-                className="w-full pl-8 pr-3 py-1.5 sm:pl-9 sm:pr-4 sm:py-2 rounded-xl bg-white/5 border border-white/10 text-xs text-white placeholder-slate-400 focus:outline-none focus:border-emerald-500/50 min-w-0"
+                className="w-full pl-8 pr-3 py-1.5 sm:pl-9 sm:pr-4 sm:py-2 rounded-xl bg-card border border-border text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 min-w-0 shadow-2xs"
               />
             </div>
             <div className="flex items-center gap-1.5 overflow-x-auto w-full sm:w-auto min-w-0 max-w-full scrollbar-none py-0.5 text-xs shrink-0 touch-pan-x">
@@ -411,8 +411,8 @@ export function LegalComplianceHub({
                   className={cn(
                     "px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-xl text-[0.7rem] sm:text-xs font-bold transition-all cursor-pointer whitespace-nowrap shrink-0",
                     activeCategory === cat.id
-                      ? "bg-emerald-600 text-white shadow-sm"
-                      : "bg-white/5 text-slate-400 hover:text-white hover:bg-white/10"
+                      ? "bg-primary text-primary-foreground shadow-xs font-extrabold"
+                      : "bg-surface/80 border border-border/70 text-muted-foreground hover:text-foreground hover:bg-card"
                   )}
                 >
                   {cat.label}
@@ -427,14 +427,14 @@ export function LegalComplianceHub({
           {/* Navigation Sidebar */}
           <div
             className={cn(
-              "md:col-span-4 border-r border-white/[0.08] bg-[#06100b]/60 overflow-y-auto p-2.5 sm:p-3 space-y-1.5 min-w-0",
+              "md:col-span-4 border-r border-border/80 bg-surface/50 overflow-y-auto p-2.5 sm:p-3 space-y-1.5 min-w-0",
               mobileView === "reader" ? "hidden md:block" : "block"
             )}
           >
             {/* Mobile Header in List View showing Count */}
-            <div className="flex md:hidden items-center justify-between pb-1 px-1 text-[0.7rem] text-slate-400">
+            <div className="flex md:hidden items-center justify-between pb-1 px-1 text-[0.7rem] text-muted-foreground">
               <span className="font-semibold uppercase tracking-wider">Select Policy To Read</span>
-              <span className="font-mono text-emerald-400 font-bold">{filteredPolicies.length} Available</span>
+              <span className="font-mono text-primary font-bold">{filteredPolicies.length} Available</span>
             </div>
 
             {filteredPolicies.map((p) => {
@@ -451,21 +451,21 @@ export function LegalComplianceHub({
                   className={cn(
                     "w-full text-left p-2.5 sm:p-3 rounded-xl transition-all cursor-pointer flex items-start gap-2.5 min-w-0",
                     isSelected
-                      ? "bg-emerald-500/15 border border-emerald-500/30 text-white shadow-sm"
-                      : "hover:bg-white/[0.04] text-slate-400 hover:text-slate-200 border border-transparent"
+                      ? "bg-primary/15 border border-primary/30 text-foreground font-semibold shadow-2xs"
+                      : "hover:bg-surface text-muted-foreground hover:text-foreground border border-transparent"
                   )}
                 >
                   <Icon
                     className={cn(
                       "h-4 w-4 mt-0.5 shrink-0",
-                      isSelected ? "text-emerald-400" : "text-slate-400"
+                      isSelected ? "text-primary" : "text-muted-foreground"
                     )}
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-1">
                       <span className="text-xs font-bold truncate block">{p.title}</span>
                     </div>
-                    <span className="text-[0.62rem] sm:text-[0.65rem] text-slate-400 block truncate mt-0.5">
+                    <span className="text-[0.62rem] sm:text-[0.65rem] text-muted-foreground block truncate mt-0.5">
                       {p.badge}
                     </span>
                   </div>
@@ -474,7 +474,7 @@ export function LegalComplianceHub({
             })}
 
             {filteredPolicies.length === 0 && (
-              <div className="p-4 text-center text-xs text-slate-400">
+              <div className="p-4 text-center text-xs text-muted-foreground">
                 No Policies Matched Your Query.
               </div>
             )}
@@ -483,51 +483,51 @@ export function LegalComplianceHub({
           {/* Document Content View */}
           <div
             className={cn(
-              "md:col-span-8 p-3.5 sm:p-6 overflow-y-auto space-y-4 sm:space-y-6 bg-[#040806]/40 min-w-0",
+              "md:col-span-8 p-3.5 sm:p-6 overflow-y-auto space-y-4 sm:space-y-6 bg-card/60 min-w-0",
               mobileView === "list" ? "hidden md:block" : "block"
             )}
           >
             {/* Mobile Top Navigation Bar: Back to List Button */}
-            <div className="flex md:hidden items-center justify-between gap-2 pb-2.5 border-b border-white/[0.08]">
+            <div className="flex md:hidden items-center justify-between gap-2 pb-2.5 border-b border-border/80">
               <button
                 type="button"
                 onClick={() => setMobileView("list")}
-                className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-400 hover:text-emerald-300 py-1 px-2.5 rounded-lg bg-emerald-500/10 border border-emerald-500/25 active:scale-95 transition-all cursor-pointer shrink-0"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-primary hover:text-primary-deep py-1 px-2.5 rounded-lg bg-primary/10 border border-primary/25 active:scale-95 transition-all cursor-pointer shrink-0"
               >
                 <ArrowLeft className="h-3.5 w-3.5 shrink-0" />
                 <span>All Policies</span>
               </button>
-              <span className="text-[0.62rem] text-emerald-300 font-semibold truncate bg-white/5 px-2 py-0.5 rounded-md border border-white/5">
+              <span className="text-[0.62rem] text-primary font-semibold truncate bg-primary/10 px-2 py-0.5 rounded-md border border-primary/20">
                 {activeDoc.badge}
               </span>
             </div>
 
             <div className="min-w-0">
-              <div className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-300 text-[0.7rem] font-bold">
+              <div className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-primary/10 border border-primary/25 text-primary text-[0.7rem] font-bold">
                 <CheckCircle2 className="h-3 w-3" />
                 {activeDoc.badge}
               </div>
-              <h3 className="text-base sm:text-xl font-extrabold text-white tracking-tight mt-1 sm:mt-2 break-words">
+              <h3 className="text-base sm:text-xl font-extrabold text-foreground tracking-tight mt-1 sm:mt-2 break-words">
                 {activeDoc.title}
               </h3>
-              <p className="text-[0.72rem] sm:text-xs text-slate-400 mt-1 leading-relaxed break-words">
+              <p className="text-[0.72rem] sm:text-xs text-muted-foreground mt-1 leading-relaxed break-words">
                 {activeDoc.subtitle}
               </p>
             </div>
 
-            <div className="space-y-3.5 sm:space-y-5 min-w-0">
+            <div className="space-y-3.5 sm:space-y-4 min-w-0">
               {activeDoc.sections.map((sec, idx) => (
                 <div
                   key={idx}
-                  className="rounded-xl sm:rounded-2xl border border-white/[0.08] bg-white/[0.02] p-3 sm:p-4 text-xs leading-relaxed min-w-0"
+                  className="rounded-xl sm:rounded-2xl border border-border/80 bg-surface/50 p-3 sm:p-4 text-xs leading-relaxed min-w-0 shadow-2xs"
                 >
-                  <h4 className="text-xs sm:text-sm font-bold text-emerald-300 mb-1.5 flex items-start gap-2 break-words">
-                    <span className="flex h-4.5 w-4.5 sm:h-5 sm:w-5 items-center justify-center rounded-full bg-emerald-500/15 border border-emerald-500/30 text-[0.62rem] sm:text-[0.68rem] text-emerald-400 font-mono shrink-0 mt-0.5">
+                  <h4 className="text-xs sm:text-sm font-bold text-foreground mb-1.5 flex items-start gap-2 break-words">
+                    <span className="flex h-4.5 w-4.5 sm:h-5 sm:w-5 items-center justify-center rounded-full bg-primary/15 border border-primary/30 text-[0.62rem] sm:text-[0.68rem] text-primary font-mono shrink-0 mt-0.5">
                       {idx + 1}
                     </span>
                     <span className="min-w-0 break-words flex-1">{sec.heading}</span>
                   </h4>
-                  <p className="text-slate-300 text-[0.72rem] sm:text-[0.78rem] leading-relaxed break-words pl-6.5 sm:pl-7">
+                  <p className="text-muted-foreground text-[0.72rem] sm:text-[0.78rem] leading-relaxed break-words pl-6.5 sm:pl-7">
                     {sec.body}
                   </p>
                 </div>
@@ -535,9 +535,9 @@ export function LegalComplianceHub({
             </div>
 
             {/* Quick Actions Footer Inside Modal */}
-            <div className="mt-6 sm:mt-8 pt-3 sm:pt-4 border-t border-white/[0.08] flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-slate-400 min-w-0">
+            <div className="mt-6 sm:mt-8 pt-3 sm:pt-4 border-t border-border/80 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 text-xs text-muted-foreground min-w-0">
               <span className="text-[0.65rem] sm:text-[0.7rem] break-words">
-                Governance Desk: <strong className="text-white">legal@durgaaisolutions.in</strong>
+                Governance Desk: <strong className="text-foreground">legal@durgaaisolutions.in</strong>
               </span>
               <button
                 type="button"
@@ -545,7 +545,7 @@ export function LegalComplianceHub({
                   window.dispatchEvent(new CustomEvent("open_cookie_preferences"));
                   onOpenChange(false);
                 }}
-                className="inline-flex items-center gap-1.5 text-[0.7rem] sm:text-xs text-emerald-400 hover:text-emerald-300 font-semibold cursor-pointer shrink-0"
+                className="inline-flex items-center gap-1.5 text-[0.7rem] sm:text-xs text-primary hover:text-primary-deep font-semibold cursor-pointer shrink-0"
               >
                 <span>Manage Cookie Preferences</span> <ExternalLink className="h-3 w-3 shrink-0" />
               </button>
