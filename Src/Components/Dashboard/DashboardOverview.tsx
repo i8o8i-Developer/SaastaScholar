@@ -201,10 +201,10 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
               <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
               <span>NIMS Student Study Space</span>
             </div>
-            <h1 className="font-display text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-foreground">
-              Welcome Back, {studentName} 👋
+            <h1 className="font-display text-lg min-[360px]:text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-foreground break-words">
+              Welcome Back, {studentName}
             </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-2xl">
+            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-2xl break-words">
               Enrolled In <strong className="text-foreground">{studentProgram}</strong> (Semester {user?.semester || 1} · Section {user?.section || "A"}). All Notes, Timetables, And Solved Papers Are Ready For You.
             </p>
           </div>
@@ -755,8 +755,9 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
                               />
                             </div>
                             <div className="flex items-center justify-between text-[0.62rem] text-muted-foreground">
-                              <span className="truncate max-w-[65%]" title={sub.faculty_name || "Faculty"}>
-                                👨‍🏫 {sub.faculty_name || "Faculty"}
+                              <span className="inline-flex items-center gap-1 truncate max-w-[65%]" title={sub.faculty_name || "Faculty"}>
+                                <User className="h-3 w-3 shrink-0 text-primary/70" />
+                                <span className="truncate">{sub.faculty_name || "Faculty"}</span>
                               </span>
                               <span className="font-mono font-medium">{subPyqs} PYQs</span>
                             </div>

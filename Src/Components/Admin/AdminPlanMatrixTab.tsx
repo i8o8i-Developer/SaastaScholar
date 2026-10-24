@@ -246,7 +246,7 @@ export function AdminPlanMatrixTab() {
               Permissions For {currentPlan?.name || selectedTier}
             </h3>
             <p className="text-xs text-muted-foreground">
-              Changes applied here will immediately take effect for all scholars subscribed to this tier.
+              Changes Applied Here Will Immediately Take Effect For All Scholars Subscribed To This Tier.
             </p>
           </div>
 
@@ -275,7 +275,7 @@ export function AdminPlanMatrixTab() {
               DRM PDF Download Capability
             </span>
             <p className="text-[0.68rem] text-muted-foreground leading-relaxed">
-              Allows student to save encrypted offline copies of verified materials.
+              Allows Student To Save Encrypted Offline Copies Of Verified Materials.
             </p>
             <div className="pt-2">
               <button
@@ -314,7 +314,7 @@ export function AdminPlanMatrixTab() {
               Daily Download Quota Limit
             </span>
             <p className="text-[0.68rem] text-muted-foreground leading-relaxed">
-              Maximum items a student on this tier can download per 24 hours (0 = None).
+              Maximum Items A Student On This Tier Can Download Per 24 Hours (0 = None).
             </p>
             <div className="pt-1">
               <input
@@ -339,7 +339,7 @@ export function AdminPlanMatrixTab() {
               Scholar Pass Title / Badge
             </span>
             <p className="text-[0.68rem] text-muted-foreground leading-relaxed">
-              Custom badge rendered on student dashboard & PDF watermarks.
+              Custom Badge Rendered On Student Dashboard & PDF Watermarks.
             </p>
             <div className="pt-1">
               <input
@@ -367,7 +367,7 @@ export function AdminPlanMatrixTab() {
                 <span>Accessible Dashboard Pages & Study Hubs</span>
               </h4>
               <p className="text-xs text-muted-foreground">
-                Toggle which pages students on this tier can visit without triggering a paywall.
+                Toggle Which Pages Students On This Tier Can Visit Without Triggering A Paywall.
               </p>
             </div>
 

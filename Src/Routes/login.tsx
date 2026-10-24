@@ -425,13 +425,13 @@ export function Login() {
 
       <div className="relative mx-auto w-full max-w-4xl min-w-0 space-y-4">
         {/* Top Breadcrumb Bar */}
-        <div className="flex flex-wrap items-center justify-between gap-2 min-w-0">
+        <div className="flex flex-wrap items-center justify-between gap-1.5 sm:gap-2 min-w-0">
           <a
             href="/"
-            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/85 px-3 sm:px-4 py-1.5 text-xs font-semibold text-foreground shadow-2xs backdrop-blur-xs transition-all hover:border-primary/50 hover:bg-surface active:scale-95 cursor-pointer shrink-0"
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/85 px-2.5 sm:px-4 py-1.5 text-xs font-semibold text-foreground shadow-2xs backdrop-blur-xs transition-all hover:border-primary/50 hover:bg-surface active:scale-95 cursor-pointer shrink-0"
           >
-            <ArrowLeft className="h-3.5 w-3.5 text-primary" />
-            <span>Return To Home</span>
+            <ArrowLeft className="h-3.5 w-3.5 text-primary shrink-0" />
+            <span><span className="hidden min-[360px]:inline">Return To </span>Home</span>
           </a>
 
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
@@ -467,7 +467,7 @@ export function Login() {
         {/* Main Glassmorphic Card */}
         <div className="overflow-hidden rounded-3xl border border-border/90 bg-card/90 shadow-[0_24px_70px_-25px_color-mix(in_oklab,var(--color-primary-deep)_35%,transparent)] backdrop-blur-md min-w-0 animate-smooth-entrance hover-lift-subtle">
           {/* Card Top Banner Matched To Logo Palette */}
-          <div className="border-b border-border/80 bg-gradient-to-r from-[#005F15]/15 via-surface to-[#007EAC]/15 px-4 sm:px-8 py-3.5 sm:py-5 min-w-0">
+          <div className="border-b border-border/80 bg-gradient-to-r from-[#005F15]/15 via-surface to-[#007EAC]/15 px-3.5 sm:px-8 py-3.5 sm:py-5 min-w-0">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 min-w-0">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="relative shrink-0">
@@ -547,7 +547,7 @@ export function Login() {
           </div>
 
           {/* Symmetrical 2-Column Content Grid */}
-          <div className="p-6 sm:p-8 min-w-0">
+          <div className="p-3.5 sm:p-8 min-w-0">
             <div className="grid gap-8 lg:grid-cols-12 min-w-0 items-start">
               {/* Left Column: Input Form (7 cols) */}
               <div className="lg:col-span-7 min-w-0 flex flex-col justify-between space-y-5">
@@ -561,12 +561,12 @@ export function Login() {
                     </span>
                   </div>
 
-                  <h2 className="mt-3 text-2xl font-bold tracking-tight text-foreground sm:text-3xl leading-tight">
+                  <h2 className="mt-3 text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-foreground leading-tight break-words">
                     {authMode === "register" && "Join Your Academic Workspace"}
                     {authMode === "login" && "Welcome Back, Student!"}
                     {authMode === "admin" && "Administrative Portal"}
                   </h2>
-                  <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground leading-relaxed">
+                  <p className="mt-1.5 text-xs sm:text-sm text-muted-foreground leading-relaxed break-words">
                     {authMode === "register" && "Create Your Scholar Account To Access Handwritten Notes, Solved Papers, And Practical Lab Packets For Your Class."}
                     {authMode === "login" && "Log In To Access Your Daily Notes, Solved Exam Papers, And Class Timetable."}
                     {authMode === "admin" && "Sign In To Upload Course Notes, Manage Student Batches, And Send College Notices."}
@@ -575,24 +575,24 @@ export function Login() {
 
                 {/* 3-Step Indicator on Registration */}
                 {authMode === "register" && (
-                  <div className="space-y-2 mb-2">
-                    <div className="flex items-center justify-between text-xs px-1">
-                      <span className="font-bold text-foreground">
-                        {signupStep === 1 && "Step 1 of 3: Student Identity & Course"}
-                        {signupStep === 2 && "Step 2 of 3: Academic Cohort & Goals"}
-                        {signupStep === 3 && "Step 3 of 3: Account Security & Credentials"}
+                  <div className="space-y-2 mb-2 min-w-0">
+                    <div className="flex flex-wrap items-center justify-between text-xs px-1 gap-1">
+                      <span className="font-bold text-foreground truncate">
+                        {signupStep === 1 && "Step 1 of 3: Student Identity"}
+                        {signupStep === 2 && "Step 2 of 3: Academic Cohort"}
+                        {signupStep === 3 && "Step 3 of 3: Account Security"}
                       </span>
-                      <span className="text-[0.68rem] font-bold text-primary font-mono bg-primary/10 px-2 py-0.5 rounded-full">
+                      <span className="text-[0.68rem] font-bold text-primary font-mono bg-primary/10 px-2 py-0.5 rounded-full shrink-0">
                         {signupStep === 1 ? "33% Complete" : signupStep === 2 ? "66% Complete" : "Almost Done!"}
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between gap-1.5 bg-surface/85 border border-border/80 rounded-2xl p-1.5 sm:p-2">
+                    <div className="flex items-center justify-between gap-1 sm:gap-1.5 bg-surface/85 border border-border/80 rounded-2xl p-1 sm:p-2 min-w-0">
                       <button
                         type="button"
                         onClick={() => setSignupStep(1)}
                         className={cn(
-                          "flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex-1 justify-center sm:justify-start",
+                          "flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex-1 justify-center sm:justify-start min-w-0",
                           signupStep === 1
                             ? "bg-primary text-primary-foreground shadow-2xs"
                             : signupStep > 1
@@ -601,9 +601,9 @@ export function Login() {
                         )}
                       >
                         <span className="grid h-5 w-5 place-items-center rounded-full bg-black/15 dark:bg-white/15 text-[0.65rem] font-extrabold shrink-0">1</span>
-                        <span className="truncate">Course</span>
+                        <span className={cn("truncate", signupStep === 1 ? "inline" : "hidden min-[420px]:inline")}>Course</span>
                       </button>
-                      <div className={cn("h-0.5 flex-1 min-w-2 transition-colors", signupStep >= 2 ? "bg-primary" : "bg-border/60")} />
+                      <div className={cn("h-0.5 flex-1 min-w-1 sm:min-w-2 transition-colors", signupStep >= 2 ? "bg-primary" : "bg-border/60")} />
                       <button
                         type="button"
                         onClick={() => {
@@ -614,7 +614,7 @@ export function Login() {
                           setSignupStep(2);
                         }}
                         className={cn(
-                          "flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex-1 justify-center sm:justify-start",
+                          "flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex-1 justify-center sm:justify-start min-w-0",
                           signupStep === 2
                             ? "bg-primary text-primary-foreground shadow-2xs"
                             : signupStep > 2
@@ -623,9 +623,9 @@ export function Login() {
                         )}
                       >
                         <span className="grid h-5 w-5 place-items-center rounded-full bg-black/15 dark:bg-white/15 text-[0.65rem] font-extrabold shrink-0">2</span>
-                        <span className="truncate">Cohort</span>
+                        <span className={cn("truncate", signupStep === 2 ? "inline" : "hidden min-[420px]:inline")}>Cohort</span>
                       </button>
-                      <div className={cn("h-0.5 flex-1 min-w-2 transition-colors", signupStep >= 3 ? "bg-primary" : "bg-border/60")} />
+                      <div className={cn("h-0.5 flex-1 min-w-1 sm:min-w-2 transition-colors", signupStep >= 3 ? "bg-primary" : "bg-border/60")} />
                       <button
                         type="button"
                         onClick={() => {
@@ -640,14 +640,14 @@ export function Login() {
                           setSignupStep(3);
                         }}
                         className={cn(
-                          "flex items-center gap-1.5 px-2 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex-1 justify-center sm:justify-start",
+                          "flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex-1 justify-center sm:justify-start min-w-0",
                           signupStep === 3
                             ? "bg-primary text-primary-foreground shadow-2xs"
                             : "text-muted-foreground"
                         )}
                       >
                         <span className="grid h-5 w-5 place-items-center rounded-full bg-black/15 dark:bg-white/15 text-[0.65rem] font-extrabold shrink-0">3</span>
-                        <span className="truncate">Security</span>
+                        <span className={cn("truncate", signupStep === 3 ? "inline" : "hidden min-[420px]:inline")}>Security</span>
                       </button>
                     </div>
                   </div>
