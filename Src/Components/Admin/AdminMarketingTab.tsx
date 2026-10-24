@@ -87,7 +87,7 @@ interface DeliverabilityDiagnostic {
 const EMAIL_TEMPLATES = {
   weekly_dispatch: {
     subject: "Weekly Academic Dispatch: High-Yield Notes & Solved Papers",
-    preheader: "Your Monday study kit: Unit formula sheets, lab viva answers, and exam notes.",
+    preheader: "Your Monday Study Kit: Unit Formula Sheets, Lab Viva Answers, and Exam Notes.",
     contentHtml: `<span class="badge">Weekly Academic Dispatch</span>
 <h2 style="color:#ffffff; font-size:18px; font-weight:800; margin-top:0; text-transform:uppercase;">This Week In Your Curriculum</h2>
 <p>Hello Scholar,</p>
@@ -95,9 +95,9 @@ const EMAIL_TEMPLATES = {
 
 <div style="background-color:#0b140c; border:1px solid #1f3322; padding:16px; margin:20px 0; font-size:13px; line-height:1.7;">
   <p style="margin:0 0 8px 0; color:#34d399; font-weight:700;">★ High-Yield Handouts Added:</p>
-  <p style="margin:0 0 6px 0;">• <strong>Unit 3 & 4 Handwritten Formula Sheets</strong> with verified derivations.</p>
-  <p style="margin:0 0 6px 0;">• <strong>Solved PYQ Papers (2020–2025)</strong> with step-by-step solutions.</p>
-  <p style="margin:0;">• <strong>Lab Viva Voce Cheat-Sheets</strong> covering core experiment questions.</p>
+  <p style="margin:0 0 6px 0;">• <strong>Unit 3 & 4 Handwritten Formula Sheets</strong> With Verified Derivations.</p>
+  <p style="margin:0 0 6px 0;">• <strong>Solved PYQ Papers (2020–2025)</strong> With Step-by-Step Solutions.</p>
+  <p style="margin:0;">• <strong>Lab Viva Voce Cheat-Sheets</strong> Covering Core Experiment Questions.</p>
 </div>
 
 <p>Stay Ahead In Your Internal Sessional Exams By Reviewing These Today.</p>
@@ -110,7 +110,7 @@ const EMAIL_TEMPLATES = {
   },
   exam_alert: {
     subject: "Urgent Examination Alert: Sessional Dates & Master Revision Guide",
-    preheader: "Official term schedule release and high-priority revision notes.",
+    preheader: "Official Term Schedule Release and High-Priority Revision Notes.",
     contentHtml: `<span class="badge" style="background-color:rgba(239,68,68,0.15); color:#f87171; border:1px solid #ef4444;">Examination Notice</span>
 <h2 style="color:#ffffff; font-size:18px; font-weight:800; margin-top:0; text-transform:uppercase;">Mid-Term Exam Schedule Announced</h2>
 <p>Dear Scholar,</p>
@@ -130,7 +130,7 @@ const EMAIL_TEMPLATES = {
   },
   lab_viva: {
     subject: "Lab Practical Cheat-Sheet & Viva Voce Master Bank",
-    preheader: "Ace your laboratory evaluations with full viva answers and experiment setups.",
+    preheader: "Ace Your Laboratory Evaluations With Full Viva Answers and Experiment Setups.",
     contentHtml: `<span class="badge">Practical Study Kit</span>
 <h2 style="color:#ffffff; font-size:18px; font-weight:800; margin-top:0; text-transform:uppercase;">Lab Practical & Viva Master Bank</h2>
 <p>Hello Scholar,</p>
@@ -313,7 +313,7 @@ export function AdminMarketingTab() {
     }
 
     const confirmed = window.confirm(
-      `Confirm Broadcast Dispatch:\n\nSubject: ${subject}\nAudience Segment: ${audience}\n\nAre you sure you want to send this dispatch to all targeted recipients?`
+      `Confirm Broadcast Dispatch:\n\nSubject: ${subject}\nAudience Segment: ${audience}\n\nAre You Sure You Want To Send This Dispatch To All Targeted Recipients?`
     );
     if (!confirmed) return;
 
@@ -379,7 +379,7 @@ export function AdminMarketingTab() {
   };
 
   const handleDeleteSubscriber = async (id: string) => {
-    if (!window.confirm("Remove this subscriber record permanently?")) return;
+    if (!window.confirm("Remove This Subscriber Record Permanently?")) return;
     try {
       await apiFetch(`/academic/admin/marketing/subscribers/${id}/`, {
         method: "DELETE",
@@ -613,7 +613,7 @@ export function AdminMarketingTab() {
 
               <div>
                 <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground block mb-1.5">
-                  Inbox Preheader Text (Snippet shown next to subject in Gmail/Outlook)
+                  Inbox Preheader Text (Snippet Shown Next To Subject In Gmail/Outlook)
                 </label>
                 <input
                   type="text"
@@ -960,8 +960,8 @@ export function AdminMarketingTab() {
                   <span>Why Emails Land In Spam &amp; How We Fix It</span>
                 </h3>
                 <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                  Gmail and Outlook require strict SPF, DKIM, DMARC alignment and One-Click
-                  Unsubscribe headers. Here is our live system deliverability verification.
+                  Gmail And Outlook Require Strict SPF, DKIM, DMARC Alignment And One-Click
+                  Unsubscribe Headers. Here Is Our Live System Deliverability Verification.
                 </p>
               </div>
               <button
@@ -1005,7 +1005,7 @@ export function AdminMarketingTab() {
                     <strong>TLS Encryption:</strong> {diagnostic.use_tls ? "Enabled (STARTTLS)" : "Disabled"}
                   </p>
                   <p className="m-0">
-                    <strong>Authenticated User:</strong> {diagnostic.host_user || "None configured"}
+                    <strong>Authenticated User:</strong> {diagnostic.host_user || "None Configured"}
                   </p>
                 </div>
               </div>

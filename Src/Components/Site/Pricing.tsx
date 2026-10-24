@@ -121,7 +121,7 @@ export function Pricing() {
   ];
 
   return (
-    <Section id="pricing" className="relative overflow-hidden py-14 sm:py-20">
+    <Section id="pricing" className="relative overflow-hidden py-6 sm:py-10 scroll-mt-16 sm:scroll-mt-20">
       {/* Ambient Forest Green Lighting */}
       <div
         aria-hidden
@@ -138,7 +138,7 @@ export function Pricing() {
       </Reveal>
 
       {/* Billing Cycle Toggle */}
-      <Reveal delay={60} className="mt-8 flex justify-center px-1">
+      <Reveal delay={60} className="mt-5 sm:mt-6 flex justify-center px-1">
         <div className="inline-flex items-center gap-1 rounded-full border border-border/80 bg-card/90 p-1 shadow-2xs backdrop-blur-xs max-w-full">
           <button
             type="button"
@@ -178,7 +178,7 @@ export function Pricing() {
       </Reveal>
 
       {/* 4-Tier Pricing Grid */}
-      <div className="mt-10 grid gap-4 sm:gap-5 md:grid-cols-2 lg:grid-cols-4 min-w-0 relative">
+      <div className="mt-6 sm:mt-8 grid gap-3.5 sm:gap-4 md:grid-cols-2 lg:grid-cols-4 min-w-0 relative">
         {PLANS.map((plan, i) => {
           const displayPrice = isSemester ? plan.semesterPrice : plan.monthlyPrice;
 
@@ -186,9 +186,9 @@ export function Pricing() {
             <Reveal key={plan.id} delay={i * 60} className="min-w-0">
               <div
                 className={cn(
-                  "relative flex h-full flex-col justify-between rounded-2xl sm:rounded-3xl border p-4 sm:p-5.5 transition-all duration-300 backdrop-blur-md min-w-0",
+                  "relative flex h-full flex-col justify-between rounded-2xl sm:rounded-3xl border p-3.5 sm:p-4.5 transition-all duration-300 backdrop-blur-md min-w-0",
                   plan.popular
-                    ? "border-emerald-500/80 bg-gradient-to-b from-[#003B0D] via-[#004D11] to-[#002408] text-white shadow-[0_20px_50px_-20px_rgba(0,95,21,0.5)] lg:-translate-y-2 ring-1 ring-emerald-400/40"
+                    ? "border-emerald-500/80 bg-gradient-to-b from-[#003B0D] via-[#004D11] to-[#002408] text-white shadow-[0_20px_50px_-20px_rgba(0,95,21,0.5)] lg:-translate-y-1.5 ring-1 ring-emerald-400/40"
                     : "border-border/80 bg-card/95 hover:border-primary/50 shadow-xs hover:-translate-y-1",
                 )}
               >
@@ -266,7 +266,7 @@ export function Pricing() {
                   </div>
 
                   {/* Feature Bullets */}
-                  <ul className="mt-4 space-y-2.5 min-w-0">
+                  <ul className="mt-3 space-y-2 min-w-0">
                     {plan.features.map((feature) => (
                       <li key={feature} className="flex items-start gap-2 text-xs min-w-0">
                         <CheckCircle2
@@ -277,7 +277,7 @@ export function Pricing() {
                         />
                         <span
                           className={cn(
-                            "leading-relaxed break-words text-[0.72rem]",
+                            "leading-snug break-words text-[0.72rem]",
                             plan.popular ? "text-emerald-50/90" : "text-foreground/90",
                           )}
                         >
@@ -289,7 +289,7 @@ export function Pricing() {
                 </div>
 
                 {/* Action Button */}
-                <div className="mt-6 pt-3 border-t border-border/40 min-w-0">
+                <div className="mt-4 pt-2.5 border-t border-border/40 min-w-0">
                   {isAuthenticated && plan.id !== "free" ? (
                     <button
                       type="button"
@@ -304,7 +304,7 @@ export function Pricing() {
                         });
                       }}
                       className={cn(
-                        "w-full inline-flex items-center justify-center gap-1.5 text-xs font-bold rounded-full py-2.5 shadow-xs cursor-pointer transition-all active:scale-[0.98]",
+                        "w-full inline-flex items-center justify-center gap-1.5 text-xs font-bold rounded-full py-2 shadow-xs cursor-pointer transition-all active:scale-[0.98]",
                         plan.popular
                           ? "bg-white text-emerald-950 hover:bg-emerald-50 hover:shadow-lg shadow-[0_8px_20px_-5px_rgba(255,255,255,0.3)] font-black"
                           : "bg-surface hover:bg-primary hover:text-primary-foreground border border-border/80 hover:border-primary text-foreground",
@@ -322,7 +322,7 @@ export function Pricing() {
                       href={isAuthenticated ? "/dashboard" : `/login?mode=signup&plan=${plan.id}`}
                       size="md"
                       className={cn(
-                        "w-full justify-center text-xs font-bold shadow-xs py-2.5 cursor-pointer transition-all active:scale-[0.98]",
+                        "w-full justify-center text-xs font-bold shadow-xs py-2 cursor-pointer transition-all active:scale-[0.98]",
                         plan.popular
                           ? "bg-white text-emerald-950 hover:bg-emerald-50 hover:shadow-lg shadow-[0_8px_20px_-5px_rgba(255,255,255,0.3)] font-black"
                           : "bg-surface hover:bg-primary hover:text-primary-foreground border border-border/80 hover:border-primary",
@@ -342,7 +342,7 @@ export function Pricing() {
 
       {/* Trust & Guarantee Badges Row */}
       <Reveal delay={160}>
-        <div className="mt-10 flex flex-wrap items-center justify-center gap-5 sm:gap-8 border-t border-border/80 pt-6 text-xs text-muted-foreground">
+        <div className="mt-5 sm:mt-6 flex flex-wrap items-center justify-center gap-4 sm:gap-7 border-t border-border/70 pt-4 text-[0.72rem] sm:text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-1.5">
             <ShieldCheck className="h-3.5 w-3.5 text-primary shrink-0" />
             <span>Verified Handwritten Notes &amp; 5+ Yrs Solved PYQs</span>

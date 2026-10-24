@@ -1110,27 +1110,27 @@ class AdminEmailDeliverabilityDiagnosticView(APIView):
             {
                 "rule": "Sender Domain & SMTP Authentication Alignment",
                 "status": "PASS" if ("@" in host_user and host_user.split("@")[-1].lower() in sender_email.lower()) else "WARNING",
-                "detail": f"Sender Address ({sender_email}) matches authenticated SMTP user ({host_user})." if ("@" in host_user and host_user.split("@")[-1].lower() in sender_email.lower()) else f"Mismatch: Host User ({host_user}) vs From Header ({sender_email}). Gmail SMTP will flag this as spoofed unless From matches Host User.",
+                "detail": f"Sender Address ({sender_email}) Matches Authenticated SMTP User ({host_user})." if ("@" in host_user and host_user.split("@")[-1].lower() in sender_email.lower()) else f"Mismatch: Host User ({host_user}) vs From Header ({sender_email}). Gmail SMTP Will Flag This As Spoofed Unless From Matches Host User.",
             },
             {
                 "rule": "One-Click List-Unsubscribe RFC Headers",
                 "status": "PASS",
-                "detail": "List-Unsubscribe and List-Unsubscribe-Post: List-Unsubscribe=One-Click headers are active on all dispatches, satisfying Google & Yahoo 2024 compliance.",
+                "detail": "List-Unsubscribe And List-Unsubscribe-Post: List-Unsubscribe=One-Click Headers Are Active On All Dispatches, Satisfying Google & Yahoo 2024 Compliance.",
             },
             {
                 "rule": "Cryptographic Message-ID Domain Integrity",
                 "status": "PASS",
-                "detail": f"Every outgoing email generates a unique Message-ID aligned with @{sender_domain} preventing SpamAssassin penalties.",
+                "detail": f"Every Outgoing Email Generates A Unique Message-ID Aligned With @{sender_domain} Preventing SpamAssassin Penalties.",
             },
             {
                 "rule": "HTML To Plain-Text Multi-Part Balance",
                 "status": "PASS",
-                "detail": "EmailMultiAlternatives delivers matching plain-text body alongside styled HTML.",
+                "detail": "EmailMultiAlternatives Delivers Matching Plain-Text Body Alongside Styled HTML.",
             },
             {
                 "rule": "Clean Preheaders Without Hidden Opacity Hacks",
                 "status": "PASS",
-                "detail": "Preheader utilizes mso-hide/overflow without opacity:0 tricks that trigger spam bots.",
+                "detail": "Preheader Utilizes Mso-Hide/Overflow Without Opacity:0 Tricks That Trigger Spam Bots.",
             },
         ]
 

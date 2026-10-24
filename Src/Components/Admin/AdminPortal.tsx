@@ -181,7 +181,12 @@ export function AdminPortal() {
   const [selectedTimetableDay, setSelectedTimetableDay] = useState<string>(() => getIstWeekdayCode());
   const [mobileNavOpen, setMobileNavOpen] = useState<boolean>(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(() => {
-    return localStorage.getItem("admin_sidebar_collapsed") === "true";
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("admin_sidebar_collapsed");
+      if (stored !== null) return stored === "true";
+      return window.innerWidth < 1280;
+    }
+    return false;
   });
 
   const toggleSidebarCollapsed = () => {
@@ -2398,7 +2403,7 @@ export function AdminPortal() {
         <div className={cn(
           "grid gap-2.5 text-xs",
           options.showSection || options.showSubject
-            ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4"
+            ? "grid-cols-1 sm:grid-cols-2 xl:grid-cols-4"
             : "grid-cols-1 sm:grid-cols-3"
         )}>
           {/* 1. Department */}
@@ -2702,7 +2707,7 @@ export function AdminPortal() {
       <aside
         className={cn(
           "hidden lg:flex flex-col justify-between border-r border-border/80 bg-card/85 p-3.5 backdrop-blur-xl shrink-0 shadow-sm transition-all duration-300",
-          sidebarCollapsed ? "w-20" : "w-64 lg:w-72"
+          sidebarCollapsed ? "w-20" : "w-60 xl:w-72"
         )}
       >
         <div>
@@ -2993,7 +2998,7 @@ export function AdminPortal() {
             <div className="space-y-4 sm:space-y-6 min-w-0">
               {/* Executive Welcome Hero Banner */}
               <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-emerald-500/25 dark:border-border/80 bg-gradient-to-br from-emerald-500/10 via-emerald-50/40 to-teal-500/10 dark:from-emerald-500/15 dark:via-card dark:to-teal-500/10 p-5 sm:p-7 shadow-xs backdrop-blur-md">
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5 min-w-0">
+                <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-5 min-w-0">
                   <div className="space-y-2 min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/15 dark:bg-emerald-500/20 border border-emerald-500/30 px-3 py-1 text-xs font-bold text-emerald-800 dark:text-emerald-300 font-mono whitespace-nowrap shadow-2xs">
@@ -3006,7 +3011,7 @@ export function AdminPortal() {
                       </span>
                     </div>
 
-                    <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-extrabold text-foreground tracking-tight leading-tight">
+                    <h1 className="font-display text-xl sm:text-2xl lg:text-3xl font-extrabold text-foreground tracking-tight leading-tight hyphens-none break-words sm:break-normal">
                       Welcome To SaastaScholar Admin Portal
                     </h1>
                     <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-3xl">
@@ -3015,7 +3020,7 @@ export function AdminPortal() {
                   </div>
 
                   {/* Top Action Quick Buttons */}
-                  <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-2.5 shrink-0 pt-1 sm:pt-0">
+                  <div className="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 sm:gap-2.5 shrink-0 pt-2 sm:pt-0">
                     <button
                       onClick={() => setActiveStation("publisher")}
                       className="inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-2xl bg-primary px-4 py-2.5 text-xs font-bold text-primary-foreground shadow-md hover:bg-primary-deep cursor-pointer transition-all active:scale-95 whitespace-nowrap"
@@ -3041,8 +3046,8 @@ export function AdminPortal() {
                 </div>
               </div>
 
-              {/* 4 Executive KPI Metric Cards (2x2 on Mobile, 4x1 on Desktop) */}
-              <div className="grid gap-2.5 sm:gap-4 grid-cols-2 lg:grid-cols-4 min-w-0">
+              {/* 4 Executive KPI Metric Cards (2x2 on Mobile/Tablet, 4x1 on Desktop XL) */}
+              <div className="grid gap-2.5 sm:gap-4 grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 min-w-0">
                 {/* 1. Scholars Metric */}
                 <div
                   onClick={() => setActiveStation("students")}
@@ -3161,9 +3166,9 @@ export function AdminPortal() {
               </div>
 
               {/* Interactive Charts Canvas Section */}
-              <div className="grid gap-4 sm:gap-6 lg:grid-cols-12 min-w-0">
-                {/* Chart 1: Study Materials by Category (7 Cols) */}
-                <div className="lg:col-span-7 rounded-2xl sm:rounded-3xl border border-border bg-card p-4 sm:p-6 shadow-xs space-y-4 min-w-0 flex flex-col justify-between">
+              <div className="grid gap-4 sm:gap-6 xl:grid-cols-12 min-w-0">
+                {/* Chart 1: Study Materials by Category (7 Cols on XL) */}
+                <div className="xl:col-span-7 rounded-2xl sm:rounded-3xl border border-border bg-card p-4 sm:p-6 shadow-xs space-y-4 min-w-0 flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between border-b border-border/80 pb-3 gap-2">
                       <div className="space-y-0.5 min-w-0">
@@ -3299,8 +3304,8 @@ export function AdminPortal() {
                   </div>
                 </div>
 
-                {/* Chart 2: Degree Program Breakdown (5 Cols) */}
-                <div className="lg:col-span-5 rounded-2xl sm:rounded-3xl border border-border bg-card p-4 sm:p-6 shadow-xs space-y-4 flex flex-col justify-between min-w-0">
+                {/* Chart 2: Degree Program Breakdown (5 Cols on XL) */}
+                <div className="xl:col-span-5 rounded-2xl sm:rounded-3xl border border-border bg-card p-4 sm:p-6 shadow-xs space-y-4 flex flex-col justify-between min-w-0">
                   <div>
                     <div className="flex items-center justify-between border-b border-border/80 pb-3">
                       <div className="space-y-0.5 min-w-0">
@@ -3431,9 +3436,9 @@ export function AdminPortal() {
               </div>
 
               {/* Row 2 Analytics Charts: Timetable Schedule & DRM Security Matrix */}
-              <div className="grid gap-4 sm:gap-6 lg:grid-cols-12 min-w-0">
-                {/* Chart 3: Weekly Class Schedule (7 Cols) */}
-                <div className="lg:col-span-7 rounded-2xl sm:rounded-3xl border border-border bg-card p-4 sm:p-6 shadow-xs space-y-4 min-w-0 flex flex-col justify-between">
+              <div className="grid gap-4 sm:gap-6 xl:grid-cols-12 min-w-0">
+                {/* Chart 3: Weekly Class Schedule (7 Cols on XL) */}
+                <div className="xl:col-span-7 rounded-2xl sm:rounded-3xl border border-border bg-card p-4 sm:p-6 shadow-xs space-y-4 min-w-0 flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between border-b border-border/80 pb-3 gap-2">
                       <div className="space-y-0.5 min-w-0">
@@ -3535,8 +3540,8 @@ export function AdminPortal() {
                   </div>
                 </div>
 
-                {/* Panel 4: Forensic DRM Security & Document Protection Matrix (5 Cols) */}
-                <div className="lg:col-span-5 rounded-2xl sm:rounded-3xl border border-border bg-card p-4 sm:p-6 shadow-xs space-y-4 flex flex-col justify-between min-w-0">
+                {/* Panel 4: Forensic DRM Security & Document Protection Matrix (5 Cols on XL) */}
+                <div className="xl:col-span-5 rounded-2xl sm:rounded-3xl border border-border bg-card p-4 sm:p-6 shadow-xs space-y-4 flex flex-col justify-between min-w-0">
                   <div>
                     <div className="flex items-center justify-between border-b border-border/80 pb-3 gap-2">
                       <div className="space-y-0.5 min-w-0">
@@ -3649,15 +3654,15 @@ export function AdminPortal() {
             <div className="space-y-4 sm:space-y-6 min-w-0">
               {/* Executive Blueprint Header Summary Card */}
               <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-br from-emerald-500/10 via-card to-teal-500/5 p-4 sm:p-6 shadow-xs">
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 sm:gap-6">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <span className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 text-xs font-bold font-mono text-emerald-600 dark:text-emerald-400">
                         Curriculum Architecture
                       </span>
-                      <span className="text-xs text-muted-foreground font-mono">Live Hierarchy</span>
+                      <span className="text-xs text-muted-foreground font-mono whitespace-nowrap shrink-0">Live Hierarchy</span>
                     </div>
-                    <h2 className="font-display text-lg sm:text-2xl font-extrabold text-foreground tracking-tight">
+                    <h2 className="font-display text-lg sm:text-2xl font-extrabold text-foreground tracking-tight hyphens-none">
                       Academic Blueprint &amp; Infrastructure Matrix
                     </h2>
                     <p className="text-xs text-muted-foreground max-w-xl">
@@ -3702,20 +3707,20 @@ export function AdminPortal() {
               </div>
 
               {/* Executive Sub-Station Segmented Bar */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-4 w-full">
-                <div className="grid grid-cols-2 sm:grid-cols-5 gap-1.5 sm:gap-2 p-1.5 rounded-2xl sm:rounded-3xl bg-surface/80 border border-border/80 shadow-2xs flex-1">
+              <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3 border-b border-border pb-4 w-full">
+                <div className="flex items-center gap-1.5 sm:gap-2 p-1.5 rounded-2xl sm:rounded-3xl bg-surface/80 border border-border/80 shadow-2xs overflow-x-auto scrollbar-none min-w-0">
                   <button
                     type="button"
                     onClick={() => setStructureSubTab("departments")}
                     className={cn(
-                      "flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl sm:rounded-2xl px-2 sm:px-3 py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer min-w-0",
+                      "flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer shrink-0 whitespace-nowrap",
                       structureSubTab === "departments"
                         ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20"
                         : "text-muted-foreground hover:bg-card/70 hover:text-foreground",
                     )}
                   >
                     <Building2 className="h-3.5 w-3.5 shrink-0" />
-                    <span className="whitespace-nowrap">Departments</span>
+                    <span>Departments</span>
                     <span className={cn(
                       "rounded-full px-1.5 py-0.2 text-[0.62rem] font-mono font-bold shrink-0",
                       structureSubTab === "departments" ? "bg-white/25 text-white" : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
@@ -3728,14 +3733,14 @@ export function AdminPortal() {
                     type="button"
                     onClick={() => setStructureSubTab("programs")}
                     className={cn(
-                      "flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl sm:rounded-2xl px-2 sm:px-3 py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer min-w-0",
+                      "flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer shrink-0 whitespace-nowrap",
                       structureSubTab === "programs"
                         ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20"
                         : "text-muted-foreground hover:bg-card/70 hover:text-foreground",
                     )}
                   >
                     <GraduationCap className="h-3.5 w-3.5 shrink-0" />
-                    <span className="whitespace-nowrap">Programs</span>
+                    <span>Programs</span>
                     <span className={cn(
                       "rounded-full px-1.5 py-0.2 text-[0.62rem] font-mono font-bold shrink-0",
                       structureSubTab === "programs" ? "bg-white/25 text-white" : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
@@ -3748,14 +3753,14 @@ export function AdminPortal() {
                     type="button"
                     onClick={() => setStructureSubTab("sections")}
                     className={cn(
-                      "flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl sm:rounded-2xl px-2 sm:px-3 py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer min-w-0",
+                      "flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer shrink-0 whitespace-nowrap",
                       structureSubTab === "sections"
                         ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20"
                         : "text-muted-foreground hover:bg-card/70 hover:text-foreground",
                     )}
                   >
                     <Users className="h-3.5 w-3.5 shrink-0" />
-                    <span className="whitespace-nowrap">Sections</span>
+                    <span>Sections</span>
                     <span className={cn(
                       "rounded-full px-1.5 py-0.2 text-[0.62rem] font-mono font-bold shrink-0",
                       structureSubTab === "sections" ? "bg-white/25 text-white" : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
@@ -3768,14 +3773,14 @@ export function AdminPortal() {
                     type="button"
                     onClick={() => setStructureSubTab("subjects")}
                     className={cn(
-                      "flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl sm:rounded-2xl px-2 sm:px-3 py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer min-w-0",
+                      "flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer shrink-0 whitespace-nowrap",
                       structureSubTab === "subjects"
                         ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20"
                         : "text-muted-foreground hover:bg-card/70 hover:text-foreground",
                     )}
                   >
                     <BookOpen className="h-3.5 w-3.5 shrink-0" />
-                    <span className="whitespace-nowrap">Subjects</span>
+                    <span>Subjects</span>
                     <span className={cn(
                       "rounded-full px-1.5 py-0.2 text-[0.62rem] font-mono font-bold shrink-0",
                       structureSubTab === "subjects" ? "bg-white/25 text-white" : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
@@ -3788,14 +3793,14 @@ export function AdminPortal() {
                     type="button"
                     onClick={() => setStructureSubTab("units")}
                     className={cn(
-                      "flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl sm:rounded-2xl px-2 sm:px-3 py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer min-w-0",
+                      "flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl px-3 sm:px-4 py-2 sm:py-2.5 text-xs font-bold transition-all cursor-pointer shrink-0 whitespace-nowrap",
                       structureSubTab === "units"
                         ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-600/20"
                         : "text-muted-foreground hover:bg-card/70 hover:text-foreground",
                     )}
                   >
                     <Layers className="h-3.5 w-3.5 shrink-0" />
-                    <span className="whitespace-nowrap">Units</span>
+                    <span>Units</span>
                     <span className={cn(
                       "rounded-full px-1.5 py-0.2 text-[0.62rem] font-mono font-bold shrink-0",
                       structureSubTab === "units" ? "bg-white/25 text-white" : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
@@ -3889,7 +3894,7 @@ export function AdminPortal() {
 
               {/* Departments Sub-View */}
               {structureSubTab === "departments" && (
-                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-5 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                   {departments.length === 0 ? (
                     <div className="col-span-full rounded-3xl border border-dashed border-border bg-card/60 p-12 text-center space-y-3">
                       <Building2 className="h-10 w-10 mx-auto text-muted-foreground/40" />
@@ -4073,7 +4078,7 @@ export function AdminPortal() {
 
                     {/* FOLDER VIEW: Top-level Department Folders */}
                     {!programFolderDeptId && (
-                      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                      <div className="grid gap-5 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                         {departments.map((dept) => {
                           const progsInDept = filteredPrograms.filter((p) => p.department === dept.id || p.department_name === dept.name);
                           return (
@@ -4141,7 +4146,7 @@ export function AdminPortal() {
                           </div>
                         )}
 
-                        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                        <div className="grid gap-5 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                           {deptPrograms.length === 0 ? (
                             <div className="col-span-full rounded-3xl border border-dashed border-border bg-card/60 p-12 text-center space-y-3">
                               <GraduationCap className="h-10 w-10 mx-auto text-muted-foreground/40" />
@@ -4298,7 +4303,7 @@ export function AdminPortal() {
 
                     {/* FOLDER VIEW: Top-level Program Folders for Sections */}
                     {!sectionFolderProgramId && (
-                      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                      <div className="grid gap-5 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                         {programs.map((prog) => {
                           const progSections = filteredSections.filter((s) => isSectionInProgram(s, prog));
                           const totalCapacity = progSections.reduce((sum, s) => sum + (Number(s.max_capacity) || 0), 0);
@@ -4440,7 +4445,7 @@ export function AdminPortal() {
                           </div>
                         )}
 
-                        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                        <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
                           {displayedSections.length === 0 ? (
                             <div className="col-span-full rounded-3xl border border-dashed border-border bg-card/60 p-12 text-center space-y-3">
                               <Layers className="h-10 w-10 mx-auto text-muted-foreground/40" />
@@ -4632,7 +4637,7 @@ export function AdminPortal() {
 
                     {/* FOLDER VIEW: Top-level Program Specialization Folders */}
                     {!subjectFolderProgramId && (
-                      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                      <div className="grid gap-5 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                         {programs.map((prog) => {
                           const progSubjects = filteredSubjects.filter((s) => isSubjectInProgram(s, prog));
                           const totalCredits = progSubjects.reduce((sum, s) => sum + (Number(s.credits) || 0), 0);
@@ -4773,7 +4778,7 @@ export function AdminPortal() {
                           </div>
                         )}
 
-                        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                        <div className="grid gap-5 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                           {displayedSubjects.length === 0 ? (
                             <div className="col-span-full rounded-3xl border border-dashed border-border bg-card/60 p-12 text-center space-y-3">
                               <BookOpen className="h-10 w-10 mx-auto text-muted-foreground/40" />
@@ -4984,7 +4989,7 @@ export function AdminPortal() {
                         </button>
                       </div>
                     ) : (
-                      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                      <div className="grid gap-5 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                         {filteredUnits.map((unit) => {
                           const targetSub = subjects.find((s) => s.id === unit.subject);
                           const subjectCode = targetSub?.code || unit.subject_code || "COURSE";
@@ -5344,7 +5349,7 @@ export function AdminPortal() {
 
               {/* Notes List */}
               {publisherType === "NOTES" && (
-                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-5 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                   {filteredMaterials.filter((m) => m.material_type === "NOTES").length === 0 ? (
                     renderSelectFilterPrompt("Study Notes")
                   ) : (
@@ -5442,7 +5447,7 @@ export function AdminPortal() {
 
               {/* Solved PYQs List */}
               {publisherType === "SOLVED_PYQ" && (
-                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-5 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                   {filteredMaterials.filter((m) => m.material_type === "SOLVED_PYQ").length === 0 ? (
                     renderSelectFilterPrompt("Solved PYQs")
                   ) : (
@@ -5540,7 +5545,7 @@ export function AdminPortal() {
 
               {/* Official Syllabus List */}
               {publisherType === "SYLLABUS" && (
-                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-5 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                   {filteredMaterials.filter((m) => m.material_type === "SYLLABUS").length === 0 ? (
                     renderSelectFilterPrompt("Syllabus Breakdown")
                   ) : (
@@ -5628,7 +5633,7 @@ export function AdminPortal() {
 
               {/* Faculty Materials List */}
               {publisherType === "FACULTY" && (
-                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-5 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                   {filteredMaterials.filter((m) => m.material_type === "FACULTY").length === 0 ? (
                     renderSelectFilterPrompt("Faculty Materials")
                   ) : (
@@ -5743,7 +5748,7 @@ export function AdminPortal() {
 
                   {/* 1. Interactive Practical Experiments & Viva Voce Drills View */}
                   {labSectionTab === "EXPERIMENTS" && (
-                    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid gap-5 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                       {filteredLabs.length === 0 ? (
                         renderSelectFilterPrompt("Practical Lab Experiments")
                       ) : (
@@ -5792,7 +5797,7 @@ export function AdminPortal() {
 
                   {/* 2. Official Lab Manuals & Documents (Files) View */}
                   {labSectionTab === "MANUALS" && (
-                    <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                    <div className="grid gap-5 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                       {filteredMaterials.filter((m) => m.material_type === "LAB_MANUAL").length === 0 ? (
                         renderSelectFilterPrompt("Lab Manual Files")
                       ) : (
@@ -6135,7 +6140,7 @@ export function AdminPortal() {
               {filteredAssignments.length === 0 ? (
                 renderSelectFilterPrompt("Course Assignments", false)
               ) : (
-                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-5 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                   {filteredAssignments.map((a) => (
                     <div key={a.id} className="rounded-3xl border border-border/80 bg-card p-5 shadow-xs flex flex-col justify-between space-y-4 hover:border-primary/50 transition-all">
                       <div>
@@ -6252,7 +6257,7 @@ export function AdminPortal() {
                   </p>
                 </div>
               ) : (
-                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-5 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                   {filteredNotices.map((n) => {
                     const snippet = (n.content || "")
                       .replace(/!\[.*?\]\(.*?\)/g, "")
@@ -6405,7 +6410,7 @@ export function AdminPortal() {
                   </p>
                 </div>
               ) : (
-                <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-5 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                   {filteredMilestones.map((m) => (
                     <div key={m.id} className="rounded-3xl border border-border/80 bg-card p-5 shadow-xs flex flex-col justify-between space-y-4 hover:border-primary/50 transition-all">
                       <div>
@@ -7278,7 +7283,7 @@ export function AdminPortal() {
               </div>
 
               {/* Badges Grid */}
-              <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-5 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                 {[
                   { id: "notes", label: "Handwritten Notes", icon: BookOpen, desc: "Notes & Unit Summaries" },
                   { id: "pyqs", label: "Solved PYQs", icon: FileCheck2, desc: "Previous Year Question Papers" },
@@ -7513,7 +7518,7 @@ export function AdminPortal() {
               </div>
 
               {/* KPI Summary Metric Cards */}
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
                 <div className="rounded-2xl border border-border/80 bg-card p-4 shadow-xs">
                   <span className="block text-[0.65rem] font-bold uppercase text-muted-foreground">Total Banners</span>
                   <span className="font-mono text-xl sm:text-2xl font-bold text-foreground mt-0.5 block">{banners.length}</span>
@@ -7561,7 +7566,7 @@ export function AdminPortal() {
                     </p>
                   </div>
                 ) : (
-                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  <div className="grid gap-4 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
                     {banners.map((b) => {
                       const bannerSnippet = (b.message || "")
                         .replace(/!\[.*?\]\(.*?\)/g, "")
@@ -7707,7 +7712,7 @@ export function AdminPortal() {
               </div>
 
               {/* Support Metric Counters */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3.5">
+              <div className="grid grid-cols-2 xl:grid-cols-4 gap-2.5 sm:gap-3.5">
                 <div className="rounded-2xl border border-border/80 bg-card p-3 sm:p-4 shadow-2xs">
                   <span className="text-[0.62rem] sm:text-[0.65rem] font-bold text-muted-foreground uppercase truncate block">Total Tickets</span>
                   <div className="text-lg sm:text-xl font-extrabold text-foreground mt-0.5">{tickets.length}</div>
@@ -9469,7 +9474,7 @@ export function AdminPortal() {
                 </div>
 
                 {/* Primary Material Metadata (Subject, Type, Unit/Exp, Academic Session) */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
                   <div>
                     <label className="block font-bold text-xs mb-1.5 text-foreground flex items-center gap-1.5">
                       <BookOpen className="h-3.5 w-3.5 text-primary" />

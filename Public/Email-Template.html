@@ -62,13 +62,14 @@
       display: flex;
       gap: 0.4rem;
       overflow-x: auto;
-      padding-bottom: 2px;
+      padding-bottom: 4px;
+      scrollbar-width: thin;
     }
     .tab-btn {
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid rgba(255, 255, 255, 0.15);
       color: #94a3b8;
-      padding: 0.5rem 1rem;
+      padding: 0.5rem 0.85rem;
       font-size: 0.72rem;
       font-weight: 800;
       cursor: pointer;
@@ -106,97 +107,108 @@
       width: 100%;
       max-width: 620px;
       display: none;
+      animation: fadeIn 0.25s ease-out forwards;
     }
     .email-container.active {
       display: block;
-      animation: fadeIn 0.2s ease;
     }
     @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    /* Standard Email Table Layout */
-    table.email-card {
+    /* Card Frame */
+    .email-card {
       width: 100%;
-      max-width: 620px;
-      background-color: #0c150e;
+      background: #0d140e;
       border: 1px solid #1f3322;
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.7);
       border-collapse: collapse;
-      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
     }
+
     .email-header-cell {
-      padding: 2.25rem 2rem 1.75rem 2rem;
       background: #005F15;
-      border-bottom: 2px solid #10b981;
+      padding: 26px 28px;
       text-align: center;
+      border-bottom: 2px solid #10b981;
     }
+    .email-heading {
+      color: #ffffff;
+      font-size: 1.35rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      margin: 0;
+      text-transform: uppercase;
+    }
+    .email-subheading {
+      color: #a7f3d0;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-top: 5px;
+    }
+
     .email-body-cell {
-      padding: 2.25rem 2rem;
+      padding: 32px 28px;
       color: #cbd5e1;
       font-size: 0.88rem;
       line-height: 1.65;
     }
     .email-footer-cell {
-      padding: 1.5rem 2rem;
-      background-color: #050a06;
-      border-top: 1px solid #1f3322;
+      padding: 22px 28px;
+      background-color: #070e08;
+      border-top: 1px solid #1a2c1d;
       text-align: center;
       font-size: 0.72rem;
       color: #64748b;
-      line-height: 1.6;
+      line-height: 1.5;
     }
 
-    /* Typography */
-    h1.email-heading {
-      color: #ffffff;
-      font-size: 1.35rem;
-      font-weight: 900;
-      letter-spacing: -0.01em;
-      margin-top: 0.85rem;
-      margin-bottom: 0.25rem;
-      text-transform: uppercase;
-    }
-    p.email-subheading {
-      color: #a7f3d0;
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
     .badge {
       display: inline-block;
       padding: 4px 10px;
       background-color: rgba(16, 185, 129, 0.15);
       color: #34d399;
       border: 1px solid #10b981;
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.8px;
       margin-bottom: 16px;
     }
+    .badge-danger {
+      background-color: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid #ef4444;
+    }
+    .badge-cyan {
+      background-color: rgba(6, 182, 212, 0.15);
+      color: #38bdf8;
+      border: 1px solid #06b6d4;
+    }
+
     .highlight-box {
-      background: #08120a;
+      margin: 20px 0;
+      background-color: #081109;
       border: 1px solid #1f3322;
-      padding: 1.25rem;
-      margin: 1.5rem 0;
+      padding: 16px 18px;
     }
     .otp-code {
       font-family: 'JetBrains Mono', monospace;
-      font-size: 2.25rem;
+      font-size: 34px;
       font-weight: 900;
-      letter-spacing: 0.25em;
       color: #34d399;
+      letter-spacing: 8px;
       text-align: center;
-      padding: 0.85rem;
-      background: #08120a;
+      margin: 20px 0;
+      background: #081109;
       border: 1px solid #10b981;
-      margin: 1.25rem 0;
+      padding: 16px;
     }
     .cta-button {
       display: inline-block;
-      background: #005F15;
+      background-color: #005F15;
       color: #ffffff !important;
       text-decoration: none;
       font-weight: 800;
@@ -237,14 +249,18 @@
     <div class="brand-title">
       <img src="/SaastaScholar.png" alt="SaastaScholar Emblem" width="28" height="28" style="background: #fff; padding: 2px;">
       <span>SaastaScholar Email Studio</span>
-      <span class="brand-badge">Corporate Edition</span>
+      <span class="brand-badge">Official Title Case Edition</span>
     </div>
     <div class="template-selector">
       <button class="tab-btn active" onclick="switchTemplate('welcome')">1. Welcome Onboarding</button>
       <button class="tab-btn" onclick="switchTemplate('otp')">2. Password Reset OTP</button>
-      <button class="tab-btn" onclick="switchTemplate('pwdchanged')">3. Security Notification</button>
-      <button class="tab-btn" onclick="switchTemplate('invoice')">4. Tax Invoice &amp; Receipt</button>
-      <button class="tab-btn" onclick="switchTemplate('refund')">5. Refund Confirmation</button>
+      <button class="tab-btn" onclick="switchTemplate('pwdchanged')">3. Password Changed Alert</button>
+      <button class="tab-btn" onclick="switchTemplate('emailchanged')">4. Email Address Changed</button>
+      <button class="tab-btn" onclick="switchTemplate('profileupdated')">5. Account Details Updated</button>
+      <button class="tab-btn" onclick="switchTemplate('cohortsynced')">6. Academic Cohort Synced</button>
+      <button class="tab-btn" onclick="switchTemplate('invoice')">7. Tax Invoice &amp; Receipt</button>
+      <button class="tab-btn" onclick="switchTemplate('refund')">8. Refund Confirmation</button>
+      <button class="tab-btn" onclick="switchTemplate('dispatch')">9. Weekly Academic Dispatch</button>
     </div>
   </header>
 
@@ -384,7 +400,151 @@
       </table>
     </div>
 
-    <!-- Template 4: Tax Invoice & Payment Receipt -->
+    <!-- Template 4: Email Address Changed -->
+    <div id="tmpl-emailchanged" class="email-container">
+      <table class="email-card">
+        <tr>
+          <td class="email-header-cell">
+            <h1 class="email-heading">Security Notice</h1>
+            <p class="email-subheading">Primary Account Identifier Synchronization</p>
+          </td>
+        </tr>
+        <tr>
+          <td class="email-body-cell">
+            <span class="badge badge-danger">Security Alert</span>
+            <h2 style="color:#ffffff; font-size:18px; font-weight:800; margin-top:0; text-transform:uppercase;">Primary Email Address Changed</h2>
+            <p style="margin-top: 0.75rem;">Hello <strong>Aarav Sharma</strong>,</p>
+            <p style="margin-top: 0.5rem;">
+              This Is An Urgent Security Notification That The Primary Email Address Associated With Your SaastaScholar Account Has Been Updated.
+            </p>
+
+            <div class="highlight-box">
+              <table class="meta-table">
+                <tr><td>Previous Account Email:</td><td style="color:#94a3b8; text-decoration:line-through;">aarav.old@nims.edu.in</td></tr>
+                <tr><td>Updated Primary Email:</td><td style="color:#34d399; font-weight:800;">aarav.new@nims.edu.in</td></tr>
+                <tr><td>Timestamp:</td><td>21 October 2026, 02:15 PM IST</td></tr>
+                <tr><td>Originating Device:</td><td>Chrome On macOS (192.168.1.42)</td></tr>
+              </table>
+            </div>
+
+            <div class="highlight-box" style="border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.05);">
+              <p style="margin:0 0 4px 0; font-size:12px; color:#cbd5e1;"><strong>SECURITY WARNING:</strong> If You Authorized This Change, All Future Academic Invoices And Exam Alerts Will Be Sent To Your New Email Address.</p>
+              <p style="margin:0; font-size:12px; color:#f87171;"><strong>UNAUTHORIZED ACTION:</strong> If You Did Not Perform This Modification, Contact Our Academic Security Desk Immediately At support@saastascholar.in.</p>
+            </div>
+
+            <div style="text-align: center;">
+              <a href="https://saastascholar.durgaaisolutions.in/login" class="cta-button">
+                Open Scholar Portal
+              </a>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="email-footer-cell">
+            <p>&copy; 2026 <strong>SaastaScholar</strong> · Owned &amp; Engineered By DurgaAI Solutions.</p>
+            <p style="margin-top: 0.35rem; font-size: 10.5px;">Protected Under The Digital Personal Data Protection Act, 2023 (DPDP Act).</p>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Template 5: Account Details Updated -->
+    <div id="tmpl-profileupdated" class="email-container">
+      <table class="email-card">
+        <tr>
+          <td class="email-header-cell">
+            <h1 class="email-heading">Profile Synchronization</h1>
+            <p class="email-subheading">Personal Information Verification</p>
+          </td>
+        </tr>
+        <tr>
+          <td class="email-body-cell">
+            <span class="badge badge-cyan">Profile Updated</span>
+            <h2 style="color:#ffffff; font-size:18px; font-weight:800; margin-top:0; text-transform:uppercase;">Account Details Updated</h2>
+            <p style="margin-top: 0.75rem;">Hello <strong>Aarav Sharma</strong>,</p>
+            <p style="margin-top: 0.5rem;">
+              We Are Writing To Confirm That Your Student Profile Information Was Modified Successfully On <strong>21 October 2026, 02:30 PM IST</strong>.
+            </p>
+
+            <div class="highlight-box">
+              <table class="meta-table">
+                <tr><td>Student Full Name:</td><td>Aarav Sharma</td></tr>
+                <tr><td>Contact Phone Number:</td><td>+91 98765 43210</td></tr>
+                <tr><td>Target Academic CGPA:</td><td style="color:#34d399;">9.20 / 10.00</td></tr>
+                <tr><td>Academic Bio Statement:</td><td>Computer Science Engineering Major</td></tr>
+              </table>
+            </div>
+
+            <div class="highlight-box">
+              <p style="margin:0; font-size:11.5px; color:#94a3b8; line-height:1.5;">
+                <strong>SECURITY CONFIRMATION:</strong> If You Made These Profile Changes In Your Student Portal Settings, No Further Action Is Necessary.
+              </p>
+            </div>
+
+            <div style="text-align: center;">
+              <a href="https://saastascholar.durgaaisolutions.in/dashboard?tab=profile" class="cta-button">
+                View Profile Settings
+              </a>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="email-footer-cell">
+            <p>&copy; 2026 <strong>SaastaScholar</strong> · Owned &amp; Engineered By DurgaAI Solutions.</p>
+            <p style="margin-top: 0.35rem; font-size: 10.5px;">Protected Under The Digital Personal Data Protection Act, 2023 (DPDP Act).</p>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Template 6: Academic Cohort Synced -->
+    <div id="tmpl-cohortsynced" class="email-container">
+      <table class="email-card">
+        <tr>
+          <td class="email-header-cell">
+            <h1 class="email-heading">Curriculum Synchronization</h1>
+            <p class="email-subheading">Department Batch &amp; Section Realignment</p>
+          </td>
+        </tr>
+        <tr>
+          <td class="email-body-cell">
+            <span class="badge">Academic Cohort Synced</span>
+            <h2 style="color:#ffffff; font-size:18px; font-weight:800; margin-top:0; text-transform:uppercase;">Academic Cohort Updated</h2>
+            <p style="margin-top: 0.75rem;">Hello <strong>Aarav Sharma</strong>,</p>
+            <p style="margin-top: 0.5rem;">
+              Your Student Account Has Been Successfully Realigned With Your New Departmental Cohort On SaastaScholar.
+            </p>
+
+            <div class="highlight-box">
+              <table class="meta-table">
+                <tr><td>Degree Specialization:</td><td>B.Tech Computer Science &amp; Engineering</td></tr>
+                <tr><td>Active Academic Semester:</td><td style="color:#34d399; font-weight:800;">Semester 4</td></tr>
+                <tr><td>Designated Cohort Section:</td><td style="color:#34d399; font-weight:800;">Section A</td></tr>
+                <tr><td>Class Timetable Grid:</td><td>6-Day Synchronized Schedule</td></tr>
+              </table>
+            </div>
+
+            <p style="margin-top: 1rem; font-size: 0.82rem; color: #94a3b8;">
+              Your Lecture Timetable, Unit Notes, Practical Lab Manuals, And Semester Assignment Deadlines Have Been Automatically Refreshed In Your Study Vault.
+            </p>
+
+            <div style="text-align: center;">
+              <a href="https://saastascholar.durgaaisolutions.in/dashboard" class="cta-button">
+                Open Updated Curriculum
+              </a>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="email-footer-cell">
+            <p>&copy; 2026 <strong>SaastaScholar</strong> · Owned &amp; Engineered By DurgaAI Solutions.</p>
+            <p style="margin-top: 0.35rem; font-size: 10.5px;">Protected Under The Digital Personal Data Protection Act, 2023 (DPDP Act).</p>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Template 7: Tax Invoice & Payment Receipt -->
     <div id="tmpl-invoice" class="email-container">
       <table class="email-card">
         <tr>
@@ -441,7 +601,7 @@
       </table>
     </div>
 
-    <!-- Template 5: Refund Confirmation -->
+    <!-- Template 8: Refund Confirmation -->
     <div id="tmpl-refund" class="email-container">
       <table class="email-card">
         <tr>
@@ -452,7 +612,7 @@
         </tr>
         <tr>
           <td class="email-body-cell">
-            <span class="badge" style="background-color:rgba(239, 68, 68, 0.15); color:#f87171; border:1px solid #ef4444;">Refund Processed</span>
+            <span class="badge badge-danger">Refund Processed</span>
             <p>Hello <strong>Aarav Sharma</strong>,</p>
             <p style="margin-top: 0.75rem;">
               Your Refund Of <strong>₹9.90</strong> For Order <code>order_TqUP4klz8ckvAQ</code> Has Been Successfully Initiated Via The Razorpay Payment Gateway On <strong>21 October 2026, 01:50 PM IST</strong>.
@@ -489,6 +649,53 @@
       </table>
     </div>
 
+    <!-- Template 9: Weekly Academic Dispatch -->
+    <div id="tmpl-dispatch" class="email-container">
+      <table class="email-card">
+        <tr>
+          <td class="email-header-cell">
+            <h1 class="email-heading">Weekly Academic Dispatch</h1>
+            <p class="email-subheading">Curated Lecture Notes &amp; Solved PYQ Digest</p>
+          </td>
+        </tr>
+        <tr>
+          <td class="email-body-cell">
+            <span class="badge">Weekly Academic Dispatch</span>
+            <p>Hello <strong>Scholar</strong>,</p>
+            <p style="margin-top: 0.75rem;">
+              Here Is Your Weekly Academic Dispatch Curated Specifically For Your Degree Specialization:
+            </p>
+
+            <div class="highlight-box">
+              <p style="margin:0 0 8px 0; font-weight:800; color:#34d399; text-transform:uppercase; font-size:11.5px; letter-spacing:0.8px;">
+                Curated Highlights Delivered This Week:
+              </p>
+              <p style="margin:0 0 6px 0; font-size:12.5px;">✔ High-Yield Unit Notes &amp; Solved Previous Year Papers</p>
+              <p style="margin:0 0 6px 0; font-size:12.5px;">✔ Lab Viva Voce Cheat-Sheets &amp; Experiment Instructions</p>
+              <p style="margin:0 0 6px 0; font-size:12.5px;">✔ Upcoming Mid-Term Examination Date Sheets &amp; Milestones</p>
+              <p style="margin:0; font-size:12.5px;">✔ Verified Curricula Aligned To Your University Syllabus</p>
+            </div>
+
+            <div style="text-align: center;">
+              <a href="https://saastascholar.durgaaisolutions.in" class="cta-button">
+                Browse Study Repository
+              </a>
+            </div>
+
+            <p style="font-size: 0.75rem; color: #64748b; text-align: center; margin-top: 0.75rem;">
+              You Are Receiving This Because You Subscribed To The SaastaScholar Academic Dispatch. You Can Manage Preferences Or Unsubscribe At Any Time.
+            </p>
+          </td>
+        </tr>
+        <tr>
+          <td class="email-footer-cell">
+            <p>&copy; 2026 <strong>SaastaScholar</strong> · Owned &amp; Engineered By DurgaAI Solutions.</p>
+            <p style="margin-top: 0.35rem; font-size: 10.5px;">Protected Under The Digital Personal Data Protection Act, 2023 (DPDP Act).</p>
+          </td>
+        </tr>
+      </table>
+    </div>
+
   </main>
 
   <script>
@@ -503,8 +710,12 @@
         'welcome': 0,
         'otp': 1,
         'pwdchanged': 2,
-        'invoice': 3,
-        'refund': 4
+        'emailchanged': 3,
+        'profileupdated': 4,
+        'cohortsynced': 5,
+        'invoice': 6,
+        'refund': 7,
+        'dispatch': 8
       };
       const buttons = document.querySelectorAll('.tab-btn');
       if (tabMap[id] !== undefined && buttons[tabMap[id]]) {

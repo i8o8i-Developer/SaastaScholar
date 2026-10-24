@@ -290,23 +290,23 @@ def send_email_changed_notification(
 
     # Part A: Security Alert to OLD Email Address
     subject_old = "Security Alert: Primary Email Address Changed · SaastaScholar"
-    preheader_old = f"The Email for your SaastaScholar account was updated to {new_email}."
+    preheader_old = f"The Primary Email Address For Your SaastaScholar Account Was Updated To {new_email}."
     text_old = f"""Security Alert: Primary Email Address Updated
 
 Hello {full_name},
 
-This is an urgent security notification that the primary email address for your SaastaScholar account was successfully changed to:
+This Is An Urgent Security Notification That The Primary Email Address For Your SaastaScholar Account Was Successfully Changed To:
 {new_email}
 
 Timestamp: {now_str}
 Originating Device: {user_agent}
 IP Address: {ip_address}
 
-IF YOU MADE THIS CHANGE:
-You can safely disregard this email. All future notifications and invoices will be sent to {new_email}.
+If You Authorized This Change:
+You Can Safely Disregard This Email. All Future Notifications And Invoices Will Be Delivered To {new_email}.
 
-IF YOU DID NOT MAKE THIS CHANGE:
-Your account may be compromised. Please reply immediately to support@saastascholar.in or contact the DurgaAI Security Desk to lock your account.
+If You Did Not Authorize This Change:
+Your Account Credentials May Be Compromised. Please Reply Immediately To support@saastascholar.in Or Contact DurgaAI Security Desk To Secure Your Account.
 
 — The SaastaScholar Academic Security Team
 """
@@ -333,16 +333,16 @@ Your account may be compromised. Please reply immediately to support@saastaschol
 
     # Part B: Confirmation to NEW Email Address
     subject_new = "Confirmation: Your New SaastaScholar Primary Email Is Active"
-    preheader_new = f"Your SaastaScholar student account is now linked to {new_email}."
+    preheader_new = f"Your SaastaScholar Student Account Is Now Linked To {new_email}."
     text_new = f"""Confirmation: Primary Email Active
 
 Hello {full_name},
 
-This email confirms that {new_email} is now the primary email address for your SaastaScholar account.
+This Email Confirms That {new_email} Is Now The Primary Email Address For Your SaastaScholar Account.
 
 Timestamp: {now_str}
 
-All future term notifications, lecture schedules, verified notes, and billing receipts will be delivered to this inbox.
+All Future Term Notifications, Lecture Schedules, Verified Notes, And Billing Receipts Will Be Delivered To This Inbox.
 
 Access Your Academic Workspace:
 https://saastascholar.durgaaisolutions.in/login
@@ -387,7 +387,7 @@ def send_account_details_updated_email(
     full_name = getattr(user, "full_name", "") or getattr(user, "username", "") or "Scholar"
 
     subject = "Account Details Successfully Updated · SaastaScholar"
-    preheader = f"Your SaastaScholar profile details were updated on {now_str}."
+    preheader = f"Your SaastaScholar Profile Details Were Updated On {now_str}."
 
     rows_html = ""
     rows_text = ""
@@ -413,8 +413,8 @@ Summary Of Changes:
 
 Originating IP Address: {ip_address}
 
-If you made these changes, no further action is necessary.
-If you did not authorize these modifications, please contact support@saastascholar.in immediately.
+If You Made These Changes, No Further Action Is Necessary.
+If You Did Not Authorize These Modifications, Please Contact support@saastascholar.in Immediately.
 
 — The SaastaScholar Academic Team
 """
@@ -460,7 +460,7 @@ def send_cohort_updated_email(
     full_name = getattr(user, "full_name", "") or getattr(user, "username", "") or "Scholar"
 
     subject = f"Academic Cohort Updated: Sem {new_cohort.get('semester')} ({new_cohort.get('section')}) · SaastaScholar"
-    preheader = f"Your curriculum and class schedule have been aligned with {new_cohort.get('program')} Semester {new_cohort.get('semester')}."
+    preheader = f"Your Curriculum And Class Schedule Have Been Aligned With {new_cohort.get('program')} Semester {new_cohort.get('semester')}."
 
     text_body = f"""Hello {full_name},
 
@@ -532,16 +532,16 @@ def send_avatar_updated_email(user) -> tuple:
     full_name = getattr(user, "full_name", "") or getattr(user, "username", "") or "Scholar"
 
     subject = "Profile Picture Successfully Updated · SaastaScholar"
-    preheader = f"Your SaastaScholar profile photo was updated on {now_str}."
+    preheader = f"Your SaastaScholar Profile Photo Was Updated On {now_str}."
 
     text_body = f"""Hello {full_name},
 
-This email confirms that your student profile photo was updated successfully on:
+This Email Confirms That Your Student Profile Photo Was Updated Successfully On:
 {now_str}
 
-Your new profile avatar is now visible across your student dashboard, discussion threads, and peer study groups.
+Your New Profile Avatar Is Now Visible Across Your Student Dashboard, Discussion Threads, And Peer Study Groups.
 
-If you did not upload a new picture, please secure your account immediately by changing your password.
+If You Did Not Upload A New Picture, Please Secure Your Account Immediately By Changing Your Password.
 
 — The SaastaScholar Academic Team
 """
@@ -584,7 +584,7 @@ def send_membership_tier_changed_email(
     full_name = getattr(user, "full_name", "") or getattr(user, "username", "") or "Scholar"
 
     subject = f"Membership Tier Updated To {new_tier} · SaastaScholar Access"
-    preheader = f"Your SaastaScholar subscription tier has been upgraded to {new_tier}."
+    preheader = f"Your SaastaScholar Subscription Tier Has Been Upgraded To {new_tier}."
 
     text_body = f"""Hello {full_name},
 
@@ -631,19 +631,19 @@ def send_newsletter_welcome_email(email_address: str, unsubscribe_url: str = Non
     Sends Anti-Spam Compliant Welcome Email When Scholar Subscribes To Weekly Dispatch
     """
     subject = "Welcome To Weekly Academic Dispatch · SaastaScholar"
-    preheader = "You're now subscribed to Monday exam alerts, lab viva cheat-sheets, and curated notes."
+    preheader = "You Are Now Subscribed To Monday Exam Alerts, Lab Viva Voce Cheat-Sheets, And Curated Notes."
 
     text_body = f"""Welcome To SaastaScholar Weekly Academic Dispatch!
 
-Thank you for subscribing with {email_address}.
+Thank You For Subscribing With {email_address}.
 
-What to expect in your inbox every Monday morning:
+What To Expect In Your Inbox Every Monday Morning:
 - Upcoming University Exam Alerts & Solved PYQs
 - Lab Viva Voce Cheat-Sheets & Practical Instructions
 - Assignment Solutions & Academic Bulletins
 - Faculty Courseware Updates
 
-Zero Spam. You can unsubscribe anytime with a single click.
+Zero Spam. You Can Unsubscribe Anytime With A Single Click.
 
 Manage Your Subscription Or Unsubscribe:
 {unsubscribe_url or 'https://saastascholar.durgaaisolutions.in/unsubscribe'}
@@ -736,17 +736,17 @@ def send_password_reset_email(user, otp: str) -> tuple:
     """
     full_name = getattr(user, "full_name", "") or getattr(user, "username", "") or "Scholar"
     subject = f"Your Verification Code: {otp} · SaastaScholar Security"
-    preheader = f"Your 6-Digit Password Reset Verification Code is {otp}."
+    preheader = f"Your 6-Digit Password Reset Verification Code Is {otp}."
 
     text_body = f"""Hello {full_name},
 
-You requested to reset your account password on SaastaScholar.
+You Requested To Reset Your Account Password On SaastaScholar.
 
-Your 6-Digit Password Reset Verification Code is:
+Your 6-Digit Password Reset Verification Code Is:
 {otp}
 
-This code is strictly confidential and expires in 15 minutes.
-If you did not make this request, please disregard this email.
+This Code Is Strictly Confidential And Expires In 15 Minutes.
+If You Did Not Make This Request, Please Disregard This Email.
 
 — The SaastaScholar Academic Security Team
 """
@@ -839,7 +839,7 @@ def send_payment_success_email(order) -> tuple:
 
     text_body = f"""Dear {full_name},
 
-Thank you for subscribing to SaastaScholar.
+Thank You For Subscribing To SaastaScholar.
 
 Transaction Details:
 - Invoice Number: {invoice_no}
@@ -848,7 +848,7 @@ Transaction Details:
 - Payment ID: {payment_id}
 - Status: Confirmed & Paid
 
-Your account has been upgraded with instant access to premium notes and lab manuals.
+Your Account Has Been Upgraded With Instant Access To Premium Notes And Lab Manuals.
 
 Access Your Dashboard:
 https://saastascholar.durgaaisolutions.in/dashboard
@@ -903,18 +903,18 @@ def send_password_changed_notification_email(user) -> tuple:
     now_str = timezone.now().strftime("%d %B %Y, %I:%M %p IST")
 
     subject = "Security Notice: Your Account Password Was Successfully Changed · SaastaScholar"
-    preheader = f"Your SaastaScholar Account Password was changed on {now_str}."
+    preheader = f"Your SaastaScholar Account Password Was Changed On {now_str}."
 
     text_body = f"""Hello {full_name},
 
-This is an official confirmation that the password for your SaastaScholar account ({user.email}) was successfully updated on:
+This Is An Official Confirmation That The Password For Your SaastaScholar Account ({user.email}) Was Successfully Updated On:
 {now_str}
 
-If you made this change:
-No further action is needed. You can log in with your new password.
+If You Authorized This Change:
+No Further Action Is Needed. You Can Log In With Your New Password.
 
-If you did NOT make this change:
-Your account may be compromised. Please contact support@saastascholar.in immediately.
+If You Did Not Authorize This Change:
+Your Account Credentials May Be Compromised. Please Contact support@saastascholar.in Immediately.
 
 — The SaastaScholar Academic Security Team
 """
@@ -959,11 +959,11 @@ def send_refund_processed_email(order, refund_amount_paise: int = None, reason: 
     amount_inr = round(amount_paise / 100, 2)
 
     subject = f"Refund Confirmation: ₹{amount_inr} For Order {order.order_id} · SaastaScholar"
-    preheader = f"Your refund of ₹{amount_inr} for order {order.order_id} has been initiated."
+    preheader = f"Your Refund Of ₹{amount_inr} For Order {order.order_id} Has Been Initiated."
 
     text_body = f"""Hello {full_name},
 
-This is an official confirmation that a refund of ₹{amount_inr} for your order ({order.order_id}) was successfully initiated on:
+This Is An Official Confirmation That A Refund Of ₹{amount_inr} For Your Order ({order.order_id}) Was Successfully Initiated On:
 {now_str}
 
 Refund Details:
@@ -976,9 +976,9 @@ Refund Details:
 {f"- Reason: {reason}" if reason else ""}
 
 Timeline For Credit:
-According to Razorpay and RBI banking standards, the refunded amount will credit directly back to your original payment source (UPI / NetBanking / Debit Card) within 5-7 working days.
+According To Razorpay And RBI Banking Standards, The Refunded Amount Will Credit Directly Back To Your Original Payment Source (UPI / NetBanking / Debit Card) Within 5-7 Working Days.
 
-If you have any questions regarding this transaction, please reply directly to support@saastascholar.in.
+If You Have Any Questions Regarding This Transaction, Please Reply Directly To support@saastascholar.in.
 
 — The SaastaScholar Accounts & Billing Team
 """

@@ -34,13 +34,37 @@ export function SiteNav() {
     };
   }, [open]);
 
+  const handleNavClick = (e: React.MouseEvent<HTMLAnchorElement>, href: string) => {
+    if (href.startsWith("#")) {
+      e.preventDefault();
+      const targetId = href.replace("#", "");
+      if (targetId === "top") {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        setOpen(false);
+        return;
+      }
+      const element = document.getElementById(targetId);
+      if (element) {
+        const navHeight = scrolled ? 58 : 68;
+        const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+        const offsetPosition = Math.max(0, elementPosition - navHeight);
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth",
+        });
+        window.history.pushState(null, "", href);
+        setOpen(false);
+      }
+    }
+  };
+
   return (
     <header
       className={cn(
         "sticky top-0 z-50 border-b transition-all duration-300",
         scrolled
-          ? "border-border bg-background/90 backdrop-blur-md shadow-xs"
-          : "border-transparent bg-background",
+          ? "border-border bg-background/95 backdrop-blur-md shadow-xs"
+          : "border-transparent bg-background/95 backdrop-blur-md",
       )}
     >
       <div
@@ -49,7 +73,12 @@ export function SiteNav() {
           scrolled ? "h-14" : "h-16 sm:h-20",
         )}
       >
-        <a href="#top" className="flex items-center gap-1.5 min-[340px]:gap-2.5 shrink-0 whitespace-nowrap group" aria-label="SaastaScholar Home">
+        <a
+          href="#top"
+          onClick={(e) => handleNavClick(e, "#top")}
+          className="flex items-center gap-1.5 min-[340px]:gap-2.5 shrink-0 whitespace-nowrap group"
+          aria-label="SaastaScholar Home"
+        >
           <img
             src="/SaastaScholar.png"
             alt="SaastaScholar Logo"
@@ -74,6 +103,7 @@ export function SiteNav() {
               <li key={item.href} className="shrink-0">
                 <a
                   href={item.href}
+                  onClick={(e) => handleNavClick(e, item.href)}
                   className="rounded-xl px-3 py-2 text-xs xl:text-sm font-semibold text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground whitespace-nowrap inline-block"
                 >
                   {item.label}
@@ -138,7 +168,10 @@ export function SiteNav() {
                 <li key={item.href}>
                   <a
                     href={item.href}
-                    onClick={() => setOpen(false)}
+                    onClick={(e) => {
+                      setOpen(false);
+                      handleNavClick(e, item.href);
+                    }}
                     className="block rounded-xl px-3 py-2.5 text-sm font-semibold text-foreground hover:bg-secondary transition-colors"
                   >
                     {item.label}

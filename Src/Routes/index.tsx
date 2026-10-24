@@ -35,10 +35,10 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   return (
-    <div className="relative min-h-screen bg-background overflow-x-hidden">
+    <div className="relative min-h-screen bg-background overflow-x-clip">
       <div className="relative z-10">
         <SiteNav />
-        <main>
+        <main className="overflow-x-clip">
           <Hero />
           <Personalization />
           <AcademicHub />
