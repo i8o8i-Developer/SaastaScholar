@@ -4,6 +4,8 @@ from .views import (
     RazorpayCreateOrderView,
     RazorpayVerifyPaymentView,
     ApplyCouponView,
+    StudentMyInvoicesView,
+    StudentInvoiceDetailView,
     AdminOrderListView,
     AdminOrderActionView,
     AdminInvoiceDetailView,
@@ -18,6 +20,8 @@ urlpatterns = [
     # Student Facing Endpoints
     path("plans/", SubscriptionPlanListView.as_view(), name="subscription-plans"),
     path("my-access/", UserAccessMatrixView.as_view(), name="subscription-my-access"),
+    path("my-invoices/", StudentMyInvoicesView.as_view(), name="student-my-invoices"),
+    path("my-invoices/<uuid:pk>/", StudentInvoiceDetailView.as_view(), name="student-invoice-detail"),
     path("apply-coupon/", ApplyCouponView.as_view(), name="subscription-apply-coupon"),
     path("razorpay/create-order/", RazorpayCreateOrderView.as_view(), name="razorpay-create-order"),
     path("razorpay/verify-payment/", RazorpayVerifyPaymentView.as_view(), name="razorpay-verify-payment"),

@@ -946,6 +946,13 @@ export const adminSubscriptionApi = {
     }),
 };
 
+export const studentSubscriptionApi = {
+  getMyInvoices: () =>
+    apiFetch<{ orders: any[]; latest_invoice: any }>("/subscriptions/my-invoices/"),
+  getInvoice: (id: string) =>
+    apiFetch<any>(`/subscriptions/my-invoices/${id}/`),
+};
+
 
 
 

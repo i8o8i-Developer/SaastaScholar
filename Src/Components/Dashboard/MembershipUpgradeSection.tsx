@@ -9,12 +9,16 @@ import {
   ArrowRight,
   ShieldCheck,
   Percent,
+  FileText,
+  Printer,
 } from "lucide-react";
 import { useAuth } from "@/Hooks/UseAuth";
-import { apiFetch } from "@/Lib/Api";
+import { apiFetch, studentSubscriptionApi } from "@/Lib/Api";
 import { initiateRazorpayPayment } from "@/Lib/Razorpay";
 import { toast } from "sonner";
 import { cn } from "@/Lib/Utils";
+import { StudentInvoiceModal } from "./StudentInvoiceModal";
+import { AcademicInvoiceData } from "@/Utils/InvoicePrinter";
 
 interface PlanItem {
   tier: "FREE" | "BASIC" | "PREMIUM" | "ELITE";
@@ -115,6 +119,28 @@ export function MembershipUpgradeSection({
   const [couponLoading, setCouponLoading] = useState<boolean>(false);
   const [upgrading, setUpgrading] = useState<boolean>(false);
 
+  // Self-Service Academic Invoice Modal State
+  const [invoiceModalOpen, setInvoiceModalOpen] = useState<boolean>(false);
+  const [invoiceData, setInvoiceData] = useState<AcademicInvoiceData | null>(null);
+  const [invoiceLoading, setInvoiceLoading] = useState<boolean>(false);
+
+  const handleFetchAndOpenInvoice = async () => {
+    setInvoiceLoading(true);
+    setInvoiceModalOpen(true);
+    try {
+      const res = await studentSubscriptionApi.getMyInvoices();
+      if (res?.latest_invoice) {
+        setInvoiceData(res.latest_invoice);
+      } else {
+        toast.error("No Academic Invoice Record Found.");
+      }
+    } catch (err: any) {
+      toast.error("Failed To Load Official Academic Invoice.");
+    } finally {
+      setInvoiceLoading(false);
+    }
+  };
+
   const selectedPlan = selectedTier ? (PLANS.find((p) => p.tier === selectedTier) ?? null) : null;
   const basePrice = selectedPlan ? (billingCycle === "semester" ? selectedPlan.priceSemester : selectedPlan.priceMonthly) : 0;
 
@@ -198,23 +224,35 @@ export function MembershipUpgradeSection({
               Upgrade Your Study Experience
             </h1>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Unlock verified handwritten notes, solved 10-year examination papers, and practical lab code packets.
+              Unlock Verified Handwritten Notes, Solved 10-Year Examination Papers, and Practical Lab Code Packets.
             </p>
           </div>
 
-          {/* Current Membership Status Chip */}
-          <div className="flex items-center gap-2.5 rounded-xl sm:rounded-2xl border border-border/80 bg-surface/80 px-3.5 py-2 shadow-2xs shrink-0">
-            <div className="space-y-0.5">
-              <span className="text-[0.62rem] font-bold uppercase tracking-wider text-muted-foreground block">
-                Active Pass
-              </span>
-              <div className="flex items-center gap-1.5">
-                <span className="text-sm font-black text-primary">
-                  {currentTier} SCHOLAR
+          {/* Current Membership Status Chip & Self-Service Invoice Button */}
+          <div className="flex flex-wrap items-center gap-2 shrink-0">
+            <div className="flex items-center gap-2.5 rounded-xl sm:rounded-2xl border border-border/80 bg-surface/80 px-3.5 py-2 shadow-2xs">
+              <div className="space-y-0.5">
+                <span className="text-[0.62rem] font-bold uppercase tracking-wider text-muted-foreground block">
+                  Active Pass
                 </span>
-                <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm font-black text-primary">
+                    {currentTier} SCHOLAR
+                  </span>
+                  <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-500 animate-ping" />
+                </div>
               </div>
             </div>
+
+            <button
+              type="button"
+              onClick={handleFetchAndOpenInvoice}
+              className="inline-flex items-center gap-1.5 rounded-xl sm:rounded-2xl border border-primary/30 bg-primary/10 hover:bg-primary/20 px-3 py-2 text-xs font-bold text-primary transition-all cursor-pointer active:scale-95 shadow-2xs"
+              title="View and print your official academic fee tax invoice"
+            >
+              <FileText className="h-3.5 w-3.5" />
+              <span>Tax Invoice</span>
+            </button>
           </div>
         </div>
 
@@ -489,7 +527,14 @@ export function MembershipUpgradeSection({
             <span>•</span>
             <span>Instant Access</span>
             <span>•</span>
-            <span>Official Tax Invoice</span>
+            <button
+              type="button"
+              onClick={handleFetchAndOpenInvoice}
+              className="inline-flex items-center gap-1 font-semibold text-primary hover:underline cursor-pointer"
+            >
+              <FileText className="h-2.5 w-2.5" />
+              <span>Official Tax Invoice</span>
+            </button>
           </div>
         </div>
       ) : (
@@ -499,10 +544,18 @@ export function MembershipUpgradeSection({
           </div>
           <h3 className="font-bold text-xs sm:text-sm text-foreground">Step 1: Choose Your Academic Plan Above</h3>
           <p className="text-[0.7rem] text-muted-foreground max-w-sm mx-auto">
-            Select a plan above to view voucher discounts and activate instant checkout.
+            Select A Plan Above To View Voucher Discounts And Activate Instant Checkout.
           </p>
         </div>
       )}
+
+      {/* Official Self-Service Student Tax Invoice Modal */}
+      <StudentInvoiceModal
+        isOpen={invoiceModalOpen}
+        onClose={() => setInvoiceModalOpen(false)}
+        invoice={invoiceData}
+        loading={invoiceLoading}
+      />
     </div>
   );
 }

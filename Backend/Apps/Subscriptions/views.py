@@ -887,6 +887,135 @@ class AdminOrderActionView(APIView):
         return Response({"error": f"Unknown action '{action}'."}, status=status.HTTP_400_BAD_REQUEST)
 
 
+def build_invoice_payload(order, student=None):
+    if not student:
+        student = order.user
+    amount_inr = round(order.amount / 100, 2)
+    discount_inr = round(order.discount_amount_paise / 100, 2)
+    subtotal_inr = round(amount_inr + discount_inr, 2)
+
+    return {
+        "invoice_number": order.invoice_number or f"INV-2026-{order.id.hex[:8].upper()}",
+        "order_id": order.order_id,
+        "payment_id": order.payment_id or "N/A",
+        "date": order.created_at.strftime("%d %B %Y, %I:%M %p"),
+        "status": order.status.upper(),
+        "billing_cycle": order.cycle.title(),
+        "plan_tier": order.plan_tier,
+        "plan_name": PRICING_MATRIX.get(order.plan_tier, {}).get("name", f"{order.plan_tier} Plan"),
+        "plan_description": PRICING_MATRIX.get(order.plan_tier, {}).get("description", ""),
+        "customer": {
+            "name": student.full_name or student.username,
+            "email": student.email,
+            "phone": getattr(student, "phone_number", None) or "N/A",
+            "roll_number": getattr(student, "roll_number", None) or "N/A",
+            "university": getattr(student, "university", None) or "NIMS University",
+            "department": getattr(student, "department", None) or "Academics",
+            "semester": getattr(student, "semester", 1),
+            "section": getattr(student, "section", "A"),
+        },
+        "financials": {
+            "subtotal_inr": subtotal_inr,
+            "discount_code": order.discount_code or None,
+            "discount_inr": discount_inr,
+            "total_paid_inr": amount_inr,
+            "currency": order.currency,
+            "payment_gateway": "Razorpay Payments (India)",
+        },
+        "company": {
+            "name": "SaastaScholar™ Academic Innovations",
+            "parent": "DurgaAI Solutions",
+            "tagline": "Quality Education, Without The Heavy Price.",
+            "support_email": "support@saastascholar.in",
+            "portal_domain": "saastascholar.durgaaisolutions.in",
+        },
+    }
+
+
+class StudentMyInvoicesView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        orders = RazorpayOrder.objects.filter(user=user).order_by("-created_at")
+
+        orders_data = []
+        for o in orders:
+            orders_data.append({
+                "id": str(o.id),
+                "order_id": o.order_id,
+                "invoice_number": o.invoice_number or f"INV-2026-{o.id.hex[:8].upper()}",
+                "amount_inr": round(o.amount / 100, 2),
+                "plan_tier": o.plan_tier,
+                "cycle": o.cycle,
+                "status": o.status.upper(),
+                "created_at": o.created_at.strftime("%d %B %Y, %I:%M %p"),
+                "payment_id": o.payment_id or "—",
+            })
+
+        latest_paid = orders.filter(status__iexact="paid").first() or orders.first()
+        if latest_paid:
+            latest_invoice = build_invoice_payload(latest_paid, user)
+        else:
+            tier = (getattr(user, "access_tier", "") or "FREE").strip().upper()
+            latest_invoice = {
+                "invoice_number": f"INV-ENROLL-{(user.id.hex[:8].upper() if hasattr(user, 'id') else '2026-REG')}",
+                "order_id": f"enroll_{user.username}",
+                "payment_id": "STUDENT_GRANT_ENROLLMENT",
+                "date": user.date_joined.strftime("%d %B %Y, %I:%M %p") if getattr(user, "date_joined", None) else timezone.now().strftime("%d %B %Y, %I:%M %p"),
+                "status": "PAID",
+                "billing_cycle": "Academic Year",
+                "plan_tier": tier,
+                "plan_name": PRICING_MATRIX.get(tier, {}).get("name", "Free Scholar Enrollment"),
+                "plan_description": "Official Academic Identity & Institutional Digital Access Pass",
+                "customer": {
+                    "name": user.full_name or user.username,
+                    "email": user.email,
+                    "phone": getattr(user, "phone_number", None) or "N/A",
+                    "roll_number": getattr(user, "roll_number", None) or "N/A",
+                    "university": getattr(user, "university", None) or "NIMS University",
+                    "department": getattr(user, "department", None) or "Academics",
+                    "semester": getattr(user, "semester", 1),
+                    "section": getattr(user, "section", "A"),
+                },
+                "financials": {
+                    "subtotal_inr": 0.00,
+                    "discount_code": "SCHOLAR_ENROLLMENT",
+                    "discount_inr": 0.00,
+                    "total_paid_inr": 0.00,
+                    "currency": "INR",
+                    "payment_gateway": "Institutional Scholarship Allocation",
+                },
+                "company": {
+                    "name": "SaastaScholar™ Academic Innovations",
+                    "parent": "DurgaAI Solutions",
+                    "tagline": "Quality Education, Without The Heavy Price.",
+                    "support_email": "support@saastascholar.in",
+                    "portal_domain": "saastascholar.durgaaisolutions.in",
+                },
+            }
+
+        return Response({
+            "orders": orders_data,
+            "latest_invoice": latest_invoice,
+        })
+
+
+class StudentInvoiceDetailView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, pk):
+        try:
+            if request.user.is_staff or request.user.is_superuser:
+                order = RazorpayOrder.objects.select_related("user").get(id=pk)
+            else:
+                order = RazorpayOrder.objects.select_related("user").get(id=pk, user=request.user)
+        except RazorpayOrder.DoesNotExist:
+            return Response({"error": "Invoice / Order Record Not Found."}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response(build_invoice_payload(order, order.user))
+
+
 class AdminInvoiceDetailView(APIView):
     permission_classes = [permissions.IsAdminUser]
 
@@ -896,47 +1025,7 @@ class AdminInvoiceDetailView(APIView):
         except RazorpayOrder.DoesNotExist:
             return Response({"error": "Invoice / Order Record Not Found."}, status=status.HTTP_404_NOT_FOUND)
 
-        student = order.user
-        amount_inr = round(order.amount / 100, 2)
-        discount_inr = round(order.discount_amount_paise / 100, 2)
-        subtotal_inr = round(amount_inr + discount_inr, 2)
-
-        return Response({
-            "invoice_number": order.invoice_number or f"INV-2026-{order.id.hex[:8].upper()}",
-            "order_id": order.order_id,
-            "payment_id": order.payment_id or "N/A",
-            "date": order.created_at.strftime("%d %B %Y, %I:%M %p"),
-            "status": order.status.upper(),
-            "billing_cycle": order.cycle.title(),
-            "plan_tier": order.plan_tier,
-            "plan_name": PRICING_MATRIX.get(order.plan_tier, {}).get("name", f"{order.plan_tier} Plan"),
-            "plan_description": PRICING_MATRIX.get(order.plan_tier, {}).get("description", ""),
-            "customer": {
-                "name": student.full_name or student.username,
-                "email": student.email,
-                "phone": student.phone_number or "N/A",
-                "roll_number": student.roll_number,
-                "university": student.university,
-                "department": student.department,
-                "semester": student.semester,
-                "section": student.section,
-            },
-            "financials": {
-                "subtotal_inr": subtotal_inr,
-                "discount_code": order.discount_code or None,
-                "discount_inr": discount_inr,
-                "total_paid_inr": amount_inr,
-                "currency": order.currency,
-                "payment_gateway": "Razorpay Payments (India)",
-            },
-            "company": {
-                "name": "SaastaScholar™ Academic Innovations",
-                "parent": "DurgaAI Solutions",
-                "tagline": "Quality Education, Without The Heavy Price.",
-                "support_email": "support@saastascholar.in",
-                "portal_domain": "saastascholar.durgaaisolutions.in",
-            },
-        })
+        return Response(build_invoice_payload(order, order.user))
 
 
 class AdminCouponListCreateView(generics.ListCreateAPIView):

@@ -27,6 +27,7 @@ import {
   LogOut,
   Mail,
   Phone,
+  Printer,
   Radio,
   RefreshCw,
   Save,
@@ -49,10 +50,13 @@ import {
   Subject,
   AcademicMaterial,
   StudentUser,
+  studentSubscriptionApi,
 } from "@/Lib/Api";
 import { toast } from "sonner";
 import { cn } from "@/Lib/Utils";
 import { initiateRazorpayPayment } from "@/Lib/Razorpay";
+import { StudentInvoiceModal } from "./StudentInvoiceModal";
+import { AcademicInvoiceData, printAcademicInvoice } from "@/Utils/InvoicePrinter";
 
 interface StudentProfileProps {
   onNavigateTab?: (tab: string) => void;
@@ -79,6 +83,46 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
   const [program, setProgram] = useState<string>(user?.program || "");
   const [semester, setSemester] = useState<number>(user?.semester || 1);
   const [section, setSection] = useState<string>(user?.section || "A");
+
+  // Self-Service Academic Tax Invoice Modal State
+  const [invoiceModalOpen, setInvoiceModalOpen] = useState<boolean>(false);
+  const [invoiceData, setInvoiceData] = useState<AcademicInvoiceData | null>(null);
+  const [invoiceLoading, setInvoiceLoading] = useState<boolean>(false);
+
+  const handleFetchAndOpenInvoice = async () => {
+    setInvoiceLoading(true);
+    setInvoiceModalOpen(true);
+    try {
+      const res = await studentSubscriptionApi.getMyInvoices();
+      if (res?.latest_invoice) {
+        setInvoiceData(res.latest_invoice);
+      } else {
+        toast.error("No Academic Invoice Found.");
+      }
+    } catch (err: any) {
+      toast.error("Failed To Load Official Academic Invoice.");
+    } finally {
+      setInvoiceLoading(false);
+    }
+  };
+
+  const handleDirectPrintInvoice = async () => {
+    try {
+      let inv = invoiceData;
+      if (!inv) {
+        const res = await studentSubscriptionApi.getMyInvoices();
+        inv = res?.latest_invoice;
+        setInvoiceData(inv);
+      }
+      if (inv) {
+        printAcademicInvoice(inv);
+      } else {
+        toast.error("No Academic Invoice Found To Print.");
+      }
+    } catch (err: any) {
+      toast.error("Failed To Fetch Printable Invoice.");
+    }
+  };
 
   const [departmentsList, setDepartmentsList] = useState<Department[]>([]);
   const [programsList, setProgramsList] = useState<ProgramSpecialization[]>([]);
@@ -583,6 +627,9 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
                     </span>
                     <span className="rounded-lg bg-surface border border-border/60 px-2 py-0.5 text-[0.65rem] font-mono text-muted-foreground">
                       ✅ Good Standing
+                    </span>
+                    <span className="rounded-lg bg-surface border border-border/60 px-2 py-0.5 text-[0.65rem] font-mono text-primary font-bold">
+                      🧾 Tax Invoice: Ready
                     </span>
                   </div>
                 </div>
@@ -1090,9 +1137,69 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
                 </div>
               </div>
             </div>
+
+            {/* Official Academic Tax Invoice & Fee Receipt Card */}
+            <div className="rounded-3xl border border-primary/25 bg-gradient-to-br from-card via-card to-primary/5 p-5 sm:p-6 shadow-xs flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="space-y-1.5 max-w-xl">
+                <div className="flex items-center gap-2">
+                  <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+                    <FileText className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <span className="text-[0.62rem] font-mono font-bold uppercase tracking-wider text-primary block">
+                      Self-Service Student Billing
+                    </span>
+                    <h3 className="font-display text-base font-bold text-foreground">
+                      Official Academic Fee Receipt &amp; Tax Invoice
+                    </h3>
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Download and print your verified, GST and DPDP Act-compliant fee invoice anytime for institutional records, scholarships, or reimbursement.
+                </p>
+                <div className="flex flex-wrap items-center gap-2 text-[0.65rem] font-mono text-muted-foreground pt-0.5">
+                  <span className="rounded-md bg-surface border border-border/60 px-2 py-0.5">
+                    Pass: <strong className="text-foreground">{(user?.access_tier || "FREE").toUpperCase()} SCHOLAR</strong>
+                  </span>
+                  <span className="rounded-md bg-surface border border-border/60 px-2 py-0.5">
+                    SAC Code: <strong className="text-foreground">999293</strong>
+                  </span>
+                  <span className="rounded-md bg-surface border border-border/60 px-2 py-0.5 text-emerald-600 dark:text-emerald-400 font-bold">
+                    ✓ Verified Digital Seal
+                  </span>
+                </div>
+              </div>
+
+              <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto shrink-0">
+                <button
+                  type="button"
+                  onClick={handleFetchAndOpenInvoice}
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-2xl border border-border bg-card hover:bg-surface px-4 py-2.5 text-xs font-bold text-foreground transition-all cursor-pointer active:scale-95 shadow-2xs"
+                >
+                  <Eye className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span>Preview Invoice</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDirectPrintInvoice}
+                  className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-2xl bg-primary hover:bg-primary/90 px-4 py-2.5 text-xs font-bold text-primary-foreground transition-all cursor-pointer active:scale-95 shadow-xs"
+                >
+                  <Printer className="h-3.5 w-3.5" />
+                  <span>Print Official PDF</span>
+                </button>
+              </div>
+            </div>
           </div>
         )}
       </div>
+
+      {/* Official Self-Service Student Tax Invoice Modal */}
+      <StudentInvoiceModal
+        isOpen={invoiceModalOpen}
+        onClose={() => setInvoiceModalOpen(false)}
+        invoice={invoiceData}
+        loading={invoiceLoading}
+      />
     </div>
   );
 }

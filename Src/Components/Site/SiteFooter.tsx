@@ -581,12 +581,12 @@ export function SiteFooter() {
 
         {/* ===================== Bottom Copyright & Back-to-Top ===================== */}
         <div className="mt-8 sm:mt-10 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-border/80 pt-6 min-w-0">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 text-xs text-muted-foreground min-w-0 text-center sm:text-left flex-wrap">
-            <p className="break-words font-medium">
+          <div className="flex flex-col sm:flex-row items-center sm:items-center gap-1.5 sm:gap-3 text-xs text-muted-foreground min-w-0 text-center sm:text-left flex-wrap w-full sm:w-auto justify-center sm:justify-start">
+            <p className="break-words font-medium text-center w-full sm:w-auto">
               © {new Date().getFullYear()} <strong className="text-foreground">SaastaScholar™</strong>. All Rights Reserved.
             </p>
             <span className="hidden text-muted-foreground/40 sm:inline">|</span>
-            <p className="inline-flex items-center gap-1">
+            <p className="inline-flex items-center justify-center gap-1 text-center w-full sm:w-auto">
               <span>A</span>
               <strong className="text-foreground font-semibold">DurgaAI Solutions</strong>
               <span>Academic Platform</span>
@@ -654,7 +654,7 @@ export function SiteFooter() {
           </div>
           <div className="mt-4 flex items-center justify-end gap-2 text-xs sm:text-sm font-medium text-muted-foreground">
             <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-            <span className="tracking-wide">An <strong className="text-foreground font-semibold">Durgaai Solutions</strong> Initiative</span>
+            <span className="tracking-wide">A <strong className="text-foreground font-semibold">DurgaAI Solutions</strong> Initiative</span>
           </div>
         </div>
       </div>
