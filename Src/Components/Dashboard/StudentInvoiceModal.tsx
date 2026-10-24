@@ -212,42 +212,53 @@ export function StudentInvoiceModal({
               </div>
 
               {/* Service Itemization Table */}
-              <div className="overflow-x-auto rounded-2xl border border-border/80">
+              <div className="overflow-hidden rounded-2xl border border-border/80 bg-surface/30">
                 <table className="w-full text-left border-collapse">
                   <thead>
                     <tr className="border-b border-border/80 bg-surface text-[0.65rem] font-bold uppercase tracking-wider text-muted-foreground">
                       <th className="p-3">Academic Service Description</th>
-                      <th className="p-3 text-center">SAC Code</th>
-                      <th className="p-3 text-center">Cycle</th>
+                      <th className="p-3 text-center hidden sm:table-cell">SAC Code</th>
+                      <th className="p-3 text-center hidden sm:table-cell">Cycle</th>
                       <th className="p-3 text-right">Amount (INR)</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border/60 text-xs">
                     <tr>
                       <td className="p-3">
-                        <p className="font-bold text-foreground">
-                          {invoice.plan_name} Membership
-                        </p>
-                        <p className="text-[0.68rem] text-muted-foreground">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <p className="font-bold text-foreground">
+                            {invoice.plan_name} Membership
+                          </p>
+                          <span className="sm:hidden text-[0.6rem] font-mono px-1.5 py-0.5 rounded bg-primary/10 text-primary font-bold">
+                            {invoice.billing_cycle}
+                          </span>
+                        </div>
+                        <p className="text-[0.68rem] text-muted-foreground mt-0.5 leading-relaxed">
                           {invoice.plan_description || "Handwritten lecture notes, question banks, and solutions"}
                         </p>
+                        <p className="sm:hidden text-[0.62rem] text-muted-foreground/80 font-mono mt-0.5">
+                          SAC Code: 999293
+                        </p>
                       </td>
-                      <td className="p-3 text-center font-mono text-muted-foreground">
+                      <td className="p-3 text-center font-mono text-muted-foreground hidden sm:table-cell">
                         999293
                       </td>
-                      <td className="p-3 text-center font-medium">
+                      <td className="p-3 text-center font-medium hidden sm:table-cell">
                         {invoice.billing_cycle}
                       </td>
-                      <td className="p-3 text-right font-bold text-foreground">
+                      <td className="p-3 text-right font-bold text-foreground whitespace-nowrap">
                         ₹{invoice.financials.subtotal_inr.toFixed(2)}
                       </td>
                     </tr>
                     {invoice.financials.discount_inr > 0 && (
                       <tr className="bg-emerald-500/5 text-emerald-600 dark:text-emerald-400 font-medium">
-                        <td colSpan={3} className="p-2.5 pl-3">
-                          Promotional Voucher Applied ({invoice.financials.discount_code || "DISCOUNT"})
+                        <td colSpan={1} className="p-2.5 pl-3 sm:col-span-3">
+                          <div className="flex items-center gap-1.5">
+                            <Sparkles className="h-3 w-3 shrink-0" />
+                            <span>Voucher Applied ({invoice.financials.discount_code || "DISCOUNT"})</span>
+                          </div>
                         </td>
-                        <td className="p-2.5 pr-3 text-right font-bold">
+                        <td className="p-2.5 pr-3 text-right font-bold whitespace-nowrap">
                           - ₹{invoice.financials.discount_inr.toFixed(2)}
                         </td>
                       </tr>
@@ -282,16 +293,16 @@ export function StudentInvoiceModal({
 
               {/* Digital Verification Notice */}
               <div className="rounded-2xl border border-dashed border-border/80 bg-surface/30 p-3 flex flex-col sm:flex-row items-center justify-between gap-2 text-[0.65rem] text-muted-foreground">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 text-left">
                   <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
                   <span>
-                    Digitally Generated Proof Of Academic Enrollment &amp; Fee Payment Under DPDP Act 2023. No Physical Signature Required.
+                    Digitally generated proof of academic enrollment &amp; fee payment under DPDP Act 2023. No physical signature required.
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={handlePrint}
-                  className="inline-flex items-center gap-1 font-bold text-primary hover:underline cursor-pointer shrink-0"
+                  className="inline-flex items-center gap-1 font-bold text-primary hover:underline cursor-pointer shrink-0 whitespace-nowrap"
                 >
                   <Printer className="h-3 w-3" />
                   Print Official A4 PDF
@@ -302,16 +313,16 @@ export function StudentInvoiceModal({
         </div>
 
         {/* Modal Footer */}
-        <div className="flex items-center justify-between border-t border-border/80 px-4 sm:px-6 py-3 bg-surface/60 shrink-0">
-          <p className="text-[0.68rem] text-muted-foreground">
-            Questions? Contact <a href="mailto:support@saastascholar.in" className="text-primary hover:underline">support@saastascholar.in</a>
+        <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-3 border-t border-border/80 px-4 sm:px-6 py-3 bg-surface/70 shrink-0">
+          <p className="text-[0.68rem] text-muted-foreground text-center sm:text-left">
+            Questions? Contact <a href="mailto:support@saastascholar.in" className="text-primary font-semibold hover:underline">support@saastascholar.in</a>
           </p>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
             <button
               type="button"
               onClick={onClose}
-              className="rounded-xl border border-border px-3.5 py-1.5 text-xs font-bold text-foreground hover:bg-surface cursor-pointer transition-colors"
+              className="flex-1 sm:flex-none inline-flex items-center justify-center rounded-xl border border-border bg-card hover:bg-surface px-4 py-2 text-xs font-bold text-foreground cursor-pointer transition-colors whitespace-nowrap shrink-0"
             >
               Close
             </button>
@@ -319,10 +330,10 @@ export function StudentInvoiceModal({
               <button
                 type="button"
                 onClick={handlePrint}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-1.5 text-xs font-bold text-primary-foreground shadow-xs hover:bg-primary/90 transition-all cursor-pointer active:scale-95"
+                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-xs hover:bg-primary/90 transition-all cursor-pointer active:scale-95 whitespace-nowrap shrink-0"
               >
-                <Printer className="h-3.5 w-3.5" />
-                Print / Save PDF
+                <Printer className="h-3.5 w-3.5 shrink-0" />
+                <span>Print / Save PDF</span>
               </button>
             )}
           </div>

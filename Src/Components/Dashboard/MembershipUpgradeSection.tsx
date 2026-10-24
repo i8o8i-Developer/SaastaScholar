@@ -178,11 +178,6 @@ export function MembershipUpgradeSection({
     toast.info("Coupon Code Removed.");
   };
 
-  const handlePresetCoupon = (code: string) => {
-    setCouponCode(code);
-    setAppliedCoupon(null);
-  };
-
   const handleInitiateUpgrade = () => {
     if (!selectedTier || !selectedPlan) {
       toast.error("Please Select An Academic Plan First.");
@@ -410,7 +405,7 @@ export function MembershipUpgradeSection({
                   {selectedPlan.tier}
                 </span>
               </div>
-              <h3 className="text-sm sm:text-base font-black text-foreground mt-0.5 truncate">
+              <h3 className="text-sm sm:text-base font-black text-foreground mt-0.5 leading-snug">
                 {selectedPlan.name} · {billingCycle === "semester" ? "Semester Pass (180 Days)" : "Monthly Pass (30 Days)"}
               </h3>
             </div>
@@ -440,45 +435,25 @@ export function MembershipUpgradeSection({
                 </button>
               </div>
             ) : (
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <div className="relative flex-1 min-w-0">
-                    <Tag className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-                    <input
-                      type="text"
-                      value={couponCode}
-                      onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                      placeholder="Coupon Code (e.g. SAASTA20)"
-                      className="h-8.5 w-full rounded-xl border border-border bg-card pr-3 pl-8 text-xs font-mono uppercase focus:border-primary focus:outline-none transition-colors"
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={handleApplyCoupon}
-                    disabled={couponLoading || !couponCode.trim()}
-                    className="h-8.5 px-3.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary-deep transition-all disabled:opacity-50 cursor-pointer shrink-0 shadow-xs active:scale-95"
-                  >
-                    {couponLoading ? "..." : "Apply"}
-                  </button>
+              <div className="flex items-center gap-2">
+                <div className="relative flex-1 min-w-0">
+                  <Tag className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                  <input
+                    type="text"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    placeholder="Enter Voucher Code (Optional)"
+                    className="h-8.5 w-full rounded-xl border border-border bg-card pr-3 pl-8 text-xs font-mono uppercase focus:border-primary focus:outline-none transition-colors"
+                  />
                 </div>
-                {/* Micro Quick Code Chips */}
-                <div className="flex items-center gap-1.5 flex-wrap text-[0.65rem]">
-                  <span className="text-muted-foreground font-semibold">Quick Codes:</span>
-                  <button
-                    type="button"
-                    onClick={() => handlePresetCoupon("SAASTA20")}
-                    className="rounded-md border border-primary/30 bg-primary/10 px-2 py-0.5 font-mono font-bold text-primary hover:bg-primary/20 transition-all cursor-pointer"
-                  >
-                    SAASTA20 (20% OFF)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handlePresetCoupon("FREEDOM100")}
-                    className="rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 font-mono font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 transition-all cursor-pointer"
-                  >
-                    FREEDOM100 (100% FREE)
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={handleApplyCoupon}
+                  disabled={couponLoading || !couponCode.trim()}
+                  className="h-8.5 px-3.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary-deep transition-all disabled:opacity-50 cursor-pointer shrink-0 shadow-xs active:scale-95"
+                >
+                  {couponLoading ? "..." : "Apply"}
+                </button>
               </div>
             )}
           </div>
