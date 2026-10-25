@@ -296,7 +296,7 @@ export function StudentInvoiceModal({
                 <div className="flex items-center gap-2 text-left">
                   <ShieldCheck className="h-4 w-4 text-emerald-500 shrink-0" />
                   <span>
-                    Digitally generated proof of academic enrollment &amp; fee payment under DPDP Act 2023. No physical signature required.
+                    Digitally Generated Proof Of Academic Enrollment &amp; Fee Payment Under DPDP Act 2023. No Physical Signature Required.
                   </span>
                 </div>
                 <button
