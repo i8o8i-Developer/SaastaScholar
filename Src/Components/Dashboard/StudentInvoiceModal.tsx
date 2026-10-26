@@ -47,22 +47,26 @@ export function StudentInvoiceModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-background/80 backdrop-blur-md animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3.5 sm:p-6 bg-background/80 backdrop-blur-md animate-in fade-in duration-200">
       <div
-        className="relative w-full max-w-2xl max-h-[92vh] flex flex-col rounded-3xl border border-border/80 bg-card text-card-foreground shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
+        className="relative w-full max-w-lg sm:max-w-xl max-h-[82vh] sm:max-h-[86vh] flex flex-col rounded-2xl sm:rounded-3xl border border-border/90 bg-card text-card-foreground shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 my-auto"
         role="dialog"
         aria-modal="true"
       >
+        {/* Native Mobile Pull Indicator */}
+        <div className="w-10 h-1 rounded-full bg-muted-foreground/30 mx-auto mt-2.5 sm:hidden shrink-0" />
+
         {/* Modal Header */}
-        <div className="flex items-center justify-between border-b border-border/80 px-4 sm:px-6 py-4 bg-surface/80 shrink-0">
+        <div className="flex items-center justify-between border-b border-border/80 px-4 sm:px-6 py-3.5 sm:py-4 bg-surface/80 shrink-0">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="h-9 w-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+            <div className="h-8.5 w-8.5 sm:h-9 sm:w-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
               <FileText className="h-4 w-4" />
             </div>
             <div className="min-w-0">
               <h3 className="font-bold text-sm sm:text-base text-foreground tracking-tight flex items-center gap-1.5 truncate">
-                <span>Official Academic Tax Invoice</span>
-                <span className="hidden sm:inline-flex items-center gap-0.5 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[0.62rem] font-bold text-emerald-600 dark:text-emerald-400">
+                <span className="sm:hidden">Tax Invoice</span>
+                <span className="hidden sm:inline">Official Academic Tax Invoice</span>
+                <span className="hidden md:inline-flex items-center gap-0.5 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[0.62rem] font-bold text-emerald-600 dark:text-emerald-400">
                   <ShieldCheck className="h-2.5 w-2.5" />
                   DPDP Compliant
                 </span>
@@ -78,11 +82,10 @@ export function StudentInvoiceModal({
               <button
                 type="button"
                 onClick={handlePrint}
-                className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground shadow-xs hover:bg-primary/90 transition-all cursor-pointer active:scale-95"
+                className="hidden sm:inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-1.5 text-xs font-bold text-primary-foreground shadow-xs hover:bg-primary/90 transition-all cursor-pointer active:scale-95"
               >
                 <Printer className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Print / Save PDF</span>
-                <span className="sm:hidden">Print</span>
+                <span>Print / Save PDF</span>
               </button>
             )}
             <button
@@ -313,16 +316,16 @@ export function StudentInvoiceModal({
         </div>
 
         {/* Modal Footer */}
-        <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-3 border-t border-border/80 px-4 sm:px-6 py-3 bg-surface/70 shrink-0">
+        <div className="flex flex-col-reverse sm:flex-row items-center justify-between gap-3 border-t border-border/80 px-4 sm:px-6 py-3 bg-surface/90 shrink-0">
           <p className="text-[0.68rem] text-muted-foreground text-center sm:text-left">
-            Questions? Contact <a href="mailto:support@saastascholar.in" className="text-primary font-semibold hover:underline">support@saastascholar.in</a>
+            Questions? Contact <a href="mailto:support@saastascholar.in" className="text-primary font-bold hover:underline">support@saastascholar.in</a>
           </p>
 
           <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 sm:flex-none inline-flex items-center justify-center rounded-xl border border-border bg-card hover:bg-surface px-4 py-2 text-xs font-bold text-foreground cursor-pointer transition-colors whitespace-nowrap shrink-0"
+              className="flex-1 sm:flex-none inline-flex items-center justify-center rounded-xl border border-border bg-card hover:bg-surface px-4 py-2.5 text-xs font-bold text-foreground cursor-pointer transition-colors whitespace-nowrap shrink-0 shadow-2xs"
             >
               Close
             </button>
@@ -330,7 +333,7 @@ export function StudentInvoiceModal({
               <button
                 type="button"
                 onClick={handlePrint}
-                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-xs hover:bg-primary/90 transition-all cursor-pointer active:scale-95 whitespace-nowrap shrink-0"
+                className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-xs font-bold text-primary-foreground shadow-xs hover:bg-primary/90 transition-all cursor-pointer active:scale-95 whitespace-nowrap shrink-0"
               >
                 <Printer className="h-3.5 w-3.5 shrink-0" />
                 <span>Print / Save PDF</span>

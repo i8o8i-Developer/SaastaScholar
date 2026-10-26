@@ -442,17 +442,17 @@ export function MembershipUpgradeSection({
                     type="text"
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                    placeholder="Enter Voucher Code (Optional)"
-                    className="h-8.5 w-full rounded-xl border border-border bg-card pr-3 pl-8 text-xs font-mono uppercase focus:border-primary focus:outline-none transition-colors"
+                    placeholder="Enter Voucher Code"
+                    className="h-9 w-full rounded-xl border border-border bg-card pr-3 pl-9 text-xs font-mono uppercase placeholder:normal-case placeholder:font-sans placeholder:text-muted-foreground/80 focus:border-primary focus:outline-none transition-colors"
                   />
                 </div>
                 <button
                   type="button"
                   onClick={handleApplyCoupon}
                   disabled={couponLoading || !couponCode.trim()}
-                  className="h-8.5 px-3.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary-deep transition-all disabled:opacity-50 cursor-pointer shrink-0 shadow-xs active:scale-95"
+                  className="h-9 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary-deep transition-all disabled:opacity-50 cursor-pointer shrink-0 shadow-xs active:scale-95"
                 >
-                  {couponLoading ? "..." : "Apply"}
+                  {couponLoading ? "Applying..." : "Apply"}
                 </button>
               </div>
             )}

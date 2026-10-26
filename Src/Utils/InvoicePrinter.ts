@@ -468,7 +468,7 @@ export function printAcademicInvoice(inv: AcademicInvoiceData): boolean {
     printWindow.document.open();
     printWindow.document.write(html);
     printWindow.document.close();
-    toast.success(`Preparing Tax Invoice ${inv.invoice_number} for printing...`);
+    toast.success(`Preparing Tax Invoice ${inv.invoice_number} For Printing...`);
     return true;
   } catch (err: any) {
     toast.error("Failed To Render Printable Invoice.");
