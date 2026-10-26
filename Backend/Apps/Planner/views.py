@@ -521,6 +521,23 @@ class AdminTimetablePhotoConsumeView(APIView):
                 if not slot.get("short_name") and raw_title != slot["title"]:
                     slot["short_name"] = raw_title
 
+            def _to_title_case_py(text: str) -> str:
+                if not text:
+                    return ""
+                words = text.split(" ")
+                out = []
+                for w in words:
+                    if not w:
+                        continue
+                    if "-" in w:
+                        out.append("-".join(p.capitalize() for p in w.split("-")))
+                    else:
+                        out.append(w.capitalize())
+                return " ".join(out)
+
+            raw_summary = parsed.get("summary") or f"Extracted {len(extracted_slots)} Lecture And Lab Periods Successfully Cross-Referenced With The Legend Table."
+            formatted_summary = _to_title_case_py(raw_summary)
+
             return Response({
                 "success": True,
                 "model_used": f"{model_used} (Multimodal OCR)",
@@ -529,7 +546,7 @@ class AdminTimetablePhotoConsumeView(APIView):
                 "detected_metadata": detected_meta,
                 "header_room": header_room or fallback_room or "Third Floor 306",
                 "confidence": parsed.get("confidence", "high"),
-                "summary": parsed.get("summary", f"Extracted {len(extracted_slots)} Period Slots with Full Course Names & Lecture Theatre / Floor information."),
+                "summary": formatted_summary,
             }, status=status.HTTP_200_OK)
 
         except ValueError as val_err:

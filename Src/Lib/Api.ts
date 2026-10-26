@@ -475,6 +475,12 @@ export function toTitleCase(str: string): string {
       ) {
         return word.toUpperCase();
       }
+      if (word.includes("-")) {
+        return word
+          .split("-")
+          .map((part) => (part ? part.charAt(0).toUpperCase() + part.slice(1).toLowerCase() : ""))
+          .join("-");
+      }
       return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
     })
     .join(" ");

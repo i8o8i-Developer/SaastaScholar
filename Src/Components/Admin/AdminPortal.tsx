@@ -2191,12 +2191,12 @@ export function AdminPortal() {
           faculty_name: (s.faculty_name || "").trim(),
         }));
         setAiExtractedSlots(enrichedSlots);
-        toast.success(res.summary || `Extracted ${res.slots.length} Timetable Slots With Full Official Course Names!`);
+        toast.success(toTitleCase(res.summary || `Extracted ${res.slots.length} Timetable Slots With Full Official Course Names!`));
       } else {
         toast.error("No Schedule Slots Could Be Extracted From The Provided Image. Try A Clearer Photo.");
       }
     } catch (err: any) {
-      toast.error(err.message || "Failed To Consume Timetable Photo With Gemini AI.");
+      toast.error(toTitleCase(err.message || "Failed To Consume Timetable Photo With Gemini AI."));
     } finally {
       setAiExtracting(false);
     }
@@ -2208,10 +2208,10 @@ export function AdminPortal() {
       const res = await apiFetch<{ success: boolean; updated_count: number; detail?: string }>("/planner/admin/timetable/enrich-full-names/", {
         method: "POST",
       });
-      toast.success(res.detail || `Successfully Expanded ${res.updated_count || 0} Slots To Full Subject Names!`);
+      toast.success(toTitleCase(res.detail || `Successfully Expanded ${res.updated_count || 0} Slots To Full Subject Names!`));
       await loadAdminData();
     } catch (err: any) {
-      toast.error(err.message || "Failed To Expand Timetable Full Subject Names.");
+      toast.error(toTitleCase(err.message || "Failed To Expand Timetable Full Subject Names."));
     } finally {
       setIsEnrichingFullNames(false);
     }
