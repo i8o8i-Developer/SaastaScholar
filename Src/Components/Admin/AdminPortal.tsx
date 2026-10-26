@@ -6080,15 +6080,6 @@ export function AdminPortal() {
                 </div>
 
                 <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-2.5 w-full sm:w-auto">
-                  {/* Real-time IST Status Badge */}
-                  <div className="hidden lg:flex items-center gap-1.5 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-3 py-2 text-xs font-mono text-emerald-700 dark:text-emerald-300 shadow-2xs">
-                    <span className="relative flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                    </span>
-                    <span className="font-bold">{istClock.timeString}</span>
-                    <span className="text-[0.62rem] opacity-75 font-sans font-bold">IST</span>
-                  </div>
                   <button
                     onClick={() => {
                       setAiTargetSemester(selectedSemester || 1);
@@ -7092,6 +7083,7 @@ export function AdminPortal() {
                                           warning_message: "",
                                           access_tier: st.access_tier || "FREE",
                                           new_password: "",
+                                          section: st.section || "A",
                                         });
                                         setShowSecurityModal(true);
                                       }}
@@ -7123,6 +7115,7 @@ export function AdminPortal() {
                                           warning_message: "",
                                           access_tier: st.access_tier || "FREE",
                                           new_password: "",
+                                          section: st.section || "A",
                                         });
                                         setShowSecurityModal(true);
                                       }}
@@ -7144,6 +7137,7 @@ export function AdminPortal() {
                                           warning_message: "",
                                           access_tier: st.access_tier || "FREE",
                                           new_password: "",
+                                          section: st.section || "A",
                                         });
                                         setShowSecurityModal(true);
                                       }}
