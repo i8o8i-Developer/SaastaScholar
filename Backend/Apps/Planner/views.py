@@ -340,7 +340,7 @@ class AdminTimetablePhotoConsumeView(APIView):
             "    }\n"
             "  ],\n"
             '  "confidence": "high",\n'
-            '  "summary": "Extracted X lecture and lab periods. Full course names assigned from legend table."\n'
+            '  "summary": "Extracted X Lecture And Lab Periods. Full Course Names Assigned From Legend Table."\n'
             "}"
         )
 

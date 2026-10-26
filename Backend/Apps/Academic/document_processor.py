@@ -340,7 +340,7 @@ def extract_and_populate_pages(material):
                 print("TXT/MD Extraction Error:", e)
 
         # Fallback default (Ensures Clean Notes Manuscript is NEVER empty)
-        fallback_md = f"## {material.title}\n\n- **Subject**: {subject_code}\n- **Curriculum Unit**: Unit {unit_num}\n- **Summary & Key Derivations**:\n{material.summary or 'Verified high-yield lecture manuscript and examination reference.'}\n\n*Review all concepts and practice solved problems thoroughly.*"
+        fallback_md = f"## {material.title}\n\n- **Subject**: {subject_code}\n- **Curriculum Unit**: Unit {unit_num}\n- **Summary & Key Derivations**:\n{material.summary or 'Verified High-Yield Lecture Manuscript and Examination Reference.'}\n\n*Review all concepts and practice solved problems thoroughly.*"
         formatted_html = parse_markdown_to_html(
             raw_text=fallback_md,
             subject_code=subject_code,

@@ -5997,7 +5997,7 @@ export function AdminPortal() {
                                 </div>
                                 <h3 className="font-display text-base font-bold text-foreground leading-snug">{mat.title}</h3>
                                 <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed min-h-[32px]">
-                                  {mat.summary || "Official practical manual, algorithmic instructions, and lab procedure guide."}
+                                  {mat.summary || "Official Practical Manual, Algorithmic Instructions, And Lab Procedure Guide."}
                                 </p>
                                 {mat.tags && mat.tags.length > 0 && (
                                   <div className="flex flex-wrap gap-1.5">
@@ -6859,7 +6859,7 @@ export function AdminPortal() {
                         <thead className="bg-surface/85 border-b border-border/80 text-[0.68rem] uppercase font-black text-muted-foreground tracking-wider backdrop-blur-md">
                           <tr>
                             <th className="py-3.5 px-4">Scholar &amp; Credentials</th>
-                            <th className="py-3.5 px-3">Cohort &amp; Program</th>
+                            <th className="py-3.5 px-3 w-[200px] max-w-[210px]">Cohort &amp; Program</th>
                             <th className="py-3.5 px-3 text-center">Membership Plan</th>
                             <th className="py-3.5 px-2 text-center">Status &amp; DRM</th>
                             <th className="py-3.5 px-2 text-center">Violations &amp; Cooldown</th>
@@ -6901,15 +6901,16 @@ export function AdminPortal() {
                                 </td>
 
                                 {/* 2. Cohort & Program */}
-                                <td className="py-3.5 px-3 min-w-0">
-                                  <div className="space-y-1 min-w-0">
-                                    <span className="font-semibold text-xs text-foreground block leading-snug truncate" title={st.program || "B.Tech"}>
+                                <td className="py-3.5 px-3 w-[200px] max-w-[210px] min-w-0">
+                                  <div className="space-y-1.5 min-w-0">
+                                    <span className="font-semibold text-xs text-foreground block leading-snug line-clamp-2 break-words" title={st.program || "B.Tech"}>
                                       {st.program || "B.Tech"}
                                     </span>
-                                    <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-surface border border-border/80 text-muted-foreground font-mono text-[0.62rem] font-bold">
-                                      <GraduationCap className="h-3 w-3 text-primary shrink-0" />
-                                      <span>Sem {st.semester || 1}</span>
-                                      <span className="text-border">·</span>
+                                    <div className="flex flex-col gap-1 items-start min-w-0">
+                                      <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-surface border border-border/80 text-muted-foreground font-mono text-[0.62rem] font-bold">
+                                        <GraduationCap className="h-3 w-3 text-primary shrink-0" />
+                                        <span>Sem {st.semester || 1}</span>
+                                      </div>
                                       <button
                                         type="button"
                                         onClick={() => {
@@ -6925,7 +6926,7 @@ export function AdminPortal() {
                                           setShowSectionChangeModal(true);
                                         }}
                                         title={`Change Class Section For ${st.full_name || "Scholar"} (Dispatches Official Email Notification)`}
-                                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all cursor-pointer font-bold shadow-2xs active:scale-95"
+                                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20 hover:bg-primary hover:text-white transition-all cursor-pointer font-bold font-mono text-[0.62rem] shadow-2xs active:scale-95"
                                       >
                                         <span>Sec {st.section || "A"}</span>
                                         <Pencil className="h-2 w-2 opacity-80" />
@@ -7051,7 +7052,7 @@ export function AdminPortal() {
                                       className="inline-flex h-8 items-center gap-1 rounded-md border border-teal-500/30 bg-teal-500/10 px-2.5 text-[0.72rem] font-bold text-teal-600 dark:text-teal-400 hover:bg-teal-500 hover:text-white transition-all cursor-pointer shadow-2xs active:scale-95 shrink-0"
                                     >
                                       <TrendingUp className="h-3 w-3" />
-                                      <span>+1 Sem</span>
+                                      <span>Sem +</span>
                                     </button>
 
                                     {/* 2. Direct Block / Unblock 1-Click Action */}
@@ -12741,8 +12742,8 @@ export function AdminPortal() {
                       </span>
                     </div>
 
-                    {/* Actual Database Section Batches (If Available) */}
-                    {matchedDbSections.length > 0 && (
+                    {/* Actual Database Section Batches (From University Database) */}
+                    {matchedDbSections.length > 0 ? (
                       <div className="space-y-1.5 p-2.5 rounded-2xl bg-surface/40 border border-border/80">
                         <span className="text-[0.65rem] font-bold text-muted-foreground uppercase tracking-wider block">
                           Registered Database Section Batches ({matchedDbSections.length} Available):
@@ -12786,32 +12787,16 @@ export function AdminPortal() {
                           })}
                         </div>
                       </div>
-                    )}
-
-                    {/* Standard Section Buttons Grid (A-H) */}
-                    <div className="space-y-1.5">
-                      <span className="text-[0.65rem] font-bold text-muted-foreground uppercase tracking-wider block">
-                        {matchedDbSections.length > 0 ? "Or Select Standard Section Letter:" : "Select Class Section Letter:"}
-                      </span>
-                      <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
-                        {["A", "B", "C", "D", "E", "F", "G", "H"].map((sec) => (
-                          <button
-                            key={sec}
-                            type="button"
-                            onClick={() => setSectionChangeForm({ ...sectionChangeForm, new_section: sec })}
-                            className={cn(
-                              "h-9 rounded-xl border font-mono font-bold text-xs transition-all cursor-pointer shadow-2xs flex flex-col items-center justify-center gap-0.5",
-                              sectionChangeForm.new_section.toUpperCase() === sec
-                                ? "border-primary bg-primary text-primary-foreground shadow-xs scale-102 ring-2 ring-primary/20"
-                                : "border-border/80 bg-background text-foreground hover:bg-surface"
-                            )}
-                          >
-                            <span className="text-[0.58rem] opacity-75 font-sans font-medium">Sec</span>
-                            <span>{sec}</span>
-                          </button>
-                        ))}
+                    ) : (
+                      <div className="p-4 rounded-2xl bg-surface/40 border border-dashed border-border/80 text-center space-y-1">
+                        <p className="text-xs font-semibold text-foreground">
+                          No Section Batches Registered In Database For This Cohort
+                        </p>
+                        <p className="text-[0.7rem] text-muted-foreground">
+                          Please register section batches for this degree course and semester under Academic Structure.
+                        </p>
                       </div>
-                    </div>
+                    )}
                   </div>
 
                   {/* 4. Cohort Reassignment Summary Comparison Pill */}
