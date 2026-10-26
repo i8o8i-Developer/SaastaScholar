@@ -154,32 +154,6 @@ class SubjectSerializer(serializers.ModelSerializer):
             "experiments_count",
             "units_count",
         ]
-
-class SubjectUnitSerializer(serializers.ModelSerializer):
-    subject_code = serializers.CharField(source="subject.code", read_only=True)
-    subject_name = serializers.CharField(source="subject.name", read_only=True)
-    department_name = serializers.CharField(source="subject.department.name", read_only=True)
-    semester = serializers.IntegerField(source="subject.semester", read_only=True)
-    topics = SafeJSONField(required=False)
-
-    class Meta:
-        model = SubjectUnit
-        fields = [
-            "id",
-            "subject",
-            "subject_code",
-            "subject_name",
-            "department_name",
-            "semester",
-            "unit_number",
-            "title",
-            "description",
-            "topics",
-            "marks_weightage",
-            "estimated_hours",
-            "created_at",
-            "updated_at",
-        ]
         extra_kwargs = {
             "department": {"required": False},
         }
@@ -232,6 +206,33 @@ class SubjectUnitSerializer(serializers.ModelSerializer):
         if programs is not None:
             subject.programs.set(programs)
         return subject
+
+
+class SubjectUnitSerializer(serializers.ModelSerializer):
+    subject_code = serializers.CharField(source="subject.code", read_only=True)
+    subject_name = serializers.CharField(source="subject.name", read_only=True)
+    department_name = serializers.CharField(source="subject.department.name", read_only=True)
+    semester = serializers.IntegerField(source="subject.semester", read_only=True)
+    topics = SafeJSONField(required=False)
+
+    class Meta:
+        model = SubjectUnit
+        fields = [
+            "id",
+            "subject",
+            "subject_code",
+            "subject_name",
+            "department_name",
+            "semester",
+            "unit_number",
+            "title",
+            "description",
+            "topics",
+            "marks_weightage",
+            "estimated_hours",
+            "created_at",
+            "updated_at",
+        ]
 
 import json
 

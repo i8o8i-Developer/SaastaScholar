@@ -96,6 +96,7 @@ class ActionType(models.TextChoices):
     CHANGE_TIER = "CHANGE_TIER", "Change Access Tier"
     UPGRADE_TIER = "UPGRADE_TIER", "Upgrade Subscription Tier"
     DOWNGRADE_TIER = "DOWNGRADE_TIER", "Downgrade Subscription Tier"
+    CHANGE_SECTION = "CHANGE_SECTION", "Change Class Section"
     BLOCK_STUDENT = "BLOCK_STUDENT", "Block Student Account"
     UNBLOCK_STUDENT = "UNBLOCK_STUDENT", "Unblock Student Account"
     RESET_PASSWORD = "RESET_PASSWORD", "Reset Student Password"

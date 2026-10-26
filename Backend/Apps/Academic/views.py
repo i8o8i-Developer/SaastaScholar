@@ -486,6 +486,31 @@ class AdminUnitListCreateView(generics.ListCreateAPIView):
             )
         return qs.order_by("subject__semester", "subject__code", "unit_number")
 
+    def create(self, request, *args, **kwargs):
+        subjects = request.data.get("subjects") or request.data.get("subject_ids")
+        if isinstance(subjects, list) and len(subjects) > 0:
+            created_units = []
+            base_data = request.data.copy() if hasattr(request.data, "copy") else dict(request.data)
+            base_data.pop("subjects", None)
+            base_data.pop("subject_ids", None)
+            for sub_id in subjects:
+                data = base_data.copy()
+                data["subject"] = sub_id
+                unit_num = data.get("unit_number", 1)
+                existing = SubjectUnit.objects.filter(subject_id=sub_id, unit_number=unit_num).first()
+                if existing:
+                    serializer = self.get_serializer(existing, data=data, partial=True)
+                else:
+                    serializer = self.get_serializer(data=data)
+                serializer.is_valid(raise_exception=True)
+                if not existing:
+                    self.perform_create(serializer)
+                else:
+                    serializer.save()
+                created_units.append(serializer.data)
+            return Response(created_units, status=status.HTTP_201_CREATED)
+        return super().create(request, *args, **kwargs)
+
 class AdminUnitDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = SubjectUnit.objects.all()
     serializer_class = SubjectUnitSerializer
@@ -618,11 +643,25 @@ class AdminStudentSemesterUpgradeView(APIView):
             if new_semester > 12:
                 new_semester = 12
 
+            old_section = student.section or "A"
             new_section = request.data.get("section")
             student.semester = new_semester
             if new_section:
                 student.section = str(new_section).strip().upper()
             student.save(update_fields=["semester", "section", "updated_at"])
+
+            if new_section and str(new_section).strip().upper() != str(old_section).strip().upper():
+                try:
+                    from Core.mail import send_admin_section_changed_email
+                    send_admin_section_changed_email(
+                        user=student,
+                        old_section=old_section,
+                        new_section=student.section,
+                        reason=reason,
+                        admin_name=request.user.full_name or request.user.username or "Administrator",
+                    )
+                except Exception:
+                    pass
 
             from Apps.Academic.cache_utils import invalidate_redis_pattern
             try:

@@ -218,13 +218,22 @@ export function AdminPortal() {
   const [studentSubTab, setStudentSubTab] = useState<"registry" | "audit" | "incidents">("registry");
   const [showSecurityModal, setShowSecurityModal] = useState<boolean>(false);
   const [selectedStudentForAction, setSelectedStudentForAction] = useState<StudentUser | null>(null);
-  const [securityActionForm, setSecurityActionForm] = useState({
+  const [securityActionForm, setSecurityActionForm] = useState<{
+    action_type: string;
+    reason: string;
+    cooldown_hours: number;
+    warning_message: string;
+    access_tier: string;
+    new_password: string;
+    section?: string;
+  }>({
     action_type: "BLOCK_DRM",
     reason: "",
     cooldown_hours: 24,
     warning_message: "",
     access_tier: "PREMIUM",
     new_password: "",
+    section: "A",
   });
   const [auditFilterAction, setAuditFilterAction] = useState<string>("ALL");
   const [auditSearchQuery, setAuditSearchQuery] = useState<string>("");
@@ -276,6 +285,7 @@ export function AdminPortal() {
   const [unitTopicsInput, setUnitTopicsInput] = useState<string>("");
   const [newUnit, setNewUnit] = useState<{
     subject: string;
+    subjects: string[];
     unit_number: number;
     title: string;
     description: string;
@@ -284,12 +294,24 @@ export function AdminPortal() {
     estimated_hours: number;
   }>({
     subject: "",
+    subjects: [],
     unit_number: 1,
     title: "",
     description: "",
     topics: [],
     marks_weightage: 15,
     estimated_hours: 10,
+  });
+
+  const [showSectionChangeModal, setShowSectionChangeModal] = useState<boolean>(false);
+  const [sectionChangeForm, setSectionChangeForm] = useState<{
+    student: StudentUser | null;
+    new_section: string;
+    reason: string;
+  }>({
+    student: null,
+    new_section: "A",
+    reason: "Class Section Reassigned By Administrator",
   });
 
   const [showRegisterStudentModal, setShowRegisterStudentModal] = useState<boolean>(false);
@@ -649,6 +671,7 @@ export function AdminPortal() {
         warning_message?: string;
         access_tier?: string;
         new_password?: string;
+        section?: string;
       } = {
         action_type: securityActionForm.action_type,
         reason: securityActionForm.reason.trim(),
@@ -656,6 +679,9 @@ export function AdminPortal() {
         warning_message: securityActionForm.warning_message.trim(),
         access_tier: securityActionForm.access_tier,
       };
+      if (securityActionForm.section) {
+        payload.section = securityActionForm.section;
+      }
       if (securityActionForm.new_password?.trim()) {
         payload.new_password = securityActionForm.new_password.trim();
       }
@@ -675,10 +701,32 @@ export function AdminPortal() {
         warning_message: "",
         access_tier: "PREMIUM",
         new_password: "",
+        section: "A",
       });
       loadAdminData();
     } catch (err: any) {
       toast.error(toTitleCase(err.message || "Failed To Execute Security Action."));
+    }
+  };
+
+  const handleSaveStudentSection = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!sectionChangeForm.student || !sectionChangeForm.new_section) {
+      toast.error("Please Select A Valid Target Class Section.");
+      return;
+    }
+    try {
+      const res = await studentSecurityApi.changeSection(
+        sectionChangeForm.student.id,
+        sectionChangeForm.new_section,
+        sectionChangeForm.reason.trim() || "Class Section Reassigned By Administrator"
+      );
+      toast.success(toTitleCase(res.message || "Scholar Class Section Updated And Notification Dispatched."));
+      setShowSectionChangeModal(false);
+      setSectionChangeForm({ student: null, new_section: "A", reason: "Class Section Reassigned By Administrator" });
+      loadAdminData();
+    } catch (err: any) {
+      toast.error(toTitleCase(err.message || "Failed To Change Scholar Section."));
     }
   };
 
@@ -1097,6 +1145,7 @@ export function AdminPortal() {
     setEditingUnitId(unit.id);
     setNewUnit({
       subject: unit.subject,
+      subjects: [unit.subject],
       unit_number: unit.unit_number,
       title: unit.title,
       description: unit.description || "",
@@ -1110,8 +1159,12 @@ export function AdminPortal() {
 
   const handleSaveUnit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newUnit.subject) {
-      toast.error("Please Select A Target Subject.");
+    const targetSubjects = (newUnit.subjects && newUnit.subjects.length > 0)
+      ? newUnit.subjects
+      : (newUnit.subject ? [newUnit.subject] : []);
+
+    if (targetSubjects.length === 0) {
+      toast.error("Please Select At Least One Target Course Subject.");
       return;
     }
     if (!newUnit.title.trim()) {
@@ -1126,7 +1179,8 @@ export function AdminPortal() {
         .filter(Boolean);
 
       const payload = {
-        subject: newUnit.subject,
+        subject: targetSubjects[0],
+        subjects: targetSubjects,
         unit_number: Number(newUnit.unit_number) || 1,
         title: newUnit.title.trim(),
         description: newUnit.description.trim(),
@@ -1146,7 +1200,11 @@ export function AdminPortal() {
           method: "POST",
           body: JSON.stringify(payload),
         });
-        toast.success("Syllabus Unit Created Successfully.");
+        toast.success(
+          targetSubjects.length > 1
+            ? `Syllabus Unit Registered Successfully Across ${targetSubjects.length} Course Subjects.`
+            : "Syllabus Unit Created Successfully."
+        );
       }
 
       setShowUnitModal(false);
@@ -1154,6 +1212,7 @@ export function AdminPortal() {
       setUnitTopicsInput("");
       setNewUnit({
         subject: selectedSubjectId || (subjects[0]?.id || ""),
+        subjects: selectedSubjectId ? [selectedSubjectId] : (subjects[0]?.id ? [subjects[0].id] : []),
         unit_number: 1,
         title: "",
         description: "",
@@ -3871,9 +3930,11 @@ export function AdminPortal() {
                     <button
                       onClick={() => {
                         setEditingUnitId(null);
+                        const initSub = selectedSubjectId || (subjects[0]?.id || "");
                         setNewUnit({
-                          subject: selectedSubjectId || (subjects[0]?.id || ""),
-                          unit_number: (units.filter((u) => u.subject === (selectedSubjectId || subjects[0]?.id)).length) + 1,
+                          subject: initSub,
+                          subjects: initSub ? [initSub] : [],
+                          unit_number: (units.filter((u) => u.subject === initSub).length) + 1,
                           title: "",
                           description: "",
                           topics: [],
@@ -4931,29 +4992,6 @@ export function AdminPortal() {
                           Manage Structured Course Units, Lesson Topics, Lecture Hours, And Marks Weightage.
                         </p>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setEditingUnitId(null);
-                            setNewUnit({
-                              subject: selectedSubjectId || (filteredSubjects[0]?.id || subjects[0]?.id || ""),
-                              unit_number: (units.filter((u) => u.subject === (selectedSubjectId || subjects[0]?.id)).length) + 1,
-                              title: "",
-                              description: "",
-                              topics: [],
-                              marks_weightage: 15,
-                              estimated_hours: 10,
-                            });
-                            setUnitTopicsInput("");
-                            setShowUnitModal(true);
-                          }}
-                          className="inline-flex items-center gap-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 px-3.5 py-2 text-xs font-bold text-white shadow-sm hover:opacity-95 cursor-pointer active:scale-95 transition-all"
-                        >
-                          <Plus className="h-4 w-4" />
-                          <span>Add New Unit</span>
-                        </button>
-                      </div>
                     </div>
 
                     {/* Units Grid */}
@@ -4970,8 +5008,10 @@ export function AdminPortal() {
                           type="button"
                           onClick={() => {
                             setEditingUnitId(null);
+                            const initSub = selectedSubjectId || (filteredSubjects[0]?.id || subjects[0]?.id || "");
                             setNewUnit({
-                              subject: selectedSubjectId || (filteredSubjects[0]?.id || subjects[0]?.id || ""),
+                              subject: initSub,
+                              subjects: initSub ? [initSub] : [],
                               unit_number: 1,
                               title: "",
                               description: "",
@@ -6778,7 +6818,22 @@ export function AdminPortal() {
                                       <GraduationCap className="h-3 w-3 text-primary shrink-0" />
                                       <span>Sem {st.semester || 1}</span>
                                       <span className="text-border">·</span>
-                                      <span>Sec {st.section || "A"}</span>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          setSectionChangeForm({
+                                            student: st,
+                                            new_section: st.section || "A",
+                                            reason: "Class Section Reassignment And Cohort Realignment",
+                                          });
+                                          setShowSectionChangeModal(true);
+                                        }}
+                                        title={`Change Class Section For ${st.full_name || "Scholar"} (Dispatches Official Email Notification)`}
+                                        className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all cursor-pointer font-bold shadow-2xs active:scale-95"
+                                      >
+                                        <span>Sec {st.section || "A"}</span>
+                                        <Pencil className="h-2 w-2 opacity-80" />
+                                      </button>
                                     </div>
                                   </div>
                                 </td>
@@ -8739,32 +8794,140 @@ export function AdminPortal() {
             </div>
             <form onSubmit={handleSaveUnit} className="flex flex-col flex-1 min-h-0 overflow-hidden">
               <div className="p-5 sm:p-6 overflow-y-auto space-y-4 text-xs scrollbar-thin scrollbar-thumb-muted-foreground/20 hover:scrollbar-thumb-muted-foreground/40 flex-1">
-                {/* Target Subject Selector */}
-                <div>
-                  <label className="block font-bold text-xs mb-1.5 text-foreground">
-                    Target Course Subject <span className="text-rose-500">*</span>
-                  </label>
-                  <select
-                    value={newUnit.subject}
-                    onChange={(e) => {
-                      const subId = e.target.value;
-                      const countInSub = units.filter((u) => u.subject === subId).length;
-                      setNewUnit({
-                        ...newUnit,
-                        subject: subId,
-                        unit_number: editingUnitId ? newUnit.unit_number : countInSub + 1,
-                      });
-                    }}
-                    required
-                    className="h-10.5 w-full rounded-xl border border-border/80 bg-background/90 px-3 text-xs font-semibold focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all shadow-xs cursor-pointer text-foreground"
-                  >
-                    <option value="">Select Target Subject...</option>
-                    {subjects.map((s) => (
-                      <option key={s.id} value={s.id}>
-                        {s.code} · {s.name} (Semester {s.semester})
-                      </option>
-                    ))}
-                  </select>
+                {/* Target Course Subjects Multi-Selection */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="block font-bold text-xs text-foreground">
+                      Associated Course Subjects
+                      <span className="ml-1.5 text-xs text-primary font-mono font-bold">
+                        ({(newUnit.subjects || []).length} Selected)
+                      </span>
+                    </label>
+                    <div className="flex items-center gap-2 text-[0.7rem]">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setNewUnit({
+                            ...newUnit,
+                            subjects: subjects.map((s) => s.id),
+                            subject: subjects[0]?.id || "",
+                          })
+                        }
+                        className="text-primary hover:underline font-bold cursor-pointer"
+                      >
+                        Select All ({subjects.length})
+                      </button>
+                      <span className="text-muted-foreground">·</span>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setNewUnit({
+                            ...newUnit,
+                            subjects: [],
+                            subject: "",
+                          })
+                        }
+                        className="text-muted-foreground hover:text-foreground font-semibold cursor-pointer"
+                      >
+                        Clear
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Selected Subjects Badges Preview */}
+                  {(newUnit.subjects || []).length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 p-2 rounded-2xl bg-surface/60 border border-border/80">
+                      {newUnit.subjects.map((subId) => {
+                        const sub = subjects.find((s) => s.id === subId);
+                        if (!sub) return null;
+                        return (
+                          <span
+                            key={subId}
+                            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-primary/10 border border-primary/20 text-primary font-bold text-xs shadow-2xs"
+                          >
+                            <span className="font-mono">{sub.code}</span>
+                            <span className="text-[0.7rem] text-muted-foreground font-normal max-w-[140px] truncate">
+                              {sub.name} (Sem {sub.semester})
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const remaining = (newUnit.subjects || []).filter((id) => id !== subId);
+                                setNewUnit({
+                                  ...newUnit,
+                                  subjects: remaining,
+                                  subject: remaining[0] || "",
+                                });
+                              }}
+                              className="hover:text-rose-500 cursor-pointer p-0.5 rounded ml-0.5"
+                              title="Remove Subject"
+                            >
+                              <X className="h-3 w-3" />
+                            </button>
+                          </span>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Subject Selection Checkbox List */}
+                  <div className="max-h-44 overflow-y-auto space-y-1.5 p-1.5 rounded-2xl border border-border/80 bg-background/80 scrollbar-thin">
+                    {subjects.length === 0 ? (
+                      <div className="p-3 text-center text-xs text-muted-foreground">
+                        No Course Subjects Registered Yet.
+                      </div>
+                    ) : (
+                      subjects.map((s) => {
+                        const isSelected = (newUnit.subjects || []).includes(s.id);
+                        return (
+                          <div
+                            key={s.id}
+                            onClick={() => {
+                              const currentSubs = newUnit.subjects || [];
+                              const updated = isSelected
+                                ? currentSubs.filter((id) => id !== s.id)
+                                : [...currentSubs, s.id];
+                              setNewUnit({
+                                ...newUnit,
+                                subjects: updated,
+                                subject: updated[0] || "",
+                              });
+                            }}
+                            className={cn(
+                              "flex items-center justify-between p-2.5 rounded-xl border text-xs cursor-pointer transition-all select-none",
+                              isSelected
+                                ? "border-primary/40 bg-primary/5 text-foreground font-semibold shadow-2xs"
+                                : "border-border/60 bg-surface/40 hover:bg-surface/80 text-muted-foreground"
+                            )}
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <div
+                                className={cn(
+                                  "h-4 w-4 rounded-md border flex items-center justify-center shrink-0 transition-colors",
+                                  isSelected
+                                    ? "border-primary bg-primary text-primary-foreground"
+                                    : "border-muted-foreground/30 bg-background"
+                                )}
+                              >
+                                {isSelected && <Check className="h-3 w-3 stroke-[3]" />}
+                              </div>
+                              <div className="min-w-0">
+                                <span className="font-bold text-foreground block truncate">
+                                  {s.name}
+                                </span>
+                                <span className="text-[0.65rem] text-muted-foreground font-mono block">
+                                  {s.code} · Semester {s.semester} · {s.credits} Credits
+                                </span>
+                              </div>
+                            </div>
+                            <span className="text-[0.65rem] font-bold px-2 py-0.5 rounded-md bg-surface border border-border/80 text-primary font-mono shrink-0 ml-2">
+                              {s.code}
+                            </span>
+                          </div>
+                        );
+                      })
+                    )}
+                  </div>
                 </div>
 
                 {/* Unit Number and Marks Weightage */}
@@ -12027,6 +12190,7 @@ export function AdminPortal() {
                   className="h-10 w-full rounded-2xl border border-border bg-background px-3 font-semibold focus:border-primary focus:outline-none"
                 >
                   <option value="CHANGE_TIER">👑 Change Membership Plan (Upgrade / Downgrade)</option>
+                  <option value="CHANGE_SECTION">🏫 Change Scholar Class Section (Auto Email Dispatch)</option>
                   <option value="BLOCK_STUDENT">⛔ Block Student Account (Suspend Access)</option>
                   <option value="UNBLOCK_STUDENT">✅ Unblock Student Account (Reactivate)</option>
                   <option value="RESET_PASSWORD">🔑 Reset Scholar Password</option>
@@ -12129,6 +12293,43 @@ export function AdminPortal() {
                 </div>
               )}
 
+              {/* Conditional Field: Change Class Section */}
+              {securityActionForm.action_type === "CHANGE_SECTION" && (
+                <div className="space-y-3 rounded-2xl border border-primary/30 bg-primary/5 p-4">
+                  <div className="flex items-center justify-between">
+                    <label className="block font-bold text-xs text-foreground">
+                      Target Class Section <span className="text-rose-500">*</span>
+                    </label>
+                    <span className="text-[0.65rem] font-bold text-muted-foreground font-mono">
+                      Current: Section {selectedStudentForAction.section || "A"}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
+                    {["A", "B", "C", "D", "E", "F", "G", "H"].map((sec) => (
+                      <button
+                        key={sec}
+                        type="button"
+                        onClick={() => setSecurityActionForm({ ...securityActionForm, section: sec })}
+                        className={cn(
+                          "h-9 rounded-xl border font-mono font-bold text-xs transition-all cursor-pointer shadow-2xs",
+                          (securityActionForm.section || "A") === sec
+                            ? "border-primary bg-primary text-primary-foreground shadow-xs scale-102"
+                            : "border-border/80 bg-background text-foreground hover:bg-surface"
+                        )}
+                      >
+                        Sec {sec}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex items-start gap-2 p-2.5 rounded-xl bg-background/80 border border-primary/20 text-[0.7rem] text-muted-foreground">
+                    <Mail className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                    <p className="leading-relaxed">
+                      <strong className="text-primary">Auto Email Notification:</strong> An official academic notification will be dispatched to <strong>{selectedStudentForAction.email}</strong> informing them that their class section has been updated by Administrator.
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Conditional Field: Warning Note */}
               {securityActionForm.action_type === "DISPATCH_WARNING" && (
                 <div>
@@ -12193,6 +12394,146 @@ export function AdminPortal() {
                 </span>
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal: Change Scholar Class Section & Dispatch Official Email */}
+      {showSectionChangeModal && sectionChangeForm.student && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="relative w-full max-w-lg rounded-3xl border border-border/80 bg-card shadow-[0_25px_70px_rgba(0,0,0,0.35)] flex flex-col max-h-[85vh] overflow-hidden animate-in zoom-in-95 duration-200">
+            {/* Pinned Header */}
+            <div className="px-5 sm:px-6 py-4 border-b border-border/70 flex items-center justify-between shrink-0 bg-surface/30 backdrop-blur-xs">
+              <div className="flex items-center gap-3 min-w-0 pr-2">
+                <div className="h-10 w-10 rounded-2xl bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20 flex items-center justify-center shrink-0 shadow-xs">
+                  <GraduationCap className="h-5 w-5" />
+                </div>
+                <div className="min-w-0">
+                  <h3 className="font-display font-bold text-base sm:text-lg text-foreground truncate">
+                    Change Scholar Class Section
+                  </h3>
+                  <p className="text-xs text-muted-foreground truncate">
+                    Reassign Cohort And Automatically Dispatch Official Academic Email.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setShowSectionChangeModal(false);
+                  setSectionChangeForm({ student: null, new_section: "A", reason: "Class Section Reassigned By Administrator" });
+                }}
+                className="rounded-xl p-2 text-muted-foreground hover:text-foreground hover:bg-surface border border-transparent hover:border-border transition-all cursor-pointer shrink-0"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            {/* Scrollable Form Body */}
+            <form onSubmit={handleSaveStudentSection} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+              <div className="p-5 sm:p-6 overflow-y-auto space-y-4 text-xs scrollbar-thin scrollbar-thumb-muted-foreground/20 hover:scrollbar-thumb-muted-foreground/40 flex-1">
+                {/* Scholar Profile Snapshot */}
+                <div className="flex items-center gap-3 p-3 rounded-2xl bg-surface/60 border border-border/80">
+                  <div className="relative grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-teal-500/25 via-teal-600/15 to-emerald-500/10 border border-teal-500/30 text-teal-600 dark:text-teal-400 font-extrabold text-sm shadow-inner shrink-0">
+                    {sectionChangeForm.student.full_name?.charAt(0) || "S"}
+                  </div>
+                  <div className="min-w-0 flex-1 space-y-0.5">
+                    <span className="font-bold text-sm text-foreground block truncate">
+                      {sectionChangeForm.student.full_name || "Scholar"}
+                    </span>
+                    <span className="text-[0.7rem] text-muted-foreground block truncate font-mono">
+                      {sectionChangeForm.student.email}
+                    </span>
+                    <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
+                      <span className="text-[0.62rem] px-2 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20 font-mono font-bold">
+                        Roll: {sectionChangeForm.student.roll_number || "—"}
+                      </span>
+                      <span className="text-[0.62rem] px-2 py-0.5 rounded-md bg-surface border border-border/80 text-foreground font-semibold">
+                        {sectionChangeForm.student.program || "B.Tech"} · Sem {sectionChangeForm.student.semester || 1}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Current Section vs Target Section Selector */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between">
+                    <label className="block font-bold text-xs text-foreground">
+                      Select Target Class Section <span className="text-rose-500">*</span>
+                    </label>
+                    <span className="text-[0.68rem] font-bold text-muted-foreground font-mono">
+                      Current: <strong className="text-rose-500">Section {sectionChangeForm.student.section || "A"}</strong>
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
+                    {["A", "B", "C", "D", "E", "F", "G", "H"].map((sec) => (
+                      <button
+                        key={sec}
+                        type="button"
+                        onClick={() => setSectionChangeForm({ ...sectionChangeForm, new_section: sec })}
+                        className={cn(
+                          "h-10 rounded-xl border font-mono font-bold text-xs transition-all cursor-pointer shadow-2xs flex flex-col items-center justify-center gap-0.5",
+                          sectionChangeForm.new_section === sec
+                            ? "border-primary bg-primary text-primary-foreground shadow-xs scale-102 ring-2 ring-primary/20"
+                            : "border-border/80 bg-background text-foreground hover:bg-surface"
+                        )}
+                      >
+                        <span className="text-[0.6rem] opacity-75 font-sans font-medium">Sec</span>
+                        <span>{sec}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Administrative Justification Reason */}
+                <div>
+                  <label className="block font-bold mb-1 text-foreground">
+                    Administrative Reason / Justification <span className="text-rose-500">*</span>
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={sectionChangeForm.reason}
+                    onChange={(e) => setSectionChangeForm({ ...sectionChangeForm, reason: e.target.value })}
+                    placeholder="e.g. Academic Cohort Rebalancing And Administrative Reassignment"
+                    required
+                    className="w-full rounded-2xl border border-border/80 bg-background/90 p-3 text-xs focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 leading-relaxed shadow-xs"
+                  />
+                </div>
+
+                {/* Official Email Notification Banner */}
+                <div className="rounded-2xl border border-teal-500/30 bg-teal-500/10 p-3.5 space-y-1.5 text-teal-800 dark:text-teal-200">
+                  <div className="flex items-center gap-2 font-bold text-xs">
+                    <Mail className="h-4 w-4 shrink-0 text-teal-600 dark:text-teal-400" />
+                    <span>Automatic Official Email Notification</span>
+                  </div>
+                  <p className="text-[0.7rem] text-muted-foreground leading-relaxed">
+                    Upon confirmation, an official academic notification will be automatically dispatched to <strong className="text-foreground">{sectionChangeForm.student.email}</strong> informing them that the Administrator has changed their class section to <strong>Section {sectionChangeForm.new_section}</strong>. Their daily lecture timetable, subjects, and materials will automatically sync.
+                  </p>
+                </div>
+              </div>
+
+              {/* Pinned Sticky Footer */}
+              <div className="px-5 sm:px-6 py-3.5 border-t border-border/70 bg-surface/40 backdrop-blur-xs flex items-center justify-end gap-3 shrink-0">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowSectionChangeModal(false);
+                    setSectionChangeForm({ student: null, new_section: "A", reason: "Class Section Reassigned By Administrator" });
+                  }}
+                  className="h-9 px-4 rounded-xl border border-border bg-surface text-xs font-semibold text-foreground hover:bg-surface/80 transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="h-9 px-5 rounded-xl font-bold text-xs shadow-md transition-all cursor-pointer flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-emerald-600/20 active:scale-95"
+                >
+                  <Send className="h-3.5 w-3.5" />
+                  <span>Save Section &amp; Dispatch Email</span>
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

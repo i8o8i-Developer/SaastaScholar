@@ -782,6 +782,7 @@ export const studentSecurityApi = {
     data: {
       action_type: string;
       reason: string;
+      section?: string;
       cooldown_hours?: number | null;
       warning_message?: string;
       access_tier?: string;
@@ -791,6 +792,18 @@ export const studentSecurityApi = {
     apiFetch<{ message: string; user: StudentUser; metadata: Record<string, any> }>(
       `/accounts/admin/users/${userId}/security-action/`,
       { method: "POST", body: JSON.stringify(data) }
+    ),
+  changeSection: (userId: string, section: string, reason?: string) =>
+    apiFetch<{ message: string; user: StudentUser; metadata: Record<string, any> }>(
+      `/accounts/admin/users/${userId}/security-action/`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          action_type: "CHANGE_SECTION",
+          section,
+          reason: reason || "Class Section Reassigned By Administrator",
+        }),
+      }
     ),
   hardDeleteStudent: (userId: string) =>
     apiFetch<{ message: string; deleted_id: string }>(`/academic/admin/students/${userId}/`, { method: "DELETE" }),

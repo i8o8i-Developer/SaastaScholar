@@ -521,6 +521,115 @@ https://saastascholar.durgaaisolutions.in/dashboard
 
 
 # ==============================================================================
+# NOTIFICATION 3B: CLASS SECTION CHANGED BY ADMINISTRATOR
+# ==============================================================================
+def send_admin_section_changed_email(
+    user,
+    old_section: str,
+    new_section: str,
+    reason: str = "",
+    admin_name: str = "Academic Administration",
+) -> tuple:
+    """
+    Sends Official Academic Notification When University Administrator Changes Scholar's Class Section
+    Strictly Formatted In Title Case And Brand Aesthetics
+    """
+    from django.utils import timezone
+    now_str = timezone.now().strftime("%d %B %Y, %I:%M %p IST")
+    full_name = getattr(user, "full_name", "") or getattr(user, "username", "") or "Scholar"
+    roll_number = getattr(user, "roll_number", "") or "—"
+    program = getattr(user, "program", "") or "B.Tech"
+    semester = getattr(user, "semester", 1) or 1
+    reason_clean = reason.strip() if reason and reason.strip() else "Academic Cohort Rebalancing And Administrative Reassignment"
+
+    subject = f"Official Academic Notice: Your Class Section Has Been Changed By Administrator · SaastaScholar"
+    preheader = f"Your Class Section Has Been Changed From Section {old_section} To Section {new_section} By {admin_name}."
+
+    text_body = f"""Hello {full_name},
+
+This Official Notice Confirms That The University Administrator Has Reassigned Your Class Section On {now_str}.
+
+Updated Academic Cohort Details:
+- Scholar Full Name: {full_name}
+- University Roll Number: {roll_number}
+- Degree Program: {program}
+- Enrolled Semester: Semester {semester}
+- Previous Class Section: Section {old_section}
+- New Assigned Section: Section {new_section}
+- Authorized By: {admin_name}
+- Official Reason: {reason_clean}
+
+Automatic System Synchronization:
+Your Daily Lecture Timetable, Enrolled Course Subjects, Solved PYQs, Lab Practical Experiments, And Attendance Roster Have Been Automatically Updated To Section {new_section}.
+
+View Your Updated Class Schedule:
+https://saastascholar.durgaaisolutions.in/dashboard
+
+If You Believe This Reassignment Was Made In Error, Please Contact Your Department Academic Coordinator Or Reach Out To support@saastascholar.in.
+
+— The SaastaScholar Academic Desk
+"""
+
+    html_content = f"""
+      <span class="badge">Section Reassigned</span>
+      <h2 style="color:#ffffff; font-size:18px; font-weight:800; margin-top:0; text-transform:uppercase;">Class Section Updated By Administrator</h2>
+      <p>Hello <strong>{full_name}</strong>,</p>
+      <p>This Official Communication Confirms That The University Administrator Has Reassigned Your Academic Class Section On <strong>{now_str}</strong>.</p>
+      
+      <div style="background-color:#0b140c; border:1px solid #1f3322; padding:16px; margin:20px 0; font-size:12.5px;">
+        <table style="width:100%; border-collapse:collapse;">
+          <tr>
+            <td style="padding:6px 0; color:#94a3b8;">Scholar Name:</td>
+            <td style="padding:6px 0; text-align:right; font-weight:700; color:#ffffff;">{full_name}</td>
+          </tr>
+          <tr>
+            <td style="padding:6px 0; color:#94a3b8;">University Roll Number:</td>
+            <td style="padding:6px 0; text-align:right; font-family:monospace; font-weight:700; color:#34d399;">{roll_number}</td>
+          </tr>
+          <tr>
+            <td style="padding:6px 0; color:#94a3b8;">Degree Program:</td>
+            <td style="padding:6px 0; text-align:right; font-weight:700; color:#ffffff;">{program}</td>
+          </tr>
+          <tr>
+            <td style="padding:6px 0; color:#94a3b8;">Enrolled Semester:</td>
+            <td style="padding:6px 0; text-align:right; font-weight:700; color:#ffffff;">Semester {semester}</td>
+          </tr>
+          <tr>
+            <td style="padding:6px 0; color:#94a3b8;">Previous Class Section:</td>
+            <td style="padding:6px 0; text-align:right; font-weight:700; color:#f87171;">Section {old_section}</td>
+          </tr>
+          <tr>
+            <td style="padding:6px 0; color:#94a3b8;">New Assigned Section:</td>
+            <td style="padding:6px 0; text-align:right; font-weight:800; color:#34d399; font-size:14px;">Section {new_section}</td>
+          </tr>
+          <tr>
+            <td style="padding:6px 0; color:#94a3b8;">Authorized By:</td>
+            <td style="padding:6px 0; text-align:right; font-weight:700; color:#ffffff;">{admin_name}</td>
+          </tr>
+          <tr>
+            <td style="padding:6px 0; color:#94a3b8;">Administrative Reason:</td>
+            <td style="padding:6px 0; text-align:right; font-weight:600; color:#cbd5e1;">{reason_clean}</td>
+          </tr>
+        </table>
+      </div>
+
+      <div style="background-color:#0b140c; border:1px solid #1f3322; padding:12px 16px; margin:20px 0; font-size:12px; color:#94a3b8;">
+        <p style="margin:0;">
+          <strong style="color:#34d399;">AUTOMATIC CURRICULUM SYNC:</strong> Your Daily Lecture Timetable, Enrolled Subjects, Solved PYQs, Lab Practical Experiments, And Academic Notices Have Been Automatically Re-Aligned With <strong>Section {new_section}</strong>.
+        </p>
+      </div>
+
+      <div style="text-align:center; margin:26px 0 10px 0;">
+        <a href="https://saastascholar.durgaaisolutions.in/dashboard" class="btn-primary">
+          View Updated Class Timetable &amp; Schedule
+        </a>
+      </div>
+    """
+    full_html = build_brand_email_template("Class Section Updated By Administrator", preheader, html_content)
+    return send_system_email(subject, user.email, text_body, full_html)
+
+
+# ==============================================================================
 # NOTIFICATION 4: PROFILE PHOTO / AVATAR UPDATED
 # ==============================================================================
 def send_avatar_updated_email(user) -> tuple:

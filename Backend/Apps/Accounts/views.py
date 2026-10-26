@@ -470,6 +470,43 @@ class AdminStudentSecurityActionView(APIView):
                     status=status.HTTP_400_BAD_REQUEST,
                 )
 
+        elif action_type in [ActionType.CHANGE_SECTION, "CHANGE_SECTION", "UPDATE_SECTION"]:
+            old_section = target_user.section or "A"
+            new_section = str(request.data.get("section") or "").strip().upper()
+            if not new_section:
+                return Response(
+                    {"error": "Please Specify A Valid Target Class Section (e.g. A, B, C, D)."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            target_user.section = new_section
+            target_user.save(update_fields=["section", "updated_at"])
+            meta_info["old_section"] = old_section
+            meta_info["new_section"] = new_section
+            meta_info["status"] = f"Scholar Class Section Successfully Changed From '{old_section}' To '{new_section}'"
+
+            # Invalidate Redis Caches
+            from Apps.Academic.cache_utils import invalidate_redis_pattern
+            try:
+                invalidate_redis_pattern(f"planner:timetable:{target_user.program}*")
+                invalidate_redis_pattern(f"academic:subjects:{target_user.id}*")
+                invalidate_redis_pattern(f"academic:materials:{target_user.id}*")
+            except Exception:
+                pass
+
+            # Dispatch Official Academic Notice Email
+            try:
+                from Core.mail import send_admin_section_changed_email
+                admin_display = request.user.full_name or request.user.username or "Administrator"
+                send_admin_section_changed_email(
+                    user=target_user,
+                    old_section=old_section,
+                    new_section=new_section,
+                    reason=reason or "Academic Cohort Section Reassignment",
+                    admin_name=admin_display,
+                )
+            except Exception as e:
+                logger.error(f"Failed to dispatch section change email notification: {e}")
+
         elif action_type in [ActionType.BLOCK_STUDENT, "BLOCK_STUDENT"]:
             target_user.is_login_blocked = True
             target_user.is_drm_blocked = True
