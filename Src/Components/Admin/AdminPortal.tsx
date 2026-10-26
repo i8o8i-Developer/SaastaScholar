@@ -282,6 +282,7 @@ export function AdminPortal() {
 
   const [showSubjectModal, setShowSubjectModal] = useState<boolean>(false);
   const [editingSubjectId, setEditingSubjectId] = useState<string | null>(null);
+  const [expandedFacultySubjectIds, setExpandedFacultySubjectIds] = useState<Record<string, boolean>>({});
 
   const [showUnitModal, setShowUnitModal] = useState<boolean>(false);
   const [editingUnitId, setEditingUnitId] = useState<string | null>(null);
@@ -4900,99 +4901,164 @@ export function AdminPortal() {
                               )}
                             </div>
                           ) : (
-                            displayedSubjects.map((sub) => (
-                              <div
-                                key={sub.id}
-                                className="group relative rounded-3xl border border-border/80 bg-gradient-to-b from-card via-card to-surface/40 p-5.5 shadow-xs hover:shadow-lg hover:border-primary/50 transition-all duration-200 flex flex-col justify-between space-y-4"
-                              >
-                                <div className="space-y-3.5">
-                                  {/* Card Header: Subject Code & Short Name Badges + Actions */}
-                                  <div className="flex items-center justify-between border-b border-border/60 pb-3">
-                                    <div className="flex flex-wrap items-center gap-1.5">
-                                      <span className="rounded-xl bg-primary/10 border border-primary/20 px-2.5 py-1 text-xs font-bold font-mono text-primary shadow-2xs">
-                                        {sub.code}
-                                      </span>
-                                      {sub.short_name && (
-                                        <span className="rounded-xl bg-violet-500/10 border border-violet-500/20 px-2.5 py-1 text-xs font-bold font-mono text-violet-600 dark:text-violet-400">
-                                          {sub.short_name}
+                            displayedSubjects.map((sub) => {
+                              const facultyParts = (() => {
+                                if (!sub.faculty_name || !sub.faculty_name.trim()) return [];
+                                const raw = sub.faculty_name.trim();
+                                const bySection = raw.split(/,\s*(?=(?:Section|Sec)\s+[A-Za-z0-9]+)/i);
+                                if (bySection.length > 1) {
+                                  return bySection.map((p) => p.trim().replace(/\.$/, "")).filter(Boolean);
+                                }
+                                if (raw.includes(",") && raw.length > 35) {
+                                  return raw.split(",").map((p) => p.trim().replace(/\.$/, "")).filter(Boolean);
+                                }
+                                return [raw.replace(/\.$/, "")];
+                              })();
+
+                              const isFacultyExpanded = !!expandedFacultySubjectIds[sub.id];
+
+                              return (
+                                <div
+                                  key={sub.id}
+                                  className="group relative rounded-2xl border border-border/80 bg-gradient-to-b from-card via-card to-surface/40 p-5 shadow-xs hover:shadow-lg hover:border-emerald-500/50 transition-all duration-200 flex flex-col justify-between h-full min-w-0 overflow-hidden space-y-3.5"
+                                >
+                                  <div className="space-y-3 min-w-0 overflow-hidden flex-1">
+                                    {/* Card Header: Subject Code & Short Name Badges + Actions */}
+                                    <div className="flex items-center justify-between border-b border-border/60 pb-2.5 min-w-0">
+                                      <div className="flex flex-wrap items-center gap-1.5 min-w-0">
+                                        <span className="rounded-md bg-emerald-500/10 border border-emerald-500/25 px-2.5 py-0.5 text-xs font-bold font-mono text-emerald-600 dark:text-emerald-400 shadow-2xs">
+                                          {sub.code}
                                         </span>
-                                      )}
-                                    </div>
-                                    <div className="flex items-center gap-1">
-                                      <button
-                                        onClick={() => handleEditSubject(sub)}
-                                        className="rounded-xl p-2 text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
-                                        title="Edit Course Subject"
-                                      >
-                                        <Pencil className="h-4 w-4" />
-                                      </button>
-                                      <button
-                                        onClick={() => handleDeleteItem("/academic/admin/subjects/", sub.id, sub.name, loadAdminData)}
-                                        className="rounded-xl p-2 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer transition-colors"
-                                        title="Delete Subject"
-                                      >
-                                        <Trash2 className="h-4 w-4" />
-                                      </button>
-                                    </div>
-                                  </div>
-
-                                  {/* Subject Name & Faculty */}
-                                  <div className="space-y-2">
-                                    <h3 className="font-display text-base font-bold text-foreground leading-snug group-hover:text-primary transition-colors">
-                                      {sub.name}
-                                    </h3>
-
-                                    {/* Faculty Instructor Tag */}
-                                    {sub.faculty_name && (
-                                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-surface border border-border text-xs font-semibold text-foreground/90">
-                                        <GraduationCap className="h-3.5 w-3.5 text-primary shrink-0" />
-                                        <span className="truncate">{sub.faculty_name}</span>
-                                      </div>
-                                    )}
-
-                                    {/* Linked Degree Programs Badges */}
-                                    <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                                      {sub.program_codes && sub.program_codes.length > 0 ? (
-                                        sub.program_codes.map((code, cIdx) => (
-                                          <span
-                                            key={cIdx}
-                                            className="rounded-lg bg-surface/80 border border-border/80 px-2 py-0.5 text-[0.68rem] font-mono font-bold text-muted-foreground"
-                                          >
-                                            {code}
+                                        {sub.short_name && (
+                                          <span className="rounded-md bg-violet-500/10 border border-violet-500/25 px-2 py-0.5 text-xs font-bold font-mono text-violet-600 dark:text-violet-400">
+                                            {sub.short_name}
                                           </span>
-                                        ))
-                                      ) : sub.program_name ? (
-                                        <span className="rounded-lg bg-surface/80 border border-border/80 px-2 py-0.5 text-[0.68rem] font-semibold text-muted-foreground">
-                                          {sub.program_name}
-                                        </span>
-                                      ) : (
-                                        <span className="text-xs text-muted-foreground font-semibold">
-                                          {sub.department_name || "All Specializations"}
+                                        )}
+                                      </div>
+                                      <div className="flex items-center gap-1 shrink-0">
+                                        <button
+                                          onClick={() => handleEditSubject(sub)}
+                                          className="grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover:bg-primary/10 hover:text-primary cursor-pointer transition-colors"
+                                          title="Edit Course Subject"
+                                        >
+                                          <Pencil className="h-3.5 w-3.5" />
+                                        </button>
+                                        <button
+                                          onClick={() => handleDeleteItem("/academic/admin/subjects/", sub.id, sub.name, loadAdminData)}
+                                          className="grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover:bg-rose-500/10 hover:text-rose-500 cursor-pointer transition-colors"
+                                          title="Delete Subject"
+                                        >
+                                          <Trash2 className="h-3.5 w-3.5" />
+                                        </button>
+                                      </div>
+                                    </div>
+
+                                    {/* Subject Title */}
+                                    <div className="space-y-2 min-w-0">
+                                      <h3
+                                        className="font-display text-base font-bold text-foreground leading-snug group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors line-clamp-2 min-w-0 break-words"
+                                        title={sub.name}
+                                      >
+                                        {sub.name}
+                                      </h3>
+
+                                      {/* Faculty Instructor Info (Never Overflows) */}
+                                      {facultyParts.length > 0 && (
+                                        <div className="w-full max-w-full min-w-0 overflow-hidden">
+                                          {facultyParts.length === 1 ? (
+                                            <div className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-surface border border-border/80 text-xs font-semibold text-foreground/90 max-w-full min-w-0">
+                                              <GraduationCap className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                                              <span className="truncate text-[0.72rem]" title={facultyParts[0]}>
+                                                {facultyParts[0]}
+                                              </span>
+                                            </div>
+                                          ) : (
+                                            <div className="space-y-1.5 max-w-full min-w-0">
+                                              <div className="flex items-center justify-between gap-1.5 max-w-full min-w-0">
+                                                <div
+                                                  onClick={() => setExpandedFacultySubjectIds((prev) => ({ ...prev, [sub.id]: !prev[sub.id] }))}
+                                                  className="flex items-center gap-2 px-2.5 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-xs font-medium text-foreground min-w-0 flex-1 cursor-pointer hover:bg-emerald-500/15 transition-colors"
+                                                  title="Click to view all section allocations"
+                                                >
+                                                  <GraduationCap className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                                                  <span className="truncate text-[0.72rem] font-semibold text-emerald-700 dark:text-emerald-300">
+                                                    {facultyParts[0]}
+                                                  </span>
+                                                </div>
+                                                <button
+                                                  type="button"
+                                                  onClick={() => setExpandedFacultySubjectIds((prev) => ({ ...prev, [sub.id]: !prev[sub.id] }))}
+                                                  className="px-2 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/25 text-[0.62rem] font-bold font-mono shrink-0 transition-colors cursor-pointer"
+                                                  title={isFacultyExpanded ? "Collapse section list" : "Expand all sections"}
+                                                >
+                                                  {isFacultyExpanded ? "Close" : `+${facultyParts.length - 1} Sec`}
+                                                </button>
+                                              </div>
+
+                                              {isFacultyExpanded && (
+                                                <div className="p-2.5 rounded-xl bg-surface border border-border/80 space-y-1.5 animate-in fade-in duration-150 max-w-full min-w-0">
+                                                  <span className="text-[0.62rem] font-bold text-muted-foreground uppercase tracking-wider block font-mono">
+                                                    Allocated Faculty By Section ({facultyParts.length}):
+                                                  </span>
+                                                  <div className="space-y-1 max-h-32 overflow-y-auto scrollbar-thin pr-1">
+                                                    {facultyParts.map((item, fIdx) => (
+                                                      <div key={fIdx} className="flex items-start gap-1.5 text-[0.7rem] text-foreground min-w-0 leading-tight py-0.5 border-b border-border/40 last:border-b-0">
+                                                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0 mt-1" />
+                                                        <span className="break-words font-medium">{item}</span>
+                                                      </div>
+                                                    ))}
+                                                  </div>
+                                                </div>
+                                              )}
+                                            </div>
+                                          )}
+                                        </div>
+                                      )}
+
+                                      {/* Linked Degree Programs Badges */}
+                                      <div className="flex flex-wrap items-center gap-1.5 pt-0.5 min-w-0">
+                                        {sub.program_codes && sub.program_codes.length > 0 ? (
+                                          sub.program_codes.map((code, cIdx) => (
+                                            <span
+                                              key={cIdx}
+                                              className="rounded-md bg-surface border border-border/80 px-2 py-0.5 text-[0.65rem] font-mono font-bold text-muted-foreground uppercase tracking-wide"
+                                            >
+                                              {code}
+                                            </span>
+                                          ))
+                                        ) : sub.program_name ? (
+                                          <span className="rounded-md bg-surface border border-border/80 px-2 py-0.5 text-[0.65rem] font-semibold text-muted-foreground">
+                                            {sub.program_name}
+                                          </span>
+                                        ) : (
+                                          <span className="text-xs text-muted-foreground font-semibold">
+                                            {sub.department_name || "All Specializations"}
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Card Footer: Semester & Credits (Pinned At Bottom For Perfect Alignment) */}
+                                  <div className="mt-auto pt-3 border-t border-border/60 flex items-center justify-between text-xs font-mono min-w-0">
+                                    <span className="rounded-md bg-surface border border-border/80 px-2 py-0.5 text-[0.68rem] font-semibold text-muted-foreground">
+                                      Semester {sub.semester}
+                                    </span>
+                                    <div className="flex items-center gap-2">
+                                      {Number(sub.materials_count) > 0 && (
+                                        <span className="text-[0.65rem] text-muted-foreground font-mono">
+                                          {sub.materials_count} Notes
                                         </span>
                                       )}
+                                      <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 font-bold text-emerald-600 dark:text-emerald-400 text-[0.7rem]">
+                                        <Sparkles className="h-3 w-3" />
+                                        {sub.credits} Credits
+                                      </span>
                                     </div>
                                   </div>
                                 </div>
-
-                                {/* Card Footer: Semester, Credits, & Content Stats */}
-                                <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs font-mono">
-                                  <span className="rounded-lg bg-surface px-2 py-0.5 text-[0.7rem] font-bold text-muted-foreground">
-                                    Semester {sub.semester}
-                                  </span>
-                                  <div className="flex items-center gap-2">
-                                    {Number(sub.materials_count) > 0 && (
-                                      <span className="text-[0.68rem] text-muted-foreground">
-                                        {sub.materials_count} Notes
-                                      </span>
-                                    )}
-                                    <span className="inline-flex items-center gap-1 rounded-lg bg-primary/10 px-2 py-0.5 font-bold text-primary text-[0.72rem]">
-                                      <Sparkles className="h-3 w-3" />
-                                      {sub.credits} Credits
-                                    </span>
-                                  </div>
-                                </div>
-                              </div>
-                            ))
+                              );
+                            })
                           )}
                         </div>
                       </div>
