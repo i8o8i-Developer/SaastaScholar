@@ -472,17 +472,56 @@ class AdminStudentSecurityActionView(APIView):
 
         elif action_type in [ActionType.CHANGE_SECTION, "CHANGE_SECTION", "UPDATE_SECTION"]:
             old_section = target_user.section or "A"
+            old_program = target_user.program or ""
+            old_semester = target_user.semester or 1
+            old_department = target_user.department or ""
+
             new_section = str(request.data.get("section") or "").strip().upper()
+            new_program = str(request.data.get("program") or "").strip()
+            new_semester_raw = request.data.get("semester")
+            new_department = str(request.data.get("department") or "").strip()
+
             if not new_section:
                 return Response(
                     {"error": "Please Specify A Valid Target Class Section (e.g. A, B, C, D)."},
                     status=status.HTTP_400_BAD_REQUEST,
                 )
+
+            update_fields = ["updated_at"]
             target_user.section = new_section
-            target_user.save(update_fields=["section", "updated_at"])
+            update_fields.append("section")
+
+            if new_program:
+                target_user.program = new_program
+                update_fields.append("program")
+
+            if new_semester_raw is not None:
+                try:
+                    new_sem_val = int(new_semester_raw)
+                    if 1 <= new_sem_val <= 12:
+                        target_user.semester = new_sem_val
+                        update_fields.append("semester")
+                except (ValueError, TypeError):
+                    pass
+
+            if new_department:
+                target_user.department = new_department
+                update_fields.append("department")
+
+            target_user.save(update_fields=update_fields)
+
             meta_info["old_section"] = old_section
-            meta_info["new_section"] = new_section
-            meta_info["status"] = f"Scholar Class Section Successfully Changed From '{old_section}' To '{new_section}'"
+            meta_info["new_section"] = target_user.section
+            meta_info["old_program"] = old_program
+            meta_info["new_program"] = target_user.program
+            meta_info["old_semester"] = old_semester
+            meta_info["new_semester"] = target_user.semester
+            meta_info["old_department"] = old_department
+            meta_info["new_department"] = target_user.department
+            meta_info["status"] = (
+                f"Scholar Cohort Reassigned: Course='{target_user.program}', "
+                f"Sem={target_user.semester}, Sec='{target_user.section}'"
+            )
 
             # Invalidate Redis Caches
             from Apps.Academic.cache_utils import invalidate_redis_pattern
@@ -500,7 +539,11 @@ class AdminStudentSecurityActionView(APIView):
                 send_admin_section_changed_email(
                     user=target_user,
                     old_section=old_section,
-                    new_section=new_section,
+                    new_section=target_user.section,
+                    old_program=old_program,
+                    new_program=target_user.program,
+                    old_semester=old_semester,
+                    new_semester=target_user.semester,
                     reason=reason or "Academic Cohort Section Reassignment",
                     admin_name=admin_display,
                 )

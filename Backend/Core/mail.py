@@ -529,38 +529,51 @@ def send_admin_section_changed_email(
     new_section: str,
     reason: str = "",
     admin_name: str = "Academic Administration",
+    old_program: str = "",
+    new_program: str = "",
+    old_semester: int = 0,
+    new_semester: int = 0,
 ) -> tuple:
     """
-    Sends Official Academic Notification When University Administrator Changes Scholar's Class Section
+    Sends Official Academic Notification When University Administrator Changes Scholar's Class Section Or Cohort
     Strictly Formatted In Title Case And Brand Aesthetics
     """
     from django.utils import timezone
     now_str = timezone.now().strftime("%d %B %Y, %I:%M %p IST")
     full_name = getattr(user, "full_name", "") or getattr(user, "username", "") or "Scholar"
     roll_number = getattr(user, "roll_number", "") or "—"
-    program = getattr(user, "program", "") or "B.Tech"
-    semester = getattr(user, "semester", 1) or 1
+    program = new_program or getattr(user, "program", "") or "B.Tech"
+    semester = new_semester or getattr(user, "semester", 1) or 1
     reason_clean = reason.strip() if reason and reason.strip() else "Academic Cohort Rebalancing And Administrative Reassignment"
 
-    subject = f"Official Academic Notice: Your Class Section Has Been Changed By Administrator · SaastaScholar"
-    preheader = f"Your Class Section Has Been Changed From Section {old_section} To Section {new_section} By {admin_name}."
+    cohort_changes = []
+    if old_program and new_program and old_program != new_program:
+        cohort_changes.append(f"Course: {new_program}")
+    if old_semester and new_semester and old_semester != new_semester:
+        cohort_changes.append(f"Semester: Sem {new_semester}")
+    if old_section != new_section:
+        cohort_changes.append(f"Section: Section {new_section}")
+    change_summary = ", ".join(cohort_changes) if cohort_changes else f"Section: Section {new_section}"
+
+    subject = f"Official Academic Notice: Your Academic Cohort & Class Section Updated · SaastaScholar"
+    preheader = f"Your Academic Cohort Has Been Reassigned ({change_summary}) By {admin_name}."
 
     text_body = f"""Hello {full_name},
 
-This Official Notice Confirms That The University Administrator Has Reassigned Your Class Section On {now_str}.
+This Official Notice Confirms That The University Administrator Has Reassigned Your Academic Cohort And Class Section On {now_str}.
 
 Updated Academic Cohort Details:
 - Scholar Full Name: {full_name}
 - University Roll Number: {roll_number}
-- Degree Program: {program}
-- Enrolled Semester: Semester {semester}
+- Degree Program: {program}{f" (Previously: {old_program})" if old_program and old_program != program else ""}
+- Enrolled Semester: Semester {semester}{f" (Previously: Semester {old_semester})" if old_semester and old_semester != semester else ""}
 - Previous Class Section: Section {old_section}
 - New Assigned Section: Section {new_section}
 - Authorized By: {admin_name}
 - Official Reason: {reason_clean}
 
 Automatic System Synchronization:
-Your Daily Lecture Timetable, Enrolled Course Subjects, Solved PYQs, Lab Practical Experiments, And Attendance Roster Have Been Automatically Updated To Section {new_section}.
+Your Daily Lecture Timetable, Enrolled Course Subjects, Solved PYQs, Lab Practical Experiments, And Attendance Roster Have Been Automatically Updated To Section {new_section} In {program}.
 
 View Your Updated Class Schedule:
 https://saastascholar.durgaaisolutions.in/dashboard
@@ -571,10 +584,10 @@ If You Believe This Reassignment Was Made In Error, Please Contact Your Departme
 """
 
     html_content = f"""
-      <span class="badge">Section Reassigned</span>
-      <h2 style="color:#ffffff; font-size:18px; font-weight:800; margin-top:0; text-transform:uppercase;">Class Section Updated By Administrator</h2>
+      <span class="badge">Cohort Reassigned</span>
+      <h2 style="color:#ffffff; font-size:18px; font-weight:800; margin-top:0; text-transform:uppercase;">Academic Cohort &amp; Section Updated By Administrator</h2>
       <p>Hello <strong>{full_name}</strong>,</p>
-      <p>This Official Communication Confirms That The University Administrator Has Reassigned Your Academic Class Section On <strong>{now_str}</strong>.</p>
+      <p>This Official Communication Confirms That The University Administrator Has Reassigned Your Academic Cohort And Class Section On <strong>{now_str}</strong>.</p>
       
       <div style="background-color:#0b140c; border:1px solid #1f3322; padding:16px; margin:20px 0; font-size:12.5px;">
         <table style="width:100%; border-collapse:collapse;">
@@ -588,11 +601,11 @@ If You Believe This Reassignment Was Made In Error, Please Contact Your Departme
           </tr>
           <tr>
             <td style="padding:6px 0; color:#94a3b8;">Degree Program:</td>
-            <td style="padding:6px 0; text-align:right; font-weight:700; color:#ffffff;">{program}</td>
+            <td style="padding:6px 0; text-align:right; font-weight:700; color:#ffffff;">{program}{f" <span style='color:#94a3b8;font-size:11px;'>(Was: {old_program})</span>" if old_program and old_program != program else ""}</td>
           </tr>
           <tr>
             <td style="padding:6px 0; color:#94a3b8;">Enrolled Semester:</td>
-            <td style="padding:6px 0; text-align:right; font-weight:700; color:#ffffff;">Semester {semester}</td>
+            <td style="padding:6px 0; text-align:right; font-weight:700; color:#ffffff;">Semester {semester}{f" <span style='color:#94a3b8;font-size:11px;'>(Was: Sem {old_semester})</span>" if old_semester and old_semester != semester else ""}</td>
           </tr>
           <tr>
             <td style="padding:6px 0; color:#94a3b8;">Previous Class Section:</td>

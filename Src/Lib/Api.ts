@@ -793,15 +793,27 @@ export const studentSecurityApi = {
       `/accounts/admin/users/${userId}/security-action/`,
       { method: "POST", body: JSON.stringify(data) }
     ),
-  changeSection: (userId: string, section: string, reason?: string) =>
+  changeSection: (
+    userId: string,
+    data: {
+      section: string;
+      program?: string | undefined;
+      semester?: number | undefined;
+      department?: string | undefined;
+      reason?: string | undefined;
+    }
+  ) =>
     apiFetch<{ message: string; user: StudentUser; metadata: Record<string, any> }>(
       `/accounts/admin/users/${userId}/security-action/`,
       {
         method: "POST",
         body: JSON.stringify({
           action_type: "CHANGE_SECTION",
-          section,
-          reason: reason || "Class Section Reassigned By Administrator",
+          section: data.section,
+          program: data.program,
+          semester: data.semester,
+          department: data.department,
+          reason: data.reason || "Class Section Reassigned By Administrator",
         }),
       }
     ),

@@ -226,6 +226,9 @@ export function AdminPortal() {
     access_tier: string;
     new_password: string;
     section?: string;
+    program?: string;
+    semester?: number;
+    department?: string;
   }>({
     action_type: "BLOCK_DRM",
     reason: "",
@@ -306,11 +309,17 @@ export function AdminPortal() {
   const [showSectionChangeModal, setShowSectionChangeModal] = useState<boolean>(false);
   const [sectionChangeForm, setSectionChangeForm] = useState<{
     student: StudentUser | null;
+    new_program: string;
+    new_semester: number;
     new_section: string;
+    new_department: string;
     reason: string;
   }>({
     student: null,
+    new_program: "",
+    new_semester: 1,
     new_section: "A",
+    new_department: "",
     reason: "Class Section Reassigned By Administrator",
   });
 
@@ -672,6 +681,8 @@ export function AdminPortal() {
         access_tier?: string;
         new_password?: string;
         section?: string;
+        program?: string;
+        semester?: number;
       } = {
         action_type: securityActionForm.action_type,
         reason: securityActionForm.reason.trim(),
@@ -681,6 +692,12 @@ export function AdminPortal() {
       };
       if (securityActionForm.section) {
         payload.section = securityActionForm.section;
+      }
+      if (securityActionForm.program) {
+        payload.program = securityActionForm.program;
+      }
+      if (securityActionForm.semester) {
+        payload.semester = securityActionForm.semester;
       }
       if (securityActionForm.new_password?.trim()) {
         payload.new_password = securityActionForm.new_password.trim();
@@ -716,17 +733,26 @@ export function AdminPortal() {
       return;
     }
     try {
-      const res = await studentSecurityApi.changeSection(
-        sectionChangeForm.student.id,
-        sectionChangeForm.new_section,
-        sectionChangeForm.reason.trim() || "Class Section Reassigned By Administrator"
-      );
-      toast.success(toTitleCase(res.message || "Scholar Class Section Updated And Notification Dispatched."));
+      const res = await studentSecurityApi.changeSection(sectionChangeForm.student.id, {
+        section: sectionChangeForm.new_section.trim().toUpperCase(),
+        program: sectionChangeForm.new_program.trim() || undefined,
+        semester: Number(sectionChangeForm.new_semester) || undefined,
+        department: sectionChangeForm.new_department.trim() || undefined,
+        reason: sectionChangeForm.reason.trim() || "Class Section Reassigned By Administrator",
+      });
+      toast.success(toTitleCase(res.message || "Scholar Cohort & Class Section Updated And Notification Dispatched."));
       setShowSectionChangeModal(false);
-      setSectionChangeForm({ student: null, new_section: "A", reason: "Class Section Reassigned By Administrator" });
+      setSectionChangeForm({
+        student: null,
+        new_program: "",
+        new_semester: 1,
+        new_section: "A",
+        new_department: "",
+        reason: "Class Section Reassigned By Administrator",
+      });
       loadAdminData();
     } catch (err: any) {
-      toast.error(toTitleCase(err.message || "Failed To Change Scholar Section."));
+      toast.error(toTitleCase(err.message || "Failed To Change Scholar Cohort."));
     }
   };
 
@@ -6821,9 +6847,13 @@ export function AdminPortal() {
                                       <button
                                         type="button"
                                         onClick={() => {
+                                          const matchedProg = programs.find((p) => p.name === st.program || p.code === st.program) || programs[0];
                                           setSectionChangeForm({
                                             student: st,
+                                            new_program: st.program || matchedProg?.name || "",
+                                            new_semester: st.semester || 1,
                                             new_section: st.section || "A",
+                                            new_department: st.department || matchedProg?.department_name || "",
                                             reason: "Class Section Reassignment And Cohort Realignment",
                                           });
                                           setShowSectionChangeModal(true);
@@ -7008,7 +7038,7 @@ export function AdminPortal() {
                                     <button
                                       type="button"
                                       onClick={() => handleQuickFreshSlate(st)}
-                                      title="Fresh Slate: Lift all DRM locks, cooldowns, and zero violations"
+                                      title="Fresh Slate: Lift All DRM Locks, Cooldowns, And Zero Violations"
                                       className="grid h-8 w-8 place-items-center rounded-md border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all cursor-pointer shadow-2xs active:scale-95 shrink-0"
                                     >
                                       <Sparkles className="h-3.5 w-3.5" />
@@ -9000,7 +9030,7 @@ export function AdminPortal() {
                     rows={2}
                     value={newUnit.description}
                     onChange={(e) => setNewUnit({ ...newUnit, description: e.target.value })}
-                    placeholder="Brief description of the topics and scope covered in this syllabus unit..."
+                    placeholder="Brief Description Of The Topics And Scope Covered In This Syllabus Unit..."
                     className="w-full rounded-xl border border-border/80 bg-background/90 p-3 text-xs font-medium focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all shadow-xs resize-none"
                   />
                 </div>
@@ -12293,42 +12323,127 @@ export function AdminPortal() {
                 </div>
               )}
 
-              {/* Conditional Field: Change Class Section */}
-              {securityActionForm.action_type === "CHANGE_SECTION" && (
-                <div className="space-y-3 rounded-2xl border border-primary/30 bg-primary/5 p-4">
-                  <div className="flex items-center justify-between">
-                    <label className="block font-bold text-xs text-foreground">
-                      Target Class Section <span className="text-rose-500">*</span>
-                    </label>
-                    <span className="text-[0.65rem] font-bold text-muted-foreground font-mono">
-                      Current: Section {selectedStudentForAction.section || "A"}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
-                    {["A", "B", "C", "D", "E", "F", "G", "H"].map((sec) => (
-                      <button
-                        key={sec}
-                        type="button"
-                        onClick={() => setSecurityActionForm({ ...securityActionForm, section: sec })}
-                        className={cn(
-                          "h-9 rounded-xl border font-mono font-bold text-xs transition-all cursor-pointer shadow-2xs",
-                          (securityActionForm.section || "A") === sec
-                            ? "border-primary bg-primary text-primary-foreground shadow-xs scale-102"
-                            : "border-border/80 bg-background text-foreground hover:bg-surface"
-                        )}
+              {/* Conditional Field: Change Class Section & Cohort */}
+              {securityActionForm.action_type === "CHANGE_SECTION" && (() => {
+                const secProg = programs.find(
+                  (p) => p.name === (securityActionForm.program || selectedStudentForAction.program) ||
+                         p.id === (securityActionForm.program || selectedStudentForAction.program) ||
+                         p.code === (securityActionForm.program || selectedStudentForAction.program)
+                ) || programs[0];
+                const secSem = securityActionForm.semester || selectedStudentForAction.semester || 1;
+                const dbSecs = sections.filter((s) => {
+                  const pMatch = !secProg || s.program === secProg.id || s.program === secProg.name || s.program_name === secProg.name;
+                  const semMatch = Number(s.semester) === Number(secSem);
+                  return pMatch && semMatch;
+                });
+                return (
+                  <div className="space-y-3 rounded-2xl border border-primary/30 bg-primary/5 p-4">
+                    {/* Course / Program From DB */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block font-bold text-xs text-foreground">Target Degree Course</label>
+                        <span className="text-[0.62rem] text-primary font-mono font-bold">{programs.length} In Database</span>
+                      </div>
+                      <select
+                        value={securityActionForm.program || selectedStudentForAction.program || ""}
+                        onChange={(e) => setSecurityActionForm({ ...securityActionForm, program: e.target.value })}
+                        className="h-9.5 w-full rounded-xl border border-border/80 bg-background px-2.5 text-xs font-semibold focus:border-primary focus:outline-none"
                       >
-                        Sec {sec}
-                      </button>
-                    ))}
+                        {programs.map((p) => (
+                          <option key={p.id} value={p.name}>
+                            {p.name} ({p.code})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Semester */}
+                    <div>
+                      <label className="block font-bold text-xs text-foreground mb-1">Target Academic Semester</label>
+                      <div className="flex flex-wrap gap-1">
+                        {Array.from({ length: secProg?.total_semesters || 8 }, (_, i) => i + 1).map((sem) => (
+                          <button
+                            key={sem}
+                            type="button"
+                            onClick={() => setSecurityActionForm({ ...securityActionForm, semester: sem })}
+                            className={cn(
+                              "h-7 px-2.5 rounded-lg border font-mono font-bold text-[0.7rem] transition-all cursor-pointer",
+                              (securityActionForm.semester || selectedStudentForAction.semester || 1) === sem
+                                ? "border-primary bg-primary text-primary-foreground shadow-xs"
+                                : "border-border/80 bg-background text-foreground hover:bg-surface"
+                            )}
+                          >
+                            Sem {sem}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Section */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="block font-bold text-xs text-foreground">Target Class Section</label>
+                        <span className="text-[0.65rem] font-bold text-muted-foreground font-mono">
+                          Current: Section {selectedStudentForAction.section || "A"}
+                        </span>
+                      </div>
+
+                      {dbSecs.length > 0 && (
+                        <div className="mb-2 space-y-1">
+                          <span className="text-[0.62rem] text-muted-foreground font-bold uppercase tracking-wider block">
+                            DB Section Batches ({dbSecs.length}):
+                          </span>
+                          <div className="grid grid-cols-2 gap-1.5">
+                            {dbSecs.map((s) => {
+                              const sName = s.section || s.section_name || "A";
+                              const isSel = (securityActionForm.section || selectedStudentForAction.section || "A").toUpperCase() === sName.toUpperCase();
+                              return (
+                                <button
+                                  key={s.id}
+                                  type="button"
+                                  onClick={() => setSecurityActionForm({ ...securityActionForm, section: sName })}
+                                  className={cn(
+                                    "p-1.5 rounded-lg border text-left text-xs transition-all cursor-pointer",
+                                    isSel ? "border-primary bg-primary/10 text-primary font-bold ring-1 ring-primary/40" : "border-border bg-background text-foreground hover:bg-surface"
+                                  )}
+                                >
+                                  <div className="font-bold text-xs">Section {sName}</div>
+                                  <div className="text-[0.6rem] text-muted-foreground truncate">{s.batch_code}</div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
+                        {["A", "B", "C", "D", "E", "F", "G", "H"].map((sec) => (
+                          <button
+                            key={sec}
+                            type="button"
+                            onClick={() => setSecurityActionForm({ ...securityActionForm, section: sec })}
+                            className={cn(
+                              "h-8 rounded-xl border font-mono font-bold text-xs transition-all cursor-pointer shadow-2xs",
+                              (securityActionForm.section || selectedStudentForAction.section || "A").toUpperCase() === sec
+                                ? "border-primary bg-primary text-primary-foreground shadow-xs scale-102"
+                                : "border-border/80 bg-background text-foreground hover:bg-surface"
+                            )}
+                          >
+                            Sec {sec}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-2 p-2.5 rounded-xl bg-background/80 border border-primary/20 text-[0.7rem] text-muted-foreground">
+                      <Mail className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                      <p className="leading-relaxed">
+                        <strong className="text-primary">Auto Email Notification:</strong> An official academic notification will be dispatched to <strong>{selectedStudentForAction.email}</strong> informing them that their course and class section have been updated by Administrator.
+                      </p>
+                    </div>
                   </div>
-                  <div className="flex items-start gap-2 p-2.5 rounded-xl bg-background/80 border border-primary/20 text-[0.7rem] text-muted-foreground">
-                    <Mail className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                    <p className="leading-relaxed">
-                      <strong className="text-primary">Auto Email Notification:</strong> An official academic notification will be dispatched to <strong>{selectedStudentForAction.email}</strong> informing them that their class section has been updated by Administrator.
-                    </p>
-                  </div>
-                </div>
-              )}
+                );
+              })()}
 
               {/* Conditional Field: Warning Note */}
               {securityActionForm.action_type === "DISPATCH_WARNING" && (
@@ -12399,144 +12514,317 @@ export function AdminPortal() {
       )}
 
       {/* Modal: Change Scholar Class Section & Dispatch Official Email */}
-      {showSectionChangeModal && sectionChangeForm.student && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="relative w-full max-w-lg rounded-3xl border border-border/80 bg-card shadow-[0_25px_70px_rgba(0,0,0,0.35)] flex flex-col max-h-[85vh] overflow-hidden animate-in zoom-in-95 duration-200">
-            {/* Pinned Header */}
-            <div className="px-5 sm:px-6 py-4 border-b border-border/70 flex items-center justify-between shrink-0 bg-surface/30 backdrop-blur-xs">
-              <div className="flex items-center gap-3 min-w-0 pr-2">
-                <div className="h-10 w-10 rounded-2xl bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20 flex items-center justify-center shrink-0 shadow-xs">
-                  <GraduationCap className="h-5 w-5" />
-                </div>
-                <div className="min-w-0">
-                  <h3 className="font-display font-bold text-base sm:text-lg text-foreground truncate">
-                    Change Scholar Class Section
-                  </h3>
-                  <p className="text-xs text-muted-foreground truncate">
-                    Reassign Cohort And Automatically Dispatch Official Academic Email.
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setShowSectionChangeModal(false);
-                  setSectionChangeForm({ student: null, new_section: "A", reason: "Class Section Reassigned By Administrator" });
-                }}
-                className="rounded-xl p-2 text-muted-foreground hover:text-foreground hover:bg-surface border border-transparent hover:border-border transition-all cursor-pointer shrink-0"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
+      {showSectionChangeModal && sectionChangeForm.student && (() => {
+        const selectedProgObj = programs.find(
+          (p) => p.name === sectionChangeForm.new_program || p.id === sectionChangeForm.new_program || p.code === sectionChangeForm.new_program
+        ) || programs[0];
 
-            {/* Scrollable Form Body */}
-            <form onSubmit={handleSaveStudentSection} className="flex flex-col flex-1 min-h-0 overflow-hidden">
-              <div className="p-5 sm:p-6 overflow-y-auto space-y-4 text-xs scrollbar-thin scrollbar-thumb-muted-foreground/20 hover:scrollbar-thumb-muted-foreground/40 flex-1">
-                {/* Scholar Profile Snapshot */}
-                <div className="flex items-center gap-3 p-3 rounded-2xl bg-surface/60 border border-border/80">
-                  <div className="relative grid h-10 w-10 place-items-center rounded-2xl bg-gradient-to-br from-teal-500/25 via-teal-600/15 to-emerald-500/10 border border-teal-500/30 text-teal-600 dark:text-teal-400 font-extrabold text-sm shadow-inner shrink-0">
-                    {sectionChangeForm.student.full_name?.charAt(0) || "S"}
+        const totalSemesters = selectedProgObj?.total_semesters || 8;
+
+        const matchedDbSections = sections.filter((s) => {
+          const progMatch =
+            !selectedProgObj ||
+            s.program === selectedProgObj.id ||
+            s.program === selectedProgObj.name ||
+            s.program_name === selectedProgObj.name ||
+            s.program === sectionChangeForm.new_program;
+          const semMatch = Number(s.semester) === Number(sectionChangeForm.new_semester);
+          return progMatch && semMatch;
+        });
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200">
+            <div className="relative w-full max-w-xl rounded-3xl border border-border/80 bg-card shadow-[0_25px_70px_rgba(0,0,0,0.35)] flex flex-col max-h-[88vh] overflow-hidden animate-in zoom-in-95 duration-200">
+              {/* Pinned Header */}
+              <div className="px-5 sm:px-6 py-4 border-b border-border/70 flex items-center justify-between shrink-0 bg-surface/30 backdrop-blur-xs">
+                <div className="flex items-center gap-3 min-w-0 pr-2">
+                  <div className="h-10 w-10 rounded-2xl bg-teal-500/10 text-teal-600 dark:text-teal-400 border border-teal-500/20 flex items-center justify-center shrink-0 shadow-xs">
+                    <GraduationCap className="h-5 w-5" />
                   </div>
-                  <div className="min-w-0 flex-1 space-y-0.5">
-                    <span className="font-bold text-sm text-foreground block truncate">
-                      {sectionChangeForm.student.full_name || "Scholar"}
-                    </span>
-                    <span className="text-[0.7rem] text-muted-foreground block truncate font-mono">
-                      {sectionChangeForm.student.email}
-                    </span>
-                    <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
-                      <span className="text-[0.62rem] px-2 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20 font-mono font-bold">
-                        Roll: {sectionChangeForm.student.roll_number || "—"}
-                      </span>
-                      <span className="text-[0.62rem] px-2 py-0.5 rounded-md bg-surface border border-border/80 text-foreground font-semibold">
-                        {sectionChangeForm.student.program || "B.Tech"} · Sem {sectionChangeForm.student.semester || 1}
-                      </span>
-                    </div>
+                  <div className="min-w-0">
+                    <h3 className="font-display font-bold text-base sm:text-lg text-foreground truncate">
+                      Reassign Academic Cohort &amp; Section
+                    </h3>
+                    <p className="text-xs text-muted-foreground truncate">
+                      Select Actual Course, Semester, And Section From University Database.
+                    </p>
                   </div>
                 </div>
-
-                {/* Current Section vs Target Section Selector */}
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <label className="block font-bold text-xs text-foreground">
-                      Select Target Class Section <span className="text-rose-500">*</span>
-                    </label>
-                    <span className="text-[0.68rem] font-bold text-muted-foreground font-mono">
-                      Current: <strong className="text-rose-500">Section {sectionChangeForm.student.section || "A"}</strong>
-                    </span>
-                  </div>
-
-                  <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
-                    {["A", "B", "C", "D", "E", "F", "G", "H"].map((sec) => (
-                      <button
-                        key={sec}
-                        type="button"
-                        onClick={() => setSectionChangeForm({ ...sectionChangeForm, new_section: sec })}
-                        className={cn(
-                          "h-10 rounded-xl border font-mono font-bold text-xs transition-all cursor-pointer shadow-2xs flex flex-col items-center justify-center gap-0.5",
-                          sectionChangeForm.new_section === sec
-                            ? "border-primary bg-primary text-primary-foreground shadow-xs scale-102 ring-2 ring-primary/20"
-                            : "border-border/80 bg-background text-foreground hover:bg-surface"
-                        )}
-                      >
-                        <span className="text-[0.6rem] opacity-75 font-sans font-medium">Sec</span>
-                        <span>{sec}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Administrative Justification Reason */}
-                <div>
-                  <label className="block font-bold mb-1 text-foreground">
-                    Administrative Reason / Justification <span className="text-rose-500">*</span>
-                  </label>
-                  <textarea
-                    rows={2}
-                    value={sectionChangeForm.reason}
-                    onChange={(e) => setSectionChangeForm({ ...sectionChangeForm, reason: e.target.value })}
-                    placeholder="e.g. Academic Cohort Rebalancing And Administrative Reassignment"
-                    required
-                    className="w-full rounded-2xl border border-border/80 bg-background/90 p-3 text-xs focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 leading-relaxed shadow-xs"
-                  />
-                </div>
-
-                {/* Official Email Notification Banner */}
-                <div className="rounded-2xl border border-teal-500/30 bg-teal-500/10 p-3.5 space-y-1.5 text-teal-800 dark:text-teal-200">
-                  <div className="flex items-center gap-2 font-bold text-xs">
-                    <Mail className="h-4 w-4 shrink-0 text-teal-600 dark:text-teal-400" />
-                    <span>Automatic Official Email Notification</span>
-                  </div>
-                  <p className="text-[0.7rem] text-muted-foreground leading-relaxed">
-                    Upon confirmation, an official academic notification will be automatically dispatched to <strong className="text-foreground">{sectionChangeForm.student.email}</strong> informing them that the Administrator has changed their class section to <strong>Section {sectionChangeForm.new_section}</strong>. Their daily lecture timetable, subjects, and materials will automatically sync.
-                  </p>
-                </div>
-              </div>
-
-              {/* Pinned Sticky Footer */}
-              <div className="px-5 sm:px-6 py-3.5 border-t border-border/70 bg-surface/40 backdrop-blur-xs flex items-center justify-end gap-3 shrink-0">
                 <button
                   type="button"
                   onClick={() => {
                     setShowSectionChangeModal(false);
-                    setSectionChangeForm({ student: null, new_section: "A", reason: "Class Section Reassigned By Administrator" });
+                    setSectionChangeForm({
+                      student: null,
+                      new_program: "",
+                      new_semester: 1,
+                      new_section: "A",
+                      new_department: "",
+                      reason: "Class Section Reassigned By Administrator",
+                    });
                   }}
-                  className="h-9 px-4 rounded-xl border border-border bg-surface text-xs font-semibold text-foreground hover:bg-surface/80 transition-colors cursor-pointer"
+                  className="rounded-xl p-2 text-muted-foreground hover:text-foreground hover:bg-surface border border-transparent hover:border-border transition-all cursor-pointer shrink-0"
                 >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="h-9 px-5 rounded-xl font-bold text-xs shadow-md transition-all cursor-pointer flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-emerald-600/20 active:scale-95"
-                >
-                  <Send className="h-3.5 w-3.5" />
-                  <span>Save Section &amp; Dispatch Email</span>
+                  <X className="h-5 w-5" />
                 </button>
               </div>
-            </form>
+
+              {/* Scrollable Form Body */}
+              <form onSubmit={handleSaveStudentSection} className="flex flex-col flex-1 min-h-0 overflow-hidden">
+                <div className="p-5 sm:p-6 overflow-y-auto space-y-4 text-xs scrollbar-thin scrollbar-thumb-muted-foreground/20 hover:scrollbar-thumb-muted-foreground/40 flex-1">
+                  {/* Scholar Profile Snapshot */}
+                  <div className="flex items-center gap-3 p-3.5 rounded-2xl bg-surface/60 border border-border/80">
+                    <div className="relative grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-teal-500/25 via-teal-600/15 to-emerald-500/10 border border-teal-500/30 text-teal-600 dark:text-teal-400 font-extrabold text-sm shadow-inner shrink-0">
+                      {sectionChangeForm.student.full_name?.charAt(0) || "S"}
+                    </div>
+                    <div className="min-w-0 flex-1 space-y-0.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-bold text-sm text-foreground truncate">
+                          {sectionChangeForm.student.full_name || "Scholar"}
+                        </span>
+                        <span className="text-[0.62rem] px-2 py-0.5 rounded-md bg-rose-500/10 text-rose-600 dark:text-rose-400 border border-rose-500/20 font-bold shrink-0">
+                          Current: Sec {sectionChangeForm.student.section || "A"}
+                        </span>
+                      </div>
+                      <span className="text-[0.7rem] text-muted-foreground block truncate font-mono">
+                        {sectionChangeForm.student.email}
+                      </span>
+                      <div className="flex items-center gap-1.5 flex-wrap pt-0.5">
+                        <span className="text-[0.62rem] px-2 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20 font-mono font-bold">
+                          Roll: {sectionChangeForm.student.roll_number || "—"}
+                        </span>
+                        <span className="text-[0.62rem] px-2 py-0.5 rounded-md bg-surface border border-border/80 text-foreground font-semibold truncate max-w-[280px]">
+                          {sectionChangeForm.student.program || "B.Tech"} · Sem {sectionChangeForm.student.semester || 1}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 1. Target Degree Course / Program (FROM ACTUAL DB `programs`) */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="block font-bold text-xs text-foreground">
+                        Target Degree Course / Program <span className="text-rose-500">*</span>
+                      </label>
+                      <span className="text-[0.65rem] text-primary font-mono font-bold">
+                        {programs.length} Courses In Database
+                      </span>
+                    </div>
+                    <select
+                      value={sectionChangeForm.new_program}
+                      onChange={(e) => {
+                        const progName = e.target.value;
+                        const progObj = programs.find((p) => p.name === progName || p.id === progName || p.code === progName);
+                        const deptObj = departments.find((d) => d.id === progObj?.department);
+                        setSectionChangeForm({
+                          ...sectionChangeForm,
+                          new_program: progName,
+                          new_department: deptObj?.name || sectionChangeForm.new_department,
+                          new_semester: Math.min(sectionChangeForm.new_semester, progObj?.total_semesters || 8),
+                        });
+                      }}
+                      required
+                      className="h-10.5 w-full rounded-xl border border-border/80 bg-background/90 px-3 text-xs font-semibold focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none transition-all shadow-xs cursor-pointer text-foreground"
+                    >
+                      <option value="">Select Degree Course From University Database...</option>
+                      {programs.map((p) => (
+                        <option key={p.id} value={p.name}>
+                          {p.name} ({p.code}) — {p.total_semesters} Semesters
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* 2. Target Semester Selector (DYNAMIC TO PROGRAM SEMESTERS) */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label className="block font-bold text-xs text-foreground">
+                        Target Academic Semester <span className="text-rose-500">*</span>
+                      </label>
+                      <span className="text-[0.65rem] text-muted-foreground font-mono">
+                        Selected: <strong className="text-primary">Semester {sectionChangeForm.new_semester}</strong>
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
+                      {Array.from({ length: totalSemesters }, (_, i) => i + 1).map((sem) => (
+                        <button
+                          key={sem}
+                          type="button"
+                          onClick={() => setSectionChangeForm({ ...sectionChangeForm, new_semester: sem })}
+                          className={cn(
+                            "h-9 rounded-xl border font-mono font-bold text-xs transition-all cursor-pointer shadow-2xs flex items-center justify-center",
+                            sectionChangeForm.new_semester === sem
+                              ? "border-primary bg-primary text-primary-foreground shadow-xs scale-102 ring-2 ring-primary/20"
+                              : "border-border/80 bg-background text-foreground hover:bg-surface"
+                          )}
+                        >
+                          Sem {sem}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 3. Target Class Section (FROM ACTUAL DB `sections`) */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="block font-bold text-xs text-foreground">
+                        Target Class Section <span className="text-rose-500">*</span>
+                      </label>
+                      <span className="text-[0.65rem] text-muted-foreground font-mono">
+                        Selected: <strong className="text-emerald-500">Section {sectionChangeForm.new_section}</strong>
+                      </span>
+                    </div>
+
+                    {/* Actual Database Section Batches (If Available) */}
+                    {matchedDbSections.length > 0 && (
+                      <div className="space-y-1.5 p-2.5 rounded-2xl bg-surface/40 border border-border/80">
+                        <span className="text-[0.65rem] font-bold text-muted-foreground uppercase tracking-wider block">
+                          Registered Database Section Batches ({matchedDbSections.length} Available):
+                        </span>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          {matchedDbSections.map((sec) => {
+                            const secLetter = sec.section || sec.section_name || "A";
+                            const isChosen = sectionChangeForm.new_section.toUpperCase() === secLetter.toUpperCase();
+                            return (
+                              <div
+                                key={sec.id}
+                                onClick={() => setSectionChangeForm({ ...sectionChangeForm, new_section: secLetter })}
+                                className={cn(
+                                  "p-2.5 rounded-xl border text-xs cursor-pointer transition-all flex items-center justify-between",
+                                  isChosen
+                                    ? "border-primary bg-primary/10 text-primary font-bold shadow-xs ring-1 ring-primary/40"
+                                    : "border-border/70 bg-background hover:bg-surface text-foreground"
+                                )}
+                              >
+                                <div className="min-w-0 pr-2">
+                                  <div className="flex items-center gap-1.5">
+                                    <span className="font-bold text-xs">Section {secLetter}</span>
+                                    {isChosen && <Check className="h-3 w-3 text-primary stroke-[3]" />}
+                                  </div>
+                                  <span className="text-[0.65rem] text-muted-foreground block truncate">
+                                    {sec.batch_code || "Batch 2026-2027"} · {sec.max_capacity} Seats
+                                  </span>
+                                </div>
+                                <span
+                                  className={cn(
+                                    "text-[0.62rem] font-mono font-bold px-2 py-0.5 rounded-md shrink-0",
+                                    isChosen
+                                      ? "bg-primary text-primary-foreground"
+                                      : "bg-surface border border-border/80 text-muted-foreground"
+                                  )}
+                                >
+                                  {isChosen ? "Active" : "Assign"}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Standard Section Buttons Grid (A-H) */}
+                    <div className="space-y-1.5">
+                      <span className="text-[0.65rem] font-bold text-muted-foreground uppercase tracking-wider block">
+                        {matchedDbSections.length > 0 ? "Or Select Standard Section Letter:" : "Select Class Section Letter:"}
+                      </span>
+                      <div className="grid grid-cols-4 sm:grid-cols-8 gap-1.5">
+                        {["A", "B", "C", "D", "E", "F", "G", "H"].map((sec) => (
+                          <button
+                            key={sec}
+                            type="button"
+                            onClick={() => setSectionChangeForm({ ...sectionChangeForm, new_section: sec })}
+                            className={cn(
+                              "h-9 rounded-xl border font-mono font-bold text-xs transition-all cursor-pointer shadow-2xs flex flex-col items-center justify-center gap-0.5",
+                              sectionChangeForm.new_section.toUpperCase() === sec
+                                ? "border-primary bg-primary text-primary-foreground shadow-xs scale-102 ring-2 ring-primary/20"
+                                : "border-border/80 bg-background text-foreground hover:bg-surface"
+                            )}
+                          >
+                            <span className="text-[0.58rem] opacity-75 font-sans font-medium">Sec</span>
+                            <span>{sec}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 4. Cohort Reassignment Summary Comparison Pill */}
+                  <div className="p-3 rounded-2xl bg-surface/70 border border-border/80 flex items-center justify-between text-xs gap-3">
+                    <div className="min-w-0">
+                      <span className="text-[0.65rem] text-muted-foreground block">Target Cohort Assignment</span>
+                      <span className="font-bold text-foreground block truncate">
+                        {sectionChangeForm.new_program || sectionChangeForm.student.program}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <span className="px-2 py-0.5 rounded-lg bg-primary/10 border border-primary/20 text-primary font-mono font-bold text-[0.68rem]">
+                        Sem {sectionChangeForm.new_semester}
+                      </span>
+                      <span className="px-2 py-0.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-mono font-bold text-[0.68rem]">
+                        Sec {sectionChangeForm.new_section}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* 5. Administrative Justification Reason */}
+                  <div>
+                    <label className="block font-bold mb-1 text-foreground">
+                      Administrative Reason / Justification <span className="text-rose-500">*</span>
+                    </label>
+                    <textarea
+                      rows={2}
+                      value={sectionChangeForm.reason}
+                      onChange={(e) => setSectionChangeForm({ ...sectionChangeForm, reason: e.target.value })}
+                      placeholder="e.g. Academic Cohort Rebalancing And Administrative Reassignment"
+                      required
+                      className="w-full rounded-2xl border border-border/80 bg-background/90 p-3 text-xs focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20 leading-relaxed shadow-xs"
+                    />
+                  </div>
+
+                  {/* 6. Official Email Notification Banner */}
+                  <div className="rounded-2xl border border-teal-500/30 bg-teal-500/10 p-3.5 space-y-1.5 text-teal-800 dark:text-teal-200">
+                    <div className="flex items-center gap-2 font-bold text-xs">
+                      <Mail className="h-4 w-4 shrink-0 text-teal-600 dark:text-teal-400" />
+                      <span>Automatic Official Academic Email Dispatch</span>
+                    </div>
+                    <p className="text-[0.7rem] text-muted-foreground leading-relaxed">
+                      Upon Confirmation, An Official Academic Notification Will Be Automatically Dispatched To <strong className="text-foreground">{sectionChangeForm.student.email}</strong> Informing Them That The Administrator Has Reassigned Their Cohort To <strong>{sectionChangeForm.new_program || sectionChangeForm.student.program}</strong>, <strong>Semester {sectionChangeForm.new_semester}</strong>, <strong>Section {sectionChangeForm.new_section}</strong>. Their Daily Lecture Timetable, Subjects, And Materials Will Automatically Sync.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Pinned Sticky Footer */}
+                <div className="px-5 sm:px-6 py-3.5 border-t border-border/70 bg-surface/40 backdrop-blur-xs flex items-center justify-end gap-3 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowSectionChangeModal(false);
+                      setSectionChangeForm({
+                        student: null,
+                        new_program: "",
+                        new_semester: 1,
+                        new_section: "A",
+                        new_department: "",
+                        reason: "Class Section Reassigned By Administrator",
+                      });
+                    }}
+                    className="h-9 px-4 rounded-xl border border-border bg-surface text-xs font-semibold text-foreground hover:bg-surface/80 transition-colors cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="h-9 px-5 rounded-xl font-bold text-xs shadow-md transition-all cursor-pointer flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-emerald-600/20 active:scale-95"
+                  >
+                    <Send className="h-3.5 w-3.5" />
+                    <span>Save Cohort &amp; Dispatch Email</span>
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Modal: Full DRM Document & Material Live Preview */}
       {previewMaterialId && (
