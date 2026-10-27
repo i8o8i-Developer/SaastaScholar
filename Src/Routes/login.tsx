@@ -1216,7 +1216,7 @@ export function Login() {
                                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                                     <div className="text-[0.72rem] text-muted-foreground">
                                       <span className="font-bold text-foreground">Email Passcode Verification: </span>
-                                      We will dispatch a 6-digit Title Case formatted code to your email.
+                                      We Will Dispatch A 6-Digit Formatted Code To Your Email.
                                     </div>
                                     <button
                                       type="button"
@@ -1280,7 +1280,7 @@ export function Login() {
                                       </button>
                                     </div>
                                     <p className="text-[0.65rem] text-muted-foreground">
-                                      Please check your inbox (and spam/promotions folder) for your Title Case formatted registration email from SaastaScholar.
+                                      Please Check Your Inbox (And Spam/Promotions Folder) For Your Registration Email From SaastaScholar.
                                     </p>
                                   </div>
                                 )}
