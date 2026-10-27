@@ -149,17 +149,17 @@ export function StudentDeskHub() {
   return (
     <div className="space-y-4 sm:space-y-6 max-w-7xl mx-auto min-w-0">
       {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4 rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-br from-card via-card to-primary/5 p-4 sm:p-6 shadow-xs min-w-0">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4 rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-br from-card via-card to-primary/5 p-3.5 xs:p-4 sm:p-6 shadow-xs min-w-0">
         <div className="space-y-1 min-w-0">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="grid h-9 w-9 sm:h-10 sm:w-10 place-items-center rounded-2xl bg-primary/10 text-primary shadow-xs shrink-0">
               <LifeBuoy className="h-5 w-5" />
             </div>
             <div className="min-w-0">
-              <h2 className="font-display text-lg sm:text-2xl font-bold tracking-tight text-foreground truncate sm:whitespace-normal">
+              <h2 className="font-display text-base xs:text-lg sm:text-2xl font-bold tracking-tight text-foreground leading-snug break-words">
                 Student Help Desk
               </h2>
-              <p className="text-[0.7rem] sm:text-xs text-muted-foreground line-clamp-2 sm:line-clamp-1">
+              <p className="text-[0.7rem] sm:text-xs text-muted-foreground leading-relaxed break-words">
                 Ask Questions, Request Notes, Or Get Help Directly From College Teachers
               </p>
             </div>

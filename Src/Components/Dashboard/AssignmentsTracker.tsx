@@ -139,19 +139,19 @@ export function AssignmentsTracker() {
   };
 
   return (
-    <div className="space-y-6 sm:space-y-8 max-w-7xl mx-auto min-w-0">
+    <div className="space-y-4 sm:space-y-6 max-w-7xl mx-auto min-w-0">
       {/* ================= Header Banner ================= */}
-      <div className="relative overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-r from-emerald-500/10 via-surface to-teal-500/10 p-6 sm:p-8 backdrop-blur-md shadow-xs">
-        <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-          <div className="space-y-2 min-w-0">
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-300">
-              <Sparkles className="h-3.5 w-3.5" />
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-r from-emerald-500/10 via-surface to-teal-500/10 p-3.5 xs:p-4.5 sm:p-7 backdrop-blur-md shadow-xs min-w-0">
+        <div className="flex flex-col gap-4 sm:gap-6 lg:flex-row lg:items-center lg:justify-between min-w-0">
+          <div className="space-y-1.5 sm:space-y-2 min-w-0">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 sm:px-3 py-0.5 text-[0.62rem] xs:text-[0.68rem] sm:text-xs font-bold text-emerald-700 dark:text-emerald-300">
+              <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
               <span>AI Powered Academic Workflow Engine</span>
             </div>
-            <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+            <h1 className="font-display text-base xs:text-lg sm:text-2xl md:text-3xl font-bold tracking-tight text-foreground break-words leading-tight">
               Assignment Tracker &amp; Formatter Hub
             </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-2xl">
+            <p className="text-[0.7rem] xs:text-xs md:text-sm text-muted-foreground leading-relaxed max-w-2xl break-words">
               Track Term Submissions, Marks Weightage, Due Dates, And Generate IEEE-Standard Academic Outlines With Gemini AI.
             </p>
           </div>
@@ -164,26 +164,26 @@ export function AssignmentsTracker() {
               setGeneratedOutline(null);
               setAiModalOpen(true);
             }}
-            className="inline-flex items-center gap-2.5 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-3 text-xs font-bold text-white shadow-lg shadow-emerald-600/25 hover:from-emerald-700 hover:to-teal-700 active:scale-95 transition-all cursor-pointer shrink-0"
+            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 sm:px-5 py-2.5 sm:py-3 text-xs font-bold text-white shadow-lg shadow-emerald-600/25 hover:from-emerald-700 hover:to-teal-700 active:scale-95 transition-all cursor-pointer shrink-0"
           >
-            <Wand2 className="h-4 w-4" />
-            <span>Launch Gemini AI Assignment Formatter</span>
+            <Wand2 className="h-4 w-4 shrink-0" />
+            <span>Launch Gemini AI Formatter</span>
           </button>
         </div>
       </div>
 
       {/* ================= Assignments Grid ================= */}
       {loading ? (
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-3.5 sm:gap-5 sm:grid-cols-2 min-w-0">
           {[1, 2, 3, 4].map((n) => (
-            <div key={n} className="h-48 rounded-3xl border border-border/80 bg-card/60 animate-pulse" />
+            <div key={n} className="h-48 rounded-2xl sm:rounded-3xl border border-border/80 bg-card/60 animate-pulse" />
           ))}
         </div>
       ) : assignments.length === 0 ? (
-        <div className="rounded-3xl border border-dashed border-border bg-card/60 p-12 text-center space-y-4">
-          <FileCheck2 className="h-12 w-12 mx-auto text-muted-foreground/40" />
+        <div className="rounded-2xl sm:rounded-3xl border border-dashed border-border bg-card/60 p-8 sm:p-12 text-center space-y-4 min-w-0">
+          <FileCheck2 className="h-10 w-10 sm:h-12 sm:w-12 mx-auto text-muted-foreground/40" />
           <div className="space-y-1">
-            <h3 className="font-display font-bold text-base text-foreground">No Assignments Published Yet</h3>
+            <h3 className="font-display font-bold text-sm sm:text-base text-foreground">No Assignments Published Yet</h3>
             <p className="text-xs text-muted-foreground max-w-md mx-auto">
               Assignments Published By Faculty In The Admin Portal Will Appear Here With Submission Due Dates, Rubrics, And Marks Weightage.
             </p>
@@ -195,14 +195,14 @@ export function AssignmentsTracker() {
               setGeneratedOutline(null);
               setAiModalOpen(true);
             }}
-            className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-md cursor-pointer"
+            className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-md cursor-pointer active:scale-95 transition-all"
           >
             <Wand2 className="h-4 w-4" />
             <span>Draft New Assignment Outline With AI</span>
           </button>
         </div>
       ) : (
-        <div className="grid gap-5 sm:grid-cols-2 min-w-0">
+        <div className="grid gap-3.5 sm:gap-5 sm:grid-cols-2 min-w-0">
           {assignments.map((item) => {
             const isDone = item.status === "SUBMITTED" || item.status === "EVALUATED";
             const inProg = item.status === "IN_PROGRESS";
@@ -211,18 +211,18 @@ export function AssignmentsTracker() {
               <div
                 key={item.id}
                 className={cn(
-                  "rounded-3xl border bg-card p-6 shadow-xs flex flex-col justify-between space-y-4 transition-all hover:border-primary/50",
+                  "rounded-2xl sm:rounded-3xl border bg-card p-3.5 xs:p-4.5 sm:p-6 shadow-xs flex flex-col justify-between space-y-3.5 sm:space-y-4 transition-all hover:border-primary/50 min-w-0",
                   isDone ? "border-border/60 opacity-80" : "border-border/90",
                 )}
               >
-                <div>
-                  <div className="flex items-center justify-between border-b border-border/60 pb-3">
-                    <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-bold font-mono text-primary">
+                <div className="min-w-0 space-y-2">
+                  <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-2.5 min-w-0">
+                    <span className="rounded-lg bg-primary/10 border border-primary/20 px-2 py-0.5 text-[0.65rem] xs:text-xs font-bold font-mono text-primary">
                       {item.subject_code || "ACAD"}
                     </span>
                     <span
                       className={cn(
-                        "rounded-full px-2.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide",
+                        "rounded-full px-2 xs:px-2.5 py-0.5 text-[0.62rem] xs:text-[0.65rem] font-bold uppercase tracking-wide shrink-0",
                         isDone
                           ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
                           : inProg
@@ -234,22 +234,29 @@ export function AssignmentsTracker() {
                     </span>
                   </div>
 
-                  <h3 className="mt-3 font-display text-base font-bold text-foreground">
+                  {/* Full Subject Name (No Truncation) */}
+                  {item.subject_name && (
+                    <span className="text-[0.65rem] xs:text-[0.7rem] font-mono font-bold text-muted-foreground block leading-snug break-words">
+                      {item.subject_name}
+                    </span>
+                  )}
+
+                  <h3 className="font-display text-sm sm:text-base font-bold text-foreground leading-snug break-words">
                     {item.title}
                   </h3>
-                  <p className="mt-1 text-xs text-muted-foreground leading-relaxed">
+                  <p className="text-[0.72rem] xs:text-xs text-muted-foreground leading-relaxed break-words">
                     {item.description || "Continuous assessment assignment module."}
                   </p>
                 </div>
 
-                <div className="space-y-3 pt-3 border-t border-border/60">
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <div className="space-y-2.5 pt-2.5 border-t border-border/60 min-w-0">
+                  <div className="flex items-center justify-between gap-2 text-[0.7rem] xs:text-xs text-muted-foreground flex-wrap">
                     <span className="flex items-center gap-1.5 font-mono">
-                      <Calendar className="h-3.5 w-3.5 text-primary" />
-                      <span>Submission Due: <strong>{item.due_date}</strong></span>
+                      <Calendar className="h-3.5 w-3.5 text-primary shrink-0" />
+                      <span>Due: <strong className="text-foreground">{item.due_date}</strong></span>
                     </span>
                     <span className="font-mono font-bold text-foreground">
-                      {item.total_marks} Marks Weightage
+                      {item.total_marks} Marks
                     </span>
                   </div>
 

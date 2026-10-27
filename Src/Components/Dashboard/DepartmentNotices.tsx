@@ -59,52 +59,52 @@ export function DepartmentNotices() {
   });
 
   return (
-    <div className="space-y-6 sm:space-y-8 max-w-6xl mx-auto min-w-0">
+    <div className="space-y-4 sm:space-y-6 max-w-6xl mx-auto min-w-0">
       {/* ================= Header Banner ================= */}
-      <div className="relative overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-r from-emerald-500/10 via-surface to-teal-500/10 p-6 sm:p-8 backdrop-blur-md shadow-xs">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-2">
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-0.5 text-xs font-bold text-emerald-700 dark:text-emerald-300">
-              <Megaphone className="h-3.5 w-3.5" />
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-r from-emerald-500/10 via-surface to-teal-500/10 p-3.5 xs:p-4.5 sm:p-7 backdrop-blur-md shadow-xs min-w-0">
+        <div className="flex flex-col gap-3.5 sm:gap-4 sm:flex-row sm:items-center sm:justify-between min-w-0">
+          <div className="space-y-1.5 min-w-0">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 sm:px-3 py-0.5 text-[0.62rem] xs:text-[0.68rem] sm:text-xs font-bold text-emerald-700 dark:text-emerald-300">
+              <Megaphone className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
               <span>Official University Communications</span>
             </div>
-            <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+            <h1 className="font-display text-base xs:text-lg sm:text-2xl md:text-3xl font-bold tracking-tight text-foreground break-words leading-tight">
               Department Circulars &amp; Notices
             </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground max-w-2xl leading-relaxed">
+            <p className="text-[0.7rem] xs:text-xs md:text-sm text-muted-foreground max-w-2xl leading-relaxed break-words">
               Official Examination Schedules, Record Submission Deadlines, Department Notices &amp; Syllabus Circulars Synchronized In Real Time.
             </p>
           </div>
 
-          <div className="flex items-center gap-3 shrink-0">
-            <div className="rounded-2xl border border-border/80 bg-card p-3 text-center shadow-xs">
-              <span className="block text-[0.65rem] text-muted-foreground font-bold uppercase">Active Notices</span>
-              <span className="font-mono text-base font-bold text-primary">{notices.length} Published</span>
+          <div className="flex items-center gap-3 shrink-0 self-start sm:self-center">
+            <div className="rounded-2xl border border-border/80 bg-card p-2.5 sm:p-3 text-center shadow-xs">
+              <span className="block text-[0.62rem] sm:text-[0.65rem] text-muted-foreground font-bold uppercase">Active Notices</span>
+              <span className="font-mono text-sm sm:text-base font-bold text-primary">{notices.length} Published</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* ================= Search & Category Filter Controls ================= */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-4 min-w-0">
         {/* Search Box */}
-        <div className="relative flex-1 max-w-md">
+        <div className="relative flex-1 max-w-md min-w-0">
           <Search className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
             type="text"
             placeholder="Search Circulars by Keyword, Topic, or Ref No..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-11 w-full rounded-2xl border border-border bg-card pr-3.5 pl-10 text-xs font-medium focus:border-primary focus:outline-none transition-colors shadow-2xs"
+            className="h-10 sm:h-11 w-full rounded-2xl border border-border bg-card pr-3.5 pl-10 text-xs font-medium focus:border-primary focus:outline-none transition-colors shadow-2xs min-w-0"
           />
         </div>
 
         {/* Category Selector (Mobile Dropdown + Desktop Wrapping Pills) */}
-        <div className="sm:hidden relative w-full">
+        <div className="sm:hidden relative w-full min-w-0">
           <select
             value={selectedCategory}
             onChange={(e) => setSelectedCategory(e.target.value)}
-            className="h-11 w-full appearance-none rounded-2xl border border-border/80 bg-card px-3.5 pr-10 text-xs font-bold text-foreground focus:border-primary focus:outline-none shadow-2xs cursor-pointer"
+            className="h-10 w-full appearance-none rounded-2xl border border-border/80 bg-card px-3.5 pr-10 text-xs font-bold text-foreground focus:border-primary focus:outline-none shadow-2xs cursor-pointer min-w-0"
           >
             <option value="ALL">All Circulars</option>
             <option value="EXAMINATION">Examinations</option>
@@ -140,25 +140,25 @@ export function DepartmentNotices() {
       </div>
 
       {/* ================= Notices Feed List ================= */}
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4 min-w-0">
         {filteredNotices.length > 0 ? (
           filteredNotices.map((notice) => {
             return (
               <div
                 key={notice.id}
                 className={cn(
-                  "rounded-3xl border transition-all bg-card p-5 sm:p-7 shadow-xs space-y-4",
+                  "rounded-2xl sm:rounded-3xl border transition-all bg-card p-3.5 xs:p-4.5 sm:p-7 shadow-xs space-y-3.5 sm:space-y-4 min-w-0",
                   notice.priority === "HIGH" || notice.priority === "URGENT"
                     ? "border-emerald-500/40 bg-gradient-to-r from-emerald-500/5 via-card to-card ring-1 ring-emerald-500/20"
                     : "border-border/80 hover:border-border",
                 )}
               >
                 {/* Notice Header */}
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center justify-between gap-2 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap min-w-0">
                     <span
                       className={cn(
-                        "rounded-full px-2.5 py-0.5 text-[0.65rem] font-bold uppercase",
+                        "rounded-full px-2.5 py-0.5 text-[0.62rem] xs:text-[0.65rem] font-bold uppercase",
                         notice.category.toUpperCase().includes("EXAM") && "bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/20",
                         notice.category.toUpperCase().includes("LAB") && "bg-purple-500/15 text-purple-600 dark:text-purple-400 border border-purple-500/20",
                         notice.category.toUpperCase().includes("ACAD") && "bg-cyan-500/15 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20",
@@ -168,23 +168,23 @@ export function DepartmentNotices() {
                       {notice.category}
                     </span>
 
-                    <span className="font-mono text-[0.7rem] text-muted-foreground font-semibold">
+                    <span className="font-mono text-[0.65rem] xs:text-[0.7rem] text-muted-foreground font-semibold">
                       Ref: {notice.reference_number || "NIMS-2026"}
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium">
-                    <Calendar className="h-3.5 w-3.5 text-primary" />
+                  <div className="flex items-center gap-1.5 text-[0.7rem] xs:text-xs text-muted-foreground font-medium">
+                    <Calendar className="h-3.5 w-3.5 text-primary shrink-0" />
                     <span>{notice.published_at ? new Date(notice.published_at).toLocaleDateString() : "Active Circular"}</span>
                   </div>
                 </div>
 
                 {/* Notice Title */}
-                <div>
-                  <h2 className="font-display text-base sm:text-lg font-bold text-foreground leading-snug">
+                <div className="min-w-0">
+                  <h2 className="font-display text-sm sm:text-base md:text-lg font-bold text-foreground leading-snug break-words">
                     {notice.title}
                   </h2>
-                  <div className="mt-2.5 text-xs sm:text-sm text-foreground/90 leading-relaxed">
+                  <div className="mt-2 text-xs sm:text-sm text-foreground/90 leading-relaxed break-words">
                     <MarkdownContent content={notice.content} />
                   </div>
                 </div>

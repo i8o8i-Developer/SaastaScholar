@@ -257,20 +257,20 @@ export function CommunityForumHub() {
   }, [posts, selectedCategory, searchQuery, sortBy]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 max-w-7xl mx-auto min-w-0">
       {/* Header Banner & Action */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 rounded-3xl border border-border/80 bg-gradient-to-br from-card via-card to-primary/5 p-6 shadow-xs">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2.5">
-            <div className="grid h-10 w-10 place-items-center rounded-2xl bg-primary/10 text-primary shadow-xs">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3.5 sm:gap-4 rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-br from-card via-card to-primary/5 p-3.5 xs:p-4.5 sm:p-6 shadow-xs min-w-0">
+        <div className="space-y-1 min-w-0">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="grid h-9 w-9 sm:h-10 sm:w-10 place-items-center rounded-2xl bg-primary/10 text-primary shadow-xs shrink-0">
               <MessageSquare className="h-5 w-5" />
             </div>
-            <div>
-              <h2 className="font-display text-2xl font-bold tracking-tight text-foreground">
-                Community Discussions & Peer Hub
+            <div className="min-w-0">
+              <h2 className="font-display text-base xs:text-lg sm:text-2xl font-bold tracking-tight text-foreground break-words leading-tight">
+                Community Discussions &amp; Peer Hub
               </h2>
-              <p className="text-xs text-muted-foreground">
-                Slack & Reddit-Style Public Threads • Connect With Fellow Scholars & Faculty
+              <p className="text-[0.7rem] xs:text-xs text-muted-foreground leading-relaxed break-words">
+                Slack &amp; Reddit-Style Public Threads • Connect With Fellow Scholars &amp; Faculty
               </p>
             </div>
           </div>
@@ -278,7 +278,7 @@ export function CommunityForumHub() {
 
         <button
           onClick={() => setShowComposer(!showComposer)}
-          className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-5 py-2.5 text-xs font-bold text-white shadow-md shadow-emerald-600/25 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+          className="inline-flex items-center justify-center gap-2 rounded-xl sm:rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 sm:px-5 py-2 sm:py-2.5 text-xs font-bold text-white shadow-md shadow-emerald-600/25 transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer shrink-0"
         >
           <Plus className="h-4 w-4" />
           <span>{showComposer ? "Close Composer" : "Start New Discussion"}</span>

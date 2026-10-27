@@ -206,19 +206,19 @@ export function MembershipUpgradeSection({
   };
 
   return (
-    <div className="space-y-6 p-3.5 sm:p-6 max-w-6xl mx-auto">
+    <div className="space-y-4 sm:space-y-6 p-2.5 xs:p-3.5 sm:p-6 max-w-6xl mx-auto min-w-0">
       {/* Header Banner - Compact & Modern */}
-      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-primary/25 bg-gradient-to-br from-card/95 via-card/85 to-primary/5 p-4 sm:p-6 shadow-lg">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div className="space-y-1.5 max-w-xl">
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[0.68rem] font-bold text-primary">
-              <Crown className="h-3 w-3" />
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-primary/25 bg-gradient-to-br from-card/95 via-card/85 to-primary/5 p-3.5 xs:p-4.5 sm:p-6 shadow-lg min-w-0">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3.5 sm:gap-4 min-w-0">
+          <div className="space-y-1.5 max-w-xl min-w-0">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[0.62rem] xs:text-[0.68rem] font-bold text-primary">
+              <Crown className="h-3 w-3 shrink-0" />
               <span>SaastaScholar Academic Pass</span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-foreground">
+            <h1 className="text-lg xs:text-xl sm:text-2xl font-black tracking-tight text-foreground break-words leading-tight">
               Upgrade Your Study Experience
             </h1>
-            <p className="text-xs text-muted-foreground leading-relaxed">
+            <p className="text-[0.7rem] xs:text-xs text-muted-foreground leading-relaxed break-words">
               Unlock Verified Handwritten Notes, Solved 10-Year Examination Papers, and Practical Lab Code Packets.
             </p>
           </div>

@@ -338,96 +338,97 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
         className="hidden"
       />
 
-      {/* ================= Header Banner ================= */}
-      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-r from-emerald-500/10 via-surface to-teal-500/10 p-4 sm:p-7 backdrop-blur-md shadow-xs min-w-0">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 min-w-0">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3.5 sm:gap-5 min-w-0 flex-1">
-            {/* Clickable Profile Avatar with Real Upload */}
-            <div
-              className="relative group cursor-pointer shrink-0 self-start sm:self-center"
-              onClick={() => fileInputRef.current?.click()}
-              title="Click to upload profile photo"
-            >
-              <div className="grid h-16 w-16 sm:h-20 sm:w-20 place-items-center rounded-2xl sm:rounded-3xl text-white font-bold text-xl sm:text-2xl shadow-lg transition-transform group-hover:scale-105 bg-gradient-to-tr from-emerald-600 to-teal-500 overflow-hidden border border-border/60">
-                {uploadingAvatar ? (
-                  <Loader2 className="h-7 w-7 animate-spin text-white" />
-                ) : (avatarPreview || user?.avatar_url) ? (
-                  <img
-                    src={avatarPreview || user?.avatar_url || ""}
-                    alt="Student Avatar"
-                    onError={(e) => {
-                      e.currentTarget.style.display = "none";
-                    }}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <span className="font-bold">{(user?.full_name || "A").charAt(0).toUpperCase()}</span>
-                )}
-              </div>
-              <div className="absolute inset-0 grid place-items-center rounded-2xl sm:rounded-3xl bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity">
-                <Camera className="h-5 w-5 sm:h-6 sm:w-6" />
-              </div>
-              <span className="absolute -bottom-1 -right-1 grid h-5 w-5 sm:h-6 sm:w-6 place-items-center rounded-full bg-primary text-primary-foreground border-2 border-card text-[0.6rem] shadow-xs">
-                <Upload className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-              </span>
-            </div>
-
-            <div className="min-w-0 space-y-1 w-full flex-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <h1 className="font-display text-base sm:text-2xl font-bold text-foreground break-words">
-                  {user?.full_name || "Student Scholar"}
-                </h1>
-                <span className="rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 px-2.5 py-0.5 text-[0.62rem] sm:text-xs font-bold uppercase tracking-wider border border-emerald-500/20 whitespace-nowrap shrink-0">
-                  {user?.access_tier?.replace("_", " ") || "FREE STARTER"}
+      {/* ================= Header Banner (Only Shown In All Folders Root View) ================= */}
+      {activeProfileFolder === "all" && (
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-r from-emerald-500/10 via-surface to-teal-500/10 p-4 sm:p-7 backdrop-blur-md shadow-xs min-w-0">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 sm:gap-6 min-w-0">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3.5 sm:gap-5 min-w-0 flex-1">
+              {/* Clickable Profile Avatar with Real Upload */}
+              <div
+                className="relative group cursor-pointer shrink-0 self-start sm:self-center"
+                onClick={() => fileInputRef.current?.click()}
+                title="Click to upload profile photo"
+              >
+                <div className="grid h-16 w-16 sm:h-20 sm:w-20 place-items-center rounded-2xl sm:rounded-3xl text-white font-bold text-xl sm:text-2xl shadow-lg transition-transform group-hover:scale-105 bg-gradient-to-tr from-emerald-600 to-teal-500 overflow-hidden border border-border/60">
+                  {uploadingAvatar ? (
+                    <Loader2 className="h-7 w-7 animate-spin text-white" />
+                  ) : (avatarPreview || user?.avatar_url) ? (
+                    <img
+                      src={avatarPreview || user?.avatar_url || ""}
+                      alt="Student Avatar"
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                      }}
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <span className="font-bold">{(user?.full_name || "A").charAt(0).toUpperCase()}</span>
+                  )}
+                </div>
+                <div className="absolute inset-0 grid place-items-center rounded-2xl sm:rounded-3xl bg-black/40 text-white opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Camera className="h-5 w-5 sm:h-6 sm:w-6" />
+                </div>
+                <span className="absolute -bottom-1 -right-1 grid h-5 w-5 sm:h-6 sm:w-6 place-items-center rounded-full bg-primary text-primary-foreground border-2 border-card text-[0.6rem] shadow-xs">
+                  <Upload className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
                 </span>
-                <button
-                  type="button"
-                  onClick={() => {
-                    initiateRazorpayPayment({
-                      planTier: "ACHIEVER",
-                      cycle: "monthly",
-                      onSuccess: () => refreshUser(),
-                    });
-                  }}
-                  className="rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:brightness-110 px-3 py-0.5 text-[0.62rem] sm:text-xs font-bold uppercase tracking-wider shadow-xs transition-all cursor-pointer flex items-center gap-1 active:scale-95"
-                >
-                  <Zap className="h-3 w-3 fill-current text-amber-300" />
-                  <span>Upgrade Plan</span>
-                </button>
               </div>
-              <p className="text-[0.72rem] sm:text-xs md:text-sm text-muted-foreground break-all sm:break-normal">
-                {user?.email} · <span className="font-mono font-bold text-foreground">ID: {user?.roll_number || "STU01"}</span>
-              </p>
-              <p className="text-[0.72rem] sm:text-xs text-foreground/85 font-medium leading-relaxed break-words">
-                {user?.bio || "No Academic Statement Set Yet. Add Your Study Focus And Research Goals In Personal Preferences."}
-              </p>
+
+              <div className="min-w-0 space-y-1 w-full flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1 className="font-display text-base sm:text-2xl font-bold text-foreground break-words">
+                    {user?.full_name || "Student Scholar"}
+                  </h1>
+                  <span className="rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 px-2.5 py-0.5 text-[0.62rem] sm:text-xs font-bold uppercase tracking-wider border border-emerald-500/20 whitespace-nowrap shrink-0">
+                    {user?.access_tier?.replace("_", " ") || "FREE STARTER"}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      initiateRazorpayPayment({
+                        planTier: "ACHIEVER",
+                        cycle: "monthly",
+                        onSuccess: () => refreshUser(),
+                      });
+                    }}
+                    className="rounded-full bg-gradient-to-r from-emerald-600 to-teal-600 text-white hover:brightness-110 px-3 py-0.5 text-[0.62rem] sm:text-xs font-bold uppercase tracking-wider shadow-xs transition-all cursor-pointer flex items-center gap-1 active:scale-95"
+                  >
+                    <Zap className="h-3 w-3 fill-current text-amber-300" />
+                    <span>Upgrade Plan</span>
+                  </button>
+                </div>
+                <p className="text-[0.72rem] sm:text-xs md:text-sm text-muted-foreground break-all sm:break-normal">
+                  {user?.email} · <span className="font-mono font-bold text-foreground">ID: {user?.roll_number || "STU01"}</span>
+                </p>
+                <p className="text-[0.72rem] sm:text-xs text-foreground/85 font-medium leading-relaxed break-words">
+                  {user?.bio || "No Academic Statement Set Yet. Add Your Study Focus And Research Goals In Personal Preferences."}
+                </p>
+              </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-3 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-border/60">
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploadingAvatar}
-              className="inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl sm:rounded-2xl border border-border bg-card px-3 sm:px-4 py-2 text-xs font-bold text-foreground hover:bg-surface hover:border-primary/50 active:scale-95 transition-all cursor-pointer shadow-2xs truncate"
-            >
-              {uploadingAvatar ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4 text-primary shrink-0" />}
-              <span>{uploadingAvatar ? "Uploading..." : "Change Avatar"}</span>
-            </button>
+            <div className="grid grid-cols-2 sm:flex sm:items-center gap-2 sm:gap-3 shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-border/60">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingAvatar}
+                className="inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl sm:rounded-2xl border border-border bg-card px-3 sm:px-4 py-2 text-xs font-bold text-foreground hover:bg-surface hover:border-primary/50 active:scale-95 transition-all cursor-pointer shadow-2xs truncate"
+              >
+                {uploadingAvatar ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4 text-primary shrink-0" />}
+                <span>{uploadingAvatar ? "Uploading..." : "Change Avatar"}</span>
+              </button>
 
-            <button
-              type="button"
-              onClick={logout}
-              className="inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl sm:rounded-2xl border border-rose-500/30 bg-rose-500/10 px-3 sm:px-4 py-2 text-xs font-bold text-rose-500 hover:bg-rose-500/20 active:scale-95 transition-all cursor-pointer shadow-2xs truncate"
-            >
-              <LogOut className="h-4 w-4 shrink-0" />
-              <span>Sign Out</span>
-            </button>
+              <button
+                type="button"
+                onClick={logout}
+                className="inline-flex items-center justify-center gap-1.5 sm:gap-2 rounded-xl sm:rounded-2xl border border-rose-500/30 bg-rose-500/10 px-3 sm:px-4 py-2 text-xs font-bold text-rose-500 hover:bg-rose-500/20 active:scale-95 transition-all cursor-pointer shadow-2xs truncate"
+              >
+                <LogOut className="h-4 w-4 shrink-0" />
+                <span>Sign Out</span>
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      {/* ================= FOLDER EXPLORER CONTROLS & BREADCRUMBS ================= */}
       {/* ================= FOLDER EXPLORER CONTROLS & BREADCRUMBS ================= */}
       <div className="space-y-4">
         {/* Modern Responsive Navigation Bar (Zero Truncation) */}
@@ -518,7 +519,7 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
                         <span className="text-[0.62rem] font-mono font-bold uppercase tracking-wider text-cyan-600 dark:text-cyan-400 block">
                           Institutional Record
                         </span>
-                        <h4 className="font-display text-sm sm:text-base font-bold text-foreground truncate">
+                        <h4 className="font-display text-sm sm:text-base font-bold text-foreground leading-snug break-words">
                           Academic Cohort
                         </h4>
                       </div>
@@ -566,7 +567,7 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
                         <span className="text-[0.62rem] font-mono font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 block">
                           Personal Profile
                         </span>
-                        <h4 className="font-display text-sm sm:text-base font-bold text-foreground truncate">
+                        <h4 className="font-display text-sm sm:text-base font-bold text-foreground leading-snug break-words">
                           Preferences &amp; Goals
                         </h4>
                       </div>
@@ -614,7 +615,7 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
                         <span className="text-[0.62rem] font-mono font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 block">
                           Account Security
                         </span>
-                        <h4 className="font-display text-sm sm:text-base font-bold text-foreground truncate">
+                        <h4 className="font-display text-sm sm:text-base font-bold text-foreground leading-snug break-words">
                           Study Safety &amp; Status
                         </h4>
                       </div>
@@ -659,7 +660,7 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/80 pb-3">
               <div className="flex items-center gap-2 min-w-0">
                 <Building2 className="h-5 w-5 text-cyan-600 dark:text-cyan-400 shrink-0" />
-                <h2 className="font-display font-bold text-base sm:text-lg text-foreground truncate">
+                <h2 className="font-display font-bold text-base sm:text-lg text-foreground leading-snug break-words">
                   Institutional Academic Cohort Folder
                 </h2>
               </div>
@@ -913,7 +914,7 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/80 pb-3">
               <div className="flex items-center gap-2 min-w-0">
                 <User className="h-5 w-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
-                <h2 className="font-display font-bold text-base sm:text-lg text-foreground truncate">
+                <h2 className="font-display font-bold text-base sm:text-lg text-foreground leading-snug break-words">
                   Personal Preferences &amp; Career Goals Folder
                 </h2>
               </div>
@@ -1060,7 +1061,7 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/80 pb-3">
               <div className="flex items-center gap-2 min-w-0">
                 <ShieldCheck className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0" />
-                <h2 className="font-display font-bold text-base sm:text-lg text-foreground truncate">
+                <h2 className="font-display font-bold text-base sm:text-lg text-foreground leading-snug break-words">
                   Account Security &amp; Safety
                 </h2>
               </div>
