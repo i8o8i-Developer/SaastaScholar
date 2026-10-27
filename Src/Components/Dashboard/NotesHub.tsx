@@ -92,57 +92,59 @@ export function NotesHub({ onOpenReader }: NotesHubProps) {
 
   return (
     <div className="space-y-4 sm:space-y-6 max-w-7xl mx-auto min-w-0">
-      {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-br from-emerald-500/10 via-surface to-teal-500/10 p-4 sm:p-7 shadow-xs backdrop-blur-md min-w-0">
-        <div className="flex flex-col gap-3.5 sm:gap-4 lg:flex-row lg:items-center lg:justify-between min-w-0">
-          <div className="min-w-0">
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 sm:px-3 py-0.5 text-[0.65rem] sm:text-xs font-bold text-emerald-700 dark:text-emerald-300 mb-1.5">
-              <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
-              <span className="truncate">Official NIMS Syllabus Notes</span>
+      {/* Header Banner - Only Shown At Root Folders Level */}
+      {!openedSubjectFolder && (
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-br from-emerald-500/10 via-surface to-teal-500/10 p-3.5 xs:p-4.5 sm:p-7 shadow-xs backdrop-blur-md min-w-0">
+          <div className="flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-center lg:justify-between min-w-0">
+            <div className="min-w-0">
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 sm:px-3 py-0.5 text-[0.62rem] xs:text-[0.68rem] sm:text-xs font-bold text-emerald-700 dark:text-emerald-300 mb-1.5">
+                <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
+                <span className="truncate">Official NIMS Syllabus Notes</span>
+              </div>
+              <h1 className="text-base xs:text-lg sm:text-2xl md:text-3xl font-bold tracking-tight text-foreground break-words leading-tight">
+                Handwritten &amp; Typed Study Notes
+              </h1>
+              <p className="text-[0.7rem] xs:text-xs md:text-sm text-muted-foreground mt-1 max-w-2xl leading-relaxed break-words">
+                Teacher-Approved Notes, Topper Formula Sheets, And Chapter Study Guides To Help You Ace Your Exams With Ease.
+              </p>
             </div>
-            <h1 className="text-lg sm:text-2xl md:text-3xl font-bold tracking-tight text-foreground break-words">
-              Handwritten &amp; Typed Study Notes
-            </h1>
-            <p className="text-[0.72rem] sm:text-xs md:text-sm text-muted-foreground mt-1 max-w-2xl leading-relaxed break-words">
-              Teacher-Approved Notes, Topper Formula Sheets, And Chapter Study Guides To Help You Ace Your Exams With Ease.
-            </p>
-          </div>
 
-          <div className="flex items-center gap-2 self-start lg:self-center shrink-0">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-surface border border-border/80 text-xs font-mono font-bold text-foreground shadow-2xs">
-              <Folder className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
-              <span>{subjects.length} Subject Folders</span>
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 shadow-2xs">
-              <span>{materials.length} Notes</span>
-            </span>
+            <div className="flex items-center gap-2 self-start lg:self-center shrink-0 flex-wrap">
+              <span className="inline-flex items-center gap-1.5 px-2.5 xs:px-3 py-1.5 rounded-xl xs:rounded-2xl bg-surface border border-border/80 text-[0.65rem] xs:text-xs font-mono font-bold text-foreground shadow-2xs">
+                <Folder className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <span>{subjects.length} Folders</span>
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-2.5 xs:px-3 py-1.5 rounded-xl xs:rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-[0.65rem] xs:text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 shadow-2xs">
+                <span>{materials.length} Notes</span>
+              </span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* FOLDER STRUCTURE ROOT VIEW: Subject Folders Grid */}
       {!openedSubjectFolder ? (
-        <div className="space-y-4">
+        <div className="space-y-3.5 sm:space-y-4 min-w-0">
           {/* Folders Search Bar */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-1">
-            <div className="relative flex-1 max-w-md">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 p-0.5 min-w-0">
+            <div className="relative flex-1 max-w-md min-w-0">
               <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <input
                 type="text"
                 value={folderSearchQuery}
                 onChange={(e) => setFolderSearchQuery(e.target.value)}
                 placeholder="Search Subject Folders By Name Or Code..."
-                className="h-11 w-full rounded-2xl border border-border/80 bg-card pl-10 pr-4 text-xs sm:text-sm font-medium text-foreground placeholder:text-muted-foreground focus:border-emerald-500 focus:outline-none shadow-xs transition-all"
+                className="h-10 sm:h-11 w-full rounded-2xl border border-border/80 bg-card pl-10 pr-4 text-xs sm:text-sm font-medium text-foreground placeholder:text-muted-foreground focus:border-emerald-500 focus:outline-none shadow-xs transition-all min-w-0"
               />
             </div>
-            <span className="text-xs font-mono text-muted-foreground font-semibold self-end sm:self-center">
+            <span className="text-[0.68rem] sm:text-xs font-mono text-muted-foreground font-semibold self-end sm:self-center">
               Showing {filteredSubjects.length} Of {subjects.length} Folders
             </span>
           </div>
 
           {filteredSubjects.length === 0 ? (
-            <div className="rounded-2xl sm:rounded-3xl border border-dashed border-border bg-card/60 p-8 sm:p-12 text-center space-y-3 min-w-0">
-              <FolderOpen className="h-9 w-9 sm:h-10 sm:w-10 mx-auto text-muted-foreground/40" />
+            <div className="rounded-2xl sm:rounded-3xl border border-dashed border-border bg-card/60 p-6 sm:p-12 text-center space-y-3 min-w-0">
+              <FolderOpen className="h-8 w-8 sm:h-10 sm:w-10 mx-auto text-muted-foreground/40" />
               <h3 className="font-display font-bold text-sm sm:text-base text-foreground">
                 No Subject Folders Found
               </h3>
@@ -151,7 +153,7 @@ export function NotesHub({ onOpenReader }: NotesHubProps) {
               </p>
             </div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 sm:gap-4.5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-stretch min-w-0">
               {filteredSubjects.map((sub) => {
                 const count = materials.filter(
                   (m) => m.subject_code === sub.code || m.subject === sub.id
@@ -164,35 +166,45 @@ export function NotesHub({ onOpenReader }: NotesHubProps) {
                       setSelectedUnit("ALL");
                       setSearchQuery("");
                     }}
-                    className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-br from-card via-card to-emerald-500/5 p-5 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:border-emerald-500/50 hover:shadow-lg cursor-pointer min-w-0"
+                    className="group relative flex flex-col justify-between overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-br from-card via-card to-emerald-500/5 p-3.5 xs:p-4.5 sm:p-5 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:border-emerald-500/50 hover:shadow-lg cursor-pointer min-w-0"
                   >
-                    <div className="space-y-3 min-w-0">
-                      <div className="flex items-center justify-between border-b border-border/60 pb-3">
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shadow-2xs group-hover:scale-105 transition-transform">
-                            <Folder className="h-5 w-5" />
+                    <div className="space-y-2.5 xs:space-y-3 min-w-0">
+                      {/* Top Header Row: Icon + Code pill + Notes Count Badge */}
+                      <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-2.5 min-w-0">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="grid h-8.5 w-8.5 shrink-0 place-items-center rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 shadow-2xs group-hover:scale-105 transition-transform">
+                            <Folder className="h-4.5 w-4.5" />
                           </div>
-                          <div className="min-w-0">
-                            <span className="text-[0.68rem] font-mono font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
-                              {sub.code} · Subject Folder
-                            </span>
-                            <h4 className="font-display text-sm font-bold text-foreground truncate">
-                              {sub.name}
-                            </h4>
-                          </div>
+                          <span className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 text-[0.62rem] xs:text-[0.68rem] font-mono font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 truncate max-w-[130px] xs:max-w-none">
+                            {sub.code}
+                          </span>
                         </div>
-                        <span className="rounded-full bg-surface border border-border/80 px-2.5 py-0.5 text-[0.68rem] font-mono font-bold text-foreground shrink-0">
+                        <span className={cn(
+                          "rounded-full px-2 xs:px-2.5 py-0.5 text-[0.62rem] xs:text-[0.68rem] font-mono font-bold shrink-0 border",
+                          count > 0
+                            ? "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30"
+                            : "bg-surface text-muted-foreground border-border/80"
+                        )}>
                           {count} {count === 1 ? "Note" : "Notes"}
                         </span>
                       </div>
 
-                      <p className="text-xs text-muted-foreground line-clamp-2 min-h-[32px]">
+                      {/* Full Subject Name: NO Truncation! Displays Full Name Naturally Across Lines */}
+                      <div className="min-w-0">
+                        <h4 className="font-display text-sm sm:text-base font-bold text-foreground leading-snug break-words group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                          {sub.name}
+                        </h4>
+                      </div>
+
+                      <p className="text-[0.72rem] xs:text-xs text-muted-foreground line-clamp-2 leading-relaxed break-words min-h-[30px]">
                         {sub.syllabus_summary || `Official Verified Handwritten Study Notes & Derivations For ${sub.name}.`}
                       </p>
                     </div>
 
-                    <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
-                      <span className="font-mono text-[0.7rem]">{sub.credits ? `${sub.credits} Credits` : "Core Course"}</span>
+                    <div className="mt-3.5 pt-2.5 border-t border-border/60 flex items-center justify-between text-[0.7rem] xs:text-xs text-muted-foreground min-w-0">
+                      <span className="font-mono text-[0.65rem] xs:text-[0.7rem]">
+                        {sub.credits ? `${sub.credits} Credits` : "Core Course"}
+                      </span>
                       <div className="inline-flex items-center gap-1 font-bold text-emerald-600 dark:text-emerald-400 group-hover:translate-x-1 transition-transform text-xs">
                         <span>Open Folder</span>
                         <ChevronRight className="h-3.5 w-3.5" />
@@ -205,53 +217,43 @@ export function NotesHub({ onOpenReader }: NotesHubProps) {
           )}
         </div>
       ) : (
-        /* INSIDE FOLDER VIEW */
-        <div className="space-y-4 sm:space-y-5">
-          {/* Breadcrumb Navigation Bar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3 rounded-2xl bg-surface/80 border border-border/80 shadow-2xs">
-            <div className="flex items-center gap-2 text-xs font-bold overflow-x-auto no-scrollbar">
+        /* REIMAGINED ULTRA-COMPACT FOLDER WORKSPACE */
+        <div className="space-y-3.5 sm:space-y-4 min-w-0">
+          {/* Integrated Sleek Folder Header (Compact, High Density, No Half-Page Waste) */}
+          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-br from-card via-card to-emerald-500/10 p-3.5 sm:p-4.5 shadow-xs min-w-0">
+            {/* Top Action Row: Back Button & Count Pill */}
+            <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-border/60 min-w-0">
               <button
                 type="button"
                 onClick={() => setOpenedSubjectFolder(null)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-card border border-border/60 text-muted-foreground hover:text-foreground cursor-pointer shrink-0 transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface hover:bg-emerald-500/10 text-foreground hover:text-emerald-600 dark:hover:text-emerald-400 border border-border/80 hover:border-emerald-500/30 font-bold text-xs cursor-pointer shadow-2xs active:scale-95 transition-all shrink-0"
               >
-                <FolderOpen className="h-3.5 w-3.5 text-primary" />
-                <span>All Subject Folders</span>
+                <ArrowLeft className="h-3.5 w-3.5" />
+                <span>Back To Folders</span>
               </button>
-              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
-              <span className="px-3 py-1.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 shrink-0">
-                {openedSubjectFolder.code}: {openedSubjectFolder.name}
+
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/25 text-emerald-700 dark:text-emerald-300 font-mono font-bold text-[0.65rem] sm:text-xs shrink-0">
+                <FileText className="h-3 w-3 text-emerald-500 shrink-0" />
+                <span>
+                  {filteredMaterials.length} {filteredMaterials.length === 1 ? "Note" : "Notes"}
+                </span>
               </span>
             </div>
 
-            <button
-              type="button"
-              onClick={() => setOpenedSubjectFolder(null)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer self-start sm:self-auto rounded-xl hover:bg-card transition-colors"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" />
-              <span>Back To Folders</span>
-            </button>
-          </div>
-
-          {/* Folder Details Banner */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-card border border-border/70 shadow-xs">
-            <div className="flex items-center gap-3">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
-                <FolderOpen className="h-5 w-5" />
+            {/* Subject Identity & Full Name (Full Subject Name Always Visible Without Truncation) */}
+            <div className="pt-2.5 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap mb-1 min-w-0">
+                <span className="rounded-lg bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 font-mono text-[0.65rem] sm:text-xs font-bold text-emerald-700 dark:text-emerald-300 shrink-0">
+                  {openedSubjectFolder.code}
+                </span>
+                <span className="text-[0.65rem] sm:text-xs font-mono font-medium text-muted-foreground truncate">
+                  {openedSubjectFolder.credits ? `${openedSubjectFolder.credits} Credits · ` : ""}Coursework Notes Vault
+                </span>
               </div>
-              <div>
-                <h3 className="text-sm sm:text-base font-bold text-foreground">
-                  {openedSubjectFolder.name} ({openedSubjectFolder.code})
-                </h3>
-                <p className="text-xs text-muted-foreground">
-                  {openedSubjectFolder.syllabus_summary || "Curriculum & Unit Notes Vault"}
-                </p>
-              </div>
+              <h2 className="text-sm sm:text-lg md:text-xl font-bold text-foreground leading-snug break-words">
+                {openedSubjectFolder.name}
+              </h2>
             </div>
-            <span className="rounded-full bg-surface border border-border/80 px-3 py-1 text-xs font-mono font-bold text-foreground self-start sm:self-auto">
-              {filteredMaterials.length} of {materials.filter((m) => m.subject_code === openedSubjectFolder.code || m.subject === openedSubjectFolder.id).length} Available Notes
-            </span>
           </div>
 
           {/* Inside Folder Filters: Search & Unit Dropdown */}

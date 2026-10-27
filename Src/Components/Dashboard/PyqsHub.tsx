@@ -72,57 +72,59 @@ export function PyqsHub({ onOpenReader }: PyqsHubProps) {
 
   return (
     <div className="space-y-4 sm:space-y-6 max-w-7xl mx-auto min-w-0">
-      {/* Header Banner */}
-      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-br from-cyan-500/10 via-surface to-blue-500/10 p-4 sm:p-7 shadow-xs backdrop-blur-md min-w-0">
-        <div className="flex flex-col gap-3.5 sm:gap-4 lg:flex-row lg:items-center lg:justify-between min-w-0">
-          <div className="min-w-0">
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2.5 sm:px-3 py-0.5 text-[0.65rem] sm:text-xs font-bold text-cyan-700 dark:text-cyan-300 mb-1.5">
-              <Award className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
-              <span className="truncate">2020–2027 University Solved Question Papers</span>
+      {/* Header Banner - Only Shown At Root Folders Level */}
+      {!openedSubjectFolder && (
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-br from-cyan-500/10 via-surface to-blue-500/10 p-3.5 xs:p-4.5 sm:p-7 shadow-xs backdrop-blur-md min-w-0">
+          <div className="flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-center lg:justify-between min-w-0">
+            <div className="min-w-0">
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-cyan-500/30 bg-cyan-500/10 px-2.5 sm:px-3 py-0.5 text-[0.62rem] xs:text-[0.68rem] sm:text-xs font-bold text-cyan-700 dark:text-cyan-300 mb-1.5">
+                <Award className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
+                <span className="truncate">2020–2027 University Solved Question Papers</span>
+              </div>
+              <h1 className="text-base xs:text-lg sm:text-2xl md:text-3xl font-bold tracking-tight text-foreground break-words leading-tight">
+                Solved PYQ Archive &amp; Answer Keys
+              </h1>
+              <p className="text-[0.7rem] xs:text-xs md:text-sm text-muted-foreground mt-1 max-w-2xl leading-relaxed break-words">
+                Step-By-Step Model Solutions Matching NIMS University Evaluation Marking Schemes And High-Yield 10-Mark Exam Questions.
+              </p>
             </div>
-            <h1 className="text-lg sm:text-2xl md:text-3xl font-bold tracking-tight text-foreground break-words">
-              Solved PYQ Archive &amp; Answer Keys
-            </h1>
-            <p className="text-[0.72rem] sm:text-xs md:text-sm text-muted-foreground mt-1 max-w-2xl leading-relaxed break-words">
-              Step-By-Step Model Solutions Matching NIMS University Evaluation Marking Schemes And High-Yield 10-Mark Exam Questions.
-            </p>
-          </div>
 
-          <div className="flex items-center gap-2 self-start lg:self-center shrink-0">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-surface border border-border/80 text-xs font-mono font-bold text-foreground shadow-2xs">
-              <Folder className="h-3.5 w-3.5 text-cyan-600 dark:text-cyan-400" />
-              <span>{subjects.length} Subject Folders</span>
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-xs font-mono font-bold text-cyan-600 dark:text-cyan-400 shadow-2xs">
-              <span>{pyqs.length} Solved Papers</span>
-            </span>
+            <div className="flex items-center gap-2 self-start lg:self-center shrink-0 flex-wrap">
+              <span className="inline-flex items-center gap-1.5 px-2.5 xs:px-3 py-1.5 rounded-xl xs:rounded-2xl bg-surface border border-border/80 text-[0.65rem] xs:text-xs font-mono font-bold text-foreground shadow-2xs">
+                <Folder className="h-3.5 w-3.5 text-cyan-600 dark:text-cyan-400 shrink-0" />
+                <span>{subjects.length} Folders</span>
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-2.5 xs:px-3 py-1.5 rounded-xl xs:rounded-2xl bg-cyan-500/10 border border-cyan-500/20 text-[0.65rem] xs:text-xs font-mono font-bold text-cyan-600 dark:text-cyan-400 shadow-2xs">
+                <span>{pyqs.length} Solved Papers</span>
+              </span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* FOLDER STRUCTURE ROOT VIEW: Subject Folders Grid */}
       {!openedSubjectFolder ? (
-        <div className="space-y-4">
+        <div className="space-y-3.5 sm:space-y-4 min-w-0">
           {/* Folders Search Bar */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-1">
-            <div className="relative flex-1 max-w-md">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5 sm:gap-3 p-0.5 min-w-0">
+            <div className="relative flex-1 max-w-md min-w-0">
               <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <input
                 type="text"
                 value={folderSearchQuery}
                 onChange={(e) => setFolderSearchQuery(e.target.value)}
                 placeholder="Search PYQ Subject Folders..."
-                className="h-11 w-full rounded-2xl border border-border/80 bg-card pl-10 pr-4 text-xs sm:text-sm font-medium text-foreground placeholder:text-muted-foreground focus:border-cyan-500 focus:outline-none shadow-xs transition-all"
+                className="h-10 sm:h-11 w-full rounded-2xl border border-border/80 bg-card pl-10 pr-4 text-xs sm:text-sm font-medium text-foreground placeholder:text-muted-foreground focus:border-cyan-500 focus:outline-none shadow-xs transition-all min-w-0"
               />
             </div>
-            <span className="text-xs font-mono text-muted-foreground font-semibold self-end sm:self-center">
+            <span className="text-[0.68rem] sm:text-xs font-mono text-muted-foreground font-semibold self-end sm:self-center">
               Showing {filteredSubjects.length} Of {subjects.length} Folders
             </span>
           </div>
 
           {filteredSubjects.length === 0 ? (
-            <div className="rounded-2xl sm:rounded-3xl border border-dashed border-border bg-card/60 p-8 sm:p-12 text-center space-y-3 min-w-0">
-              <FolderOpen className="h-9 w-9 sm:h-10 sm:w-10 mx-auto text-muted-foreground/40" />
+            <div className="rounded-2xl sm:rounded-3xl border border-dashed border-border bg-card/60 p-6 sm:p-12 text-center space-y-3 min-w-0">
+              <FolderOpen className="h-8 w-8 sm:h-10 sm:w-10 mx-auto text-muted-foreground/40" />
               <h3 className="font-display font-bold text-sm sm:text-base text-foreground">
                 No PYQ Folders Found
               </h3>
@@ -131,7 +133,7 @@ export function PyqsHub({ onOpenReader }: PyqsHubProps) {
               </p>
             </div>
           ) : (
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-3 sm:gap-4.5 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-stretch min-w-0">
               {filteredSubjects.map((sub) => {
                 const count = pyqs.filter(
                   (p) => p.subject_code === sub.code || p.subject === sub.id
@@ -144,35 +146,45 @@ export function PyqsHub({ onOpenReader }: PyqsHubProps) {
                       setSelectedYear("ALL");
                       setSearchQuery("");
                     }}
-                    className="group relative flex flex-col justify-between overflow-hidden rounded-3xl border border-border/80 bg-gradient-to-br from-card via-card to-cyan-500/5 p-5 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:border-cyan-500/50 hover:shadow-lg cursor-pointer min-w-0"
+                    className="group relative flex flex-col justify-between overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-br from-card via-card to-cyan-500/5 p-3.5 xs:p-4.5 sm:p-5 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:border-cyan-500/50 hover:shadow-lg cursor-pointer min-w-0"
                   >
-                    <div className="space-y-3 min-w-0">
-                      <div className="flex items-center justify-between border-b border-border/60 pb-3">
-                        <div className="flex items-center gap-2.5 min-w-0">
-                          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 shadow-2xs group-hover:scale-105 transition-transform">
-                            <Folder className="h-5 w-5" />
+                    <div className="space-y-2.5 xs:space-y-3 min-w-0">
+                      {/* Top Header Row: Icon + Code pill + Papers Count Badge */}
+                      <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-2.5 min-w-0">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <div className="grid h-8.5 w-8.5 shrink-0 place-items-center rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 shadow-2xs group-hover:scale-105 transition-transform">
+                            <Folder className="h-4.5 w-4.5" />
                           </div>
-                          <div className="min-w-0">
-                            <span className="text-[0.68rem] font-mono font-bold uppercase tracking-wider text-cyan-600 dark:text-cyan-400">
-                              {sub.code} · Solved PYQ Folder
-                            </span>
-                            <h4 className="font-display text-sm font-bold text-foreground truncate">
-                              {sub.name}
-                            </h4>
-                          </div>
+                          <span className="rounded-lg bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 text-[0.62rem] xs:text-[0.68rem] font-mono font-bold uppercase tracking-wider text-cyan-600 dark:text-cyan-400 truncate max-w-[130px] xs:max-w-none">
+                            {sub.code}
+                          </span>
                         </div>
-                        <span className="rounded-full bg-surface border border-border/80 px-2.5 py-0.5 text-[0.68rem] font-mono font-bold text-foreground shrink-0">
+                        <span className={cn(
+                          "rounded-full px-2 xs:px-2.5 py-0.5 text-[0.62rem] xs:text-[0.68rem] font-mono font-bold shrink-0 border",
+                          count > 0
+                            ? "bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 border-cyan-500/30"
+                            : "bg-surface text-muted-foreground border-border/80"
+                        )}>
                           {count} {count === 1 ? "Paper" : "Papers"}
                         </span>
                       </div>
 
-                      <p className="text-xs text-muted-foreground line-clamp-2 min-h-[32px]">
+                      {/* Full Subject Name: NO Truncation! Displays Full Name Naturally Across Lines */}
+                      <div className="min-w-0">
+                        <h4 className="font-display text-sm sm:text-base font-bold text-foreground leading-snug break-words group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition-colors">
+                          {sub.name}
+                        </h4>
+                      </div>
+
+                      <p className="text-[0.72rem] xs:text-xs text-muted-foreground line-clamp-2 leading-relaxed break-words min-h-[30px]">
                         {sub.syllabus_summary || `Official University Past Exam Question Papers With Model Solutions For ${sub.name}.`}
                       </p>
                     </div>
 
-                    <div className="mt-4 pt-3 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
-                      <span className="font-mono text-[0.7rem]">{sub.credits ? `${sub.credits} Credits` : "Core Course"}</span>
+                    <div className="mt-3.5 pt-2.5 border-t border-border/60 flex items-center justify-between text-[0.7rem] xs:text-xs text-muted-foreground min-w-0">
+                      <span className="font-mono text-[0.65rem] xs:text-[0.7rem]">
+                        {sub.credits ? `${sub.credits} Credits` : "Core Course"}
+                      </span>
                       <div className="inline-flex items-center gap-1 font-bold text-cyan-600 dark:text-cyan-400 group-hover:translate-x-1 transition-transform text-xs">
                         <span>Open Folder</span>
                         <ChevronRight className="h-3.5 w-3.5" />
@@ -185,74 +197,64 @@ export function PyqsHub({ onOpenReader }: PyqsHubProps) {
           )}
         </div>
       ) : (
-        /* INSIDE FOLDER VIEW */
-        <div className="space-y-4 sm:space-y-5">
-          {/* Breadcrumb Navigation Bar */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3 rounded-2xl bg-surface/80 border border-border/80 shadow-2xs">
-            <div className="flex items-center gap-2 text-xs font-bold overflow-x-auto no-scrollbar">
+        /* REIMAGINED ULTRA-COMPACT FOLDER WORKSPACE */
+        <div className="space-y-3.5 sm:space-y-4 min-w-0">
+          {/* Integrated Sleek Folder Header (Compact, High Density, No Half-Page Waste) */}
+          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-br from-card via-card to-cyan-500/10 p-3.5 sm:p-4.5 shadow-xs min-w-0">
+            {/* Top Action Row: Back Button & Count Pill */}
+            <div className="flex items-center justify-between gap-2 pb-2.5 border-b border-border/60 min-w-0">
               <button
                 type="button"
                 onClick={() => setOpenedSubjectFolder(null)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-card border border-border/60 text-muted-foreground hover:text-foreground cursor-pointer shrink-0 transition-colors"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface hover:bg-cyan-500/10 text-foreground hover:text-cyan-600 dark:hover:text-cyan-400 border border-border/80 hover:border-cyan-500/30 font-bold text-xs cursor-pointer shadow-2xs active:scale-95 transition-all shrink-0"
               >
-                <FolderOpen className="h-3.5 w-3.5 text-cyan-600 dark:text-cyan-400" />
-                <span>All PYQ Folders</span>
+                <ArrowLeft className="h-3.5 w-3.5" />
+                <span>Back To Folders</span>
               </button>
-              <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/60 shrink-0" />
-              <span className="px-3 py-1.5 rounded-xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400 border border-cyan-500/20 shrink-0">
-                {openedSubjectFolder.code}: {openedSubjectFolder.name}
+
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/25 text-cyan-700 dark:text-cyan-300 font-mono font-bold text-[0.65rem] sm:text-xs shrink-0">
+                <FileText className="h-3 w-3 text-cyan-500 shrink-0" />
+                <span>
+                  {filteredPyqs.length} {filteredPyqs.length === 1 ? "Paper" : "Papers"}
+                </span>
               </span>
             </div>
 
-            <button
-              type="button"
-              onClick={() => setOpenedSubjectFolder(null)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer self-start sm:self-auto rounded-xl hover:bg-card transition-colors"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" />
-              <span>Back To Folders</span>
-            </button>
-          </div>
-
-          {/* Folder Details Banner */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-card border border-border/70 shadow-xs">
-            <div className="flex items-center gap-3">
-              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-cyan-500/10 text-cyan-600 dark:text-cyan-400">
-                <FolderOpen className="h-5 w-5" />
+            {/* Subject Identity & Full Name (Full Subject Name Always Visible Without Truncation) */}
+            <div className="pt-2.5 min-w-0">
+              <div className="flex items-center gap-2 flex-wrap mb-1 min-w-0">
+                <span className="rounded-lg bg-cyan-500/15 border border-cyan-500/30 px-2 py-0.5 font-mono text-[0.65rem] sm:text-xs font-bold text-cyan-700 dark:text-cyan-300 shrink-0">
+                  {openedSubjectFolder.code}
+                </span>
+                <span className="text-[0.65rem] sm:text-xs font-mono font-medium text-muted-foreground truncate">
+                  {openedSubjectFolder.credits ? `${openedSubjectFolder.credits} Credits · ` : ""}Solved Question Bank
+                </span>
               </div>
-              <div>
-                <h3 className="text-sm sm:text-base font-bold text-foreground">
-                  {openedSubjectFolder.name} ({openedSubjectFolder.code})
-                </h3>
-                <p className="text-xs text-muted-foreground">
-                  {openedSubjectFolder.syllabus_summary || "Exam Question Bank & Solved Papers"}
-                </p>
-              </div>
+              <h2 className="text-sm sm:text-lg md:text-xl font-bold text-foreground leading-snug break-words">
+                {openedSubjectFolder.name}
+              </h2>
             </div>
-            <span className="rounded-full bg-surface border border-border/80 px-3 py-1 text-xs font-mono font-bold text-foreground self-start sm:self-auto">
-              {filteredPyqs.length} Of {pyqs.filter((p) => p.subject_code === openedSubjectFolder.code || p.subject === openedSubjectFolder.id).length} Available Solved Papers
-            </span>
           </div>
 
-          {/* Inside Folder Filters: Search & Year Select */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
-            <div className="relative">
+          {/* Inside Folder Filters: High-Density Search & Year Select */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 min-w-0">
+            <div className="relative min-w-0">
               <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={`Search solved papers in ${openedSubjectFolder.code}...`}
-                className="h-11 w-full rounded-2xl border border-border/80 bg-card pl-10 pr-4 text-xs sm:text-sm font-medium text-foreground placeholder:text-muted-foreground focus:border-cyan-500 focus:outline-none shadow-xs transition-all"
+                placeholder={`Search Papers In ${openedSubjectFolder.code}...`}
+                className="h-10 sm:h-11 w-full rounded-2xl border border-border/80 bg-card pl-10 pr-4 text-xs sm:text-sm font-medium text-foreground placeholder:text-muted-foreground focus:border-cyan-500 focus:outline-none shadow-xs transition-all min-w-0"
               />
             </div>
 
-            <div className="relative">
+            <div className="relative min-w-0">
               <select
                 value={selectedYear}
                 onChange={(e) => setSelectedYear(e.target.value)}
                 aria-label="Filter by exam year"
-                className="h-11 w-full appearance-none rounded-2xl border border-border/80 bg-card px-3.5 pr-10 text-xs sm:text-sm font-bold text-foreground focus:border-cyan-500 focus:outline-none shadow-xs cursor-pointer transition-all truncate"
+                className="h-10 sm:h-11 w-full appearance-none rounded-2xl border border-border/80 bg-card px-3.5 pr-10 text-xs sm:text-sm font-bold text-foreground focus:border-cyan-500 focus:outline-none shadow-xs cursor-pointer transition-all truncate min-w-0"
               >
                 <option value="ALL">📅 All Exam Years (2020–2026 Archive)</option>
                 {["2026", "2025", "2024", "2023", "2022", "2021", "2020"].map((yr) => (
@@ -282,33 +284,33 @@ export function PyqsHub({ onOpenReader }: PyqsHubProps) {
                 <div
                   key={paper.id}
                   onClick={() => onOpenReader(paper.id)}
-                  className="group relative flex flex-col justify-between h-full rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-b from-card via-card to-surface/40 p-4 sm:p-6 shadow-xs transition-all hover:border-cyan-500/50 hover:shadow-lg active:scale-[0.99] cursor-pointer min-w-0"
+                  className="group relative flex flex-col justify-between h-full rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-b from-card via-card to-surface/40 p-3.5 xs:p-4 sm:p-5.5 shadow-xs transition-all hover:border-cyan-500/50 hover:shadow-lg active:scale-[0.99] cursor-pointer min-w-0"
                 >
                   <div className="min-w-0">
-                    <div className="flex items-center justify-between gap-2">
+                    <div className="flex items-center justify-between gap-1.5 flex-wrap min-w-0">
                       <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-                        <span className="rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-700 dark:text-cyan-300 px-2 py-0.5 text-[0.65rem] sm:text-xs font-mono font-bold">
+                        <span className="rounded-xl bg-cyan-500/10 border border-cyan-500/30 text-cyan-700 dark:text-cyan-300 px-2 py-0.5 text-[0.62rem] sm:text-xs font-mono font-bold">
                           {paper.subject_code} {paper.academic_year ? `· ${paper.academic_year}` : ""}
                         </span>
                         {paper.file ? (
-                          <span className="inline-flex items-center gap-1 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 px-2 py-0.5 text-[0.62rem] sm:text-[0.68rem] font-bold font-mono">
+                          <span className="inline-flex items-center gap-1 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 px-2 py-0.5 text-[0.6rem] sm:text-[0.68rem] font-bold font-mono">
                             <FileText className="h-3 w-3 shrink-0" />
                             <span>PDF Solved</span>
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-600 dark:text-cyan-400 px-2 py-0.5 text-[0.62rem] sm:text-[0.68rem] font-bold font-mono">
+                          <span className="inline-flex items-center gap-1 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-600 dark:text-cyan-400 px-2 py-0.5 text-[0.6rem] sm:text-[0.68rem] font-bold font-mono">
                             <Sparkles className="h-3 w-3 shrink-0" />
                             <span>Solutions</span>
                           </span>
                         )}
                       </div>
 
-                      <span className="rounded-full bg-surface border border-border/80 px-2 py-0.5 text-[0.65rem] font-mono font-bold text-foreground shrink-0">
+                      <span className="rounded-full bg-surface border border-border/80 px-2 py-0.5 text-[0.62rem] sm:text-[0.65rem] font-mono font-bold text-foreground shrink-0">
                         {paper.page_count} Pages
                       </span>
                     </div>
 
-                    <h3 className="mt-3 text-sm sm:text-base font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2 leading-snug break-words">
+                    <h3 className="mt-2.5 text-sm sm:text-base font-bold text-foreground group-hover:text-primary transition-colors leading-snug break-words">
                       {paper.title}
                     </h3>
                     <p className="mt-1.5 text-xs text-muted-foreground line-clamp-2 sm:line-clamp-3 leading-relaxed break-words min-h-[32px]">
