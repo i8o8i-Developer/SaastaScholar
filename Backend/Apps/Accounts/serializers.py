@@ -147,34 +147,49 @@ class RegisterSerializer(serializers.ModelSerializer):
             "access_tier",
         ]
 
+    def validate_full_name(self, value):
+        if not value:
+            raise serializers.ValidationError("Student Full Name Is Required.")
+        name_clean = str(value).strip()
+        dummy_names = ["test", "fake", "dummy", "sample", "tester", "temp", "asdf", "testing", "demo"]
+        name_lower = name_clean.lower()
+        words = name_lower.split()
+        if any(dk in words for dk in dummy_names) or name_lower in dummy_names:
+            raise serializers.ValidationError("Real Student Name Required. Dummy Or Test Names (e.g., 'test', 'fake', 'dummy') Are Strictly Prohibited.")
+        return name_clean
+
     def validate_email(self, value):
         if not value:
             raise serializers.ValidationError("Student Email Address Is Required.")
         email_clean = str(value).strip().lower()
         
+        prefix = email_clean.split("@")[0] if "@" in email_clean else ""
         domain = email_clean.split("@")[-1] if "@" in email_clean else ""
+
         typo_domains = [
             "student.nimsuniversity.org",
-            "student.nimsuniversity.ac.in",
-            "student.nimsuniversity.in",
-            "student.nimsuniveristy.org",
-            "student.nimsunivercity.org",
-            "student.nimsuniversiy.org",
-            "student.nimsunversity.org",
-            "student.nimsuniversity.com",
-            "nimsuniversity.org",
-            "student.nims.org",
-            "student.nims.ac.in",
-            "student.nims.edu.in",
-            "nims.edu.in",
         ]
         
         if domain in typo_domains or "nims" in domain:
-            prefix = email_clean.split("@")[0]
             email_clean = f"{prefix}@student.nimsuniversity.org"
+            domain = "student.nimsuniversity.org"
+
+        allowed_exact_domains = ["gmail.com", "student.nimsuniversity.org"]
+        if domain not in allowed_exact_domains:
+            raise serializers.ValidationError(
+                "Registration Is Strictly Permitted Only For @student.nimsuniversity.org Or Verified @gmail.com Email Addresses."
+            )
+
+        # Every @gmail.com email address is permitted (verified via 6-digit OTP passcode)
+        # For institutional emails (@student.nimsuniversity.org), strictly prohibit dummy student prefixes
+        if domain != "gmail.com":
+            dummy_keywords = ["test", "fake", "dummy", "temp", "testing", "asdf", "sample", "null", "admin", "tester", "demo"]
+            prefix_lower = prefix.lower()
+            if prefix_lower in dummy_keywords or any(prefix.startswith(f"{dk}.") or prefix.startswith(f"{dk}_") or prefix.startswith(f"{dk}-") for dk in dummy_keywords):
+                raise serializers.ValidationError("Dummy, Test, And Fake Student Identifiers Are Strictly Prohibited On Institutional Accounts.")
             
         if StudentUser.objects.filter(email__iexact=email_clean).exists():
-            raise serializers.ValidationError(f"An Account With Email '{email_clean}' Already Exists. Please Sign In.")
+            raise serializers.ValidationError(f"An Account With Email '{email_clean}' Already Exists. Please Sign In Directly Instead.")
             
         return email_clean
 

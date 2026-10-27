@@ -154,3 +154,24 @@ class PasswordResetToken(models.Model):
 
     def __str__(self):
         return f"Reset OTP For {self.email} (Used: {self.is_used})"
+
+
+class SignupVerificationToken(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    email = models.EmailField(db_index=True)
+    otp = models.CharField(max_length=6)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_verified = models.BooleanField(default=False)
+    is_used = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def is_valid(self):
+        from datetime import timedelta
+        from django.utils import timezone
+        return (not self.is_used) and (timezone.now() - self.created_at < timedelta(minutes=15))
+
+    def __str__(self):
+        return f"Signup OTP For {self.email} (Verified: {self.is_verified}, Used: {self.is_used})"
+

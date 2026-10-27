@@ -852,6 +852,61 @@ SaastaScholar · Owned & Engineered By DurgaAI Solutions · Jaipur Knowledge Cit
 # ==============================================================================
 # EXISTING SYSTEM EMAILS (ENHANCED WITH ANTI-SPAM COMPLIANCE)
 # ==============================================================================
+def send_signup_verification_email(email: str, full_name: str, otp: str) -> tuple:
+    """
+    Sends High-Security 6-Digit Email Verification Code For Scholar Registration With Title Case Formatting
+    """
+    recipient_name = full_name.strip() if (full_name and full_name.strip()) else "Scholar"
+    subject = f"Your Registration Verification Code: {otp} · SaastaScholar"
+    preheader = f"Your 6-Digit Email Verification Passcode For SaastaScholar Registration Is {otp}."
+
+    text_body = f"""Dear {recipient_name},
+
+Thank You For Starting Your Registration With SaastaScholar.
+
+Your 6-Digit Email Verification Code Is:
+{otp}
+
+Please Enter This Passcode On The Registration Screen To Verify Your Student Identity And Activate Your Academic Account.
+
+Security Advisory:
+This Code Is Confidential And Valid For 15 Minutes. Please Never Disclose This Code To Anyone.
+
+If You Did Not Request This Verification, Please Disregard This Email.
+
+Warm Regards,
+The SaastaScholar Academic Team
+"""
+
+    html_content = f"""
+      <span class="badge" style="background-color:rgba(16,185,129,0.12); color:#10b981; border:1px solid rgba(16,185,129,0.3); font-weight:700; text-transform:uppercase; font-size:11px; padding:4px 10px; border-radius:999px; letter-spacing:0.5px;">Student Email Verification</span>
+      <h2 style="color:#ffffff; font-size:19px; font-weight:800; margin:16px 0 10px 0; letter-spacing:0.3px; line-height:1.3;">
+        Verify Your Student Email Address
+      </h2>
+      <p style="font-size:14px; color:#e2e8f0; margin-bottom:12px;">Dear <strong>{recipient_name}</strong>,</p>
+      <p style="font-size:13px; color:#94a3b8; line-height:1.6; margin-bottom:16px;">
+        Thank You For Registering With SaastaScholar, Your Premier University Academic &amp; Study Repository. To Complete Your Registration And Verify Your Official Student Email (<code>{email}</code>), Please Enter The 6-Digit Verification Code Below:
+      </p>
+
+      <div class="otp-box" style="background:#0c160e; border:1.5px dashed #059669; border-radius:14px; padding:20px; text-align:center; margin:22px 0;">
+        <p style="font-size:11px; color:#10b981; text-transform:uppercase; margin:0 0 6px 0; font-weight:800; letter-spacing:1.5px;">Your 6-Digit Verification Code</p>
+        <p class="otp-code" style="font-size:32px; font-weight:900; color:#ffffff; letter-spacing:8px; margin:0; font-family:monospace;">{otp}</p>
+      </div>
+
+      <div style="background-color:#0b140c; border:1px solid #1f3322; border-radius:12px; padding:14px 16px; margin:20px 0; font-size:12px; color:#cbd5e1; line-height:1.6;">
+        <p style="margin:0 0 6px 0;"><strong>★ Validity Notice:</strong> This Verification Passcode Will Expire In Exactly 15 Minutes.</p>
+        <p style="margin:0;"><strong>★ Confidentiality Policy:</strong> For Your Account Security, Never Forward Or Share This Code With Any Third Party.</p>
+      </div>
+
+      <p style="margin-top:20px; font-size:12px; color:#64748b; line-height:1.5;">
+        If You Did Not Initiate This Registration On SaastaScholar, No Further Action Is Required — No Account Has Been Created.
+      </p>
+    """
+
+    full_html = build_brand_email_template("Student Email Verification Code", preheader, html_content)
+    return send_system_email(subject, email, text_body, full_html)
+
+
 def send_password_reset_email(user, otp: str) -> tuple:
     """
     Sends High-Security 6-Digit Password Reset Verification Code Email

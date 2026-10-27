@@ -64,26 +64,6 @@ interface BroadcastLog {
   created_at: string;
 }
 
-interface DiagnosticRecommendation {
-  rule: string;
-  status: "PASS" | "WARNING" | "FAIL";
-  detail: string;
-}
-
-interface DeliverabilityDiagnostic {
-  smtp_host: string;
-  smtp_port: number;
-  use_tls: boolean;
-  host_user: string;
-  sender_email: string;
-  sender_domain: string;
-  connection_ok: boolean;
-  connection_message: string;
-  spf_record: string;
-  dmarc_record: string;
-  recommendations: DiagnosticRecommendation[];
-}
-
 const EMAIL_TEMPLATES = {
   weekly_dispatch: {
     subject: "Weekly Academic Dispatch: High-Yield Notes & Solved Papers",
@@ -152,7 +132,7 @@ const EMAIL_TEMPLATES = {
 
 export function AdminMarketingTab() {
   const [activeSubTab, setActiveSubTab] = useState<
-    "broadcast" | "subscribers" | "history" | "deliverability"
+    "broadcast" | "subscribers" | "history"
   >("broadcast");
 
   const [stats, setStats] = useState<MarketingStats | null>(null);
@@ -185,11 +165,6 @@ export function AdminMarketingTab() {
   // History State
   const [logs, setLogs] = useState<BroadcastLog[]>([]);
   const [logsLoading, setLogsLoading] = useState<boolean>(false);
-
-  // Deliverability Diagnostic State
-  const [diagnostic, setDiagnostic] = useState<DeliverabilityDiagnostic | null>(null);
-  const [diagnosticLoading, setDiagnosticLoading] = useState<boolean>(false);
-  const [copiedKey, setCopiedKey] = useState<string | null>(null);
 
   // Load Initial Stats
   const loadStats = async () => {
@@ -236,22 +211,6 @@ export function AdminMarketingTab() {
     }
   };
 
-  // Run Deliverability Diagnostic
-  const runDiagnostic = async () => {
-    try {
-      setDiagnosticLoading(true);
-      const res = await apiFetch<DeliverabilityDiagnostic>(
-        "/academic/admin/marketing/diagnostic/"
-      );
-      setDiagnostic(res);
-      toast.success("Deliverability & Anti-Spam Health Check Completed.");
-    } catch (err: any) {
-      toast.error("Diagnostic Failed: Check Backend Connection.");
-    } finally {
-      setDiagnosticLoading(false);
-    }
-  };
-
   useEffect(() => {
     loadStats();
   }, []);
@@ -261,8 +220,6 @@ export function AdminMarketingTab() {
       loadSubscribers();
     } else if (activeSubTab === "history") {
       loadLogs();
-    } else if (activeSubTab === "deliverability") {
-      runDiagnostic();
     }
   }, [activeSubTab, subscriberFilter]);
 
@@ -392,17 +349,10 @@ export function AdminMarketingTab() {
     }
   };
 
-  const copyToClipboard = (text: string, key: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedKey(key);
-    toast.success("Copied To Clipboard.");
-    setTimeout(() => setCopiedKey(null), 2000);
-  };
-
   return (
     <div className="space-y-6">
       {/* ===================== Top Metrics Overview ===================== */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
         <div className="rounded-2xl border border-border/80 bg-card/80 p-4 shadow-2xs backdrop-blur-sm">
           <div className="flex items-center justify-between text-muted-foreground mb-2">
             <span className="text-xs font-semibold uppercase tracking-wider">
@@ -448,30 +398,6 @@ export function AdminMarketingTab() {
             {stats?.total_delivered || 0} Delivered To Student Inboxes
           </div>
         </div>
-
-        <div className="rounded-2xl border border-border/80 bg-card/80 p-4 shadow-2xs backdrop-blur-sm">
-          <div className="flex items-center justify-between text-muted-foreground mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider">
-              Anti-Spam Health
-            </span>
-            <ShieldCheck className="h-4 w-4 text-primary" />
-          </div>
-          <div className="flex items-center gap-2">
-            <span
-              className={cn(
-                "inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wide",
-                stats?.deliverability_status === "OPTIMAL"
-                  ? "bg-emerald-500/15 text-emerald-500 border border-emerald-500/30"
-                  : "bg-amber-500/15 text-amber-500 border border-amber-500/30"
-              )}
-            >
-              {stats?.deliverability_status === "OPTIMAL" ? "Optimal" : "Review Needed"}
-            </span>
-          </div>
-          <div className="text-[0.7rem] text-muted-foreground mt-1 truncate">
-            {stats?.sender_email || "support@saastascholar.in"}
-          </div>
-        </div>
       </div>
 
       {/* ===================== Sub-Navigation Bar ===================== */}
@@ -515,19 +441,6 @@ export function AdminMarketingTab() {
             <Clock className="h-3.5 w-3.5" />
             <span>Dispatch History</span>
           </button>
-
-          <button
-            onClick={() => setActiveSubTab("deliverability")}
-            className={cn(
-              "px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all cursor-pointer flex items-center gap-2",
-              activeSubTab === "deliverability"
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "bg-surface hover:bg-surface/80 text-foreground border border-border/60"
-            )}
-          >
-            <ShieldCheck className="h-3.5 w-3.5 text-emerald-500" />
-            <span>Anti-Spam Diagnostic</span>
-          </button>
         </div>
 
         <button
@@ -535,7 +448,6 @@ export function AdminMarketingTab() {
             loadStats();
             if (activeSubTab === "subscribers") loadSubscribers();
             if (activeSubTab === "history") loadLogs();
-            if (activeSubTab === "deliverability") runDiagnostic();
           }}
           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-border bg-card text-xs font-medium text-foreground hover:bg-accent cursor-pointer transition-colors"
         >
@@ -948,143 +860,6 @@ export function AdminMarketingTab() {
         </div>
       )}
 
-      {/* ===================== TAB 4: ANTI-SPAM & DELIVERABILITY DIAGNOSTIC ===================== */}
-      {activeSubTab === "deliverability" && (
-        <div className="space-y-6">
-          {/* Top Status Card */}
-          <div className="rounded-2xl border border-border/80 bg-card/80 p-5 shadow-2xs backdrop-blur-sm">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <div>
-                <h3 className="text-base sm:text-lg font-bold text-foreground flex items-center gap-2">
-                  <ShieldCheck className="h-5 w-5 text-emerald-500" />
-                  <span>Why Emails Land In Spam &amp; How We Fix It</span>
-                </h3>
-                <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-                  Gmail And Outlook Require Strict SPF, DKIM, DMARC Alignment And One-Click
-                  Unsubscribe Headers. Here Is Our Live System Deliverability Verification.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={runDiagnostic}
-                disabled={diagnosticLoading}
-                className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary-deep transition-all cursor-pointer flex items-center gap-2 shrink-0 disabled:opacity-50"
-              >
-                <RefreshCw className={cn("h-4 w-4", diagnosticLoading && "animate-spin")} />
-                <span>{diagnosticLoading ? "Testing Connection..." : "Re-Run Health Check"}</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Connection & Configuration Matrix */}
-          {diagnostic && (
-            <div className="grid md:grid-cols-2 gap-4">
-              {/* Server Connection Card */}
-              <div className="rounded-2xl border border-border/80 bg-card/80 p-5 shadow-2xs space-y-3">
-                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground block">
-                  SMTP Relay Socket Health
-                </span>
-                <div className="flex items-center gap-2.5">
-                  <div
-                    className={cn(
-                      "h-3 w-3 rounded-full",
-                      diagnostic.connection_ok ? "bg-emerald-500" : "bg-rose-500"
-                    )}
-                  />
-                  <span className="font-semibold text-sm text-foreground">
-                    {diagnostic.connection_ok
-                      ? "SMTP Socket Connection Active"
-                      : "Connection Failed"}
-                  </span>
-                </div>
-                <div className="text-xs text-muted-foreground font-mono bg-surface p-3 rounded-xl border border-border/60">
-                  <p className="m-0 mb-1">
-                    <strong>Host:</strong> {diagnostic.smtp_host}:{diagnostic.smtp_port}
-                  </p>
-                  <p className="m-0 mb-1">
-                    <strong>TLS Encryption:</strong> {diagnostic.use_tls ? "Enabled (STARTTLS)" : "Disabled"}
-                  </p>
-                  <p className="m-0">
-                    <strong>Authenticated User:</strong> {diagnostic.host_user || "None Configured"}
-                  </p>
-                </div>
-              </div>
-
-              {/* DNS Records Card */}
-              <div className="rounded-2xl border border-border/80 bg-card/80 p-5 shadow-2xs space-y-3">
-                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground block">
-                  Required DNS Records For Primary Domain
-                </span>
-
-                <div>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-                    <span>SPF Record (TXT):</span>
-                    <button
-                      type="button"
-                      onClick={() => copyToClipboard(diagnostic.spf_record, "spf")}
-                      className="text-primary hover:underline flex items-center gap-1 cursor-pointer font-semibold"
-                    >
-                      {copiedKey === "spf" ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-                      <span>Copy</span>
-                    </button>
-                  </div>
-                  <div className="bg-surface p-2.5 rounded-xl border border-border/60 font-mono text-[0.72rem] text-foreground select-all">
-                    {diagnostic.spf_record}
-                  </div>
-                </div>
-
-                <div>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-                    <span>DMARC Record (TXT at _dmarc.{diagnostic.sender_domain}):</span>
-                    <button
-                      type="button"
-                      onClick={() => copyToClipboard(diagnostic.dmarc_record, "dmarc")}
-                      className="text-primary hover:underline flex items-center gap-1 cursor-pointer font-semibold"
-                    >
-                      {copiedKey === "dmarc" ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-                      <span>Copy</span>
-                    </button>
-                  </div>
-                  <div className="bg-surface p-2.5 rounded-xl border border-border/60 font-mono text-[0.72rem] text-foreground select-all">
-                    {diagnostic.dmarc_record}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Audit Checklist */}
-          {diagnostic && (
-            <div className="rounded-2xl border border-border/80 bg-card/80 p-5 shadow-2xs space-y-3">
-              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground block mb-2">
-                Deliverability Rules Verification
-              </span>
-              <div className="space-y-3">
-                {diagnostic.recommendations.map((rec, i) => (
-                  <div
-                    key={i}
-                    className="flex items-start gap-3 p-3 rounded-xl bg-surface/60 border border-border/60"
-                  >
-                    {rec.status === "PASS" ? (
-                      <CheckCircle2 className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
-                    ) : (
-                      <AlertTriangle className="h-5 w-5 text-amber-500 shrink-0 mt-0.5" />
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs sm:text-sm font-bold text-foreground">
-                        {rec.rule}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">
-                        {rec.detail}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
     </div>
   );
 }

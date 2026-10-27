@@ -7,7 +7,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password?: string, portal?: "student" | "admin") => Promise<StudentUser>;
-  register: (data: Partial<StudentUser> & { password?: string }) => Promise<boolean>;
+  register: (data: Partial<StudentUser> & { password?: string; otp?: string }) => Promise<boolean>;
   logout: () => void;
   updateProfile: (data: Partial<StudentUser>) => Promise<boolean>;
   refreshUser: () => Promise<void>;
@@ -106,7 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const register = async (data: Partial<StudentUser> & { password?: string }): Promise<boolean> => {
+  const register = async (data: Partial<StudentUser> & { password?: string; otp?: string }): Promise<boolean> => {
     try {
       setIsLoading(true);
       const res = await apiFetch<{ user: StudentUser; access: string; refresh: string }>("/auth/register/", {
@@ -114,6 +114,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({
           ...data,
           password: data.password || "password123",
+          otp: data.otp || "",
         }),
       });
 

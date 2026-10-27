@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import {
+  AlertCircle,
   ArrowLeft,
   ArrowRight,
   Award,
@@ -77,6 +78,142 @@ export function Login() {
   const [loading, setLoading] = useState<boolean>(false);
   const [signupStep, setSignupStep] = useState<1 | 2 | 3>(1);
   const [selectedPlan, setSelectedPlan] = useState<"FREE" | "BASIC" | "PREMIUM" | "ELITE" | "STARTER" | "SCHOLAR" | "ACHIEVER" | "ELITE_PLUS">("FREE");
+
+  // Email OTP Verification State For Student Signup
+  const [signupOtp, setSignupOtp] = useState<string>("");
+  const [otpSent, setOtpSent] = useState<boolean>(false);
+  const [otpVerified, setOtpVerified] = useState<boolean>(false);
+  const [otpSending, setOtpSending] = useState<boolean>(false);
+  const [otpVerifying, setOtpVerifying] = useState<boolean>(false);
+  const [otpCountdown, setOtpCountdown] = useState<number>(0);
+  const [emailTakenError, setEmailTakenError] = useState<string | null>(null);
+
+  // 60-Second OTP Resend Countdown Timer
+  useEffect(() => {
+    if (otpCountdown <= 0) return;
+    const timer = setTimeout(() => setOtpCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [otpCountdown]);
+
+  // Client-Side Validator Enforcing Real Student Emails & Allowed Domains
+  const validateStudentEmailFormat = (emailInput: string): { valid: boolean; error?: string; cleanEmail?: string } => {
+    const trimmed = emailInput.trim().toLowerCase();
+    if (!trimmed || !trimmed.includes("@")) {
+      return { valid: false, error: "Please Enter A Valid Email Address." };
+    }
+    const [prefix, rawDomain] = trimmed.split("@");
+    if (!prefix || !rawDomain) {
+      return { valid: false, error: "Please Enter A Complete Email Address." };
+    }
+
+    let cleanDomain = rawDomain;
+    if (cleanDomain.includes("nims") || cleanDomain.includes("student")) {
+      cleanDomain = "student.nimsuniversity.org";
+    }
+
+    if (cleanDomain !== "gmail.com" && cleanDomain !== "student.nimsuniversity.org") {
+      return {
+        valid: false,
+        error: "Registration Is Strictly Permitted Only For @student.nimsuniversity.org Or Verified @gmail.com Email Addresses.",
+      };
+    }
+
+    // Every @gmail.com email is allowed (verified via 6-digit OTP passcode)
+    // For institutional college accounts, prohibit dummy prefixes
+    if (cleanDomain !== "gmail.com") {
+      const dummyKeywords = ["test", "fake", "dummy", "sample", "temp", "testing", "asdf", "null", "admin", "tester", "demo"];
+      if (
+        dummyKeywords.includes(prefix) ||
+        dummyKeywords.some((dk) => prefix.startsWith(`${dk}.`) || prefix.startsWith(`${dk}_`) || prefix.startsWith(`${dk}-`))
+      ) {
+        return {
+          valid: false,
+          error: "Dummy, Test, And Fake Student Identifiers Are Strictly Prohibited On Institutional Accounts.",
+        };
+      }
+    }
+
+    return { valid: true, cleanEmail: `${prefix}@${cleanDomain}` };
+  };
+
+  // Dispatch 6-Digit Email Verification Code
+  const handleSendSignupOtp = async () => {
+    setEmailTakenError(null);
+    const validation = validateStudentEmailFormat(email);
+    if (!validation.valid) {
+      toast.error(validation.error || "Please Enter A Valid Email Address.");
+      return;
+    }
+
+    const targetEmail = validation.cleanEmail || email.trim().toLowerCase();
+    if (targetEmail !== email) {
+      setEmail(targetEmail);
+    }
+
+    if (fullName) {
+      const dummyKeywords = ["test", "fake", "dummy", "sample", "temp", "testing", "asdf", "null", "admin", "tester", "demo"];
+      const nameLower = fullName.toLowerCase().trim();
+      const words = nameLower.split(/\s+/);
+      if (words.some((w) => dummyKeywords.includes(w)) || dummyKeywords.includes(nameLower)) {
+        toast.error("Real Student Name Required. Dummy Or Test Names (E.g., 'test', 'fake', 'dummy') Are Strictly Prohibited.");
+        return;
+      }
+    }
+
+    setOtpSending(true);
+    try {
+      const res = await apiFetch<any>("/auth/signup/send-otp/", {
+        method: "POST",
+        body: JSON.stringify({
+          email: targetEmail,
+          full_name: fullName.trim() || undefined,
+        }),
+      });
+
+      setOtpSent(true);
+      setOtpVerified(false);
+      setOtpCountdown(60);
+      toast.success(res.message || `Verification Code Dispatched To ${targetEmail}!`);
+      if (res.debug_otp) {
+        toast.info(`[Debug Verification Passcode]: ${res.debug_otp}`);
+      }
+    } catch (err: any) {
+      const errMsg = err.message || "Failed To Dispatch Verification Code.";
+      if (errMsg.toLowerCase().includes("already registered") || errMsg.toLowerCase().includes("already exists")) {
+        setEmailTakenError(errMsg);
+      }
+      toast.error(errMsg);
+    } finally {
+      setOtpSending(false);
+    }
+  };
+
+  // Verify 6-Digit Passcode Entered By Scholar
+  const handleVerifySignupOtp = async () => {
+    if (!signupOtp.trim() || signupOtp.trim().length !== 6) {
+      toast.error("Please Enter The Complete 6-Digit Verification Code.");
+      return;
+    }
+
+    setOtpVerifying(true);
+    try {
+      const res = await apiFetch<any>("/auth/signup/verify-otp/", {
+        method: "POST",
+        body: JSON.stringify({
+          email: email.trim().toLowerCase(),
+          otp: signupOtp.trim(),
+        }),
+      });
+
+      setOtpVerified(true);
+      toast.success(res.message || "Email Verified Successfully! You May Now Complete Registration.");
+    } catch (err: any) {
+      setOtpVerified(false);
+      toast.error(err.message || "Invalid Or Expired 6-Digit Verification Code.");
+    } finally {
+      setOtpVerifying(false);
+    }
+  };
 
   // Promotional Discount Coupon & Billing Cycle State
   const [billingCycle, setBillingCycle] = useState<"monthly" | "semester">("monthly");
@@ -292,9 +429,22 @@ export function Login() {
       return;
     }
 
-    if (authMode === "register" && password !== confirmPassword) {
-      toast.error("Passwords Do Not Match. Please Verify.");
-      return;
+    if (authMode === "register") {
+      const emailValidation = validateStudentEmailFormat(email);
+      if (!emailValidation.valid) {
+        toast.error(emailValidation.error || "Please Enter A Valid Email Address.");
+        return;
+      }
+
+      if (!otpVerified) {
+        toast.error("Please Verify Your Email Address With The 6-Digit OTP Code Before Submitting.");
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        toast.error("Passwords Do Not Match. Please Verify.");
+        return;
+      }
     }
 
     setLoading(true);
@@ -312,7 +462,7 @@ export function Login() {
         const initialAssignedTier = isFreePlan ? "FREE" : selectedPlan;
 
         await register({
-          email,
+          email: email.trim().toLowerCase(),
           password,
           full_name: studentName,
           department: deptName,
@@ -323,6 +473,7 @@ export function Login() {
           target_cgpa: studentTarget,
           current_cgpa: studentCurrent,
           access_tier: initialAssignedTier,
+          otp: signupOtp.trim(),
         });
 
         // 1. Paid Plan With 100% Free Pass Coupon Applied (Zero Payment Required)
@@ -399,7 +550,11 @@ export function Login() {
         }
       }
     } catch (err: any) {
-      toast.error(err.message || "Authentication Failed. Please Check Credentials.");
+      const errMsg = err.message || "Authentication Failed. Please Check Credentials.";
+      if (errMsg.toLowerCase().includes("already registered") || errMsg.toLowerCase().includes("already exists")) {
+        setEmailTakenError(errMsg);
+      }
+      toast.error(errMsg);
     } finally {
       setLoading(false);
     }
@@ -601,6 +756,13 @@ export function Login() {
                             toast.error("Please Enter Full Student Name First.");
                             return;
                           }
+                          const dummyKeywords = ["test", "fake", "dummy", "sample", "temp", "testing", "asdf", "null", "admin", "tester", "demo"];
+                          const nameLower = fullName.toLowerCase().trim();
+                          const words = nameLower.split(/\s+/);
+                          if (words.some((w) => dummyKeywords.includes(w)) || dummyKeywords.includes(nameLower)) {
+                            toast.error("Real Student Name Required. Dummy Or Test Names (E.g., 'test', 'fake', 'dummy') Are Strictly Prohibited.");
+                            return;
+                          }
                           setSignupStep(2);
                         }}
                         className={cn(
@@ -741,6 +903,13 @@ export function Login() {
                             onClick={() => {
                               if (!fullName.trim()) {
                                 toast.error("Please Enter Your Full Student Name.");
+                                return;
+                              }
+                              const dummyKeywords = ["test", "fake", "dummy", "sample", "temp", "testing", "asdf", "null", "admin", "tester", "demo"];
+                              const nameLower = fullName.toLowerCase().trim();
+                              const words = nameLower.split(/\s+/);
+                              if (words.some((w) => dummyKeywords.includes(w)) || dummyKeywords.includes(nameLower)) {
+                                toast.error("Real Student Name Required. Dummy Or Test Names (E.g., 'test', 'fake', 'dummy') Are Strictly Prohibited.");
                                 return;
                               }
                               if (!selectedDeptId) {
@@ -910,22 +1079,75 @@ export function Login() {
                             </button>
                           </div>
 
-                          <div>
-                            <div className="flex items-center justify-between mb-1">
-                              <label className="block text-xs font-bold text-foreground">College Email Address</label>
-                              <span className="text-[0.62rem] font-mono text-emerald-600 dark:text-emerald-400 font-bold">
-                                @student.nimsuniversity.org
-                              </span>
+                          {/* Email Address & Title Case Formatted OTP Verification Flow */}
+                          <div className="space-y-2">
+                            <div className="flex flex-wrap items-center justify-between gap-1">
+                              <label className="block text-xs font-bold text-foreground">
+                                Student Email Address
+                              </label>
+                              <div className="flex items-center gap-1.5 text-[0.62rem] font-bold">
+                                <span className="text-muted-foreground">Accepted:</span>
+                                <span className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 px-1.5 py-0.5 rounded-md font-mono">
+                                  @student.nimsuniversity.org
+                                </span>
+                                <span className="bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/20 px-1.5 py-0.5 rounded-md font-mono">
+                                  @gmail.com
+                                </span>
+                              </div>
                             </div>
+
+                            {/* Quick Domain Switcher Pills */}
+                            {!otpVerified && (
+                              <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                                <span className="text-[0.68rem] text-muted-foreground font-semibold">Quick Domain:</span>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const prefix = email ? email.split("@")[0] : "";
+                                    setEmail(prefix ? `${prefix}@student.nimsuniversity.org` : "@student.nimsuniversity.org");
+                                    setEmailTakenError(null);
+                                    setOtpSent(false);
+                                    setOtpVerified(false);
+                                  }}
+                                  className="text-[0.68rem] font-mono font-bold px-2 py-0.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 transition-all cursor-pointer"
+                                >
+                                  + @student.nimsuniversity.org
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    const prefix = email ? email.split("@")[0] : "";
+                                    setEmail(prefix ? `${prefix}@gmail.com` : "@gmail.com");
+                                    setEmailTakenError(null);
+                                    setOtpSent(false);
+                                    setOtpVerified(false);
+                                  }}
+                                  className="text-[0.68rem] font-mono font-bold px-2 py-0.5 rounded-full border border-sky-500/30 bg-sky-500/10 text-sky-600 dark:text-sky-400 hover:bg-sky-500/20 transition-all cursor-pointer"
+                                >
+                                  + @gmail.com
+                                </button>
+                              </div>
+                            )}
+
+                            {/* Email Input Field */}
                             <div className="relative">
                               <Mail className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                               <input
                                 type="email"
                                 value={email}
-                                onChange={(e) => setEmail(e.target.value)}
+                                disabled={otpVerified}
+                                onChange={(e) => {
+                                  setEmail(e.target.value);
+                                  setEmailTakenError(null);
+                                  if (otpSent || otpVerified) {
+                                    setOtpSent(false);
+                                    setOtpVerified(false);
+                                    setSignupOtp("");
+                                  }
+                                }}
                                 onBlur={() => {
                                   let val = email.trim().toLowerCase();
-                                  if (val && !val.includes("@student.nimsuniversity.org")) {
+                                  if (val && !val.includes("@student.nimsuniversity.org") && !val.includes("@gmail.com")) {
                                     const domain = val.split("@")[1] || "";
                                     if (domain.includes("nims") || domain.includes("student")) {
                                       const prefix = val.split("@")[0];
@@ -933,14 +1155,137 @@ export function Login() {
                                     }
                                   }
                                 }}
-                                placeholder="name.2026engg0000@student.nimsuniversity.org"
+                                placeholder="name.2026@student.nimsuniversity.org or yourname@gmail.com"
                                 required
-                                className="h-11 w-full rounded-2xl border border-border bg-background pr-3.5 pl-10 text-xs sm:text-sm font-mono focus:border-primary focus:outline-none transition-colors"
+                                className={cn(
+                                  "h-11 w-full rounded-2xl border bg-background pr-3.5 pl-10 text-xs sm:text-sm font-mono transition-colors focus:outline-none",
+                                  otpVerified
+                                    ? "border-emerald-500/60 bg-emerald-500/5 text-emerald-800 dark:text-emerald-200 cursor-not-allowed"
+                                    : "border-border focus:border-primary"
+                                )}
                               />
                             </div>
-                            <p className="text-[0.65rem] text-muted-foreground mt-1">
-                              Institutional email verification auto-formats typos to <span className="font-mono text-primary font-bold">@student.nimsuniversity.org</span>
-                            </p>
+
+                            {/* Email Taken Dedicated Warning Card */}
+                            {emailTakenError && (
+                              <div className="rounded-2xl border border-rose-500/40 bg-rose-500/10 p-3 space-y-2 animate-in fade-in">
+                                <div className="flex items-start gap-2 text-rose-600 dark:text-rose-400 text-xs font-bold">
+                                  <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+                                  <div className="leading-snug">
+                                    <span>{emailTakenError}</span>
+                                  </div>
+                                </div>
+                                <div className="flex items-center justify-end pt-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setAuthMode("login");
+                                      setEmailTakenError(null);
+                                    }}
+                                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-600 text-white text-xs font-bold shadow-xs hover:bg-rose-700 active:scale-95 transition-all cursor-pointer"
+                                  >
+                                    <span>Switch To Log In With This Email</span>
+                                    <ArrowRight className="h-3.5 w-3.5" />
+                                  </button>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* OTP Verification Interactive Flow */}
+                            {otpVerified ? (
+                              <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-3 flex items-center justify-between text-xs animate-in fade-in">
+                                <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold">
+                                  <CheckCircle2 className="h-4 w-4 shrink-0" />
+                                  <span>Email Verified &amp; Authorized ({email})</span>
+                                </div>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setOtpVerified(false);
+                                    setOtpSent(false);
+                                    setSignupOtp("");
+                                  }}
+                                  className="text-[0.68rem] font-bold text-muted-foreground hover:text-foreground underline cursor-pointer"
+                                >
+                                  Change Email
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="rounded-2xl border border-border/80 bg-surface/60 p-3 space-y-2.5">
+                                {!otpSent ? (
+                                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                                    <div className="text-[0.72rem] text-muted-foreground">
+                                      <span className="font-bold text-foreground">Email Passcode Verification: </span>
+                                      We will dispatch a 6-digit Title Case formatted code to your email.
+                                    </div>
+                                    <button
+                                      type="button"
+                                      onClick={handleSendSignupOtp}
+                                      disabled={otpSending || !email.trim()}
+                                      className="inline-flex h-9 items-center justify-center gap-1.5 px-3.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold shadow-xs hover:bg-primary-deep transition-all disabled:opacity-50 cursor-pointer shrink-0"
+                                    >
+                                      {otpSending ? (
+                                        <span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+                                      ) : (
+                                        <>
+                                          <Send className="h-3.5 w-3.5" />
+                                          <span>Send Verification Code</span>
+                                        </>
+                                      )}
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <div className="space-y-2">
+                                    <div className="flex items-center justify-between">
+                                      <label className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                                        <Lock className="h-3.5 w-3.5 text-primary" />
+                                        <span>Enter 6-Digit Email Code Sent To <span className="font-mono text-primary font-bold">{email}</span></span>
+                                      </label>
+                                      <span className="text-[0.65rem] font-bold text-emerald-600 dark:text-emerald-400">
+                                        Valid For 15 Mins
+                                      </span>
+                                    </div>
+
+                                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+                                      <input
+                                        type="text"
+                                        maxLength={6}
+                                        value={signupOtp}
+                                        onChange={(e) => setSignupOtp(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))}
+                                        placeholder="••••••"
+                                        className="h-10 w-full sm:w-44 text-center font-mono text-base font-extrabold tracking-[0.35em] rounded-xl border border-border bg-background focus:border-primary focus:outline-none"
+                                      />
+                                      <button
+                                        type="button"
+                                        onClick={handleVerifySignupOtp}
+                                        disabled={otpVerifying || signupOtp.trim().length !== 6}
+                                        className="inline-flex h-10 items-center justify-center gap-1.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-xs transition-all disabled:opacity-50 cursor-pointer shrink-0"
+                                      >
+                                        {otpVerifying ? (
+                                          <span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                                        ) : (
+                                          <>
+                                            <CheckCircle2 className="h-3.5 w-3.5" />
+                                            <span>Verify Passcode</span>
+                                          </>
+                                        )}
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={handleSendSignupOtp}
+                                        disabled={otpCountdown > 0 || otpSending}
+                                        className="inline-flex h-10 items-center justify-center px-3 rounded-xl border border-border bg-card text-xs font-semibold text-muted-foreground hover:text-foreground transition-all disabled:opacity-50 cursor-pointer shrink-0"
+                                      >
+                                        {otpCountdown > 0 ? `Resend In ${otpCountdown}s` : "Resend Code"}
+                                      </button>
+                                    </div>
+                                    <p className="text-[0.65rem] text-muted-foreground">
+                                      Please check your inbox (and spam/promotions folder) for your Title Case formatted registration email from SaastaScholar.
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                            )}
                           </div>
 
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

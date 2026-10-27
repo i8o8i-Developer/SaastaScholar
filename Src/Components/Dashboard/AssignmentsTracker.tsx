@@ -180,26 +180,16 @@ export function AssignmentsTracker() {
           ))}
         </div>
       ) : assignments.length === 0 ? (
-        <div className="rounded-2xl sm:rounded-3xl border border-dashed border-border bg-card/60 p-8 sm:p-12 text-center space-y-4 min-w-0">
-          <FileCheck2 className="h-10 w-10 sm:h-12 sm:w-12 mx-auto text-muted-foreground/40" />
-          <div className="space-y-1">
+        <div className="rounded-2xl sm:rounded-3xl border border-dashed border-border/80 bg-card/60 p-8 sm:p-12 text-center space-y-3.5 min-w-0 flex flex-col items-center justify-center shadow-2xs">
+          <div className="flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-2xl bg-primary/10 border border-primary/20 text-primary shadow-inner">
+            <FileCheck2 className="h-7 w-7 sm:h-8 sm:w-8" />
+          </div>
+          <div className="space-y-1.5 max-w-md mx-auto">
             <h3 className="font-display font-bold text-sm sm:text-base text-foreground">No Assignments Published Yet</h3>
-            <p className="text-xs text-muted-foreground max-w-md mx-auto">
+            <p className="text-xs text-muted-foreground leading-relaxed">
               Assignments Published By Faculty In The Admin Portal Will Appear Here With Submission Due Dates, Rubrics, And Marks Weightage.
             </p>
           </div>
-          <button
-            onClick={() => {
-              setAiTopic("Course Project Formulation");
-              setAiSubject(subjects[0]?.name || "Computer Science");
-              setGeneratedOutline(null);
-              setAiModalOpen(true);
-            }}
-            className="inline-flex items-center gap-2 rounded-2xl bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-md cursor-pointer active:scale-95 transition-all"
-          >
-            <Wand2 className="h-4 w-4" />
-            <span>Draft New Assignment Outline With AI</span>
-          </button>
         </div>
       ) : (
         <div className="grid gap-3.5 sm:gap-5 sm:grid-cols-2 min-w-0">

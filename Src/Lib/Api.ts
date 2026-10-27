@@ -982,7 +982,21 @@ export const studentSubscriptionApi = {
     apiFetch<{ orders: any[]; latest_invoice: any }>("/subscriptions/my-invoices/"),
   getInvoice: (id: string) =>
     apiFetch<any>(`/subscriptions/my-invoices/${id}/`),
+  cancelSubscription: () =>
+    apiFetch<{ success: boolean; message: string; current_tier: string }>(
+      "/subscriptions/cancel/",
+      { method: "POST" }
+    ),
+  downgradeSubscription: (targetTier: string) =>
+    apiFetch<{ success: boolean; message: string; current_tier: string }>(
+      "/subscriptions/downgrade/",
+      {
+        method: "POST",
+        body: JSON.stringify({ target_tier: targetTier }),
+      }
+    ),
 };
+
 
 
 

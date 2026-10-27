@@ -43,15 +43,190 @@ class CustomLoginView(TokenObtainPairView):
                 pass
         return response
 
+class SignupSendOtpView(APIView):
+    """
+    Sends 6-Digit Email Verification Passcode For Scholar Registration.
+    Strictly Enforces Valid @gmail.com Or @student.nimsuniversity.org Addresses
+    And Rejects Dummy/Fake Names & Already-Registered Emails.
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        email_raw = str(request.data.get("email") or "").strip().lower()
+        full_name = str(request.data.get("full_name") or "").strip()
+
+        if not email_raw or "@" not in email_raw:
+            return Response(
+                {"error": "A Valid Student Email Address Is Required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        prefix = email_raw.split("@")[0]
+        domain = email_raw.split("@")[-1]
+
+        typo_domains = [
+            "student.nimsuniversity.org",
+            "student.nimsuniversity.ac.in",
+            "student.nimsuniversity.in",
+            "student.nimsuniveristy.org",
+            "student.nimsunivercity.org",
+            "student.nimsuniversiy.org",
+            "student.nimsunversity.org",
+            "student.nimsuniversity.com",
+            "nimsuniversity.org",
+            "student.nims.org",
+            "student.nims.ac.in",
+            "student.nims.edu.in",
+            "nims.edu.in",
+        ]
+
+        if domain in typo_domains or "nims" in domain:
+            email_clean = f"{prefix}@student.nimsuniversity.org"
+            domain = "student.nimsuniversity.org"
+        else:
+            email_clean = email_raw
+
+        allowed_exact_domains = ["gmail.com", "student.nimsuniversity.org"]
+        if domain not in allowed_exact_domains:
+            return Response(
+                {"error": "Registration Is Strictly Permitted Only For @student.nimsuniversity.org Or Verified @gmail.com Email Addresses."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Every @gmail.com email is allowed (verified via 6-digit OTP passcode)
+        # For institutional accounts, restrict dummy prefixes
+        if domain != "gmail.com":
+            dummy_keywords = ["test", "fake", "dummy", "temp", "testing", "asdf", "sample", "null", "admin", "tester", "demo"]
+            prefix_lower = prefix.lower()
+            if prefix_lower in dummy_keywords or any(prefix.startswith(f"{dk}.") or prefix.startswith(f"{dk}_") or prefix.startswith(f"{dk}-") for dk in dummy_keywords):
+                return Response(
+                    {"error": "Dummy, Test, And Fake Student Identifiers Are Strictly Prohibited On Institutional Accounts."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        if full_name:
+            dummy_keywords = ["test", "fake", "dummy", "sample", "temp", "testing", "asdf", "null", "admin", "tester", "demo"]
+            fn_lower = full_name.lower().strip()
+            fn_words = fn_lower.split()
+            if any(dk in fn_words for dk in dummy_keywords) or fn_lower in dummy_keywords:
+                return Response(
+                    {"error": "Real Student Name Required. Dummy Or Test Names (e.g., 'test', 'fake', 'dummy') Are Strictly Prohibited."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        # Check If Email Is Already Registered
+        if StudentUser.objects.filter(email__iexact=email_clean).exists():
+            return Response(
+                {"error": f"An Account With Email '{email_clean}' Is Already Registered. Please Sign In Directly Instead."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        from .models import SignupVerificationToken
+        SignupVerificationToken.objects.filter(email=email_clean, is_used=False).update(is_used=True)
+
+        import random
+        otp = f"{random.randint(100000, 999999)}"
+        SignupVerificationToken.objects.create(email=email_clean, otp=otp)
+
+        from Core.mail import send_signup_verification_email
+        send_success, send_err = send_signup_verification_email(email_clean, full_name, otp)
+
+        return Response({
+            "success": True,
+            "message": f"Verification Code Sent Successfully To {email_clean}. Please Check Your Inbox.",
+            "email": email_clean,
+            "debug_otp": otp if settings.DEBUG else None,
+        })
+
+
+class SignupVerifyOtpView(APIView):
+    """
+    Validates The 6-Digit Email Verification Passcode For Scholar Registration.
+    """
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        email_raw = str(request.data.get("email") or "").strip().lower()
+        otp = str(request.data.get("otp") or "").strip()
+
+        if not email_raw or not otp:
+            return Response(
+                {"error": "Email Address And 6-Digit Verification Code Are Required."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        prefix = email_raw.split("@")[0] if "@" in email_raw else ""
+        domain = email_raw.split("@")[-1] if "@" in email_raw else ""
+        if "nims" in domain:
+            email_clean = f"{prefix}@student.nimsuniversity.org"
+        else:
+            email_clean = email_raw
+
+        from .models import SignupVerificationToken
+        token = SignupVerificationToken.objects.filter(email=email_clean, otp=otp, is_used=False).first()
+
+        if not token:
+            return Response(
+                {"error": "Invalid Verification Code. Please Re-Check Your Code Or Request A New One."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if not token.is_valid():
+            return Response(
+                {"error": "This Verification Code Has Expired (Valid For 15 Minutes). Please Request A New Passcode."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        token.is_verified = True
+        token.save(update_fields=["is_verified"])
+
+        return Response({
+            "success": True,
+            "message": "Email Verified Successfully! You May Now Proceed To Complete Registration.",
+            "email": email_clean,
+            "verified": True,
+        })
+
+
 class RegisterView(generics.CreateAPIView):
     queryset = StudentUser.objects.all()
     serializer_class = RegisterSerializer
     permission_classes = [permissions.AllowAny]
 
     def create(self, request, *args, **kwargs):
+        email_raw = str(request.data.get("email") or "").strip().lower()
+        prefix = email_raw.split("@")[0] if "@" in email_raw else ""
+        domain = email_raw.split("@")[-1] if "@" in email_raw else ""
+        if "nims" in domain:
+            email_clean = f"{prefix}@student.nimsuniversity.org"
+        else:
+            email_clean = email_raw
+
+        otp = str(request.data.get("otp") or "").strip()
+        from .models import SignupVerificationToken
+        token = SignupVerificationToken.objects.filter(email=email_clean, is_used=False).first()
+
+        # Enforce verified token or matching valid OTP
+        if not token or (not token.is_verified and token.otp != otp):
+            return Response(
+                {"error": "Email Verification Required. Please Enter The 6-Digit Code Sent To Your Email."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        if not token.is_valid():
+            return Response(
+                {"error": "The Verification Code For This Email Has Expired. Please Request A New Code."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
+
+        token.is_used = True
+        token.is_verified = True
+        token.save(update_fields=["is_used", "is_verified"])
+
         try:
             from Core.mail import send_welcome_email
             send_welcome_email(user)

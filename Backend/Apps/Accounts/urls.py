@@ -7,6 +7,8 @@ from .views import (
     CustomLoginView,
     DashboardSummaryView,
     RegisterView,
+    SignupSendOtpView,
+    SignupVerifyOtpView,
     SecuritySessionsView,
     AcknowledgeWarningView,
     AdminStudentSecurityActionView,
@@ -20,6 +22,8 @@ from .views import (
 
 urlpatterns = [
     path("register/", RegisterView.as_view(), name="auth-register"),
+    path("signup/send-otp/", SignupSendOtpView.as_view(), name="auth-signup-send-otp"),
+    path("signup/verify-otp/", SignupVerifyOtpView.as_view(), name="auth-signup-verify-otp"),
     path("login/", CustomLoginView.as_view(), name="auth-login"),
     path("refresh/", TokenRefreshView.as_view(), name="auth-refresh"),
     path("me/", CurrentUserView.as_view(), name="auth-me"),

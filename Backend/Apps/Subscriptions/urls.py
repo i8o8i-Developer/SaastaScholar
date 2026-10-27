@@ -14,12 +14,16 @@ from .views import (
     RazorpayWebhookView,
     UserAccessMatrixView,
     AdminPlanAccessMatrixView,
+    StudentCancelSubscriptionView,
+    StudentDowngradeSubscriptionView,
 )
 
 urlpatterns = [
     # Student Facing Endpoints
     path("plans/", SubscriptionPlanListView.as_view(), name="subscription-plans"),
     path("my-access/", UserAccessMatrixView.as_view(), name="subscription-my-access"),
+    path("cancel/", StudentCancelSubscriptionView.as_view(), name="subscription-cancel"),
+    path("downgrade/", StudentDowngradeSubscriptionView.as_view(), name="subscription-downgrade"),
     path("my-invoices/", StudentMyInvoicesView.as_view(), name="student-my-invoices"),
     path("my-invoices/<uuid:pk>/", StudentInvoiceDetailView.as_view(), name="student-invoice-detail"),
     path("apply-coupon/", ApplyCouponView.as_view(), name="subscription-apply-coupon"),

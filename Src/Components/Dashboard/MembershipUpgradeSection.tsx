@@ -11,6 +11,8 @@ import {
   Percent,
   FileText,
   Printer,
+  ArrowDownCircle,
+  AlertTriangle,
 } from "lucide-react";
 import { useAuth } from "@/Hooks/UseAuth";
 import { apiFetch, studentSubscriptionApi } from "@/Lib/Api";
@@ -93,6 +95,13 @@ const PLANS: PlanItem[] = [
   },
 ];
 
+const TIER_RANK: Record<string, number> = {
+  FREE: 0,
+  BASIC: 1,
+  PREMIUM: 2,
+  ELITE: 3,
+};
+
 interface MembershipUpgradeSectionProps {
   initialTier?: "BASIC" | "PREMIUM" | "ELITE";
   onUpgradeSuccess?: () => void;
@@ -104,8 +113,17 @@ export function MembershipUpgradeSection({
 }: MembershipUpgradeSectionProps) {
   const { user, refreshUser } = useAuth();
   const currentTier = (user?.access_tier || "FREE").toUpperCase();
+  const currentRank = TIER_RANK[currentTier] ?? 0;
+  const isElite = currentTier === "ELITE";
+  const isPaidScholar = currentRank > 0;
+
   const [billingCycle, setBillingCycle] = useState<"monthly" | "semester">("monthly");
   const [selectedTier, setSelectedTier] = useState<"BASIC" | "PREMIUM" | "ELITE" | null>(initialTier || null);
+
+  // Cancellation & Downgrade Modal State
+  const [cancelModalOpen, setCancelModalOpen] = useState<boolean>(false);
+  const [cancelling, setCancelling] = useState<boolean>(false);
+  const [downgrading, setDowngrading] = useState<boolean>(false);
 
   // Discount Coupon State
   const [couponCode, setCouponCode] = useState<string>("");
@@ -141,7 +159,42 @@ export function MembershipUpgradeSection({
     }
   };
 
+  const handleConfirmCancelPlan = async () => {
+    try {
+      setCancelling(true);
+      const res = await studentSubscriptionApi.cancelSubscription();
+      toast.success(res.message || "Your Paid Subscription Has Been Cancelled. Reverted To Free Scholar.");
+      setCancelModalOpen(false);
+      setSelectedTier(null);
+      if (refreshUser) {
+        await refreshUser();
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed To Cancel Subscription.");
+    } finally {
+      setCancelling(false);
+    }
+  };
+
+  const handleInstantDowngrade = async (targetTier: string) => {
+    try {
+      setDowngrading(true);
+      const res = await studentSubscriptionApi.downgradeSubscription(targetTier);
+      toast.success(res.message || `Successfully Downgraded To ${targetTier.toUpperCase()} Scholar Pass.`);
+      setSelectedTier(null);
+      if (refreshUser) {
+        await refreshUser();
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed To Downgrade Subscription.");
+    } finally {
+      setDowngrading(false);
+    }
+  };
+
   const selectedPlan = selectedTier ? (PLANS.find((p) => p.tier === selectedTier) ?? null) : null;
+  const selectedRank = selectedPlan ? (TIER_RANK[selectedPlan.tier] ?? 0) : 0;
+  const isDowngradeSelected = selectedPlan ? selectedRank < currentRank : false;
   const basePrice = selectedPlan ? (billingCycle === "semester" ? selectedPlan.priceSemester : selectedPlan.priceMonthly) : 0;
 
   const handleApplyCoupon = async () => {
@@ -213,17 +266,25 @@ export function MembershipUpgradeSection({
           <div className="space-y-1.5 max-w-xl min-w-0">
             <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-[0.62rem] xs:text-[0.68rem] font-bold text-primary">
               <Crown className="h-3 w-3 shrink-0" />
-              <span>SaastaScholar Academic Pass</span>
+              <span>{isElite ? "SaastaScholar Elite Pass Active" : "SaastaScholar Academic Pass"}</span>
             </div>
             <h1 className="text-lg xs:text-xl sm:text-2xl font-black tracking-tight text-foreground break-words leading-tight">
-              Upgrade Your Study Experience
+              {isElite
+                ? "Manage Academic Pass & Membership"
+                : isPaidScholar
+                ? "Academic Pass & Plan Management"
+                : "Upgrade Your Study Experience"}
             </h1>
             <p className="text-[0.7rem] xs:text-xs text-muted-foreground leading-relaxed break-words">
-              Unlock Verified Handwritten Notes, Solved 10-Year Examination Papers, and Practical Lab Code Packets.
+              {isElite
+                ? "You are currently enjoying maximum tier privileges on the Elite Scholar Pass. Manage, downgrade to another plan, or cancel your subscription below."
+                : isPaidScholar
+                ? "Manage your active pass privileges, switch plans, or view and download official GST tax invoices."
+                : "Unlock Verified Handwritten Notes, Solved 10-Year Examination Papers, and Practical Lab Code Packets."}
             </p>
           </div>
 
-          {/* Current Membership Status Chip & Self-Service Invoice Button */}
+          {/* Current Membership Status Chip, Cancel Plan Button & Self-Service Invoice Button */}
           <div className="flex flex-wrap items-center gap-2 shrink-0">
             <div className="flex items-center gap-2.5 rounded-xl sm:rounded-2xl border border-border/80 bg-surface/80 px-3.5 py-2 shadow-2xs">
               <div className="space-y-0.5">
@@ -238,6 +299,18 @@ export function MembershipUpgradeSection({
                 </div>
               </div>
             </div>
+
+            {isPaidScholar && (
+              <button
+                type="button"
+                onClick={() => setCancelModalOpen(true)}
+                className="inline-flex items-center gap-1.5 rounded-xl sm:rounded-2xl border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/20 px-3 py-2 text-xs font-bold text-rose-600 dark:text-rose-400 transition-all cursor-pointer active:scale-95 shadow-2xs"
+                title="Cancel your paid plan and revert to Free Scholar"
+              >
+                <ArrowDownCircle className="h-3.5 w-3.5" />
+                <span>Cancel Plan</span>
+              </button>
+            )}
 
             <button
               type="button"
@@ -297,26 +370,34 @@ export function MembershipUpgradeSection({
       {/* Pricing Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
         {PLANS.map((plan) => {
+          const planRank = TIER_RANK[plan.tier] ?? 0;
           const isCurrent = currentTier === plan.tier;
           const isSelected = selectedTier === plan.tier;
+          const isDowngrade = isPaidScholar && planRank < currentRank;
           const price = billingCycle === "semester" ? plan.priceSemester : plan.priceMonthly;
 
           return (
             <div
               key={plan.tier}
               onClick={() => {
-                if (plan.tier !== "FREE") {
+                if (plan.tier === "FREE" && isPaidScholar) {
+                  setCancelModalOpen(true);
+                } else if (plan.tier !== "FREE") {
                   setSelectedTier(plan.tier);
                   setAppliedCoupon(null);
                 }
               }}
               className={cn(
                 "relative flex flex-col justify-between rounded-2xl sm:rounded-3xl border p-4 sm:p-5 transition-all duration-200",
-                plan.tier !== "FREE" ? "cursor-pointer" : "opacity-90 cursor-default",
+                plan.tier !== "FREE" || isPaidScholar ? "cursor-pointer" : "opacity-90 cursor-default",
                 isSelected
-                  ? "border-primary bg-primary/5 shadow-lg ring-2 ring-primary/40 -translate-y-0.5"
+                  ? isDowngrade
+                    ? "border-amber-500 bg-amber-500/5 shadow-lg ring-2 ring-amber-500/40 -translate-y-0.5"
+                    : "border-primary bg-primary/5 shadow-lg ring-2 ring-primary/40 -translate-y-0.5"
+                  : isDowngrade && isElite
+                  ? "border-border/80 bg-card hover:border-amber-500/40 hover:shadow-sm"
                   : "border-border/80 bg-card hover:border-border hover:shadow-sm",
-                plan.popular && !isSelected && "border-primary/40"
+                plan.popular && !isSelected && !isElite && "border-primary/40"
               )}
             >
               {plan.badge && (
@@ -328,7 +409,14 @@ export function MembershipUpgradeSection({
               <div>
                 <div className="flex items-center justify-between">
                   <h3 className="text-sm sm:text-base font-extrabold text-foreground">{plan.name}</h3>
-                  {isSelected && <CheckCircle2 className="h-4 w-4 text-primary shrink-0" />}
+                  {isSelected && (
+                    <CheckCircle2
+                      className={cn(
+                        "h-4 w-4 shrink-0",
+                        isDowngrade ? "text-amber-500" : "text-primary"
+                      )}
+                    />
+                  )}
                 </div>
 
                 <p className="mt-1 text-[0.7rem] sm:text-xs text-muted-foreground min-h-[28px]">{plan.tagline}</p>
@@ -358,10 +446,44 @@ export function MembershipUpgradeSection({
                   <div className="w-full rounded-xl border border-emerald-500/40 bg-emerald-500/10 py-2 text-center text-xs font-bold text-emerald-500">
                     Active Pass
                   </div>
+                ) : plan.tier === "FREE" && isPaidScholar ? (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setCancelModalOpen(true);
+                    }}
+                    className="w-full rounded-xl py-2 text-xs font-bold border border-rose-500/40 bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 transition-all cursor-pointer shadow-2xs active:scale-95 flex items-center justify-center gap-1.5"
+                  >
+                    <ArrowDownCircle className="h-3.5 w-3.5 shrink-0" />
+                    <span>Cancel / Downgrade To Free</span>
+                  </button>
                 ) : plan.tier === "FREE" ? (
                   <div className="w-full rounded-xl border border-border bg-muted/40 py-2 text-center text-xs font-semibold text-muted-foreground">
                     Free Included
                   </div>
+                ) : isDowngrade ? (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (plan.tier !== "FREE") {
+                        setSelectedTier(plan.tier);
+                      }
+                      setAppliedCoupon(null);
+                    }}
+                    className={cn(
+                      "w-full rounded-xl py-2 text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95 flex items-center justify-center gap-1.5",
+                      isSelected
+                        ? "bg-amber-500 text-white hover:bg-amber-600 shadow-amber-500/25"
+                        : "border border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20"
+                    )}
+                  >
+                    <ArrowDownCircle className="h-3.5 w-3.5 shrink-0" />
+                    <span>
+                      {isSelected ? "Selected For Downgrade" : `Downgrade To ${plan.name.replace(" Scholar", "").replace(" Achiever", "")}`}
+                    </span>
+                  </button>
                 ) : (
                   <button
                     type="button"
@@ -369,8 +491,8 @@ export function MembershipUpgradeSection({
                       e.stopPropagation();
                       if (plan.tier !== "FREE") {
                         setSelectedTier(plan.tier);
-                        setAppliedCoupon(null);
                       }
+                      setAppliedCoupon(null);
                     }}
                     className={cn(
                       "w-full rounded-xl py-2 text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95",
@@ -388,26 +510,41 @@ export function MembershipUpgradeSection({
         })}
       </div>
 
-      {/* Checkout & Coupon Section For Selected Plan - Short & Better UI/UX */}
+      {/* Checkout & Action Section For Selected Plan */}
       {selectedPlan ? (
         <div
           id="checkout-summary-section"
-          className="mx-auto max-w-2xl overflow-hidden rounded-2xl sm:rounded-3xl border border-primary/35 bg-card/95 p-4 sm:p-5 shadow-xl backdrop-blur-xl space-y-3.5 animate-in fade-in slide-in-from-bottom-3 duration-300"
+          className={cn(
+            "mx-auto max-w-2xl overflow-hidden rounded-2xl sm:rounded-3xl border p-4 sm:p-5 shadow-xl backdrop-blur-xl space-y-3.5 animate-in fade-in slide-in-from-bottom-3 duration-300",
+            isDowngradeSelected ? "border-amber-500/40 bg-card/95" : "border-primary/35 bg-card/95"
+          )}
         >
           {/* Top Bar: Plan Info & Base Price */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-border/80">
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
-                <span className="rounded-full bg-primary/10 border border-primary/25 px-2 py-0.5 text-[0.62rem] font-bold text-primary uppercase tracking-wider">
-                  Step 2 · Checkout
+                <span
+                  className={cn(
+                    "rounded-full border px-2 py-0.5 text-[0.62rem] font-bold uppercase tracking-wider",
+                    isDowngradeSelected
+                      ? "bg-amber-500/15 border-amber-500/30 text-amber-600 dark:text-amber-400"
+                      : "bg-primary/10 border-primary/25 text-primary"
+                  )}
+                >
+                  {isDowngradeSelected ? "Plan Downgrade" : "Step 2 · Checkout"}
                 </span>
                 <span className="rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 px-2 py-0.5 text-[0.62rem] font-bold">
                   {selectedPlan.tier}
                 </span>
               </div>
               <h3 className="text-sm sm:text-base font-black text-foreground mt-0.5 leading-snug">
-                {selectedPlan.name} · {billingCycle === "semester" ? "Semester Pass (180 Days)" : "Monthly Pass (30 Days)"}
+                {isDowngradeSelected ? `Downgrade To ${selectedPlan.name}` : selectedPlan.name} · {billingCycle === "semester" ? "Semester Pass (180 Days)" : "Monthly Pass (30 Days)"}
               </h3>
+              {isDowngradeSelected && (
+                <p className="text-[0.68rem] text-muted-foreground mt-0.5">
+                  You are downgrading from your current {currentTier} Scholar tier to {selectedPlan.name}. You can apply the instant downgrade or renew via Razorpay.
+                </p>
+              )}
             </div>
             <div className="flex items-baseline gap-1.5 sm:text-right shrink-0">
               <span className="text-[0.68rem] text-muted-foreground uppercase font-bold">Standard:</span>
@@ -458,7 +595,7 @@ export function MembershipUpgradeSection({
             )}
           </div>
 
-          {/* Compact Payable Bar & Proceed Button */}
+          {/* Action Buttons: Instant Downgrade or Payment / Checkout */}
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-0.5">
             <div className="flex items-baseline gap-1.5">
               <span className="text-xs uppercase font-bold text-muted-foreground">Total:</span>
@@ -473,24 +610,48 @@ export function MembershipUpgradeSection({
               <span className="text-[0.65rem] text-muted-foreground font-medium">(GST Included)</span>
             </div>
 
-            <button
-              type="button"
-              onClick={handleInitiateUpgrade}
-              disabled={upgrading}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-xs sm:text-sm font-bold text-primary-foreground shadow-md transition-all hover:bg-primary-deep active:scale-95 disabled:opacity-60 cursor-pointer"
-            >
-              {upgrading ? (
-                <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
-              ) : (
-                <>
-                  <Sparkles className="h-3.5 w-3.5" />
-                  <span>
-                    Pay ₹{appliedCoupon ? appliedCoupon.final_amount_inr : basePrice} Via Razorpay
-                  </span>
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </>
+            <div className="flex flex-wrap items-center gap-2">
+              {isDowngradeSelected && (
+                <button
+                  type="button"
+                  onClick={() => handleInstantDowngrade(selectedPlan.tier)}
+                  disabled={downgrading}
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-amber-500/50 bg-amber-500/10 text-amber-700 dark:text-amber-300 px-4 text-xs font-bold transition-all hover:bg-amber-500/20 active:scale-95 cursor-pointer disabled:opacity-60"
+                >
+                  {downgrading ? (
+                    <span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
+                  ) : (
+                    <ArrowDownCircle className="h-3.5 w-3.5" />
+                  )}
+                  <span>Apply Instant Downgrade</span>
+                </button>
               )}
-            </button>
+
+              <button
+                type="button"
+                onClick={handleInitiateUpgrade}
+                disabled={upgrading}
+                className={cn(
+                  "inline-flex h-10 items-center justify-center gap-2 rounded-xl px-5 text-xs sm:text-sm font-bold shadow-md transition-all active:scale-95 disabled:opacity-60 cursor-pointer",
+                  isDowngradeSelected
+                    ? "bg-amber-600 hover:bg-amber-700 text-white"
+                    : "bg-primary hover:bg-primary-deep text-primary-foreground"
+                )}
+              >
+                {upgrading ? (
+                  <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+                ) : (
+                  <>
+                    <Sparkles className="h-3.5 w-3.5" />
+                    <span>
+                      {isDowngradeSelected ? "Renew At " : "Pay "}
+                      ₹{appliedCoupon ? appliedCoupon.final_amount_inr : basePrice} Via Razorpay
+                    </span>
+                    <ArrowRight className="h-3.5 w-3.5" />
+                  </>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Single Compact Trust Line */}
@@ -517,9 +678,15 @@ export function MembershipUpgradeSection({
           <div className="mx-auto h-9 w-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center font-bold">
             <Zap className="h-4 w-4" />
           </div>
-          <h3 className="font-bold text-xs sm:text-sm text-foreground">Step 1: Choose Your Academic Plan Above</h3>
+          <h3 className="font-bold text-xs sm:text-sm text-foreground">
+            {isElite
+              ? "Select A Plan Above To Downgrade Or Manage Billing"
+              : "Step 1: Choose Your Academic Plan Above"}
+          </h3>
           <p className="text-[0.7rem] text-muted-foreground max-w-sm mx-auto">
-            Select A Plan Above To View Voucher Discounts And Activate Instant Checkout.
+            {isElite
+              ? "Choose Basic or Premium to downgrade your membership, or click Cancel Plan to revert to Free Scholar."
+              : "Select A Plan Above To View Voucher Discounts And Activate Instant Checkout."}
           </p>
         </div>
       )}
@@ -531,6 +698,63 @@ export function MembershipUpgradeSection({
         invoice={invoiceData}
         loading={invoiceLoading}
       />
+
+      {/* Cancellation / Revert to Free Confirmation Modal */}
+      {cancelModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-md rounded-2xl sm:rounded-3xl border border-rose-500/30 bg-card p-5 sm:p-6 shadow-2xl space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-500">
+                <AlertTriangle className="h-5 w-5" />
+              </div>
+              <div>
+                <h3 className="font-bold text-sm sm:text-base text-foreground">
+                  Cancel {currentTier} Scholar Pass?
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  Revert your account to the Free Scholar plan.
+                </p>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-border/80 bg-surface/60 p-3.5 space-y-2 text-xs">
+              <p className="font-semibold text-foreground">
+                You will lose instant access to:
+              </p>
+              <ul className="space-y-1 text-muted-foreground list-disc list-inside text-[0.7rem] sm:text-xs">
+                <li>10-Year Solved University Examination Papers</li>
+                <li>Full Laboratory Manuals &amp; Viva Code Packets</li>
+                <li>Faculty Priority Academic Guidance &amp; Daily Model Solutions</li>
+                <li>Offline DRM Note Caching &amp; High-Resolution Diagrams</li>
+              </ul>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2">
+              <button
+                type="button"
+                onClick={() => setCancelModalOpen(false)}
+                disabled={cancelling}
+                className="rounded-xl border border-border bg-surface px-4 py-2 text-xs font-bold text-foreground hover:bg-muted cursor-pointer transition-colors"
+              >
+                Keep My Active Pass
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmCancelPlan}
+                disabled={cancelling}
+                className="rounded-xl bg-rose-600 hover:bg-rose-700 px-4 py-2 text-xs font-bold text-white shadow-md cursor-pointer transition-all active:scale-95 flex items-center gap-1.5 disabled:opacity-50"
+              >
+                {cancelling ? (
+                  <span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                ) : (
+                  <ArrowDownCircle className="h-3.5 w-3.5" />
+                )}
+                <span>Confirm Cancel Plan</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

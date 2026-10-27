@@ -195,6 +195,104 @@ class UserAccessMatrixView(APIView):
         })
 
 
+class StudentCancelSubscriptionView(APIView):
+    """
+    Cancels Any Active Paid Plan For The Authenticated Student,
+    Deactivating Their Active UserSubscription And Reverting Access Tier To FREE.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        previous_tier = (user.access_tier or "FREE").upper()
+        user.access_tier = "FREE"
+        user.save(update_fields=["access_tier"])
+
+        UserSubscription.objects.filter(user=user, is_active=True).update(is_active=False)
+
+        try:
+            from Apps.Academic.cache_utils import invalidate_redis_pattern
+            invalidate_redis_pattern(f"*{user.id}*")
+            invalidate_redis_pattern(f"subscriptions:access:{user.id}*")
+        except Exception:
+            pass
+
+        return Response({
+            "success": True,
+            "message": f"Your {previous_tier.title()} Scholar Subscription Has Been Cancelled. Account Reverted To Free Scholar.",
+            "current_tier": "FREE",
+        })
+
+
+class StudentDowngradeSubscriptionView(APIView):
+    """
+    Downgrades The Authenticated Student's Subscription To A Lower Tier (e.g. from ELITE to PREMIUM, BASIC, or FREE).
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        raw_target_tier = str(request.data.get("target_tier") or "FREE").strip().upper()
+        tier_alias_map = {
+            "STARTER": "FREE",
+            "SCHOLAR": "BASIC",
+            "ACHIEVER": "PREMIUM",
+            "ELITE_PLUS": "ELITE",
+        }
+        target_tier = tier_alias_map.get(raw_target_tier, raw_target_tier)
+        tier_rank = {"FREE": 0, "BASIC": 1, "PREMIUM": 2, "ELITE": 3}
+
+        current_tier = (user.access_tier or "FREE").upper()
+        current_rank = tier_rank.get(current_tier, 0)
+        target_rank = tier_rank.get(target_tier, 0)
+
+        if target_rank >= current_rank:
+            return Response(
+                {"error": f"Selected Target Tier '{target_tier}' Must Be Lower Than Current Tier '{current_tier}' For A Downgrade."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        previous_tier = current_tier
+        user.access_tier = target_tier
+        user.save(update_fields=["access_tier"])
+
+        UserSubscription.objects.filter(user=user, is_active=True).update(is_active=False)
+
+        if target_tier != "FREE":
+            plan_obj = SubscriptionPlan.objects.filter(tier__iexact=target_tier).first()
+            if not plan_obj:
+                tier_info = PRICING_MATRIX.get(target_tier, {})
+                plan_obj = SubscriptionPlan.objects.create(
+                    tier=target_tier,
+                    name=tier_info.get("name", f"{target_tier.title()} Plan"),
+                    tagline=tier_info.get("description", ""),
+                    price_monthly=round(tier_info.get("monthly", 0) / 100, 2),
+                    price_semester=round(tier_info.get("semester", 0) / 100, 2),
+                )
+            now = timezone.now()
+            UserSubscription.objects.create(
+                user=user,
+                plan=plan_obj,
+                start_date=now,
+                end_date=now + timedelta(days=30),
+                is_active=True,
+                transaction_id=f"DOWNGRADE-{uuid.uuid4().hex[:8].upper()}",
+            )
+
+        try:
+            from Apps.Academic.cache_utils import invalidate_redis_pattern
+            invalidate_redis_pattern(f"*{user.id}*")
+            invalidate_redis_pattern(f"subscriptions:access:{user.id}*")
+        except Exception:
+            pass
+
+        return Response({
+            "success": True,
+            "message": f"Successfully Downgraded From {previous_tier.title()} To {target_tier.title()} Scholar Pass.",
+            "current_tier": target_tier,
+        })
+
+
 class AdminPlanAccessMatrixView(APIView):
     """
     Allows Admin To View And Fully Customize Page Access, Downloads & Features Per Plan
