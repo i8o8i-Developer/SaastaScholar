@@ -19,15 +19,12 @@ import {
   Send,
   ShieldCheck,
   Sparkles,
-  Sun,
-  Moon,
   Tag,
   X,
   Zap,
 } from "lucide-react";
 import { type FormEvent, useEffect, useState } from "react";
 import { useAuth } from "@/Hooks/UseAuth";
-import { useTheme } from "@/Hooks/UseTheme";
 import { toast } from "sonner";
 import { apiFetch, Department, ProgramSpecialization, SectionBatch } from "@/Lib/Api";
 import { cn } from "@/Lib/Utils";
@@ -47,7 +44,6 @@ export const Route = createFileRoute("/login")({
 export function Login() {
   const navigate = useNavigate();
   const { login, register } = useAuth();
-  const { isDark, toggleTheme } = useTheme();
 
   const [authMode, setAuthMode] = useState<"login" | "register" | "admin">(() => {
     if (typeof window !== "undefined") {
@@ -581,20 +577,7 @@ export function Login() {
           </a>
 
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="grid h-8 w-8 place-items-center rounded-full border border-border bg-card/85 text-foreground hover:bg-surface cursor-pointer transition-all shadow-2xs shrink-0"
-              title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            >
-              {isDark ? (
-                <Sun className="h-4 w-4 text-amber-400 hover:rotate-45 transition-transform" />
-              ) : (
-                <Moon className="h-4 w-4 text-slate-700 hover:-rotate-12 transition-transform" />
-              )}
-            </button>
-
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-[#005F15]/30 bg-[#005F15]/10 dark:border-emerald-500/30 dark:bg-emerald-500/10 px-2.5 sm:px-3.5 py-1.5 text-[0.68rem] sm:text-xs font-bold text-[#005F15] dark:text-emerald-300 shadow-2xs shrink-0">
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 sm:px-3.5 py-1.5 text-[0.68rem] sm:text-xs font-bold text-emerald-300 shadow-2xs shrink-0">
               <span className="relative flex h-2 w-2">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />

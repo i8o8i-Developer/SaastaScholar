@@ -2,16 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>SaastaScholar · Unslop Story</title>
-  <meta name="unslop-steps" content="Spacing, Color, Typography, Details">
+  <title>SaastaScholar · Student Dashboard Unslop Story</title>
+  <meta name="unslop-steps" content="Spacing, Color, Type and copy, Details">
   <meta name="unslop-frame" content="0 0 1080">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
   <style>
     /* -------------------------------------------------------------
-       STEP 0: The Original Slop Interface
-       Muddy greenish tint, uneven paddings, gradient badges, clashing glows
+       STEP 0: The Original Slop Dashboard Interface
+       Muddy green swamp palette, radioactive halos, clashing neon badges
     ------------------------------------------------------------- */
     *, *::before, *::after {
       box-sizing: border-box;
@@ -20,446 +20,1027 @@
     }
 
     body {
-      background-color: #17241b;
-      color: #bbf7d0;
+      background-color: #0b150f;
+      color: #86efac;
       font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      min-height: 900px;
-      padding: 32px 48px;
+      min-height: 980px;
+      padding: 24px;
       display: flex;
       justify-content: center;
       align-items: flex-start;
       -webkit-font-smoothing: antialiased;
+      transition: background-color 0.8s ease, color 0.8s ease;
     }
 
-    .dashboard {
+    .app-window {
       width: 1040px;
-      background: #1e3325;
+      background: #0f1c13;
       border: 1px solid rgba(74, 222, 128, 0.25);
-      border-radius: 36px;
-      padding: 32px;
-      box-shadow: 0 0 50px rgba(16, 185, 129, 0.15);
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 0 60px rgba(16, 185, 129, 0.18);
+      display: flex;
+      transition: background 0.8s ease, border-color 0.8s ease, box-shadow 0.8s ease, border-radius 0.8s ease;
+    }
+
+    /* -------------------------------------------------------------
+       LEFT SIDEBAR
+    ------------------------------------------------------------- */
+    .sidebar {
+      width: 260px;
+      background: #0d1810;
+      border-right: 1px solid rgba(74, 222, 128, 0.18);
+      padding: 24px 16px;
       display: flex;
       flex-direction: column;
-      gap: 24px;
-    }
-
-    /* Header */
-    .top-bar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid rgba(74, 222, 128, 0.2);
-      padding-bottom: 20px;
-    }
-
-    .brand-row {
-      display: flex;
-      align-items: center;
       gap: 16px;
+      transition: background 0.8s ease, border-color 0.8s ease, padding 0.8s ease, gap 0.8s ease;
     }
 
-    .logo-box {
-      width: 44px;
-      height: 44px;
+    /* Brand Header */
+    .brand-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(74, 222, 128, 0.12);
+      transition: border-color 0.8s ease, padding 0.8s ease;
+    }
+
+    .brand-logo-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-emblem {
+      width: 32px;
+      height: 32px;
+      background: #059669;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      color: #ffffff;
+      font-size: 15px;
+      box-shadow: 0 0 16px rgba(16, 185, 129, 0.35);
+      transition: box-shadow 0.8s ease, background 0.8s ease;
+    }
+
+    .brand-name {
+      font-size: 14px;
+      font-weight: 800;
+      color: #f0fdf4;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+    }
+
+    .brand-tag {
+      font-size: 9px;
+      color: #86efac;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+    }
+
+    /* User Profile Chip */
+    .user-chip {
+      background: #152419;
+      border: 1px solid rgba(74, 222, 128, 0.22);
+      border-radius: 16px;
+      padding: 10px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.12);
+      transition: background 0.8s ease, border-color 0.8s ease, box-shadow 0.8s ease;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
       background: #10b981;
-      border-radius: 14px;
+      border-radius: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 800;
-      color: #052e16;
-      font-size: 20px;
-      box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+      color: #042f1a;
+      font-size: 13px;
+      border: 2px solid #34d399;
+      box-shadow: 0 0 10px rgba(52, 211, 153, 0.4);
+      transition: box-shadow 0.8s ease, border-color 0.8s ease;
     }
 
-    .title-group h1 {
-      font-size: 20px;
-      font-weight: 800;
-      color: #f0fdf4;
-      letter-spacing: -0.01em;
+    .user-info {
+      flex: 1;
+      min-width: 0;
     }
 
-    .title-group p {
+    .user-name {
       font-size: 12px;
-      color: #86efac;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
+      font-weight: 700;
+      color: #ffffff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .user-badges {
+      display: flex;
+      align-items: center;
+      gap: 6px;
       margin-top: 2px;
     }
 
-    .badge-pill {
-      background: linear-gradient(135deg, #059669, #0284c7);
-      color: #ffffff;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 8px 16px;
-      border-radius: 20px;
-      box-shadow: 0 0 15px rgba(2, 132, 199, 0.4);
-    }
-
-    /* Cards Grid */
-    .cards-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-    }
-
-    .plan-card {
-      background: #243e2e;
-      border: 1px solid rgba(74, 222, 128, 0.3);
-      border-radius: 28px;
-      padding: 24px 20px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: 16px;
-      position: relative;
-    }
-
-    .card-label {
-      font-size: 11px;
-      font-weight: 700;
-      color: #4ade80;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    .card-title {
-      font-size: 18px;
+    .tier-badge {
+      font-size: 8.5px;
       font-weight: 800;
-      color: #f0fdf4;
-      margin-top: 4px;
+      text-transform: uppercase;
+      color: #34d399;
+      background: rgba(52, 211, 153, 0.18);
+      padding: 1px 6px;
+      border-radius: 8px;
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      transition: background 0.8s ease, border-color 0.8s ease, color 0.8s ease;
     }
 
-    .card-price {
-      font-size: 28px;
-      font-weight: 900;
-      color: #ffffff;
-      font-family: 'JetBrains Mono', monospace;
-      margin-top: 10px;
+    .sem-badge {
+      font-size: 9px;
+      color: #94a3b8;
     }
 
-    .card-price span {
-      font-size: 13px;
-      color: #86efac;
-      font-family: 'Inter', sans-serif;
-      font-weight: 500;
-    }
-
-    .card-features {
-      list-style: none;
+    /* Nav Menu List */
+    .nav-list {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      margin-top: 8px;
-      border-top: 1px solid rgba(74, 222, 128, 0.15);
-      padding-top: 12px;
-      font-size: 12px;
-      color: #bbf7d0;
+      gap: 6px;
+      transition: gap 0.8s ease;
     }
 
-    .card-features li {
+    .nav-item {
       display: flex;
       align-items: center;
-      gap: 8px;
+      justify-content: space-between;
+      padding: 9px 12px;
+      border-radius: 14px;
+      color: #cbd5e1;
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.8s ease;
     }
 
-    .action-btn {
+    .nav-item.active {
+      background: #005F15;
+      color: #ffffff;
+      border: 1px solid #10b981;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+    }
+
+    .nav-label-group {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+    }
+
+    .nav-icon {
+      font-size: 13px;
+      opacity: 0.9;
+    }
+
+    .nav-pill {
+      font-size: 9px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 9px;
+      background: rgba(16, 185, 129, 0.22);
+      border: 1px solid #10b981;
+      color: #34d399;
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.25);
+      transition: all 0.8s ease;
+    }
+
+    .nav-pill.purple {
+      background: rgba(168, 85, 247, 0.22);
+      border-color: #a855f7;
+      color: #c084fc;
+      box-shadow: 0 0 8px rgba(168, 85, 247, 0.25);
+    }
+
+    /* Sidebar Footer */
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: 14px;
+      border-top: 1px solid rgba(74, 222, 128, 0.12);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: border-color 0.8s ease;
+    }
+
+    .signout-btn {
       width: 100%;
-      height: 42px;
-      border-radius: 21px;
-      border: none;
-      background: #10b981;
-      color: #052e16;
+      padding: 9px;
+      background: rgba(225, 29, 72, 0.12);
+      border: 1px solid rgba(225, 29, 72, 0.3);
+      border-radius: 12px;
+      color: #fb7185;
+      font-size: 11px;
       font-weight: 700;
-      font-size: 12px;
       cursor: pointer;
-      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
+      transition: all 0.8s ease;
     }
 
-    /* Checkout Bottom Box */
-    .checkout-box {
-      background: #1b2f23;
+    /* -------------------------------------------------------------
+       MAIN CONTENT PANEL
+    ------------------------------------------------------------- */
+    .main-panel {
+      flex: 1;
+      padding: 26px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      background: #0f1c13;
+      transition: background 0.8s ease, padding 0.8s ease, gap 0.8s ease;
+    }
+
+    /* Top Bar */
+    .content-top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(74, 222, 128, 0.18);
+      transition: border-color 0.8s ease;
+    }
+
+    .cohort-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: #142418;
+      border: 1px solid rgba(74, 222, 128, 0.25);
+      border-radius: 12px;
+      padding: 5px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #86efac;
+      transition: all 0.8s ease;
+    }
+
+    .cohort-pill span.action {
+      color: #4ade80;
+      text-decoration: underline;
+      font-size: 10px;
+      cursor: pointer;
+    }
+
+    .clock-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: #142418;
+      border: 1px solid #10b981;
+      border-radius: 12px;
+      padding: 5px 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: #34d399;
+      box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+      transition: all 0.8s ease;
+    }
+
+    .live-dot {
+      width: 6px;
+      height: 6px;
+      background: #10b981;
+      border-radius: 3px;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    /* Welcome Banner Card */
+    .welcome-card {
+      background: #162a1c;
       border: 1px solid rgba(74, 222, 128, 0.25);
       border-radius: 24px;
-      padding: 20px 24px;
+      padding: 24px 26px;
+      box-shadow: 0 0 25px rgba(16, 185, 129, 0.12);
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
+      flex-direction: column;
+      gap: 8px;
+      transition: all 0.8s ease;
     }
 
-    .total-info {
+    .space-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #34d399;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 3px 10px;
+      border-radius: 10px;
+      align-self: flex-start;
+      transition: all 0.8s ease;
+    }
+
+    .welcome-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.02em;
+      transition: color 0.8s ease;
+    }
+
+    .welcome-sub {
+      font-size: 12.5px;
+      color: #94a3b8;
+      line-height: 1.5;
+      max-width: 640px;
+      transition: color 0.8s ease;
+    }
+
+    /* Lectures Concluded Card */
+    .lecture-card {
+      background: #162a1c;
+      border: 1px solid rgba(74, 222, 128, 0.25);
+      border-radius: 24px;
+      padding: 22px 26px;
       display: flex;
-      align-items: baseline;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.1);
+      transition: all 0.8s ease;
+    }
+
+    .lecture-status-header {
+      display: flex;
+      align-items: center;
       gap: 10px;
     }
 
-    .total-label {
+    .status-check-icon {
+      width: 22px;
+      height: 22px;
+      background: #059669;
+      border-radius: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
       font-size: 12px;
-      text-transform: uppercase;
+      font-weight: 800;
+      box-shadow: 0 0 10px rgba(5, 150, 105, 0.4);
+      transition: box-shadow 0.8s ease;
+    }
+
+    .status-pill {
+      font-size: 10px;
       font-weight: 700;
+      color: #34d399;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 3px 10px;
+      border-radius: 10px;
+    }
+
+    .lecture-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #ffffff;
+      transition: color 0.8s ease;
+    }
+
+    .lecture-desc {
+      font-size: 12px;
+      color: #94a3b8;
+      line-height: 1.5;
+      transition: color 0.8s ease;
+    }
+
+    .upcoming-box {
+      background: #101e14;
+      border: 1px solid rgba(74, 222, 128, 0.2);
+      border-radius: 16px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.8s ease;
+    }
+
+    .upcoming-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .upcoming-clock-icon {
+      width: 28px;
+      height: 28px;
+      background: #059669;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-size: 12px;
+    }
+
+    .upcoming-badge {
+      font-size: 9px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #4ade80;
+    }
+
+    .upcoming-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-top: 1px;
+    }
+
+    .upcoming-meta {
+      font-size: 11px;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    /* Stat Cards Grid */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      transition: gap 0.8s ease;
+    }
+
+    .stat-card {
+      background: #142418;
+      border: 1px solid rgba(74, 222, 128, 0.22);
+      border-radius: 20px;
+      padding: 18px 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 10px;
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.08);
+      transition: all 0.8s ease;
+    }
+
+    .stat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .stat-tag {
+      font-size: 9.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
       color: #86efac;
     }
 
-    .total-amount {
+    .stat-icon {
+      font-size: 12px;
+      color: #34d399;
+    }
+
+    .stat-value {
       font-size: 26px;
       font-weight: 900;
       color: #ffffff;
       font-family: 'JetBrains Mono', monospace;
+      line-height: 1;
     }
 
-    .total-sub {
+    .stat-unit {
       font-size: 11px;
+      color: #94a3b8;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      margin-left: 4px;
+    }
+
+    .stat-label {
+      font-size: 10.5px;
       color: #86efac;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .stat-action {
+      font-size: 10px;
+      font-weight: 700;
+      color: #34d399;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+    }
+
+    /* Telemetry Row */
+    .telemetry-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #86efac;
+      padding-top: 4px;
+      transition: color 0.8s ease;
     }
 
     /* -------------------------------------------------------------
-       STEP 1: Spacing
-       Even out the layout, align vertical rhythm, establish quiet gaps
+       UNSLOP STEP 1: SPACING
+       Rhythm onto 4px scale, even gaps, balanced padding
     ------------------------------------------------------------- */
-    .s1 .dashboard {
-      padding: 36px 40px;
-      gap: 28px;
+    .s1 body {
+      padding: 32px;
     }
 
-    .s1 .cards-grid {
-      gap: 24px;
+    .s1 .sidebar {
+      padding: 20px 16px;
+      gap: 12px;
     }
 
-    .s1 .plan-card {
-      padding: 28px 24px;
-      gap: 20px;
+    .s1 .main-panel {
+      padding: 24px;
+      gap: 16px;
     }
 
-    .s1 .card-features {
+    .s1 .welcome-card {
+      padding: 20px 24px;
+      gap: 6px;
+    }
+
+    .s1 .lecture-card {
+      padding: 20px 24px;
       gap: 10px;
-      padding-top: 16px;
-      margin-top: 12px;
     }
 
-    .s1 .checkout-box {
-      padding: 22px 28px;
+    .s1 .stat-grid {
+      gap: 12px;
+    }
+
+    .s1 .stat-card {
+      padding: 16px 14px;
+      gap: 8px;
     }
 
     /* -------------------------------------------------------------
-       STEP 2: Color
-       Drain muddy green cast into unslop Graphite neutral ramp
+       UNSLOP STEP 2: COLOR & CONTRAST
+       Drain swamp tint -> Deep graphite/obsidian, no radioactive glows
     ------------------------------------------------------------- */
     .s2 body {
-      background-color: #141415;
-      color: #ededed;
+      background-color: #0c0f12;
+      color: #f1f5f9;
     }
 
-    .s2 .dashboard {
-      background-color: #18191c;
-      border-color: rgba(255, 255, 255, 0.08);
+    .s2 .app-window {
+      background: #13171d;
+      border-color: #222831;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.4);
+    }
+
+    .s2 .sidebar {
+      background: #111419;
+      border-right-color: #1e242c;
+    }
+
+    .s2 .brand-header {
+      border-bottom-color: #1e242c;
+    }
+
+    .s2 .logo-emblem {
+      box-shadow: none;
+      background: #059669;
+    }
+
+    .s2 .brand-name {
+      color: #f8fafc;
+    }
+
+    .s2 .brand-tag {
+      color: #64748b;
+    }
+
+    .s2 .user-chip {
+      background: #181d24;
+      border-color: #272f3a;
       box-shadow: none;
     }
 
-    .s2 .top-bar {
-      border-bottom-color: rgba(255, 255, 255, 0.08);
+    .s2 .user-avatar {
+      box-shadow: none;
+      border-color: #059669;
     }
 
-    .s2 .logo-box {
-      background-color: #1c1d20;
+    .s2 .tier-badge {
+      background: rgba(5, 150, 105, 0.15);
+      border-color: rgba(5, 150, 105, 0.35);
       color: #10b981;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .s2 .nav-item.active {
+      background: rgba(5, 150, 105, 0.18);
+      border-color: rgba(5, 150, 105, 0.4);
+      color: #34d399;
       box-shadow: none;
     }
 
-    .s2 .badge-pill {
-      background: rgba(16, 185, 129, 0.12);
+    .s2 .nav-pill {
+      box-shadow: none;
+      background: #1e2530;
+      border-color: #2d3748;
+      color: #94a3b8;
+    }
+
+    .s2 .nav-pill.purple {
+      box-shadow: none;
+      background: rgba(147, 51, 234, 0.12);
+      border-color: rgba(147, 51, 234, 0.3);
+      color: #c084fc;
+    }
+
+    .s2 .main-panel {
+      background: #13171d;
+    }
+
+    .s2 .content-top-bar {
+      border-bottom-color: #1e242c;
+    }
+
+    .s2 .cohort-pill {
+      background: #181d24;
+      border-color: #272f3a;
+      color: #cbd5e1;
+    }
+
+    .s2 .clock-pill {
+      background: #181d24;
+      border-color: #272f3a;
       color: #10b981;
-      border: 1px solid rgba(16, 185, 129, 0.3);
       box-shadow: none;
     }
 
-    .s2 .plan-card {
-      background-color: #1c1d20;
-      border-color: rgba(255, 255, 255, 0.08);
+    .s2 .welcome-card {
+      background: #181d24;
+      border-color: #272f3a;
+      box-shadow: none;
     }
 
-    .s2 .card-label {
+    .s2 .space-tag {
+      background: rgba(5, 150, 105, 0.12);
+      border-color: rgba(5, 150, 105, 0.3);
+      color: #34d399;
+    }
+
+    .s2 .lecture-card {
+      background: #181d24;
+      border-color: #272f3a;
+      box-shadow: none;
+    }
+
+    .s2 .status-check-icon {
+      box-shadow: none;
+    }
+
+    .s2 .status-pill {
+      background: rgba(5, 150, 105, 0.12);
+      border-color: rgba(5, 150, 105, 0.3);
+      color: #34d399;
+    }
+
+    .s2 .upcoming-box {
+      background: #13171d;
+      border-color: #222831;
+    }
+
+    .s2 .stat-card {
+      background: #181d24;
+      border-color: #272f3a;
+      box-shadow: none;
+    }
+
+    .s2 .stat-tag {
+      color: #64748b;
+    }
+
+    .s2 .stat-label {
+      color: #94a3b8;
+    }
+
+    .s2 .stat-action {
       color: #10b981;
     }
 
-    .s2 .card-price span {
-      color: #9ca3af;
-    }
-
-    .s2 .card-features {
-      border-top-color: rgba(255, 255, 255, 0.08);
-      color: #9ca3af;
-    }
-
-    .s2 .action-btn {
-      background-color: #10b981;
-      color: #09090b;
-      box-shadow: none;
-    }
-
-    .s2 .checkout-box {
-      background-color: #1c1d20;
-      border-color: rgba(255, 255, 255, 0.08);
-    }
-
-    .s2 .total-label {
-      color: #9ca3af;
-    }
-
-    .s2 .total-sub {
-      color: #6b7280;
+    .s2 .telemetry-row {
+      color: #64748b;
     }
 
     /* -------------------------------------------------------------
-       STEP 3: Typography
-       Clean hierarchy, replace shouty uppercase with crafted Title Case
+       UNSLOP STEP 3: TYPE & COPY
+       Monospace tabular figures, clean Title Case, crisp hierarchy
     ------------------------------------------------------------- */
-    .s3 .title-group p {
-      font-size: 11px;
-      color: #9ca3af;
-      letter-spacing: 0.02em;
-      text-transform: none;
-      font-weight: 500;
+    .s3 .brand-name {
+      font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+      font-weight: 800;
     }
 
-    .s3 .card-label {
-      font-size: 11px;
-      letter-spacing: 0.03em;
-      font-weight: 600;
-      text-transform: none;
+    .s3 .welcome-title {
+      font-size: 21px;
+      font-weight: 800;
+      color: #f8fafc;
     }
 
-    .s3 .card-title {
-      font-size: 16px;
-      font-weight: 700;
-      color: #ededed;
-    }
-
-    .s3 .card-features {
+    .s3 .welcome-sub {
+      color: #64748b;
       font-size: 12px;
-      line-height: 1.4;
-      color: #9ca3af;
     }
 
-    .s3 .total-label {
-      font-size: 11px;
-      letter-spacing: 0.04em;
-      font-weight: 600;
+    .s3 .lecture-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #f8fafc;
+    }
+
+    .s3 .lecture-desc {
+      color: #64748b;
+      font-size: 12px;
+    }
+
+    .s3 .stat-value {
+      font-size: 24px;
+      font-variant-numeric: tabular-nums;
+      color: #f8fafc;
     }
 
     /* -------------------------------------------------------------
-       STEP 4: Details
-       Crisp hairlines, subtle radii, intentional tactile depth
+       UNSLOP STEP 4: DETAILS & RADII
+       Harmonious nested radii, control pills, signature polish
     ------------------------------------------------------------- */
-    .s4 .dashboard {
-      border-radius: 24px;
+    .s4 .app-window {
+      border-radius: 20px;
     }
 
-    .s4 .logo-box {
+    .s4 .welcome-card {
+      border-radius: 16px;
+    }
+
+    .s4 .lecture-card {
+      border-radius: 16px;
+    }
+
+    .s4 .upcoming-box {
       border-radius: 12px;
     }
 
-    .s4 .badge-pill {
+    .s4 .stat-card {
+      border-radius: 14px;
+    }
+
+    .s4 .nav-item {
       border-radius: 10px;
     }
 
-    .s4 .plan-card {
-      border-radius: 18px;
-    }
-
-    .s4 .action-btn {
+    .s4 .user-chip {
       border-radius: 12px;
-      font-weight: 600;
-      transition: background-color 150ms ease;
     }
 
-    .s4 .checkout-box {
-      border-radius: 16px;
+    .s4 .cohort-pill {
+      border-radius: 10px;
+    }
+
+    .s4 .clock-pill {
+      border-radius: 10px;
     }
   </style>
 </head>
 <body>
-  <div class="dashboard" data-radius="dashboard">
-    <!-- Top Brand Bar -->
-    <div class="top-bar" data-gap="main">
-      <div class="brand-row">
-        <div class="logo-box">S</div>
-        <div class="title-group">
-          <h1>SaastaScholar Academic Engine</h1>
-          <p><span class="swap" data-at="3"><span class="from">VERIFIED STUDENT PORTAL 🚀</span><span class="to">Official Courseware &amp; Exam Solutions</span></span></p>
+  <!-- Main Application Window -->
+  <div class="app-window" data-radius="window">
+    
+    <!-- LEFT NAVIGATION SIDEBAR -->
+    <aside class="sidebar">
+      
+      <!-- 1. Brand Row -->
+      <div class="brand-header" data-gap="sidebar">
+        <div class="brand-logo-group">
+          <div class="logo-emblem">S</div>
+          <div>
+            <div class="brand-name">SaastaScholar</div>
+            <div class="brand-tag">Academic Engine</div>
+          </div>
         </div>
-      </div>
-      <div class="badge-pill" data-radius="badge">
-        <span class="swap" data-at="3"><span class="from">⚡ ACTIVE PASS</span><span class="to">Elite Scholar Pass</span></span>
-      </div>
-    </div>
-
-    <!-- Cards Grid -->
-    <div class="cards-grid" data-gap="main">
-      <!-- Card 1: Basic -->
-      <div class="plan-card" data-radius="card">
-        <div>
-          <span class="card-label">Starter Pass</span>
-          <h2 class="card-title">Handwritten Notes</h2>
-          <div class="card-price">₹99 <span>/ month</span></div>
-          <ul class="card-features">
-            <li>✓ Chapter-Wise Summary Sheets</li>
-            <li>✓ University Syllabus Maps</li>
-            <li>✓ Exam Date Trackers</li>
-          </ul>
-        </div>
-        <button class="action-btn" data-radius="btn">Select Basic Pass</button>
+        <span style="font-size: 14px; color: #64748b; cursor: pointer;">☰</span>
       </div>
 
-      <!-- Card 2: Premium -->
-      <div class="plan-card" data-radius="card">
-        <div>
-          <span class="card-label">Achiever Pass</span>
-          <h2 class="card-title">Solved Papers (PYQs)</h2>
-          <div class="card-price">₹129 <span>/ month</span></div>
-          <ul class="card-features">
-            <li>✓ 10-Year Solved Exam Papers</li>
-            <li>✓ Step-By-Step Answer Schemes</li>
-            <li>✓ Handouts &amp; Lecture Slides</li>
-          </ul>
+      <!-- 2. User Profile Card -->
+      <div class="user-chip" data-gap="sidebar">
+        <div class="user-avatar">AC</div>
+        <div class="user-info">
+          <div class="user-name">Anubhav Chaurasia</div>
+          <div class="user-badges">
+            <span class="tier-badge">Elite</span>
+            <span class="sem-badge">Sem 1</span>
+          </div>
         </div>
-        <button class="action-btn" data-radius="btn">Select Premium Pass</button>
       </div>
 
-      <!-- Card 3: Elite -->
-      <div class="plan-card" data-radius="card">
-        <div>
-          <span class="card-label">Elite Scholar</span>
-          <h2 class="card-title">Lab Codes &amp; All Access</h2>
-          <div class="card-price">₹159 <span>/ month</span></div>
-          <ul class="card-features">
-            <li>✓ Complete Working Lab Codes</li>
-            <li>✓ Viva Voce Question Bank</li>
-            <li>✓ DRM Secure High-Def Reader</li>
-          </ul>
+      <!-- 3. Navigation List First Block -->
+      <a href="#overview" class="nav-item active" data-gap="sidebar" data-slop="Radioactive glow">
+        <div class="nav-label-group">
+          <span class="nav-icon">⊞</span>
+          <span>Dashboard Overview</span>
         </div>
-        <button class="action-btn" data-radius="btn">Active Pass Selected</button>
-      </div>
-    </div>
+      </a>
 
-    <!-- Checkout Bottom Box -->
-    <div class="checkout-box" data-gap="main" data-radius="box">
-      <div class="total-info">
-        <span class="total-label">Total Payable:</span>
-        <span class="total-amount">₹159</span>
-        <span class="total-sub">(GST Included)</span>
+      <!-- 4. Navigation List Rest -->
+      <nav class="nav-list" data-gap="sidebar">
+        <a href="#notes" class="nav-item">
+          <div class="nav-label-group">
+            <span class="nav-icon">📖</span>
+            <span>Handwritten Notes</span>
+          </div>
+          <span class="nav-pill" data-slop="Clashing badge halos">Top Notes</span>
+        </a>
+        <a href="#pyqs" class="nav-item">
+          <div class="nav-label-group">
+            <span class="nav-icon">📄</span>
+            <span>Solved Exam Papers</span>
+          </div>
+          <span class="nav-pill">2020–25</span>
+        </a>
+        <a href="#syllabus" class="nav-item">
+          <div class="nav-label-group">
+            <span class="nav-icon">📜</span>
+            <span>Official Syllabus</span>
+          </div>
+          <span class="nav-pill">Official</span>
+        </a>
+        <a href="#labs" class="nav-item">
+          <div class="nav-label-group">
+            <span class="nav-icon">⚗</span>
+            <span>Labs &amp; Practical Code</span>
+          </div>
+          <span class="nav-pill purple">50+ Q&amp;A</span>
+        </a>
+        <a href="#timetable" class="nav-item">
+          <div class="nav-label-group">
+            <span class="nav-icon">📅</span>
+            <span>Timetable &amp; Planner</span>
+          </div>
+          <span class="nav-pill">Live</span>
+        </a>
+        <a href="#forum" class="nav-item">
+          <div class="nav-label-group">
+            <span class="nav-icon">💬</span>
+            <span>Student Forum</span>
+          </div>
+          <span class="nav-pill purple">Active</span>
+        </a>
+        <a href="#profile" class="nav-item">
+          <div class="nav-label-group">
+            <span class="nav-icon">👤</span>
+            <span>Student Profile</span>
+          </div>
+        </a>
+      </nav>
+
+      <!-- 5. Sidebar Footer -->
+      <div class="sidebar-footer" data-gap="sidebar">
+        <div style="display: flex; align-items: center; justify-content: space-between; font-size: 11px; color: #94a3b8; padding: 0 4px;">
+          <span>Theme Mode</span>
+          <span style="font-size: 13px; cursor: pointer;">☀</span>
+        </div>
+        <button class="signout-btn">
+          <span>↪</span>
+          <span>Sign Out</span>
+        </button>
       </div>
-      <button class="action-btn" style="width: auto; padding: 0 28px;" data-radius="btn">
-        <span>Proceed Via Razorpay</span>
-        <span>→</span>
-      </button>
-    </div>
+
+    </aside>
+
+    <!-- RIGHT MAIN WORKSPACE -->
+    <main class="main-panel">
+      
+      <!-- 1. Top Bar -->
+      <div class="content-top-bar" data-gap="main">
+        <div class="cohort-pill">
+          <span>🎓 BTECH-AIML Sem 1 · Sec A</span>
+          <span class="action">(Change)</span>
+        </div>
+        <div class="clock-pill">
+          <span class="live-dot"></span>
+          <span>06:07:16 PM IST</span>
+        </div>
+      </div>
+
+      <!-- 2. Welcome Banner Card -->
+      <section class="welcome-card" data-gap="main" data-radius="welcome" data-slop="Muddy swamp tint">
+        <div class="space-tag">
+          <span>✦ NIMS Student Study Space</span>
+        </div>
+        <h1 class="welcome-title">Welcome Back, Anubhav Chaurasia</h1>
+        <p class="welcome-sub">
+          Enrolled In B.Tech In Artificial Intelligence And Machine Learning (Semester 1 · Section A). All Notes, Timetables, And Solved Papers Are Ready For You.
+        </p>
+      </section>
+
+      <!-- 3. Lecture Status Card -->
+      <section class="lecture-card" data-gap="main" data-radius="lecture" data-slop="Uneven padding">
+        <div class="lecture-status-header">
+          <div class="status-check-icon">✓</div>
+          <span class="status-pill">Classes Concluded Today · Resets At Midnight</span>
+        </div>
+        <h2 class="lecture-title">All Scheduled Lectures For Today Are Complete</h2>
+        <p class="lecture-desc">
+          Academic Periods For Today Have Finished. Rest Up, Review Unit Notes, Or Prepare For Upcoming Classes Tomorrow.
+        </p>
+        <div class="upcoming-box">
+          <div class="upcoming-left">
+            <div class="upcoming-clock-icon">🕒</div>
+            <div>
+              <div class="upcoming-badge">Next Upcoming Class · Tomorrow</div>
+              <div class="upcoming-name">Professional English-I</div>
+            </div>
+          </div>
+          <div class="upcoming-meta">First Floor 101 · Dr. Suman Devi</div>
+        </div>
+      </section>
+
+      <!-- 4. Quick Access Stats Grid -->
+      <div class="stat-grid" data-gap="main">
+        
+        <!-- Notes -->
+        <div class="stat-card" data-radius="stat">
+          <div class="stat-header">
+            <span class="stat-tag">Notes</span>
+            <span class="stat-icon">📖</span>
+          </div>
+          <div class="stat-value">7<span class="stat-unit">Packs</span></div>
+          <div class="stat-label">Topper Derivations</div>
+          <a href="#notes" class="stat-action">Explore →</a>
+        </div>
+
+        <!-- PYQs -->
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-tag">Solved PYQs</span>
+            <span class="stat-icon">📄</span>
+          </div>
+          <div class="stat-value">9<span class="stat-unit">Papers</span></div>
+          <div class="stat-label">Step-By-Step Solutions</div>
+          <a href="#pyqs" class="stat-action">Archive →</a>
+        </div>
+
+        <!-- Syllabus -->
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-tag">Syllabus</span>
+            <span class="stat-icon">📜</span>
+          </div>
+          <div class="stat-value">5<span class="stat-unit">Guides</span></div>
+          <div class="stat-label">Exam Curriculum</div>
+          <a href="#syllabus" class="stat-action">Syllabus →</a>
+        </div>
+
+        <!-- Lab Manuals -->
+        <div class="stat-card">
+          <div class="stat-header">
+            <span class="stat-tag">Lab Manuals</span>
+            <span class="stat-icon">⚗</span>
+          </div>
+          <div class="stat-value">0<span class="stat-unit">Practicals</span></div>
+          <div class="stat-label">Code &amp; Viva Voce</div>
+          <a href="#labs" class="stat-action">Labs →</a>
+        </div>
+
+      </div>
+
+      <!-- 5. Telemetry Banner -->
+      <div class="telemetry-row" data-gap="main">
+        <span>📈</span>
+        <span>Real-Time Academic Telemetry &amp; Curriculum Progress</span>
+      </div>
+
+    </main>
   </div>
 </body>
 </html>

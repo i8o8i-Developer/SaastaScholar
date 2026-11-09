@@ -111,73 +111,6 @@
 :root {
   --radius: 0.75rem;
 
-  /* Official Brand Logo Color Triad: #005F15 (Forest Green), #BA0000 (Crimson Red), #007EAC (Ocean Blue) */
-  --brand-green: #005F15;
-  --brand-green-deep: #00450f;
-  --brand-green-soft: rgba(0, 95, 21, 0.08);
-
-  --brand-red: #BA0000;
-  --brand-red-deep: #8f0000;
-  --brand-red-soft: rgba(186, 0, 0, 0.08);
-
-  --brand-blue: #007EAC;
-  --brand-blue-deep: #005e80;
-  --brand-blue-soft: rgba(0, 126, 172, 0.08);
-
-  /* unslop Graphite Ramp for Clean Light Mode with Grounded Contrast */
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --surface: #f1f5f9;
-  --surface-foreground: #0f172a;
-  --card: #ffffff;
-  --card-foreground: #0f172a;
-  --popover: #ffffff;
-  --popover-foreground: #0f172a;
-
-  /* Primary Brand Theme Token = Crisp Academic Emerald */
-  --primary: #059669;
-  --primary-foreground: #ffffff;
-  --primary-soft: rgba(5, 150, 105, 0.08);
-  --primary-deep: #047857;
-
-  --secondary: #f1f5f9;
-  --secondary-foreground: #0f172a;
-  --muted: #f1f5f9;
-  --muted-foreground: #475569;
-
-  /* Accent Theme Token */
-  --accent: rgba(5, 150, 105, 0.08);
-  --accent-foreground: #059669;
-
-  /* Highlight */
-  --highlight: #0284c7;
-
-  /* Destructive */
-  --destructive: #dc2626;
-  --destructive-foreground: #ffffff;
-
-  --border: rgba(15, 23, 42, 0.08);
-  --border-strong: rgba(15, 23, 42, 0.14);
-  --input: rgba(15, 23, 42, 0.08);
-  --ring: #059669;
-
-  --chart-1: #059669;
-  --chart-2: #0284c7;
-  --chart-3: #dc2626;
-  --chart-4: #10b981;
-  --chart-5: #0ea5e9;
-
-  --sidebar: #f8fafc;
-  --sidebar-foreground: #0f172a;
-  --sidebar-primary: #059669;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: rgba(5, 150, 105, 0.08);
-  --sidebar-accent-foreground: #059669;
-  --sidebar-border: rgba(15, 23, 42, 0.08);
-  --sidebar-ring: #059669;
-}
-
-.dark {
   /* Logo Colors in Dark Mode */
   --brand-green: #10b981;
   --brand-green-deep: #059669;
@@ -191,7 +124,7 @@
   --brand-blue-deep: #0284c7;
   --brand-blue-soft: rgba(14, 165, 233, 0.12);
 
-  /* unslop Graphite Ramp for Modern, Deep Dark Mode (Eliminates swamp-green cast) */
+  /* Permanent Graphite/Obsidian Palette Across All Screens */
   --background: #141415;
   --foreground: #ededed;
   --surface: #19191b;
@@ -224,6 +157,76 @@
   --border-strong: rgba(255, 255, 255, 0.15);
   --input: rgba(255, 255, 255, 0.1);
   --ring: #10b981;
+
+  --chart-1: #10b981;
+  --chart-2: #38bdf8;
+  --chart-3: #ef4444;
+  --chart-4: #059669;
+  --chart-5: #0284c7;
+
+  --sidebar: #101012;
+  --sidebar-foreground: #ededed;
+  --sidebar-primary: #10b981;
+  --sidebar-primary-foreground: #09090b;
+  --sidebar-accent: #1e1f23;
+  --sidebar-accent-foreground: #ededed;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: #10b981;
+}
+
+.dark {
+  /* Logo Colors in Dark Mode */
+  --brand-green: #10b981;
+  --brand-green-deep: #059669;
+  --brand-green-soft: rgba(16, 185, 129, 0.12);
+
+  --brand-red: #ef4444;
+  --brand-red-deep: #dc2626;
+  --brand-red-soft: rgba(239, 68, 68, 0.12);
+
+  --brand-blue: #0ea5e9;
+  --brand-blue-deep: #0284c7;
+  --brand-blue-soft: rgba(14, 165, 233, 0.12);
+
+  /* Permanent Graphite/Obsidian Palette Across All Screens */
+  --background: #141415;
+  --foreground: #ededed;
+  --surface: #19191b;
+  --surface-foreground: #ededed;
+  --card: #1c1d20;
+  --card-foreground: #ededed;
+  --popover: #232326;
+  --popover-foreground: #ededed;
+
+  /* Intentional Emerald Accent */
+  --primary: #10b981;
+  --primary-foreground: #09090b;
+  --primary-soft: rgba(16, 185, 129, 0.14);
+  --primary-deep: #059669;
+
+  --secondary: #232326;
+  --secondary-foreground: #ededed;
+  --muted: #1e1f23;
+  --muted-foreground: #9ca3af;
+
+  --accent: #26272c;
+  --accent-foreground: #ededed;
+
+  --highlight: #38bdf8;
+
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.15);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: #10b981;
+
+  --chart-1: #10b981;
+  --chart-2: #38bdf8;
+  --chart-3: #ef4444;
+  --chart-4: #059669;
+  --chart-5: #0284c7;
 
   --sidebar: #101012;
   --sidebar-foreground: #ededed;
@@ -616,6 +619,15 @@
     -webkit-overflow-scrolling: touch;
     overscroll-behavior-y: none;
   }
+/* ==============================================================================
+   Mobile & Touchscreen 60fps/120fps Hardware-Accelerated Performance Rules
+   ============================================================================== */
+@media (hover: none) and (pointer: coarse) {
+  
+  html, body {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: none;
+  }
 
   
   .backdrop-blur-3xl,
@@ -624,7 +636,23 @@
     backdrop-filter: blur(8px) !important;
     -webkit-backdrop-filter: blur(8px) !important;
   }
+  
+  .backdrop-blur-3xl,
+  .backdrop-blur-2xl,
+  .backdrop-blur-xl {
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+  }
 
+  
+  [data-radix-scroll-area-viewport],
+  .overflow-y-auto,
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+    transform: translateZ(0);
+    will-change: scroll-position;
+  }
+}
   
   [data-radix-scroll-area-viewport],
   .overflow-y-auto,

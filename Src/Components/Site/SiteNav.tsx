@@ -1,7 +1,6 @@
-import { Menu, Moon, Sun, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
-import { useTheme } from "@/Hooks/UseTheme";
 import { cn } from "@/Lib/Utils";
 import { Cta } from "./Primitives";
 
@@ -16,7 +15,6 @@ const NAV_ITEMS = [
 ];
 
 export function SiteNav() {
-  const { isDark, toggleTheme } = useTheme();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
 
@@ -115,20 +113,6 @@ export function SiteNav() {
 
         {/* Desktop Right Action Buttons */}
         <div className="hidden xl:flex items-center gap-2.5 shrink-0">
-          {/* Theme Toggle Button */}
-          <button
-            type="button"
-            onClick={toggleTheme}
-            className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-border bg-surface text-foreground hover:bg-card cursor-pointer transition-all shadow-2xs"
-            title={isDark ? "Switch To Light Mode" : "Switch To Dark Mode"}
-          >
-            {isDark ? (
-              <Sun className="h-4 w-4 text-amber-400 hover:rotate-45 transition-transform" />
-            ) : (
-              <Moon className="h-4 w-4 text-slate-700 hover:-rotate-12 transition-transform" />
-            )}
-          </button>
-
           <Cta href="/login" variant="ghost" size="sm" className="whitespace-nowrap shrink-0 text-xs xl:text-sm px-3.5">
             Log In
           </Cta>
@@ -139,14 +123,6 @@ export function SiteNav() {
 
         {/* Mobile & Tablet Header Controls (Shown Below XL Breakpoint Including 1055px) */}
         <div className="flex items-center gap-1.5 min-[340px]:gap-2 xl:hidden shrink-0">
-          <button
-            type="button"
-            onClick={toggleTheme}
-            className="grid h-8 w-8 min-[340px]:h-9 min-[340px]:w-9 place-items-center rounded-xl border border-border bg-surface text-foreground"
-            title={isDark ? "Switch To Light Mode" : "Switch To Dark Mode"}
-          >
-            {isDark ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-slate-700" />}
-          </button>
           <button
             type="button"
             onClick={() => setOpen((v) => !v)}

@@ -24,20 +24,17 @@ import {
   LogOut,
   Menu,
   MessageSquare,
-  Moon,
   ScrollText,
   Search,
   ShieldAlert,
   ShieldCheck,
   Sparkles,
-  Sun,
   Trash2,
   User,
   X,
   Zap,
 } from "lucide-react";
 import { useAuth } from "@/Hooks/UseAuth";
-import { useTheme } from "@/Hooks/UseTheme";
 import { cn } from "@/Lib/Utils";
 import { toast } from "sonner";
 import { apiFetch, DepartmentNotice, SidebarBadgeConfig } from "@/Lib/Api";
@@ -112,7 +109,6 @@ function IstHeaderClockPill() {
 
 export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader }: DashboardLayoutProps) {
   const { user, logout, refreshUser } = useAuth();
-  const { theme, isDark, toggleTheme } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
@@ -479,19 +475,7 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
         </div>
 
         {/* Sidebar Footer */}
-        <div className="space-y-3 pt-4 border-t border-border/80">
-          <div className={cn("flex items-center text-xs", sidebarCollapsed ? "justify-center" : "justify-between px-2")}>
-            {!sidebarCollapsed && <span className="text-[0.7rem] text-muted-foreground font-semibold">Theme Mode</span>}
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="grid h-8 w-8 place-items-center rounded-xl border border-border bg-surface text-muted-foreground hover:text-foreground transition-colors cursor-pointer shrink-0"
-              title={isDark ? "Light Mode" : "Dark Mode"}
-            >
-              {isDark ? <Sun className="h-4 w-4 text-amber-400" /> : <Moon className="h-4 w-4 text-slate-700" />}
-            </button>
-          </div>
-
+        <div className="pt-4 border-t border-border/80">
           <button
             type="button"
             onClick={logout}
@@ -606,29 +590,7 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
             </div>
 
             {/* Mobile Drawer Footer */}
-            <div className="shrink-0 pt-3 border-t border-border/80 dark:border-white/[0.08] space-y-2.5">
-              <div className="flex items-center justify-between px-1 text-xs">
-                <span className="text-[0.72rem] text-muted-foreground font-semibold">Theme Mode</span>
-                <button
-                  type="button"
-                  onClick={toggleTheme}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded-xl border border-border bg-surface text-foreground hover:bg-muted transition-all cursor-pointer text-xs font-bold active:scale-95 shadow-2xs"
-                  title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
-                >
-                  {isDark ? (
-                    <>
-                      <Sun className="h-3.5 w-3.5 text-amber-400 shrink-0" />
-                      <span>Light Mode</span>
-                    </>
-                  ) : (
-                    <>
-                      <Moon className="h-3.5 w-3.5 text-slate-700 shrink-0" />
-                      <span>Dark Mode</span>
-                    </>
-                  )}
-                </button>
-              </div>
-
+            <div className="shrink-0 pt-3 border-t border-border/80 dark:border-white/[0.08]">
               <button
                 type="button"
                 onClick={logout}
@@ -706,20 +668,6 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
               <kbd className="hidden lg:inline-flex items-center rounded border border-border bg-card px-1.5 py-0.5 text-[0.6rem] font-mono text-muted-foreground">
                 ⌘K
               </kbd>
-            </button>
-
-            {/* Theme Switcher Button */}
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="grid h-8 w-8 xs:h-9 xs:w-9 place-items-center rounded-xl border border-border bg-surface text-foreground hover:bg-card cursor-pointer transition-all shadow-2xs shrink-0"
-              title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            >
-              {isDark ? (
-                <Sun className="h-4 w-4 text-amber-400 hover:rotate-45 transition-transform" />
-              ) : (
-                <Moon className="h-4 w-4 text-slate-700 hover:-rotate-12 transition-transform" />
-              )}
             </button>
 
             {/* Notifications Popover */}

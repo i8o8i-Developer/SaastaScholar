@@ -18,7 +18,6 @@ import {
   ShieldCheck,
   Smartphone,
   Sparkles,
-  Sun,
   ZoomIn,
   ZoomOut,
 } from "lucide-react";
@@ -27,7 +26,6 @@ import { useAuth } from "@/Hooks/UseAuth";
 import { useDrmProtection } from "@/Hooks/UseDrmProtection";
 import { cn } from "@/Lib/Utils";
 import { toast } from "sonner";
-import { useTheme } from "@/Hooks/UseTheme";
 import { PdfCanvasViewer } from "./PdfCanvasViewer";
 
 interface DrmSecureReaderProps {
@@ -134,7 +132,6 @@ const SAMPLE_PAGES: Record<number, DrmPageVector> = {
 
 export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
   const { user } = useAuth();
-  const { isDark } = useTheme();
   const {
     isScreenBlurred,
     resumeReading,
@@ -369,8 +366,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
     <div
       ref={containerRef}
       className={cn(
-        "fixed inset-0 z-[100] flex flex-col select-none overflow-hidden min-w-0 transition-colors duration-200",
-        isDark ? "bg-black text-zinc-100" : "bg-slate-100 text-foreground",
+        "fixed inset-0 z-[100] flex flex-col select-none overflow-hidden min-w-0 transition-colors duration-200 bg-black text-zinc-100",
         isFullscreen ? "fixed inset-0 z-[100]" : ""
       )}
     >
@@ -702,10 +698,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
         <div
           style={readerViewMode === "document" ? undefined : { transform: `scale(${zoomLevel / 100})`, transformOrigin: "top center" }}
           className={cn(
-            "relative z-10 w-full rounded-2xl sm:rounded-3xl shadow-2xl transition-all duration-200 overflow-hidden select-none min-w-0 mx-auto",
-            isDark
-              ? "bg-zinc-900 text-zinc-100 border border-zinc-800 reading-theme-night shadow-2xl"
-              : "bg-white text-slate-900 border border-slate-200 reading-theme-day shadow-xl",
+            "relative z-10 w-full rounded-2xl sm:rounded-3xl shadow-2xl transition-all duration-200 overflow-hidden select-none min-w-0 mx-auto bg-zinc-900 text-zinc-100 border border-zinc-800 reading-theme-night",
             readerViewMode === "document" ? "max-w-5xl p-2 xs:p-4 sm:p-6" : "max-w-4xl p-3 xs:p-5 sm:p-8"
           )}
         >
@@ -719,37 +712,15 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
             </div>
           ) : readerViewMode === "document" ? (
             <div className="space-y-3 sm:space-y-4 min-w-0">
-              <div
-                className={cn(
-                  "border-b pb-2 sm:pb-3 flex flex-wrap items-center justify-between gap-2",
-                  isDark ? "border-zinc-800" : "border-slate-200"
-                )}
-              >
+              <div className="border-b pb-2 sm:pb-3 flex flex-wrap items-center justify-between gap-2 border-zinc-800">
                 <div className="min-w-0">
-                  <span
-                    className={cn(
-                      "text-[0.6rem] sm:text-[0.65rem] uppercase tracking-wider font-bold font-mono px-2 py-0.5 rounded-md border",
-                      isDark
-                        ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
-                        : "bg-emerald-50 text-emerald-800 border-emerald-300"
-                    )}
-                  >
+                  <span className="text-[0.6rem] sm:text-[0.65rem] uppercase tracking-wider font-bold font-mono px-2 py-0.5 rounded-md border bg-emerald-500/15 text-emerald-300 border-emerald-500/30">
                     {payload.subject_code} · PDF CANVAS (PAGE {currentPage}/{payload.total_pages})
                   </span>
-                  <h2
-                    className={cn(
-                      "text-base sm:text-xl font-bold mt-1 truncate",
-                      isDark ? "text-zinc-100" : "text-slate-900"
-                    )}
-                  >
+                  <h2 className="text-base sm:text-xl font-bold mt-1 truncate text-zinc-100">
                     {payload.title}
                   </h2>
-                  <p
-                    className={cn(
-                      "text-[0.65rem] sm:text-[0.7rem] truncate",
-                      isDark ? "text-zinc-400" : "text-slate-600"
-                    )}
-                  >
+                  <p className="text-[0.65rem] sm:text-[0.7rem] truncate text-zinc-400">
                     {payload.file_name || "Official Courseware Document"}
                   </p>
                 </div>
@@ -771,10 +742,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
             <div className="relative">
               <div
                 dangerouslySetInnerHTML={{ __html: pageData.content_html }}
-                className={cn(
-                  "prose prose-sm max-w-none font-sans leading-relaxed select-none min-w-0 overflow-hidden break-words text-xs sm:text-sm",
-                  isDark ? "prose-invert text-zinc-200" : "prose-slate text-slate-800"
-                )}
+                className="prose prose-sm max-w-none font-sans leading-relaxed select-none min-w-0 overflow-hidden break-words text-xs sm:text-sm prose-invert text-zinc-200"
               />
               {/* Forensic Watermark Floating Over Manuscript (Subtle Emerald Protection) */}
               {!isDrmDisabled && (
@@ -801,12 +769,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
           )}
 
           {/* Page Footer Security Signature */}
-          <div
-            className={cn(
-              "mt-3 sm:mt-4 pt-2 sm:pt-3 border-t flex flex-wrap items-center justify-between text-[0.6rem] sm:text-[0.65rem] font-mono gap-1",
-              isDark ? "border-zinc-800 text-zinc-500" : "border-slate-200 text-slate-500"
-            )}
-          >
+          <div className="mt-3 sm:mt-4 pt-2 sm:pt-3 border-t flex flex-wrap items-center justify-between text-[0.6rem] sm:text-[0.65rem] font-mono gap-1 border-zinc-800 text-zinc-500">
             <span>SaastaScholar Study Reader · Page {currentPage} Of {payload.total_pages}</span>
             <span>Student Roll: {user?.roll_number || payload.watermark.roll_number}</span>
           </div>
@@ -814,16 +777,9 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
       </div>
 
       {/* Reader Bottom Bar */}
-      <div
-        className={cn(
-          "border-t px-3 sm:px-4 py-2 text-center text-[0.65rem] sm:text-[0.7rem] shrink-0 font-medium select-none flex flex-wrap items-center justify-between gap-1 transition-colors duration-200",
-          isDark
-            ? "bg-zinc-950/95 border-zinc-800 text-zinc-400"
-            : "bg-white/95 border-slate-200 text-slate-600"
-        )}
-      >
+      <div className="border-t px-3 sm:px-4 py-2 text-center text-[0.65rem] sm:text-[0.7rem] shrink-0 font-medium select-none flex flex-wrap items-center justify-between gap-1 transition-colors duration-200 bg-zinc-950/95 border-zinc-800 text-zinc-400">
         <span className="hidden sm:inline">📖 Distraction-Free Study Reader · Official College Verified Materials</span>
-        <span className="font-mono text-emerald-700 dark:text-emerald-400 font-bold mx-auto sm:mx-0">
+        <span className="font-mono text-emerald-400 font-bold mx-auto sm:mx-0">
           Student ID: {user?.roll_number || payload.watermark.roll_number}
         </span>
       </div>

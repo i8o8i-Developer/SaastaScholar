@@ -61,8 +61,6 @@ import {
   AlertTriangle,
   X,
   Menu,
-  Sun,
-  Moon,
   Zap,
   Eye,
   Bold,
@@ -82,7 +80,6 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/Hooks/UseAuth";
-import { useTheme } from "@/Hooks/UseTheme";
 import { isDrmGloballyDisabled, setDrmGloballyDisabled } from "@/Hooks/UseDrmProtection";
 import { DrmSecureReader } from "../Dashboard/DrmSecureReader";
 import { MarkdownContent } from "../Ui/MarkdownContent";
@@ -181,7 +178,6 @@ function extractArray<T>(data: any): T[] {
 
 export function AdminPortal() {
   const { user, logout, isAuthenticated, isLoading } = useAuth();
-  const { theme, isDark, toggleTheme } = useTheme();
   const todayWeekdayCode = useMemo(() => getIstWeekdayCode(), []);
   const [activeStation, setActiveStation] = useState<AdminStation>("overview");
   const [structureSubTab, setStructureSubTab] = useState<"departments" | "programs" | "sections" | "subjects" | "units">("departments");
@@ -3059,20 +3055,6 @@ export function AdminPortal() {
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            {/* Theme Toggle Button */}
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="inline-flex items-center justify-center h-8 w-8 xs:h-9 xs:w-9 rounded-xl xs:rounded-2xl border border-border bg-surface text-foreground hover:bg-card cursor-pointer transition-all shadow-2xs shrink-0"
-              title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
-            >
-              {isDark ? (
-                <Sun className="h-4 w-4 text-amber-400 hover:rotate-45 transition-transform" />
-              ) : (
-                <Moon className="h-4 w-4 text-slate-700 hover:-rotate-12 transition-transform" />
-              )}
-            </button>
-
             <button
               onClick={loadAdminData}
               className="inline-flex items-center gap-1.5 xs:gap-2 rounded-xl xs:rounded-2xl border border-border bg-surface px-2.5 xs:px-3.5 py-1.5 text-xs font-bold text-muted-foreground hover:text-foreground cursor-pointer transition-all shadow-2xs shrink-0"
