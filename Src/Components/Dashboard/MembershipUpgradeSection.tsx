@@ -277,9 +277,9 @@ export function MembershipUpgradeSection({
             </h1>
             <p className="text-[0.7rem] xs:text-xs text-muted-foreground leading-relaxed break-words">
               {isElite
-                ? "You are currently enjoying maximum tier privileges on the Elite Scholar Pass. Manage, downgrade to another plan, or cancel your subscription below."
+                ? "You Are Currently Enjoying Maximum Tier Privileges On The Elite Scholar Pass. Manage, Downgrade To Another Plan, Or Cancel Your Subscription Below."
                 : isPaidScholar
-                ? "Manage your active pass privileges, switch plans, or view and download official GST tax invoices."
+                ? "Manage Your Active Pass Privileges, Switch Plans, Or View And Download Official GST Tax Invoices."
                 : "Unlock Verified Handwritten Notes, Solved 10-Year Examination Papers, and Practical Lab Code Packets."}
             </p>
           </div>
@@ -694,7 +694,7 @@ export function MembershipUpgradeSection({
           </h3>
           <p className="text-[0.7rem] text-muted-foreground max-w-sm mx-auto">
             {isElite
-              ? "Choose Basic or Premium to downgrade your membership, or click Cancel Plan to revert to Free Scholar."
+              ? "Choose Basic Or Premium To Downgrade Your Membership, Or Click Cancel Plan To Revert To Free Scholar."
               : "Select A Plan Above To View Voucher Discounts And Activate Instant Checkout."}
           </p>
         </div>

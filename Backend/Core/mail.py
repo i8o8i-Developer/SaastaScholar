@@ -55,26 +55,15 @@ def build_brand_email_template(
           </div>
         """
 
-    # Transform legacy dark theme inline styles to vibrant, colorful, accessible light aesthetics
+    # Maintain Sharp Non-Gradient Dark Obsidian Brand Aesthetics With High-Contrast Vibrant Accents
     transformed_html = (
         content_html
-        .replace("color:#ffffff;", "color:#0f172a;")
-        .replace("color: #ffffff;", "color: #0f172a;")
-        .replace('color:#ffffff"', 'color:#0f172a"')
-        .replace("background-color:#0b140c;", "background-color:#f8fafc;")
-        .replace("background-color: #0b140c;", "background-color:#f8fafc;")
-        .replace("border:1px solid #1f3322;", "border:1px solid #e2e8f0; border-radius:12px;")
-        .replace("border: 1px solid #1f3322;", "border: 1px solid #e2e8f0; border-radius: 12px;")
-        .replace("background:#0c160e;", "background:#f0fdf4;")
-        .replace("background: #0c160e;", "background: #f0fdf4;")
-        .replace("color:#cbd5e1;", "color:#334155;")
-        .replace("color: #cbd5e1;", "color: #334155;")
-        .replace("color:#94a3b8;", "color:#64748b;")
-        .replace("color: #94a3b8;", "color: #64748b;")
-        .replace("color:#e2e8f0;", "color:#334155;")
-        .replace("color: #e2e8f0;", "color: #334155;")
-        .replace("color:#34d399;", "color:#059669;")
-        .replace("color: #34d399;", "color: #059669;")
+        .replace("border-radius:12px;", "border-radius:0 !important;")
+        .replace("border-radius: 12px;", "border-radius: 0 !important;")
+        .replace("border-radius:8px;", "border-radius:0 !important;")
+        .replace("border-radius: 8px;", "border-radius: 0 !important;")
+        .replace("border-radius:16px;", "border-radius:0 !important;")
+        .replace("border-radius: 16px;", "border-radius: 0 !important;")
     )
 
     return f"""<!DOCTYPE html>
@@ -1282,4 +1271,360 @@ If You Have Any Questions Regarding This Transaction, Please Reply Directly To s
     """
 
     full_html = build_brand_email_template("Refund Confirmation", preheader, html_content)
+    return send_system_email(subject, user.email, text_body, full_html)
+
+
+def send_drm_warning_email(
+    user,
+    violation_count: int = 1,
+    cooldown_minutes: int = 15,
+    reason: str = "Digital Rights Screenshot Protection Triggered",
+) -> tuple:
+    """
+    Sends Security Alert When Student Violates DRM Copy Protection Or Triggers Anti-Piracy Lockout
+    """
+    from django.utils import timezone
+    now_str = timezone.now().strftime("%d %B %Y, %I:%M %p IST")
+    full_name = getattr(user, "full_name", "") or getattr(user, "username", "") or "Scholar"
+
+    subject = f"Security Alert: Digital Rights Copy Protection Warning ({violation_count} Incident{'s' if violation_count > 1 else ''})"
+    preheader = "Important Security Notice Regarding Study Document Copy Protection And Reading Access."
+
+    text_body = f"""Security Alert · SaastaScholar Document Protection
+
+Hello {full_name},
+
+A copy protection violation was detected on your scholar account:
+- Incident Timestamp: {now_str}
+- Total Recorded Violations: {violation_count}
+- Security Cooldown Period: {cooldown_minutes} Minutes
+- Flagged Reason: {reason}
+
+Digital Rights Management (DRM) is active to protect university faculty materials, solved model papers, and topper notes from unauthorized scraping and external redistribution.
+
+If this cooldown was triggered accidentally, your reading access will automatically restore after the {cooldown_minutes}-minute cooldown. Continued violations may result in permanent academic portal suspension.
+
+Need help? Contact support@saastascholar.in
+"""
+
+    html_content = f"""
+    <span class="badge" style="background:#240e14; color:#f87171; border:1px solid #ef4444;">DRM Security Alert</span>
+    <h2 style="color:#ffffff; font-size:18px; font-weight:800; margin-top:10px; text-transform:uppercase;">
+      Copy Protection Warning Detected
+    </h2>
+    <p>Hello <strong>{full_name}</strong>,</p>
+    <p>
+      An automated document security violation was detected while accessing verified study materials on your account.
+    </p>
+
+    <div style="background-color:#240e14; border:1px solid #ef4444; border-left:4px solid #ef4444; padding:16px; margin:20px 0; font-size:13px; color:#fecdd3;">
+      <table style="width:100%; border-collapse:collapse; font-size:13px;">
+        <tr>
+          <td style="padding:6px 0; color:#f87171;"><strong>Detection Time:</strong></td>
+          <td style="padding:6px 0; font-family:monospace; text-align:right; color:#ffffff;">{now_str}</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0; color:#f87171;"><strong>Violations Count:</strong></td>
+          <td style="padding:6px 0; font-family:monospace; text-align:right; color:#fca5a5; font-weight:800;">{violation_count} Active Alerts</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0; color:#f87171;"><strong>Cooldown Period:</strong></td>
+          <td style="padding:6px 0; font-family:monospace; text-align:right; color:#ffffff;">{cooldown_minutes} Minutes Lockout</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0; color:#f87171;"><strong>Detection Cause:</strong></td>
+          <td style="padding:6px 0; text-align:right; color:#ffffff;">{reason}</td>
+        </tr>
+      </table>
+    </div>
+
+    <div style="background-color:#1c1d20; border:1px solid rgba(255,255,255,0.08); padding:14px; margin-bottom:20px; font-size:12px; color:#94a3b8; line-height:1.5;">
+      <strong>SECURITY NOTICE:</strong> SaastaScholar study materials carry cryptographic watermark identifiers tied to your student roll number. Your reading session will resume automatically once the cooldown period expires.
+    </div>
+
+    <div style="text-align:center; margin:24px 0 10px 0;">
+      <a href="https://saastascholar.durgaaisolutions.in/dashboard" class="btn-primary" style="background:#be123c; border:1px solid #ef4444;">
+        Review Account Security Status →
+      </a>
+    </div>
+    """
+
+    full_html = build_brand_email_template("DRM Security Warning", preheader, html_content)
+    return send_system_email(subject, user.email, text_body, full_html)
+
+
+def send_assignment_reminder_email(
+    user,
+    assignment_title: str,
+    subject_name: str,
+    due_date: str,
+    submission_link: str = "https://saastascholar.durgaaisolutions.in/dashboard?tab=assignments",
+) -> tuple:
+    """
+    Sends Urgent Notification For Pending College Assignment Deadline
+    """
+    full_name = getattr(user, "full_name", "") or getattr(user, "username", "") or "Scholar"
+    subject = f"Urgent Assignment Deadline: {assignment_title} ({subject_name})"
+    preheader = f"Submission Due Date Alert For {subject_name}. Upload Your Report Before Cutoff."
+
+    text_body = f"""Urgent Academic Submission Notice
+
+Hello {full_name},
+
+This is an automated academic deadline reminder for:
+- Assignment Title: {assignment_title}
+- Course Subject: {subject_name}
+- Submission Cutoff: {due_date}
+
+Please ensure your solved practical solution or assignment document is uploaded before the deadline to avoid grade penalties.
+
+Upload Your Submission:
+{submission_link}
+
+— SaastaScholar Academic Automation
+"""
+
+    html_content = f"""
+    <span class="badge" style="background:#211506; color:#f59e0b; border:1px solid #f59e0b;">Assignment Deadline</span>
+    <h2 style="color:#ffffff; font-size:18px; font-weight:800; margin-top:10px; text-transform:uppercase;">
+      Upcoming Submission Cutoff
+    </h2>
+    <p>Hello <strong>{full_name}</strong>,</p>
+    <p>
+      An official semester assignment is approaching its submission deadline. Please review the requirements below:
+    </p>
+
+    <div style="background-color:#211506; border:1px solid #f59e0b; border-left:4px solid #f59e0b; padding:16px; margin:20px 0; font-size:13px; color:#fde68a;">
+      <table style="width:100%; border-collapse:collapse; font-size:13px;">
+        <tr>
+          <td style="padding:6px 0; color:#fbbf24;"><strong>Assignment:</strong></td>
+          <td style="padding:6px 0; font-weight:700; text-align:right; color:#ffffff;">{assignment_title}</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0; color:#fbbf24;"><strong>Course / Subject:</strong></td>
+          <td style="padding:6px 0; text-align:right; color:#ffffff;">{subject_name}</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0; color:#fbbf24;"><strong>Submission Cutoff:</strong></td>
+          <td style="padding:6px 0; font-family:monospace; text-align:right; color:#f59e0b; font-weight:800;">{due_date}</td>
+        </tr>
+      </table>
+    </div>
+
+    <div style="text-align:center; margin:26px 0 10px 0;">
+      <a href="{submission_link}" class="btn-primary" style="background:#b45309; border:1px solid #f59e0b;">
+        Upload Assignment Document →
+      </a>
+    </div>
+    """
+
+    full_html = build_brand_email_template("Assignment Due Alert", preheader, html_content)
+    return send_system_email(subject, user.email, text_body, full_html)
+
+
+def send_study_material_alert_email(
+    user,
+    material_title: str,
+    subject_name: str,
+    uploader_name: str = "Faculty Head",
+    unit_code: str = "Unit 3 & 4",
+) -> tuple:
+    """
+    Sends Notification When New Verified Lecture Notes Or Question Papers Are Uploaded
+    """
+    full_name = getattr(user, "full_name", "") or getattr(user, "username", "") or "Scholar"
+    subject = f"New Study Resource Uploaded: {material_title} ({subject_name})"
+    preheader = f"Verified Study Material Has Been Added To Your Semester Library For {subject_name}."
+
+    text_body = f"""New Resource Available in SaastaScholar Library
+
+Hello {full_name},
+
+A new high-yield study resource has been published for your cohort:
+- Resource Title: {material_title}
+- Subject: {subject_name}
+- Coverage: {unit_code}
+- Published By: {uploader_name}
+
+Access it now in your student study space:
+https://saastascholar.durgaaisolutions.in/dashboard?tab=notes
+
+— SaastaScholar Course Library
+"""
+
+    html_content = f"""
+    <span class="badge" style="background:#0b1d14; color:#34d399; border:1px solid #10b981;">New Study Drop</span>
+    <h2 style="color:#ffffff; font-size:18px; font-weight:800; margin-top:10px; text-transform:uppercase;">
+      Verified Study Material Published
+    </h2>
+    <p>Hello <strong>{full_name}</strong>,</p>
+    <p>
+      Fresh lecture notes and exam derivations have been added to your academic department library.
+    </p>
+
+    <div style="background-color:#0b1d14; border:1px solid #10b981; border-left:4px solid #10b981; padding:16px; margin:20px 0; font-size:13px; color:#a7f3d0;">
+      <table style="width:100%; border-collapse:collapse; font-size:13px;">
+        <tr>
+          <td style="padding:6px 0; color:#34d399;"><strong>Document:</strong></td>
+          <td style="padding:6px 0; font-weight:700; text-align:right; color:#ffffff;">{material_title}</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0; color:#34d399;"><strong>Course / Subject:</strong></td>
+          <td style="padding:6px 0; text-align:right; color:#ffffff;">{subject_name}</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0; color:#34d399;"><strong>Curriculum Scope:</strong></td>
+          <td style="padding:6px 0; text-align:right; color:#ffffff;">{unit_code}</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0; color:#34d399;"><strong>Instructor / Uploader:</strong></td>
+          <td style="padding:6px 0; text-align:right; color:#ffffff;">{uploader_name}</td>
+        </tr>
+      </table>
+    </div>
+
+    <div style="text-align:center; margin:26px 0 10px 0;">
+      <a href="https://saastascholar.durgaaisolutions.in/dashboard?tab=notes" class="btn-primary">
+        Read Verified Notes Now →
+      </a>
+    </div>
+    """
+
+    full_html = build_brand_email_template("New Study Material", preheader, html_content)
+    return send_system_email(subject, user.email, text_body, full_html)
+
+
+def send_support_ticket_resolved_email(
+    user,
+    ticket_id: str,
+    ticket_subject: str,
+    resolution_notes: str,
+) -> tuple:
+    """
+    Sends Notification When Student Academic Grievance Or Support Ticket Is Resolved
+    """
+    full_name = getattr(user, "full_name", "") or getattr(user, "username", "") or "Scholar"
+    subject = f"Support Ticket Resolved [#{ticket_id}]: {ticket_subject}"
+    preheader = f"Your Academic Support Inquiry #{ticket_id} Has Been Resolved By Our Operations Desk."
+
+    text_body = f"""Support Ticket Resolution Notice
+
+Hello {full_name},
+
+Your support ticket #{ticket_id} regarding '{ticket_subject}' has been resolved.
+
+Official Resolution Notes:
+{resolution_notes}
+
+If you have additional questions, reply directly to this email or visit:
+https://saastascholar.durgaaisolutions.in/dashboard?tab=help
+
+— SaastaScholar Academic Help Desk
+"""
+
+    html_content = f"""
+    <span class="badge" style="background:#0c182b; color:#60a5fa; border:1px solid #3b82f6;">Support Resolved</span>
+    <h2 style="color:#ffffff; font-size:18px; font-weight:800; margin-top:10px; text-transform:uppercase;">
+      Grievance Inquiry Successfully Resolved
+    </h2>
+    <p>Hello <strong>{full_name}</strong>,</p>
+    <p>
+      Our student operations team has addressed your support inquiry. Here are the official resolution details:
+    </p>
+
+    <div style="background-color:#0c182b; border:1px solid #3b82f6; border-left:4px solid #3b82f6; padding:16px; margin:20px 0; font-size:13px; color:#bfdbfe;">
+      <table style="width:100%; border-collapse:collapse; font-size:13px;">
+        <tr>
+          <td style="padding:6px 0; color:#60a5fa;"><strong>Ticket Reference:</strong></td>
+          <td style="padding:6px 0; font-family:monospace; text-align:right; color:#ffffff;">#{ticket_id}</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0; color:#60a5fa;"><strong>Inquiry Subject:</strong></td>
+          <td style="padding:6px 0; font-weight:700; text-align:right; color:#ffffff;">{ticket_subject}</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0; color:#60a5fa;"><strong>Ticket Status:</strong></td>
+          <td style="padding:6px 0; font-weight:800; text-align:right; color:#34d399;">RESOLVED · CLOSED</td>
+        </tr>
+      </table>
+    </div>
+
+    <div style="background-color:#1c1d20; border:1px solid rgba(255,255,255,0.08); padding:16px; margin-bottom:20px; font-size:13px; color:#ededed; line-height:1.6;">
+      <strong style="color:#60a5fa; text-transform:uppercase; font-size:11.5px; display:block; margin-bottom:6px;">Resolution Summary:</strong>
+      {resolution_notes}
+    </div>
+
+    <div style="text-align:center; margin:26px 0 10px 0;">
+      <a href="https://saastascholar.durgaaisolutions.in/dashboard?tab=help" class="btn-primary" style="background:#1d4ed8; border:1px solid #3b82f6;">
+        View Help Desk Portal →
+      </a>
+    </div>
+    """
+
+    full_html = build_brand_email_template("Ticket Resolved", preheader, html_content)
+    return send_system_email(subject, user.email, text_body, full_html)
+
+
+def send_promo_code_offer_email(
+    user,
+    promo_code: str,
+    discount_text: str,
+    valid_until: str,
+    plan_name: str = "Elite Pass",
+) -> tuple:
+    """
+    Sends Exclusive Promotional Discount Voucher To Scholar
+    """
+    full_name = getattr(user, "full_name", "") or getattr(user, "username", "") or "Scholar"
+    subject = f"Exclusive Scholarship Voucher: {discount_text} On {plan_name}"
+    preheader = f"Use Promo Code '{promo_code}' During Checkout For An Instant Discount."
+
+    text_body = f"""Exclusive Student Voucher For You!
+
+Hello {full_name},
+
+Congratulations! You have received a limited-time scholarship coupon:
+- Voucher Code: {promo_code}
+- Benefit: {discount_text}
+- Applicable Plan: {plan_name}
+- Valid Until: {valid_until}
+
+Upgrade Your Pass With Discount:
+https://saastascholar.durgaaisolutions.in/pricing
+
+— SaastaScholar Financial Aid & Rewards
+"""
+
+    html_content = f"""
+    <span class="badge" style="background:#17102b; color:#a78bfa; border:1px solid #8b5cf6;">Exclusive Voucher</span>
+    <h2 style="color:#ffffff; font-size:18px; font-weight:800; margin-top:10px; text-transform:uppercase;">
+      {discount_text} Promo Code Applied
+    </h2>
+    <p>Hello <strong>{full_name}</strong>,</p>
+    <p>
+      As a valued scholar, we are pleased to offer an exclusive promotional voucher for your academic pass.
+    </p>
+
+    <div class="otp-box" style="background-color:#17102b; border:2px dashed #8b5cf6;">
+      <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#c4b5fd; font-weight:800; margin-bottom:4px;">
+        Use Promo Code At Checkout
+      </div>
+      <div class="otp-code" style="color:#c4b5fd;">{promo_code}</div>
+      <div style="font-size:12px; color:#e9d5ff; margin-top:6px; font-weight:600;">
+        {discount_text} · Valid Until {valid_until}
+      </div>
+    </div>
+
+    <div style="background-color:#0b1d14; border:1px solid #10b981; padding:14px; margin-bottom:20px; font-size:12.5px; color:#a7f3d0; text-align:center;">
+      Valid for all semester passes including handwritten notes, model PYQs, and priority lab viva packs.
+    </div>
+
+    <div style="text-align:center; margin:26px 0 10px 0;">
+      <a href="https://saastascholar.durgaaisolutions.in/pricing" class="btn-primary" style="background:#6d28d9; border:1px solid #8b5cf6;">
+        Claim Voucher On Checkout →
+      </a>
+    </div>
+    """
+
+    full_html = build_brand_email_template("Exclusive Voucher", preheader, html_content)
     return send_system_email(subject, user.email, text_body, full_html)

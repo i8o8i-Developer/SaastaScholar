@@ -49,7 +49,7 @@ function NotFoundComponent() {
             Academic Courseware Not Found
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
-            The lecture notes, syllabus unit, or past question paper you requested does not exist at this address or may have been reorganized in the semester courseware repository.
+            The Lecture Notes, Syllabus Unit, Or Past Question Paper You Requested Does Not Exist At This Address Or May Have Been Reorganized In The Semester Courseware Repository.
           </p>
         </div>
 

@@ -188,6 +188,184 @@ const EMAIL_TEMPLATES = {
   </a>
 </div>`,
   },
+  assignment_deadline: {
+    subject: "Urgent Assignment Deadline: Practical Solution & Submission Cutoff",
+    preheader: "24-Hour Notice: Submit Your Solved Lab Record & Continuous Assessment Report.",
+    contentHtml: `<div style="margin-bottom:16px;">
+  <span style="display:inline-block; padding:4px 10px; background:#211506; color:#fbbf24; border:1px solid #f59e0b; border-radius:0; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">
+    ⏳ Urgent Assignment Deadline
+  </span>
+</div>
+<h2 style="color:#ffffff; font-size:20px; font-weight:900; margin:0 0 10px 0; letter-spacing:-0.4px; text-transform:uppercase;">
+  Coursework Submission Window Closing Soon
+</h2>
+<p style="color:#ededed; font-size:13.5px; line-height:1.6; margin:0 0 16px 0;">
+  Dear Scholar, An Upcoming Academic Coursework Submission Is Reaching Its Official Deadline. Please Review The Submission Particulars Below:
+</p>
+
+<div style="background:#211506; border:1px solid #f59e0b; border-left:4px solid #f59e0b; border-radius:0; padding:16px; margin:18px 0;">
+  <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px;">
+    <strong style="color:#fbbf24;">Assignment Title:</strong>
+    <span style="color:#ffffff; font-weight:700;">Lab Practical Report &amp; Analysis</span>
+  </div>
+  <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px;">
+    <strong style="color:#fbbf24;">Subject Course:</strong>
+    <span style="color:#ffffff; font-weight:700;">Data Structures &amp; Algorithms</span>
+  </div>
+  <div style="display:flex; justify-content:space-between; font-size:13px;">
+    <strong style="color:#fbbf24;">Submission Cutoff:</strong>
+    <span style="color:#f59e0b; font-weight:900;">Tomorrow, 11:59 PM IST</span>
+  </div>
+</div>
+
+<p style="color:#94a3b8; font-size:13px; line-height:1.6; margin:16px 0;">
+  Submit Ahead Of The Deadline To Prevent Grade Deductions. Verified Model Solutions Are Available in The Assignment Helper Space.
+</p>
+
+<div style="text-align:center; margin:28px 0 12px 0;">
+  <a href="https://saastascholar.durgaaisolutions.in/dashboard?tab=assignments" class="btn-primary" style="display:inline-block; background:#b45309; border:1px solid #f59e0b; border-radius:0; color:#ffffff; text-decoration:none; font-weight:800; font-size:13px; padding:12px 24px; text-transform:uppercase; letter-spacing:0.5px;">
+    Upload Assignment Now →
+  </a>
+</div>`,
+  },
+  study_material_drop: {
+    subject: "New Verified Notes Drop: Unit Formula Sheets & Model Solutions",
+    preheader: "Verified Faculty Notes And Past Solved Papers Added To Your Cohort Library.",
+    contentHtml: `<div style="margin-bottom:16px;">
+  <span style="display:inline-block; padding:4px 10px; background:#0b1d14; color:#34d399; border:1px solid #10b981; border-radius:0; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">
+    📚 New Study Drop Released
+  </span>
+</div>
+<h2 style="color:#ffffff; font-size:20px; font-weight:900; margin:0 0 10px 0; letter-spacing:-0.4px; text-transform:uppercase;">
+  Verified Unit Derivations &amp; Question Banks Added
+</h2>
+<p style="color:#ededed; font-size:13.5px; line-height:1.6; margin:0 0 16px 0;">
+  Hello Scholar, Senior Department Faculty And Academic Toppers Have Published High-Yield Study Materials For Your Current Semester.
+</p>
+
+<div style="background:#0b1d14; border:1px solid #10b981; border-left:4px solid #10b981; border-radius:0; padding:16px; margin:18px 0;">
+  <div style="font-weight:800; color:#34d399; font-size:13px; margin-bottom:4px;">📘 Unit 4 Derivation &amp; Formula Cheat-Sheet</div>
+  <div style="color:#cbd5e1; font-size:12px; line-height:1.5;">Covers All Key Theorems, Derivations, And Frequently Repeated Assessment Questions.</div>
+</div>
+
+<div style="background:#0c182b; border:1px solid #3b82f6; border-left:4px solid #3b82f6; border-radius:0; padding:16px; margin:18px 0;">
+  <div style="font-weight:800; color:#60a5fa; font-size:13px; margin-bottom:4px;">📝 2025 Sessional Solved Model Papers</div>
+  <div style="color:#cbd5e1; font-size:12px; line-height:1.5;">Complete Step-By-Step Mathematical Solutions Authored In Full Exam Format.</div>
+</div>
+
+<div style="text-align:center; margin:28px 0 12px 0;">
+  <a href="https://saastascholar.durgaaisolutions.in/dashboard?tab=notes" class="btn-primary" style="display:inline-block; background:#005F15; border:1px solid #10b981; border-radius:0; color:#ffffff; text-decoration:none; font-weight:800; font-size:13px; padding:12px 24px; text-transform:uppercase; letter-spacing:0.5px;">
+    Open Notes Repository →
+  </a>
+</div>`,
+  },
+  promo_offer: {
+    subject: "Exclusive Student Scholarship: 40% OFF Semester Pass",
+    preheader: "Limited-Time Academic Pass Voucher Code: TOPPER40. Unlock All Notes.",
+    contentHtml: `<div style="margin-bottom:16px;">
+  <span style="display:inline-block; padding:4px 10px; background:#17102b; color:#a78bfa; border:1px solid #8b5cf6; border-radius:0; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">
+    🎁 Student Scholarship Voucher
+  </span>
+</div>
+<h2 style="color:#ffffff; font-size:20px; font-weight:900; margin:0 0 10px 0; letter-spacing:-0.4px; text-transform:uppercase;">
+  Special 40% Discount On All Semester Passes
+</h2>
+<p style="color:#ededed; font-size:13.5px; line-height:1.6; margin:0 0 16px 0;">
+  Hello Scholar, Unlock Unlimited Access To Verified Handwritten Notes, 5-Year Solved Exam Papers, And Laboratory Viva Packs At A Subsidized Price.
+</p>
+
+<div style="background:#17102b; border:2px dashed #8b5cf6; border-radius:0; padding:22px; margin:20px 0; text-align:center;">
+  <div style="font-size:11px; text-transform:uppercase; letter-spacing:1px; color:#c4b5fd; font-weight:800; margin-bottom:4px;">Use Coupon Code At Checkout</div>
+  <div style="font-family:monospace; font-size:32px; font-weight:900; color:#c4b5fd; letter-spacing:6px; margin:6px 0;">TOPPER40</div>
+  <div style="font-size:12px; color:#e9d5ff; margin-top:6px; font-weight:600;">Flat 40% Off · Valid On All Pass Tiers</div>
+</div>
+
+<p style="color:#94a3b8; font-size:13px; line-height:1.6; margin:16px 0;">
+  Equip Yourself With High-Yield Academic Intelligence Before Your Next Sessional Examination.
+</p>
+
+<div style="text-align:center; margin:28px 0 12px 0;">
+  <a href="https://saastascholar.durgaaisolutions.in/pricing" class="btn-primary" style="display:inline-block; background:#6d28d9; border:1px solid #8b5cf6; border-radius:0; color:#ffffff; text-decoration:none; font-weight:800; font-size:13px; padding:12px 24px; text-transform:uppercase; letter-spacing:0.5px;">
+    Claim Voucher On Checkout →
+  </a>
+</div>`,
+  },
+  placement_alert: {
+    subject: "Campus Placement Drive: Technical Engineering & AI Roles",
+    preheader: "Recruitment Drive Announcement: Junior Machine Learning Engineer Intern.",
+    contentHtml: `<div style="margin-bottom:16px;">
+  <span style="display:inline-block; padding:4px 10px; background:#0c182b; color:#60a5fa; border:1px solid #3b82f6; border-radius:0; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">
+    💼 Placement Drive Alert
+  </span>
+</div>
+<h2 style="color:#ffffff; font-size:20px; font-weight:900; margin:0 0 10px 0; letter-spacing:-0.4px; text-transform:uppercase;">
+  Campus Internship &amp; Full-Time Hiring Announcement
+</h2>
+<p style="color:#ededed; font-size:13.5px; line-height:1.6; margin:0 0 16px 0;">
+  Dear Scholar, The Campus Placement Cell Has Announced An Exclusive Hiring Opportunity For Engineering Students:
+</p>
+
+<div style="background:#0c182b; border:1px solid #3b82f6; border-left:4px solid #3b82f6; border-radius:0; padding:16px; margin:18px 0;">
+  <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px;">
+    <strong style="color:#60a5fa;">Hiring Partner:</strong>
+    <span style="color:#ffffff; font-weight:800;">DurgaAI Research Labs</span>
+  </div>
+  <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px;">
+    <strong style="color:#60a5fa;">Target Role:</strong>
+    <span style="color:#ffffff; font-weight:700;">Junior ML Engineer Intern</span>
+  </div>
+  <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px;">
+    <strong style="color:#60a5fa;">Stipend / Package:</strong>
+    <span style="color:#34d399; font-weight:900;">₹45,000 / Month + PPO</span>
+  </div>
+  <div style="display:flex; justify-content:space-between; font-size:13px;">
+    <strong style="color:#60a5fa;">Eligibility Criteria:</strong>
+    <span style="color:#ffffff;">B.Tech CSE / AIML (Min CGPA: 7.5+)</span>
+  </div>
+</div>
+
+<div style="text-align:center; margin:28px 0 12px 0;">
+  <a href="https://saastascholar.durgaaisolutions.in/dashboard?tab=placements" class="btn-primary" style="display:inline-block; background:#1d4ed8; border:1px solid #3b82f6; border-radius:0; color:#ffffff; text-decoration:none; font-weight:800; font-size:13px; padding:12px 24px; text-transform:uppercase; letter-spacing:0.5px;">
+    Apply On Placement Portal →
+  </a>
+</div>`,
+  },
+  maintenance_announcement: {
+    subject: "Scheduled Platform Maintenance & Offline Examination Prep",
+    preheader: "System Upgrade Window & Offline DRM Reading Notice.",
+    contentHtml: `<div style="margin-bottom:16px;">
+  <span style="display:inline-block; padding:4px 10px; background:#19191b; color:#94a3b8; border:1px solid rgba(255,255,255,0.15); border-radius:0; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">
+    ⚙ Platform Maintenance Advisory
+  </span>
+</div>
+<h2 style="color:#ffffff; font-size:20px; font-weight:900; margin:0 0 10px 0; letter-spacing:-0.4px; text-transform:uppercase;">
+  Scheduled Infrastructure Optimization
+</h2>
+<p style="color:#ededed; font-size:13.5px; line-height:1.6; margin:0 0 16px 0;">
+  Dear Scholar, SaastaScholar Will Undergo Scheduled Platform Maintenance To Upgrade Document Delivery Infrastructure And Redis Cache Layers Ahead Of Upcoming Final Examinations.
+</p>
+
+<div style="background:#19191b; border:1px solid rgba(255,255,255,0.08); border-left:4px solid #10b981; border-radius:0; padding:16px; margin:18px 0;">
+  <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px;">
+    <strong style="color:#94a3b8;">Maintenance Window:</strong>
+    <span style="color:#ffffff; font-weight:700;">Sunday, 02:00 AM – 04:00 AM IST</span>
+  </div>
+  <div style="display:flex; justify-content:space-between; font-size:13px;">
+    <strong style="color:#94a3b8;">Expected Impact:</strong>
+    <span style="color:#34d399; font-weight:800;">Zero Downtime On Cached Notes</span>
+  </div>
+</div>
+
+<p style="color:#94a3b8; font-size:13px; line-height:1.6; margin:16px 0;">
+  All Offline DRM Reading Keys And Cloud Bookmarks Will Remain Intact. Please Download Necessary Exam Handouts Prior To The Window.
+</p>
+
+<div style="text-align:center; margin:28px 0 12px 0;">
+  <a href="https://saastascholar.durgaaisolutions.in/dashboard" class="btn-primary" style="display:inline-block; background:#005F15; border:1px solid #10b981; border-radius:0; color:#ffffff; text-decoration:none; font-weight:800; font-size:13px; padding:12px 24px; text-transform:uppercase; letter-spacing:0.5px;">
+    Access Dashboard →
+  </a>
+</div>`,
+  },
 };
 
 export function AdminMarketingTab() {
@@ -530,23 +708,58 @@ export function AdminMarketingTab() {
                 <button
                   type="button"
                   onClick={() => handleTemplateSelect("weekly_dispatch")}
-                  className="px-3 py-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs font-semibold hover:bg-emerald-500/20 transition-colors cursor-pointer"
+                  className="px-3 py-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 text-emerald-400 text-xs font-bold hover:bg-emerald-500/20 transition-colors cursor-pointer shadow-2xs"
                 >
                   Weekly Academic Dispatch
                 </button>
                 <button
                   type="button"
                   onClick={() => handleTemplateSelect("exam_alert")}
-                  className="px-3 py-1.5 rounded-xl border border-rose-500/30 bg-rose-500/10 text-rose-400 text-xs font-semibold hover:bg-rose-500/20 transition-colors cursor-pointer"
+                  className="px-3 py-1.5 rounded-xl border border-rose-500/30 bg-rose-500/10 text-rose-400 text-xs font-bold hover:bg-rose-500/20 transition-colors cursor-pointer shadow-2xs"
                 >
                   Examination Notice
                 </button>
                 <button
                   type="button"
                   onClick={() => handleTemplateSelect("lab_viva")}
-                  className="px-3 py-1.5 rounded-xl border border-blue-500/30 bg-blue-500/10 text-blue-400 text-xs font-semibold hover:bg-blue-500/20 transition-colors cursor-pointer"
+                  className="px-3 py-1.5 rounded-xl border border-purple-500/30 bg-purple-500/10 text-purple-400 text-xs font-bold hover:bg-purple-500/20 transition-colors cursor-pointer shadow-2xs"
                 >
                   Lab Viva Cheat-Sheet
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleTemplateSelect("assignment_deadline")}
+                  className="px-3 py-1.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-400 text-xs font-bold hover:bg-amber-500/20 transition-colors cursor-pointer shadow-2xs"
+                >
+                  Assignment Deadline
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleTemplateSelect("study_material_drop")}
+                  className="px-3 py-1.5 rounded-xl border border-teal-500/30 bg-teal-500/10 text-teal-400 text-xs font-bold hover:bg-teal-500/20 transition-colors cursor-pointer shadow-2xs"
+                >
+                  New Study Drop
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleTemplateSelect("promo_offer")}
+                  className="px-3 py-1.5 rounded-xl border border-fuchsia-500/30 bg-fuchsia-500/10 text-fuchsia-400 text-xs font-bold hover:bg-fuchsia-500/20 transition-colors cursor-pointer shadow-2xs"
+                >
+                  Scholarship &amp; Promo
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleTemplateSelect("placement_alert")}
+                  className="px-3 py-1.5 rounded-xl border border-blue-500/30 bg-blue-500/10 text-blue-400 text-xs font-bold hover:bg-blue-500/20 transition-colors cursor-pointer shadow-2xs"
+                >
+                  Placement &amp; Intern Drive
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleTemplateSelect("maintenance_announcement")}
+                  className="px-3 py-1.5 rounded-xl border border-zinc-500/30 bg-zinc-500/10 text-zinc-300 text-xs font-bold hover:bg-zinc-500/20 transition-colors cursor-pointer shadow-2xs"
+                >
+                  Maintenance Advisory
                 </button>
               </div>
             </div>
