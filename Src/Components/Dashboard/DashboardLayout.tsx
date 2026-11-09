@@ -63,19 +63,19 @@ interface NotificationItem {
 }
 
 const NAV_ITEMS = [
-  { id: "overview", label: "Dashboard Overview", icon: Home },
-  { id: "notes", label: "Handwritten Notes", icon: BookOpen },
-  { id: "pyqs", label: "Solved Exam Papers", icon: FileCheck2 },
-  { id: "syllabus", label: "Official Syllabus", icon: ScrollText },
-  { id: "faculty", label: "Teacher Handouts", icon: LibraryBig },
-  { id: "labs", label: "Labs & Practical Code", icon: FlaskConical },
-  { id: "assignments", label: "Assignment Helper", icon: FileText },
-  { id: "planner", label: "Timetable & Planner", icon: Calendar },
-  { id: "notices", label: "College Notices", icon: Bell },
-  { id: "community-forum", label: "Student Forum", icon: MessageSquare },
-  { id: "student-desk", label: "Student Help Desk", icon: LifeBuoy },
-  { id: "membership", label: "Upgrade Plan & Pass", icon: Zap },
-  { id: "profile", label: "Student Profile", icon: User },
+  { id: "overview", label: "Dashboard Overview", icon: Home, badge: null },
+  { id: "notes", label: "Handwritten Notes", icon: BookOpen, badge: "Top Notes" },
+  { id: "pyqs", label: "Solved Exam Papers", icon: FileCheck2, badge: "2020–25" },
+  { id: "syllabus", label: "Official Syllabus", icon: ScrollText, badge: "Official" },
+  { id: "faculty", label: "Teacher Handouts", icon: LibraryBig, badge: "Uploads" },
+  { id: "labs", label: "Labs & Practical Code", icon: FlaskConical, badge: "50+ Q&A" },
+  { id: "assignments", label: "Assignment Helper", icon: FileText, badge: "AI Tool" },
+  { id: "planner", label: "Timetable & Planner", icon: Calendar, badge: "Live" },
+  { id: "notices", label: "College Notices", icon: Bell, badge: null },
+  { id: "community-forum", label: "Student Forum", icon: MessageSquare, badge: "Active" },
+  { id: "student-desk", label: "Student Help Desk", icon: LifeBuoy, badge: "Help" },
+  { id: "membership", label: "Upgrade Plan & Pass", icon: Zap, badge: "Upgrade" },
+  { id: "profile", label: "Student Profile", icon: User, badge: null },
 ];
 
 export const getDisplayProgram = (user: any): string => {
@@ -407,8 +407,14 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
             {NAV_ITEMS.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
+              const dynamicConfig = badgeConfigs[item.id];
               const isNoticeItem = item.id === "notices";
-              const showNoticeBadge = isNoticeItem && unreadCount > 0;
+              const rawBadge = isNoticeItem
+                ? (unreadCount > 0 ? `${unreadCount} New` : (dynamicConfig?.active ? dynamicConfig.text : ""))
+                : (dynamicConfig !== undefined ? (dynamicConfig.active ? dynamicConfig.text : "") : (item.badge || ""));
+              const badgeText = rawBadge;
+              const hasBadge = Boolean(badgeText && badgeText.trim().length > 0);
+              const variant = isNoticeItem && unreadCount > 0 ? "emerald" : (dynamicConfig?.variant || "emerald");
 
               return (
                 <button
@@ -428,9 +434,26 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
                     <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-emerald-700 dark:text-emerald-400" : "text-slate-400 dark:text-zinc-500")} />
                     {!sidebarCollapsed && <span className="truncate">{item.label}</span>}
                   </div>
-                  {!sidebarCollapsed && showNoticeBadge && (
-                    <span className="rounded-full bg-emerald-500 text-white dark:bg-emerald-400 dark:text-zinc-950 px-2 py-0.5 text-[0.62rem] font-bold font-mono tracking-wide shrink-0 shadow-2xs">
-                      {unreadCount} New
+                  {!sidebarCollapsed && hasBadge && (
+                    <span
+                      className={cn(
+                        "rounded-full px-2 py-0.5 text-[0.62rem] font-bold font-mono tracking-wide shrink-0 transition-all whitespace-nowrap leading-none min-w-fit inline-block",
+                        isActive
+                          ? "bg-emerald-500 text-white dark:bg-emerald-400 dark:text-zinc-950 shadow-2xs"
+                          : variant === "amber"
+                          ? "bg-amber-50 text-amber-700 border border-amber-200/80 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/25"
+                          : variant === "purple"
+                          ? "bg-purple-50 text-purple-700 border border-purple-200/80 dark:bg-purple-500/10 dark:text-purple-400 dark:border-purple-500/25"
+                          : variant === "rose"
+                          ? "bg-rose-50 text-rose-700 border border-rose-200/80 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/25"
+                          : variant === "cyan"
+                          ? "bg-cyan-50 text-cyan-700 border border-cyan-200/80 dark:bg-cyan-500/10 dark:text-cyan-400 dark:border-cyan-500/25"
+                          : variant === "blue"
+                          ? "bg-blue-50 text-blue-700 border border-blue-200/80 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/25"
+                          : "bg-emerald-50 text-emerald-700 border border-emerald-200/80 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/25",
+                      )}
+                    >
+                      {badgeText}
                     </span>
                   )}
                 </button>
@@ -515,8 +538,14 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
               {NAV_ITEMS.map((item) => {
                 const Icon = item.icon;
                 const isActive = activeTab === item.id;
+                const dynamicConfig = badgeConfigs[item.id];
                 const isNoticeItem = item.id === "notices";
-                const showNoticeBadge = isNoticeItem && unreadCount > 0;
+                const rawBadge = isNoticeItem
+                  ? (unreadCount > 0 ? `${unreadCount} New` : (dynamicConfig?.active ? dynamicConfig.text : ""))
+                  : (dynamicConfig !== undefined ? (dynamicConfig.active ? dynamicConfig.text : "") : (item.badge || ""));
+                const badgeText = rawBadge;
+                const hasBadge = Boolean(badgeText && badgeText.trim().length > 0);
+                const variant = isNoticeItem && unreadCount > 0 ? "emerald" : (dynamicConfig?.variant || "emerald");
 
                 return (
                   <button
@@ -533,9 +562,26 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
                       <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-emerald-700 dark:text-emerald-400" : "text-slate-400 dark:text-zinc-500")} />
                       <span className="truncate">{item.label}</span>
                     </div>
-                    {showNoticeBadge && (
-                      <span className="rounded-full bg-emerald-500 text-white dark:bg-emerald-400 dark:text-zinc-950 px-2 py-0.5 text-[0.62rem] font-bold font-mono tracking-wide shrink-0 shadow-2xs">
-                        {unreadCount} New
+                    {hasBadge && (
+                      <span
+                        className={cn(
+                          "rounded-full px-2 py-0.5 text-[0.62rem] font-bold font-mono tracking-wide shrink-0 transition-all whitespace-nowrap leading-none min-w-fit inline-block",
+                          isActive
+                            ? "bg-emerald-500 text-white dark:bg-emerald-400 dark:text-zinc-950 shadow-2xs"
+                            : variant === "amber"
+                            ? "bg-amber-50 text-amber-700 border border-amber-200/80 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/25"
+                            : variant === "purple"
+                            ? "bg-purple-50 text-purple-700 border border-purple-200/80 dark:bg-purple-500/10 dark:text-purple-400 dark:border-purple-500/25"
+                            : variant === "rose"
+                            ? "bg-rose-50 text-rose-700 border border-rose-200/80 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/25"
+                            : variant === "cyan"
+                            ? "bg-cyan-50 text-cyan-700 border border-cyan-200/80 dark:bg-cyan-500/10 dark:text-cyan-400 dark:border-cyan-500/25"
+                            : variant === "blue"
+                            ? "bg-blue-50 text-blue-700 border border-blue-200/80 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/25"
+                            : "bg-emerald-50 text-emerald-700 border border-emerald-200/80 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/25",
+                        )}
+                      >
+                        {badgeText}
                       </span>
                     )}
                   </button>
