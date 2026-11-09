@@ -16,7 +16,20 @@ class SupportTicketViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         category = self.request.data.get('category', 'GENERAL')
         priority = self.request.data.get('priority', 'MEDIUM')
-        serializer.save(user=self.request.user, category=category, priority=priority)
+        ticket = serializer.save(user=self.request.user, category=category, priority=priority)
+
+        try:
+            from Core.mail import send_support_ticket_opened_email
+            send_support_ticket_opened_email(
+                user=self.request.user,
+                ticket_id=ticket.ticket_number or f"NW-TKT-{ticket.id}",
+                ticket_subject=ticket.subject,
+                category=category,
+                priority=priority,
+            )
+        except Exception as e:
+            import logging
+            logging.getLogger("saastascholar.community").warning(f"Failed to dispatch ticket opened email: {e}")
 
     @action(detail=True, methods=['post'])
     def message(self, request, pk=None):
@@ -69,7 +82,20 @@ class SupportTicketViewSet(viewsets.ModelViewSet):
             
         ticket.status = ticket_status
         ticket.save()
-        
+
+        if ticket_status == "RESOLVED":
+            try:
+                from Core.mail import send_support_ticket_resolved_email
+                send_support_ticket_resolved_email(
+                    user=ticket.user,
+                    ticket_id=ticket.ticket_number or f"NW-TKT-{ticket.id}",
+                    ticket_subject=ticket.subject,
+                    resolution_notes=admin_response or admin_notes or "Your inquiry has been investigated and marked resolved by operations.",
+                )
+            except Exception as e:
+                import logging
+                logging.getLogger("saastascholar.community").warning(f"Failed to dispatch ticket resolved email: {e}")
+
         return Response(self.get_serializer(ticket).data)
 
     @action(detail=True, methods=['patch'])

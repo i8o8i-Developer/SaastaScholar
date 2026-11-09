@@ -370,9 +370,52 @@ export const EMAIL_STUDIO_TEMPLATES: EmailStudioTemplate[] = [
 </div>`,
   },
   {
+    id: "ticket_opened",
+    category: "security",
+    name: "16. Support Ticket Opened",
+    badgeText: "Ticket Registered",
+    badgeColor: "emerald",
+    subject: "Support Ticket Opened [#NW-TKT-1084]: Unable To Access Practical Solutions",
+    preheader: "Your Academic Support Inquiry Has Been Registered And Assigned To Operations.",
+    headerTitle: "Support Ticket Opened",
+    headerSub: "Inquiry Registered & Assigned To Operations",
+    defaultVars: {
+      student_name: "Aarav Sharma",
+      ticket_id: "NW-TKT-1084",
+      ticket_subject: "Unable To Access B.Tech AI & ML Practical Solutions",
+      ticket_category: "Academic Courseware & Practical Codes",
+      priority_level: "High Priority",
+      expected_response: "Within 24 Hours",
+    },
+    renderHtml: (v) => `
+<span style="display:inline-block; font-family:monospace; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.8px; padding:4px 10px; background:#064e3b; color:#34d399; border:1px solid #10b981; margin-bottom:16px;">
+  Support Ticket Registered
+</span>
+<p style="margin:0 0 10px 0; color:#ededed; font-size:14px;">Dear <strong>${v["student_name"]}</strong>,</p>
+<p style="margin:0 0 16px 0; color:#ededed; font-size:13.5px; line-height:1.6;">
+  Your Academic Support Inquiry Has Been Logged In The SaastaScholar Academic Help Desk. Our Team Has Assigned A Dedicated Support Specialist To Investigate:
+</p>
+
+<div style="background:#0b1d14; border:1px solid #10b981; border-left:4px solid #10b981; padding:16px; margin:18px 0;">
+  <table style="width:100%; border-collapse:collapse; font-size:13px;">
+    <tr><td style="padding:6px 0; color:#94a3b8;">Ticket Number:</td><td style="padding:6px 0; font-family:monospace; text-align:right; color:#34d399; font-weight:700;">#${v["ticket_id"]}</td></tr>
+    <tr><td style="padding:6px 0; color:#94a3b8;">Inquiry Subject:</td><td style="padding:6px 0; font-weight:700; text-align:right; color:#ffffff;">${v["ticket_subject"]}</td></tr>
+    <tr><td style="padding:6px 0; color:#94a3b8;">Inquiry Category:</td><td style="padding:6px 0; font-weight:600; text-align:right; color:#ffffff;">${v["ticket_category"]}</td></tr>
+    <tr><td style="padding:6px 0; color:#94a3b8;">Priority Level:</td><td style="padding:6px 0; font-weight:700; text-align:right; color:#38bdf8;">${v["priority_level"]}</td></tr>
+    <tr><td style="padding:6px 0; color:#94a3b8;">Initial Status:</td><td style="padding:6px 0; font-weight:800; text-align:right; color:#fbbf24;">OPEN · UNDER REVIEW</td></tr>
+    <tr><td style="padding:6px 0; color:#94a3b8;">Expected Response:</td><td style="padding:6px 0; font-weight:700; text-align:right; color:#ffffff;">${v["expected_response"]}</td></tr>
+  </table>
+</div>
+
+<div style="background:#141415; border:1px solid rgba(255,255,255,0.08); border-left:4px solid #10b981; padding:16px; font-size:13px; color:#ededed; line-height:1.6; margin:16px 0;">
+  <strong style="color:#10b981; text-transform:uppercase; font-size:11.5px; display:block; margin-bottom:6px;">Important Support Notice:</strong>
+  You Can Reply Directly To This Email To Attach Additional Screenshots Or Diagnostic Information To Your Case. All Correspondence Is Encrypted And Logged Directly In Your Student Security Audit Trail.
+</div>`,
+  },
+  {
     id: "ticket_resolved",
     category: "security",
-    name: "16. Support Ticket Resolved",
+    name: "17. Support Ticket Resolved",
     badgeText: "Inquiry Resolved",
     badgeColor: "emerald",
     subject: "Support Ticket Resolved [#82914]: Lab Practical Code Execution Error",

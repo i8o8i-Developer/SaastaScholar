@@ -1494,6 +1494,97 @@ https://saastascholar.durgaaisolutions.in/dashboard?tab=notes
     return send_system_email(subject, user.email, text_body, full_html)
 
 
+def send_support_ticket_opened_email(
+    user,
+    ticket_id: str,
+    ticket_subject: str,
+    category: str = "General Support",
+    priority: str = "Medium",
+) -> tuple:
+    """
+    Sends Instant Acknowledgment Notification When Student Submits Academic Grievance Or Support Ticket
+    """
+    full_name = getattr(user, "full_name", "") or getattr(user, "username", "") or "Scholar"
+    category_title = str(category).replace("_", " ").title()
+    priority_title = str(priority).replace("_", " ").title()
+    ticket_id_clean = str(ticket_id).lstrip("#")
+    subject = f"Support Ticket Opened [#{ticket_id_clean}]: {ticket_subject}"
+    preheader = f"Your Academic Support Inquiry #{ticket_id_clean} Has Been Registered. Our Operations Desk Is Reviewing Your Request."
+
+    text_body = f"""Support Ticket Registration Acknowledgment
+
+Hello {full_name},
+
+Your Academic Support Inquiry Has Been Registered Successfully In The SaastaScholar Help Desk.
+
+Ticket Reference: #{ticket_id_clean}
+Inquiry Subject: {ticket_subject}
+Category: {category_title}
+Priority Level: {priority_title}
+Initial Status: OPEN · UNDER REVIEW
+Expected Resolution: Within 24 Hours
+
+You Can Reply Directly To This Email Or Track Live Updates On Your Student Dashboard:
+https://saastascholar.durgaaisolutions.in/dashboard?tab=help
+
+— SaastaScholar Academic Help Desk Operations
+"""
+
+    html_content = f"""
+    <span class="badge" style="background:#064e3b; color:#34d399; border:1px solid #10b981; border-radius:0 !important;">Support Ticket Registered</span>
+    <h2 style="color:#ffffff; font-size:18px; font-weight:800; margin-top:10px; text-transform:uppercase; letter-spacing:0.5px;">
+      Academic Support Inquiry Received
+    </h2>
+    <p>Hello <strong>{full_name}</strong>,</p>
+    <p>
+      Your Support Inquiry Has Been Logged Successfully In The SaastaScholar Academic Help Desk. Our Operations Team Has Assigned A Dedicated Academic Support Specialist To Investigate Your Case.
+    </p>
+
+    <div style="background-color:#141415; border:1px solid #10b981; border-left:4px solid #10b981; border-radius:0 !important; padding:16px; margin:20px 0; font-size:13px; color:#ededed;">
+      <table style="width:100%; border-collapse:collapse; font-size:13px;">
+        <tr>
+          <td style="padding:6px 0; color:#a1a1aa;"><strong>Ticket Reference:</strong></td>
+          <td style="padding:6px 0; font-family:monospace; font-weight:700; text-align:right; color:#34d399;">#{ticket_id_clean}</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0; color:#a1a1aa;"><strong>Inquiry Subject:</strong></td>
+          <td style="padding:6px 0; font-weight:700; text-align:right; color:#ffffff;">{ticket_subject}</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0; color:#a1a1aa;"><strong>Inquiry Category:</strong></td>
+          <td style="padding:6px 0; font-weight:600; text-align:right; color:#ffffff;">{category_title}</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0; color:#a1a1aa;"><strong>Priority Level:</strong></td>
+          <td style="padding:6px 0; font-weight:700; text-align:right; color:#38bdf8;">{priority_title} Priority</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0; color:#a1a1aa;"><strong>Initial Status:</strong></td>
+          <td style="padding:6px 0; font-weight:800; text-align:right; color:#fbbf24;">OPEN · UNDER REVIEW</td>
+        </tr>
+        <tr>
+          <td style="padding:6px 0; color:#a1a1aa;"><strong>Expected Response:</strong></td>
+          <td style="padding:6px 0; font-weight:700; text-align:right; color:#ffffff;">Within 24 Hours</td>
+        </tr>
+      </table>
+    </div>
+
+    <div style="background-color:#1c1d20; border:1px solid rgba(255,255,255,0.08); border-radius:0 !important; padding:16px; margin-bottom:20px; font-size:13px; color:#ededed; line-height:1.6;">
+      <strong style="color:#10b981; text-transform:uppercase; font-size:11.5px; display:block; margin-bottom:6px;">Important Support Notice:</strong>
+      You Can Reply Directly To This Email To Attach Additional Screenshots Or Diagnostic Information To Your Case. All Correspondence Is Encrypted And Attached To Your Ticket History.
+    </div>
+
+    <div style="text-align:center; margin:26px 0 10px 0;">
+      <a href="https://saastascholar.durgaaisolutions.in/dashboard?tab=help" class="btn-primary" style="background:#10b981; border:1px solid #059669; color:#000000; font-weight:800; text-transform:uppercase; letter-spacing:0.5px; border-radius:0 !important;">
+        Track Support Ticket Status →
+      </a>
+    </div>
+    """
+
+    full_html = build_brand_email_template("Support Ticket Registered", preheader, html_content)
+    return send_system_email(subject, user.email, text_body, full_html)
+
+
 def send_support_ticket_resolved_email(
     user,
     ticket_id: str,

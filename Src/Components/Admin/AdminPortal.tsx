@@ -2744,7 +2744,7 @@ export function AdminPortal() {
                   { id: "support", label: "Help Desk Tickets", icon: HelpCircle, count: tickets.length },
                   { id: "forum", label: "Student Discussions", icon: MessageSquare, count: posts.length },
                   { id: "marketing", label: "Marketing & Dispatches", icon: Mail, count: "Reach" },
-                  { id: "email-studio", label: "Email Templates Studio", icon: Sparkles, count: "16 Tmpl" },
+                  { id: "email-studio", label: "Email Templates Studio", icon: Sparkles, count: "17 Tmpl" },
                   { id: "roles", label: "Users & Roles RBAC", icon: UserCheck, count: "RBAC" },
                 ].map((station) => {
                   const Icon = station.icon;
@@ -2882,7 +2882,7 @@ export function AdminPortal() {
               { id: "support", label: "Help Desk Tickets", icon: HelpCircle, count: tickets.length },
               { id: "forum", label: "Student Discussions", icon: MessageSquare, count: posts.length },
               { id: "marketing", label: "Marketing & Dispatches", icon: Mail, count: "Reach" },
-              { id: "email-studio", label: "Email Templates Studio", icon: Sparkles, count: "16 Tmpl" },
+              { id: "email-studio", label: "Email Templates Studio", icon: Sparkles, count: "17 Tmpl" },
               { id: "roles", label: "Users & Roles RBAC", icon: UserCheck, count: "RBAC" },
             ].map((station) => {
               const Icon = station.icon;

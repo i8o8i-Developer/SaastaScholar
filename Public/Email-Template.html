@@ -358,7 +358,7 @@
         <span>SaastaScholar Email Studio</span>
         <span class="brand-badge">Official Sharp Dark Edition</span>
       </div>
-      <span class="stats-badge">16 Production Templates</span>
+      <span class="stats-badge">17 Production Templates</span>
     </div>
     <div class="template-selector">
       <button class="tab-btn active" onclick="switchTemplate('welcome')">1. Welcome Onboarding</button>
@@ -376,7 +376,8 @@
       <button class="tab-btn" onclick="switchTemplate('assignment_deadline')">13. Assignment Deadline</button>
       <button class="tab-btn" onclick="switchTemplate('notes_published')">14. New Notes Published</button>
       <button class="tab-btn" onclick="switchTemplate('promo_offer')">15. Promo Code Offer</button>
-      <button class="tab-btn" onclick="switchTemplate('ticket_resolved')">16. Support Ticket Resolved</button>
+      <button class="tab-btn" onclick="switchTemplate('ticket_opened')">16. Support Ticket Opened</button>
+      <button class="tab-btn" onclick="switchTemplate('ticket_resolved')">17. Support Ticket Resolved</button>
     </div>
   </header>
 
@@ -1052,7 +1053,55 @@
       </table>
     </div>
 
-    <!-- Template 16: Support Ticket Resolved -->
+    <!-- Template 16: Support Ticket Opened -->
+    <div id="tmpl-ticket_opened" class="email-container">
+      <table class="email-card">
+        <tr>
+          <td class="email-header-cell">
+            <h1 class="email-heading">Support Ticket Opened</h1>
+            <p class="email-subheading">Inquiry Registered &amp; Assigned To Operations</p>
+          </td>
+        </tr>
+        <tr>
+          <td class="email-body-cell">
+            <span class="badge" style="background:#064e3b; color:#34d399; border:1px solid #10b981;">Support Ticket Registered</span>
+            <p>Dear <strong>Aarav Sharma</strong>,</p>
+            <p style="margin-top: 0.75rem;">
+              Your Academic Support Inquiry Has Been Logged In The SaastaScholar Academic Help Desk. Our Team Has Assigned A Specialist To Investigate:
+            </p>
+
+            <div class="card-emerald">
+              <table class="meta-table">
+                <tr><td>Ticket Number:</td><td>#NW-TKT-1084</td></tr>
+                <tr><td>Inquiry Subject:</td><td>Unable To Access B.Tech AI &amp; ML Practical Solutions</td></tr>
+                <tr><td>Inquiry Category:</td><td>Academic Courseware &amp; Practical Codes</td></tr>
+                <tr><td>Priority Level:</td><td style="color:#38bdf8; font-weight:700;">High Priority</td></tr>
+                <tr><td>Initial Status:</td><td style="color:#fbbf24; font-weight:800;">OPEN · UNDER REVIEW</td></tr>
+                <tr><td>Expected Response:</td><td>Within 24 Hours</td></tr>
+              </table>
+            </div>
+
+            <div style="background: #141415; border: 1px solid rgba(255,255,255,0.08); border-left: 4px solid #10b981; padding: 16px; font-size: 13px; color: #ededed; line-height: 1.6; margin: 16px 0;">
+              <strong style="color: #10b981; text-transform: uppercase; font-size: 11.5px; display: block; margin-bottom: 6px;">Important Support Notice:</strong>
+              You Can Reply Directly To This Email To Attach Additional Screenshots Or Diagnostics To Your Case. All Correspondence Is Encrypted And Logged Directly In Your Student Security Audit Trail.
+            </div>
+
+            <div style="text-align: center;">
+              <a href="https://saastascholar.durgaaisolutions.in/dashboard?tab=help" class="cta-button">
+                Track Support Ticket Status →
+              </a>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td class="email-footer-cell">
+            <p>&copy; 2026 <strong>SaastaScholar</strong> · Student Grievance Redressal Desk.</p>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <!-- Template 17: Support Ticket Resolved -->
     <div id="tmpl-ticket_resolved" class="email-container">
       <table class="email-card">
         <tr>
