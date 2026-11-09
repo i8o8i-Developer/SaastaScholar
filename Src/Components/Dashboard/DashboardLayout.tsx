@@ -281,11 +281,11 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
       {/* ===================== Desktop Sidebar ===================== */}
       <aside
         className={cn(
-          "hidden lg:flex flex-col justify-between border-r border-border/80 bg-card/75 backdrop-blur-md shrink-0 transition-all duration-300",
+          "hidden lg:flex flex-col h-screen max-h-screen border-r border-border/80 bg-card/75 backdrop-blur-md shrink-0 transition-all duration-300",
           sidebarCollapsed ? "w-20 p-3" : "w-64 xl:w-72 p-5"
         )}
       >
-        <div>
+        <div className="shrink-0">
           {/* Brand Header with Collapse / Expand Trigger */}
           <div className={cn("flex items-center py-1", sidebarCollapsed ? "justify-center" : "justify-between gap-3 px-2")}>
             <div className="flex items-center gap-3 min-w-0">
@@ -413,9 +413,11 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
               </div>
             </div>
           )}
+        </div>
 
-          {/* Navigation Links List - Quiet, Refined, Unslop */}
-          <nav className="mt-6 space-y-1">
+        {/* Navigation Links List - Quiet, Refined, Scrollable */}
+        <div className="flex-1 min-h-0 overflow-y-auto mt-4 pr-1 -mr-1 space-y-1 scrollbar-thin scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20 overscroll-contain">
+          <nav className="space-y-1">
             {NAV_ITEMS.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
@@ -475,7 +477,7 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
         </div>
 
         {/* Sidebar Footer */}
-        <div className="pt-4 border-t border-border/80">
+        <div className="shrink-0 pt-4 border-t border-border/80 mt-2">
           <button
             type="button"
             onClick={logout}

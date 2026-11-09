@@ -27,6 +27,7 @@ export function AdminCouponsTab() {
   const [coupons, setCoupons] = useState<DiscountCoupon[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [showCreateModal, setShowCreateModal] = useState<boolean>(false);
+  const [copiedCode, setCopiedCode] = useState<string | null>(null);
   const [newCoupon, setNewCoupon] = useState({
     code: "",
     discount_type: "flat" as "percent" | "flat" | "free",
@@ -139,6 +140,8 @@ export function AdminCouponsTab() {
   // Copy Coupon Code To Clipboard
   const handleCopyCode = (code: string) => {
     navigator.clipboard.writeText(code);
+    setCopiedCode(code);
+    setTimeout(() => setCopiedCode(null), 2000);
     toast.success(`Copied Coupon '${code}' To Clipboard!`);
   };
 
@@ -211,99 +214,194 @@ export function AdminCouponsTab() {
           </div>
         ) : (
           coupons.map((c) => {
-            const isExpired = c.valid_until && new Date(c.valid_until) < new Date();
-            const isExhausted = c.max_uses > 0 && c.times_used >= c.max_uses;
-            const discountLabel =
-              c.discount_percent === 100
-                ? "100% FREE PASS"
-                : c.discount_percent > 0
-                ? `${c.discount_percent}% OFF`
-                : `₹${c.discount_amount} FLAT OFF`;
+            const isExpired = Boolean(c.valid_until && new Date(c.valid_until) < new Date());
+            const isExhausted = Boolean(c.max_uses > 0 && c.times_used >= c.max_uses);
+            const isFreePass = c.discount_percent === 100;
+            const isPercent = c.discount_percent > 0 && !isFreePass;
+            const usageRatio = c.max_uses > 0 ? c.times_used / c.max_uses : 0;
 
             return (
               <div
                 key={c.id}
                 className={cn(
-                  "rounded-2xl border p-4 shadow-xs flex flex-col justify-between space-y-3 transition-all",
+                  "group relative flex flex-col justify-between rounded-2xl border transition-all duration-200 overflow-hidden",
                   c.is_active && !isExpired && !isExhausted
-                    ? "border-emerald-500/30 bg-card hover:border-emerald-500/60"
-                    : "border-border/80 bg-surface/50 opacity-75"
+                    ? "border-border/80 bg-card/75 hover:border-emerald-500/40 hover:bg-card/95 hover:shadow-lg hover:shadow-emerald-950/20"
+                    : "border-border/50 bg-card/30 opacity-70"
                 )}
               >
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono font-black text-sm text-foreground bg-primary/10 border border-primary/20 px-2.5 py-1 rounded-xl inline-flex items-center gap-1.5">
-                      <span>{c.code}</span>
-                      <button
-                        type="button"
-                        onClick={() => handleCopyCode(c.code)}
-                        className="text-primary hover:text-primary-deep cursor-pointer"
-                        title="Copy Code"
+                {/* Top Edge Highlight */}
+                <div
+                  className={cn(
+                    "h-1 w-full shrink-0",
+                    isExpired
+                      ? "bg-rose-500/50"
+                      : isExhausted
+                      ? "bg-amber-500/50"
+                      : isFreePass
+                      ? "bg-gradient-to-r from-purple-500 via-pink-500 to-emerald-400"
+                      : "bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500"
+                  )}
+                />
+
+                <div className="p-4.5 space-y-4 flex-1 flex flex-col justify-between">
+                  <div className="space-y-3.5">
+                    {/* Header Row: Voucher Code & Status */}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span className="font-mono font-black text-xs sm:text-sm tracking-wider text-foreground bg-surface/90 border border-border/80 px-2.5 py-1 rounded-xl inline-flex items-center gap-2 shadow-2xs group-hover:border-emerald-500/30 transition-colors">
+                          <span className="truncate">{c.code}</span>
+                          <button
+                            type="button"
+                            onClick={() => handleCopyCode(c.code)}
+                            className="text-muted-foreground hover:text-emerald-400 cursor-pointer transition-colors shrink-0"
+                            title="Copy Code"
+                          >
+                            {copiedCode === c.code ? (
+                              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
+                            ) : (
+                              <Copy className="h-3.5 w-3.5" />
+                            )}
+                          </button>
+                        </span>
+                      </div>
+
+                      <span
+                        className={cn(
+                          "inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[0.62rem] font-bold uppercase tracking-wider shrink-0",
+                          c.is_active && !isExpired && !isExhausted
+                            ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                            : isExpired
+                            ? "bg-rose-500/10 text-rose-400 border border-rose-500/20"
+                            : isExhausted
+                            ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                            : "bg-white/5 text-zinc-400 border border-white/10"
+                        )}
                       >
-                        <Copy className="h-3 w-3" />
-                      </button>
-                    </span>
-
-                    <span
-                      className={cn(
-                        "rounded-full px-2.5 py-0.5 text-[0.62rem] font-bold uppercase",
-                        c.is_active && !isExpired && !isExhausted
-                          ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
-                          : isExpired
-                          ? "bg-rose-500/15 text-rose-600 dark:text-rose-400"
-                          : "bg-muted text-muted-foreground"
-                      )}
-                    >
-                      {isExpired ? "Expired" : isExhausted ? "Maxed Out" : c.is_active ? "Active" : "Disabled"}
-                    </span>
-                  </div>
-
-                  <div className="mt-3">
-                    <span className="font-display font-extrabold text-lg text-emerald-600 dark:text-emerald-400">
-                      {discountLabel}
-                    </span>
-                    <p className="text-[0.68rem] text-muted-foreground mt-0.5">
-                      Valid For: <span className="font-bold text-foreground">{c.applicable_tier}</span> Plan
-                    </p>
-                  </div>
-                </div>
-
-                <div className="border-t border-border/60 pt-3 space-y-2 text-[0.7rem] font-mono">
-                  <div className="flex justify-between text-muted-foreground">
-                    <span>Redemptions:</span>
-                    <span className="font-bold text-foreground">
-                      {c.times_used} / {c.max_uses > 0 ? c.max_uses : "∞"}
-                    </span>
-                  </div>
-                  {c.valid_until && (
-                    <div className="flex justify-between text-muted-foreground">
-                      <span>Expires:</span>
-                      <span className="font-bold text-foreground">
-                        {new Date(c.valid_until).toLocaleDateString("en-IN", {
-                          day: "numeric",
-                          month: "short",
-                          year: "numeric",
-                        })}
+                        <span
+                          className={cn(
+                            "h-1.5 w-1.5 rounded-full",
+                            c.is_active && !isExpired && !isExhausted
+                              ? "bg-emerald-400 animate-pulse"
+                              : isExpired
+                              ? "bg-rose-400"
+                              : isExhausted
+                              ? "bg-amber-400"
+                              : "bg-zinc-500"
+                          )}
+                        />
+                        <span>{isExpired ? "Expired" : isExhausted ? "Maxed" : c.is_active ? "Active" : "Disabled"}</span>
                       </span>
                     </div>
-                  )}
 
-                  <div className="flex items-center justify-end gap-1.5 pt-1">
-                    <button
-                      type="button"
-                      onClick={() => handleToggleActive(c)}
-                      className="px-2.5 py-1 rounded-lg border border-border bg-card hover:bg-surface text-[0.68rem] font-semibold text-foreground cursor-pointer"
-                    >
-                      {c.is_active ? "Disable" : "Enable"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteCoupon(c)}
-                      className="p-1 rounded-lg text-rose-500 hover:bg-rose-500/10 cursor-pointer"
-                      title="Delete Coupon"
-                    >
-                      <Trash2 className="h-3.5 w-3.5" />
-                    </button>
+                    {/* Main Discount Display */}
+                    <div className="space-y-1">
+                      <div className="flex items-baseline gap-2">
+                        {isFreePass ? (
+                          <span className="font-display font-black text-xl tracking-tight bg-gradient-to-r from-purple-400 via-pink-400 to-emerald-400 bg-clip-text text-transparent">
+                            100% Free Pass
+                          </span>
+                        ) : isPercent ? (
+                          <>
+                            <span className="font-display font-black text-2xl tracking-tight text-foreground">
+                              {c.discount_percent}%
+                            </span>
+                            <span className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md">
+                              Discount Off
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <span className="font-display font-black text-2xl tracking-tight text-foreground">
+                              ₹{c.discount_amount}
+                            </span>
+                            <span className="text-[0.65rem] font-bold uppercase tracking-widest text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md">
+                              Flat Off
+                            </span>
+                          </>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <span>Valid For:</span>
+                        <span className="font-bold text-foreground bg-surface/80 border border-border/60 px-2 py-0.5 rounded-md text-[0.68rem]">
+                          {c.applicable_tier === "ALL" ? "All Membership Plans" : `${c.applicable_tier} Plan`}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Redemptions Progress & Metadata */}
+                  <div className="space-y-2.5 pt-3 border-t border-border/60">
+                    {c.max_uses > 0 && (
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center text-[0.68rem]">
+                          <span className="text-muted-foreground font-medium">Redemptions</span>
+                          <span className="font-mono font-bold text-foreground">
+                            {c.times_used} <span className="text-muted-foreground">/ {c.max_uses}</span>
+                          </span>
+                        </div>
+                        <div className="h-1.5 w-full rounded-full bg-surface overflow-hidden border border-border/40">
+                          <div
+                            className={cn(
+                              "h-full rounded-full transition-all duration-300",
+                              usageRatio >= 1
+                                ? "bg-rose-500"
+                                : usageRatio > 0.8
+                                ? "bg-amber-500"
+                                : "bg-emerald-500"
+                            )}
+                            style={{ width: `${Math.min(100, Math.round(usageRatio * 100))}%` }}
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex items-center justify-between text-[0.68rem] text-muted-foreground">
+                      <span className="inline-flex items-center gap-1">
+                        <Calendar className="h-3 w-3 text-muted-foreground/80 shrink-0" />
+                        <span>
+                          {c.valid_until
+                            ? `Expires ${new Date(c.valid_until).toLocaleDateString("en-IN", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                              })}`
+                            : "Never Expires"}
+                        </span>
+                      </span>
+
+                      {(c as any).campaign_name && (
+                        <span className="truncate max-w-[120px] text-[0.65rem] text-muted-foreground/70" title={(c as any).campaign_name}>
+                          {(c as any).campaign_name}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                      <button
+                        type="button"
+                        onClick={() => handleToggleActive(c)}
+                        className={cn(
+                          "px-3 py-1 rounded-xl border text-[0.68rem] font-bold cursor-pointer transition-all active:scale-95",
+                          c.is_active
+                            ? "border-border/80 bg-surface hover:bg-surface/80 text-muted-foreground hover:text-foreground"
+                            : "border-emerald-500/30 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20"
+                        )}
+                      >
+                        {c.is_active ? "Disable Code" : "Enable Code"}
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteCoupon(c)}
+                        className="p-1.5 rounded-xl border border-rose-500/20 bg-rose-500/5 text-rose-400 hover:bg-rose-500/15 cursor-pointer transition-all active:scale-90"
+                        title="Delete Coupon"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -2796,11 +2796,11 @@ export function AdminPortal() {
       {/* ===================== Desktop Admin Sidebar ===================== */}
       <aside
         className={cn(
-          "hidden lg:flex flex-col justify-between border-r border-border/80 bg-card/85 p-3.5 backdrop-blur-xl shrink-0 shadow-sm transition-all duration-300",
+          "hidden lg:flex flex-col h-screen max-h-screen border-r border-border/80 bg-card/85 p-3.5 backdrop-blur-xl shrink-0 shadow-sm transition-all duration-300",
           sidebarCollapsed ? "w-20" : "w-60 xl:w-72"
         )}
       >
-        <div>
+        <div className="shrink-0">
           {/* Brand Logo & Title */}
           <div className={cn("flex items-center", sidebarCollapsed ? "px-1 justify-center" : "px-2 py-1.5")}>
             <div className="flex items-center gap-3 min-w-0">
@@ -2831,7 +2831,7 @@ export function AdminPortal() {
           {/* Admin Controller Quick Card */}
           <div
             className={cn(
-              "mt-4 rounded-2xl border border-emerald-500/20 bg-gradient-to-tr from-emerald-500/5 via-surface/80 to-teal-500/5 shadow-2xs transition-all",
+              "mt-3 rounded-2xl border border-emerald-500/20 bg-gradient-to-tr from-emerald-500/5 via-surface/80 to-teal-500/5 shadow-2xs transition-all",
               sidebarCollapsed ? "p-2 text-center" : "p-3"
             )}
           >
@@ -2854,9 +2854,11 @@ export function AdminPortal() {
               )}
             </div>
           </div>
+        </div>
 
-          {/* Station Navigation List */}
-          <nav className="mt-4 space-y-1">
+        {/* Station Navigation List (Smoothly Scrollable on any viewport height) */}
+        <div className="flex-1 min-h-0 overflow-y-auto mt-3 pr-1 -mr-1 space-y-1 scrollbar-thin scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20 overscroll-contain">
+          <nav className="space-y-1">
             {[
               { id: "overview", label: "Admin Overview", icon: LayoutDashboard, count: "Live" },
               { id: "structure", label: "College Structure", icon: Building2, count: departments.length },
@@ -2913,7 +2915,7 @@ export function AdminPortal() {
         </div>
 
         {/* Bottom Actions */}
-        <div className="space-y-2 border-t border-border/80 pt-3">
+        <div className="shrink-0 space-y-2 border-t border-border/80 pt-3 mt-2">
           <button
             onClick={() => {
               logout();

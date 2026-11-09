@@ -67,7 +67,7 @@ interface BroadcastLog {
 const EMAIL_TEMPLATES = {
   weekly_dispatch: {
     subject: "Weekly Academic Dispatch: High-Yield Notes & Solved Papers",
-    preheader: "Your Monday Study Kit: Unit Formula Sheets, Lab Viva Answers, and Exam Notes.",
+    preheader: "Your Monday Study Kit: Unit Formula Sheets, Lab Viva Answers, And Exam Notes.",
     contentHtml: `<div style="margin-bottom:16px;">
   <span style="display:inline-block; padding:5px 12px; background:#ecfdf5; color:#059669; border:1px solid #a7f3d0; border-radius:9999px; font-size:11px; font-weight:800; letter-spacing:0.8px; text-transform:uppercase;">
     ★ Weekly Academic Dispatch
@@ -77,7 +77,7 @@ const EMAIL_TEMPLATES = {
   Curated Study Kit For Your Semester
 </h2>
 <p style="color:#334155; font-size:13.5px; line-height:1.6; margin:0 0 16px 0;">
-  Hello Scholar, here is your curated study intelligence pack for the upcoming week, verified by campus subject experts and strictly aligned with university curriculum:
+  Hello Scholar, Here Is Your Curated Study Intelligence Pack For The Upcoming Week, Verified By Campus Subject Experts And Strictly Aligned With University Curriculum:
 </p>
 
 <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:16px; margin:20px 0;">
@@ -87,22 +87,22 @@ const EMAIL_TEMPLATES = {
   
   <div style="background:#ffffff; border:1px solid #a7f3d0; border-left:4px solid #059669; border-radius:10px; padding:12px 14px; margin-bottom:10px;">
     <div style="font-weight:800; color:#065f46; font-size:13px; margin-bottom:2px;">📘 Unit 3 &amp; 4 Handwritten Formula Sheets</div>
-    <div style="color:#64748b; font-size:12px; line-height:1.5;">Verified mathematical derivations, key formulas, and exam cheat-sheets.</div>
+    <div style="color:#64748b; font-size:12px; line-height:1.5;">Verified Mathematical Derivations, Key Formulas, And Exam Cheat-Sheets.</div>
   </div>
 
   <div style="background:#ffffff; border:1px solid #bfdbfe; border-left:4px solid #2563eb; border-radius:10px; padding:12px 14px; margin-bottom:10px;">
     <div style="font-weight:800; color:#1e40af; font-size:13px; margin-bottom:2px;">📝 Solved University PYQs (2020–2025)</div>
-    <div style="color:#64748b; font-size:12px; line-height:1.5;">Past examination papers with complete faculty step-by-step solutions.</div>
+    <div style="color:#64748b; font-size:12px; line-height:1.5;">Past Examination Papers With Complete Faculty Step-By-Step Solutions.</div>
   </div>
 
   <div style="background:#ffffff; border:1px solid #ddd6fe; border-left:4px solid #7c3aed; border-radius:10px; padding:12px 14px;">
     <div style="font-weight:800; color:#5b21b6; font-size:13px; margin-bottom:2px;">🔬 Practical Lab Manual &amp; Viva Voce Bank</div>
-    <div style="color:#64748b; font-size:12px; line-height:1.5;">Most frequently asked external examiner viva questions with model answers.</div>
+    <div style="color:#64748b; font-size:12px; line-height:1.5;">Most Frequently Asked External Examiner Viva Questions With Model Answers.</div>
   </div>
 </div>
 
 <p style="color:#475569; font-size:13px; line-height:1.6; margin:16px 0;">
-  Review these verified notes today to stay ahead in your continuous assessment tests and university semester finals.
+  Review These Verified Notes Today To Stay Ahead In Your Continuous Assessment Tests And University Semester Finals.
 </p>
 
 <div style="text-align:center; margin:28px 0 12px 0;">
@@ -113,7 +113,7 @@ const EMAIL_TEMPLATES = {
   },
   exam_alert: {
     subject: "Urgent Examination Alert: Sessional Dates & Master Revision Guide",
-    preheader: "Official Term Schedule Release and High-Priority Revision Notes.",
+    preheader: "Official Term Schedule Release And High-Priority Revision Notes.",
     contentHtml: `<div style="margin-bottom:16px;">
   <span style="display:inline-block; padding:5px 12px; background:#fff1f2; color:#e11d48; border:1px solid #fecdd3; border-radius:9999px; font-size:11px; font-weight:800; letter-spacing:0.8px; text-transform:uppercase;">
     🚨 Official Examination Notice
@@ -123,7 +123,7 @@ const EMAIL_TEMPLATES = {
   Mid-Term Examination Schedule Announced
 </h2>
 <p style="color:#334155; font-size:13.5px; line-height:1.6; margin:0 0 16px 0;">
-  Dear Scholar, the University Examination Authority has published the official timetable for the upcoming mid-term sessional examinations.
+  Dear Scholar, The University Examination Authority Has Published The Official Timetable For The Upcoming Mid-Term Sessional Examinations.
 </p>
 
 <div style="background:#fff1f2; border:1px solid #fecdd3; border-left:4px solid #e11d48; border-radius:14px; padding:16px; margin:20px 0;">
@@ -133,7 +133,7 @@ const EMAIL_TEMPLATES = {
   </div>
   <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px;">
     <strong style="color:#9f1239;">Syllabus Coverage:</strong>
-    <span style="color:#0f172a; font-weight:700;">Units 1, 2, and 3 Comprehensive</span>
+    <span style="color:#0f172a; font-weight:700;">Units 1, 2, And 3 Comprehensive</span>
   </div>
   <div style="display:flex; justify-content:space-between; font-size:13px;">
     <strong style="color:#9f1239;">Recommended Strategy:</strong>
@@ -154,7 +154,7 @@ const EMAIL_TEMPLATES = {
   },
   lab_viva: {
     subject: "Lab Practical Cheat-Sheet & Viva Voce Master Bank",
-    preheader: "Ace Your Laboratory Evaluations With Full Viva Answers and Experiment Setups.",
+    preheader: "Ace Your Laboratory Evaluations With Full Viva Answers And Experiment Setups.",
     contentHtml: `<div style="margin-bottom:16px;">
   <span style="display:inline-block; padding:5px 12px; background:#f5f3ff; color:#7c3aed; border:1px solid #ddd6fe; border-radius:9999px; font-size:11px; font-weight:800; letter-spacing:0.8px; text-transform:uppercase;">
     ⚡ Practical Study Kit &amp; Viva Bank
@@ -164,7 +164,7 @@ const EMAIL_TEMPLATES = {
   Laboratory Practical &amp; Viva Voce Master Bank
 </h2>
 <p style="color:#334155; font-size:13.5px; line-height:1.6; margin:0 0 16px 0;">
-  Hello Scholar, secure full marks in your internal laboratory practical assessments with our verified lab manuals and viva master guide:
+  Hello Scholar, Secure Full Marks In Your Internal Laboratory Practical Assessments With Our Verified Lab Manuals And Viva Master Guide:
 </p>
 
 <div style="background:#f5f3ff; border:1px solid #ddd6fe; border-left:4px solid #7c3aed; border-radius:14px; padding:16px; margin:20px 0;">
@@ -172,14 +172,14 @@ const EMAIL_TEMPLATES = {
     ✔ Verified Lab Manual Highlights:
   </p>
   <div style="color:#4c1d95; font-size:12.5px; line-height:1.7;">
-    <p style="margin:0 0 6px 0;">• <strong>Complete Circuit Diagrams &amp; Flowcharts:</strong> Step-by-step schematics and algorithms.</p>
-    <p style="margin:0 0 6px 0;">• <strong>Clean Code Snippets &amp; Test Vectors:</strong> Verified inputs and exact expected output tables.</p>
-    <p style="margin:0;">• <strong>Top 30 Faculty Viva Questions:</strong> Model conceptual answers prepared by department faculty.</p>
+    <p style="margin:0 0 6px 0;">• <strong>Complete Circuit Diagrams &amp; Flowcharts:</strong> Step-By-Step Schematics And Algorithms.</p>
+    <p style="margin:0 0 6px 0;">• <strong>Clean Code Snippets &amp; Test Vectors:</strong> Verified Inputs And Exact Expected Output Tables.</p>
+    <p style="margin:0;">• <strong>Top 30 Faculty Viva Questions:</strong> Model Conceptual Answers Prepared By Department Faculty.</p>
   </div>
 </div>
 
 <p style="color:#475569; font-size:13px; line-height:1.6; margin:16px 0;">
-  All experiments include ready-to-write observations, formula summaries, and viva questions.
+  All Experiments Include Ready-To-Write Observations, Formula Summaries, And Viva Questions.
 </p>
 
 <div style="text-align:center; margin:28px 0 12px 0;">

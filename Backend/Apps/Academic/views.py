@@ -232,6 +232,18 @@ class LabExperimentListView(generics.ListAPIView):
             qs = qs.filter(student_filter).distinct()
         return qs
 
+    def list(self, request, *args, **kwargs):
+        user = request.user
+        cache_key = make_cache_key(
+            f"academic:labs:{getattr(user, 'id', 'anon')}:{getattr(user, 'program', '')}:{getattr(user, 'semester', '')}",
+            **request.query_params.dict()
+        )
+        def _fetch():
+            response = super(LabExperimentListView, self).list(request, *args, **kwargs)
+            return response.data
+        data = get_or_set_redis_cache(cache_key, _fetch, timeout=600)
+        return Response(data)
+
 class LabExperimentDetailView(generics.RetrieveAPIView):
     queryset = LabExperiment.objects.select_related("subject")
     serializer_class = LabExperimentSerializer
@@ -296,6 +308,18 @@ class DepartmentNoticeListView(generics.ListAPIView):
             )
 
         return qs.filter(campus_filter | dept_filter | prog_filter).distinct()
+
+    def list(self, request, *args, **kwargs):
+        user = request.user
+        cache_key = make_cache_key(
+            f"academic:notices:{getattr(user, 'id', 'anon')}:{getattr(user, 'department', '')}:{getattr(user, 'program', '')}:{getattr(user, 'semester', '')}",
+            **request.query_params.dict()
+        )
+        def _fetch():
+            response = super(DepartmentNoticeListView, self).list(request, *args, **kwargs)
+            return response.data
+        data = get_or_set_redis_cache(cache_key, _fetch, timeout=300)
+        return Response(data)
 
 
 class MarkNoticeReadView(APIView):
