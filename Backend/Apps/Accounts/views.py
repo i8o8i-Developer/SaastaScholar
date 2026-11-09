@@ -1089,7 +1089,6 @@ DEFAULT_SYSTEM_ROLES = [
             "coupons": {"view": True, "manage": True, "delete": True, "security": False},
             "plan-matrix": {"view": True, "manage": True, "delete": False, "security": False},
             "marketing": {"view": True, "manage": True, "delete": False, "security": False},
-            "email-studio": {"view": True, "manage": True, "delete": False, "security": False},
         }
     },
     {
