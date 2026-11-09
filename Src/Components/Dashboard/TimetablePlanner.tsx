@@ -157,7 +157,7 @@ export function TimetablePlanner() {
           </div>
 
           {/* Dedicated Real-Time IST Synchronization Card */}
-          <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-3 sm:p-4 shrink-0 flex flex-col justify-center space-y-1 shadow-xs min-w-[210px]">
+          <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-3 sm:p-4 shrink-0 flex flex-col justify-center space-y-1 shadow-xs w-full sm:w-auto sm:min-w-[210px] min-w-0">
             <div className="flex items-center justify-between gap-2">
               <span className="inline-flex items-center gap-1.5 text-[0.62rem] font-mono font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
                 <span className="relative flex h-2 w-2">
@@ -183,7 +183,7 @@ export function TimetablePlanner() {
 
         {/* Equal 7-Column Segmented Weekday Matrix */}
         <div className="mt-4 sm:mt-6 min-w-0">
-          <div className="grid grid-cols-7 gap-1 sm:gap-2 p-1.5 rounded-2xl bg-surface/80 border border-border/80 shadow-2xs min-w-0">
+          <div className="grid grid-cols-7 gap-0.5 sm:gap-2 p-1 sm:p-1.5 rounded-2xl bg-surface/80 border border-border/80 shadow-2xs min-w-0">
             {WEEKDAYS.map((day) => {
               const isActive = selectedDay === day;
               const isToday = todayCode === day;
@@ -193,19 +193,20 @@ export function TimetablePlanner() {
                   type="button"
                   onClick={() => setSelectedDay(day)}
                   className={cn(
-                    "relative flex flex-col items-center justify-center rounded-xl py-2 px-0.5 sm:px-1 text-center transition-all cursor-pointer select-none",
+                    "relative flex flex-col items-center justify-center rounded-xl py-1.5 sm:py-2 px-0.5 sm:px-1 text-center transition-all cursor-pointer select-none min-w-0 overflow-hidden",
                     isActive
                       ? "bg-primary text-primary-foreground font-bold shadow-md shadow-primary/25 scale-[1.02]"
                       : "text-muted-foreground hover:bg-surface/50 hover:text-foreground font-semibold",
                   )}
                 >
-                  <span className="text-xs sm:text-sm font-bold tracking-tight">{day}</span>
+                  <span className="text-[0.65rem] xs:text-xs sm:text-sm font-bold tracking-tight truncate w-full text-center">{day}</span>
                   {isToday && (
                     <span className={cn(
-                      "inline-block mt-0.5 rounded-full px-1 sm:px-1.5 py-0.2 text-[0.5rem] sm:text-[0.6rem] font-extrabold uppercase leading-none",
+                      "inline-block mt-0.5 rounded-full px-1 sm:px-1.5 py-0.2 text-[0.45rem] sm:text-[0.6rem] font-extrabold uppercase leading-none truncate max-w-full",
                       isActive ? "bg-white/30 text-white" : "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold"
                     )}>
-                      Today
+                      <span className="hidden min-[340px]:inline">Today</span>
+                      <span className="min-[340px]:hidden">•</span>
                     </span>
                   )}
                 </button>

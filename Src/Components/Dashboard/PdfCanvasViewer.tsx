@@ -33,6 +33,7 @@ interface PdfCanvasViewerProps {
   zoomLevel: number;
   onTotalPagesDetected?: (pages: number) => void;
   onFallbackToManuscript?: () => void;
+  onPageRenderingChange?: (rendering: boolean) => void;
   watermark?: {
     student_name?: string;
     roll_number?: string;
@@ -48,6 +49,7 @@ export function PdfCanvasViewer({
   zoomLevel,
   onTotalPagesDetected,
   onFallbackToManuscript,
+  onPageRenderingChange,
   watermark,
   isDrmDisabled = false,
 }: PdfCanvasViewerProps) {
@@ -57,6 +59,8 @@ export function PdfCanvasViewer({
   const isMountedRef = useRef<boolean>(true);
   const onTotalPagesDetectedRef = useRef(onTotalPagesDetected);
   onTotalPagesDetectedRef.current = onTotalPagesDetected;
+  const onPageRenderingChangeRef = useRef(onPageRenderingChange);
+  onPageRenderingChangeRef.current = onPageRenderingChange;
 
   const [pdfDoc, setPdfDoc] = useState<any>(null);
   const currentLoadedUrlRef = useRef<string | null>(null);
@@ -181,6 +185,7 @@ export function PdfCanvasViewer({
 
       try {
         setRendering(true);
+        onPageRenderingChangeRef.current?.(true);
 
         // Cancel previous in-flight render safely
         if (renderTaskRef.current) {
@@ -303,6 +308,7 @@ export function PdfCanvasViewer({
       } finally {
         if (!isCancelled && isMountedRef.current) {
           setRendering(false);
+          onPageRenderingChangeRef.current?.(false);
         }
       }
     }

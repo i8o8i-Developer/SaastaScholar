@@ -124,112 +124,115 @@
   --brand-blue-deep: #005e80;
   --brand-blue-soft: rgba(0, 126, 172, 0.08);
 
-  --background: oklch(0.995 0.002 240);
-  --foreground: oklch(0.18 0.02 240);
-  --surface: oklch(0.975 0.005 240);
-  --surface-foreground: oklch(0.18 0.02 240);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.18 0.02 240);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.18 0.02 240);
+  /* unslop Graphite Ramp for Clean Light Mode */
+  --background: #fafafa;
+  --foreground: #171717;
+  --surface: #f4f4f5;
+  --surface-foreground: #171717;
+  --card: #ffffff;
+  --card-foreground: #171717;
+  --popover: #ffffff;
+  --popover-foreground: #171717;
 
-  /* Primary Brand Theme Token = Logo Green #005F15 */
-  --primary: oklch(0.38 0.165 142);
-  --primary-foreground: oklch(0.99 0 0);
-  --primary-soft: oklch(0.95 0.035 142);
-  --primary-deep: oklch(0.28 0.14 142);
+  /* Primary Brand Theme Token = Clean Forest Green */
+  --primary: #005F15;
+  --primary-foreground: #ffffff;
+  --primary-soft: rgba(0, 95, 21, 0.08);
+  --primary-deep: #00450f;
 
-  --secondary: oklch(0.96 0.008 240);
-  --secondary-foreground: oklch(0.24 0.03 240);
-  --muted: oklch(0.96 0.006 240);
-  --muted-foreground: oklch(0.48 0.02 240);
+  --secondary: #f4f4f5;
+  --secondary-foreground: #171717;
+  --muted: #f4f4f5;
+  --muted-foreground: #6b7280;
 
-  /* Accent Theme Token = Logo Ocean Blue #007EAC */
-  --accent: oklch(0.95 0.03 226);
-  --accent-foreground: oklch(0.42 0.12 226);
+  /* Accent Theme Token = Ocean Blue */
+  --accent: rgba(0, 126, 172, 0.08);
+  --accent-foreground: #007EAC;
 
-  /* Highlight = Logo Ocean Blue #007EAC */
-  --highlight: oklch(0.53 0.135 226);
+  /* Highlight */
+  --highlight: #007EAC;
 
-  /* Destructive & Urgent Theme Token = Logo Crimson Red #BA0000 */
-  --destructive: oklch(0.48 0.22 28);
-  --destructive-foreground: oklch(0.99 0 0);
+  /* Destructive */
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
 
-  --border: oklch(0.91 0.008 240);
-  --border-strong: oklch(0.82 0.015 240);
-  --input: oklch(0.91 0.008 240);
-  --ring: oklch(0.38 0.165 142);
+  --border: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.16);
+  --input: rgba(0, 0, 0, 0.1);
+  --ring: #005F15;
 
-  --chart-1: oklch(0.38 0.165 142);
-  --chart-2: oklch(0.53 0.135 226);
-  --chart-3: oklch(0.48 0.22 28);
-  --chart-4: oklch(0.68 0.16 142);
-  --chart-5: oklch(0.62 0.18 226);
+  --chart-1: #005F15;
+  --chart-2: #007EAC;
+  --chart-3: #BA0000;
+  --chart-4: #10b981;
+  --chart-5: #0ea5e9;
 
-  --sidebar: oklch(0.975 0.005 240);
-  --sidebar-foreground: oklch(0.18 0.02 240);
-  --sidebar-primary: oklch(0.38 0.165 142);
-  --sidebar-primary-foreground: oklch(0.99 0 0);
-  --sidebar-accent: oklch(0.95 0.03 226);
-  --sidebar-accent-foreground: oklch(0.42 0.12 226);
-  --sidebar-border: oklch(0.91 0.008 240);
-  --sidebar-ring: oklch(0.38 0.165 142);
+  --sidebar: #f7f7f8;
+  --sidebar-foreground: #171717;
+  --sidebar-primary: #005F15;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: rgba(0, 126, 172, 0.08);
+  --sidebar-accent-foreground: #007EAC;
+  --sidebar-border: rgba(0, 0, 0, 0.08);
+  --sidebar-ring: #005F15;
 }
 
 .dark {
   /* Logo Colors in Dark Mode */
   --brand-green: #10b981;
   --brand-green-deep: #059669;
-  --brand-green-soft: rgba(16, 185, 129, 0.15);
+  --brand-green-soft: rgba(16, 185, 129, 0.12);
 
   --brand-red: #ef4444;
   --brand-red-deep: #dc2626;
-  --brand-red-soft: rgba(239, 68, 68, 0.15);
+  --brand-red-soft: rgba(239, 68, 68, 0.12);
 
   --brand-blue: #0ea5e9;
   --brand-blue-deep: #0284c7;
-  --brand-blue-soft: rgba(14, 165, 233, 0.15);
+  --brand-blue-soft: rgba(14, 165, 233, 0.12);
 
-  --background: oklch(0.17 0.012 142);
-  --foreground: oklch(0.965 0.006 95);
-  --surface: oklch(0.212 0.015 142);
-  --surface-foreground: oklch(0.965 0.006 95);
-  --card: oklch(0.222 0.016 142);
-  --card-foreground: oklch(0.965 0.006 95);
-  --popover: oklch(0.222 0.016 142);
-  --popover-foreground: oklch(0.965 0.006 95);
+  /* unslop Graphite Ramp for Modern, Deep Dark Mode (Eliminates swamp-green cast) */
+  --background: #141415;
+  --foreground: #ededed;
+  --surface: #19191b;
+  --surface-foreground: #ededed;
+  --card: #1c1d20;
+  --card-foreground: #ededed;
+  --popover: #232326;
+  --popover-foreground: #ededed;
 
-  --primary: oklch(0.70 0.16 142);
-  --primary-foreground: oklch(0.15 0.02 142);
-  --primary-soft: oklch(0.28 0.05 142);
-  --primary-deep: oklch(0.85 0.14 142);
+  /* Intentional Emerald Accent */
+  --primary: #10b981;
+  --primary-foreground: #09090b;
+  --primary-soft: rgba(16, 185, 129, 0.14);
+  --primary-deep: #059669;
 
-  --secondary: oklch(0.25 0.018 142);
-  --secondary-foreground: oklch(0.95 0.006 95);
-  --muted: oklch(0.25 0.018 142);
-  --muted-foreground: oklch(0.72 0.015 90);
+  --secondary: #232326;
+  --secondary-foreground: #ededed;
+  --muted: #1e1f23;
+  --muted-foreground: #9ca3af;
 
-  --accent: oklch(0.26 0.04 226);
-  --accent-foreground: oklch(0.85 0.08 226);
+  --accent: #26272c;
+  --accent-foreground: #ededed;
 
-  --highlight: oklch(0.72 0.135 226);
+  --highlight: #38bdf8;
 
-  --destructive: oklch(0.68 0.22 28);
-  --destructive-foreground: oklch(0.99 0 0);
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
 
-  --border: oklch(1 0 0 / 12%);
-  --border-strong: oklch(1 0 0 / 22%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.70 0.16 142);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.15);
+  --input: rgba(255, 255, 255, 0.1);
+  --ring: #10b981;
 
-  --sidebar: oklch(0.212 0.015 142);
-  --sidebar-foreground: oklch(0.965 0.006 95);
-  --sidebar-primary: oklch(0.70 0.16 142);
-  --sidebar-primary-foreground: oklch(0.15 0.02 142);
-  --sidebar-accent: oklch(0.26 0.04 226);
-  --sidebar-accent-foreground: oklch(0.85 0.08 226);
-  --sidebar-border: oklch(1 0 0 / 12%);
-  --sidebar-ring: oklch(0.70 0.16 142);
+  --sidebar: #101012;
+  --sidebar-foreground: #ededed;
+  --sidebar-primary: #10b981;
+  --sidebar-primary-foreground: #09090b;
+  --sidebar-accent: #1e1f23;
+  --sidebar-accent-foreground: #ededed;
+  --sidebar-border: rgba(255, 255, 255, 0.08);
+  --sidebar-ring: #10b981;
 }
 
 @layer base {

@@ -147,14 +147,10 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
     toggleDrm,
   } = useDrmProtection({ materialId });
 
-  // Mandatory Mobile DRM Clearance Protocol
-  const [hasMobileCleared, setHasMobileCleared] = useState<boolean>(() => {
-    if (typeof window === "undefined") return true;
-    const isMob =
-      /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
-      (navigator.maxTouchPoints > 1 && window.innerWidth < 1024);
-    return !isMob;
-  });
+  // Mobile DRM Clearance Protocol (No Forced Fullscreen Required)
+  const [hasMobileCleared, setHasMobileCleared] = useState<boolean>(true);
+  const [isPageRendering, setIsPageRendering] = useState<boolean>(false);
+  const [navigatingDirection, setNavigatingDirection] = useState<"next" | "prev" | null>(null);
 
   const [payload, setPayload] = useState<DrmMaterialPayload>(FALLBACK_PAYLOAD);
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -167,7 +163,18 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
 
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Authorize Mobile DRM Secure Sandbox & Lock Screen
+  // Auto-clear navigating direction when rendering completes or timeout occurs
+  useEffect(() => {
+    if (navigatingDirection) {
+      const timer = setTimeout(() => {
+        setNavigatingDirection(null);
+        setIsPageRendering(false);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [navigatingDirection]);
+
+  // Optional Fullscreen Study Sandbox
   const handleAuthorizeMobileDrm = async () => {
     try {
       if (containerRef.current?.requestFullscreen) {
@@ -185,15 +192,8 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
       }
     } catch {}
 
-    logDrmEvent("MOBILE_CLEARANCE_GRANTED", {
-      material_id: materialId,
-      screen_width: window.innerWidth,
-      screen_height: window.innerHeight,
-      touch_points: navigator.maxTouchPoints,
-    });
-
     setHasMobileCleared(true);
-    toast.success("Ready to read! Fullscreen study mode active.");
+    toast.success("Study mode active.");
   };
 
   // Strictly identify if this is a genuine PDF courseware document
@@ -291,6 +291,8 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
 
   const handleNextPage = () => {
     if (currentPage < payload.total_pages) {
+      setNavigatingDirection("next");
+      setIsPageRendering(true);
       setCurrentPage((prev) => prev + 1);
     } else {
       toast.info("You have reached the last page of this academic record.");
@@ -299,6 +301,8 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
 
   const handlePrevPage = () => {
     if (currentPage > 1) {
+      setNavigatingDirection("prev");
+      setIsPageRendering(true);
       setCurrentPage((prev) => prev - 1);
     }
   };
@@ -371,6 +375,12 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
         isFullscreen ? "fixed inset-0 z-[100]" : ""
       )}
     >
+      {/* Top Page Loading Bar Indicator */}
+      {isPageRendering && (
+        <div className="absolute top-0 left-0 right-0 h-1 bg-primary/20 z-50 overflow-hidden">
+          <div className="h-full bg-primary animate-pulse w-full" />
+        </div>
+      )}
       {/* ================= ACCOUNT SECURITY LOCKDOWN OVERLAY ================= */}
       {isAccountBlocked && !isDrmDisabled && (
         <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/95 text-white p-6 text-center backdrop-blur-3xl animate-in fade-in select-none">
@@ -422,113 +432,67 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
         </div>
       )}
 
-      {/* ================= MANDATORY MOBILE DRM CLEARANCE & PERMISSION MODAL ================= */}
-      {isMobile && !hasMobileCleared && !isDrmDisabled && !isAccountBlocked && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-3 sm:p-4 text-white text-center backdrop-blur-2xl animate-in fade-in select-none overflow-y-auto overscroll-contain">
-          <div className="relative z-10 max-w-sm sm:max-w-md w-full max-h-[min(100dvh-1.5rem,640px)] flex flex-col justify-between rounded-2xl sm:rounded-3xl border border-emerald-500/40 bg-zinc-950/98 p-4 sm:p-5 shadow-[0_0_60px_-15px_rgba(16,185,129,0.35)] backdrop-blur-2xl">
-            {/* Scrollable body if screen is ultra-compact */}
-            <div className="overflow-y-auto space-y-3 sm:space-y-3.5 pr-0.5 scrollbar-none">
-              {/* Header Icon */}
-              <div className="relative mx-auto grid h-12 w-12 sm:h-14 sm:w-14 place-items-center rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 shadow-inner">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-2xl bg-emerald-400/20 opacity-60" />
-                <Smartphone className="h-6 w-6 sm:h-7 sm:w-7 text-emerald-400" />
-              </div>
-
-              <div className="space-y-1">
-                <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-2.5 py-0.5 text-[0.65rem] sm:text-xs font-bold text-emerald-300">
-                  <Radio className="h-3 w-3 animate-pulse text-emerald-400" />
-                  <span>Easy Reading Mode</span>
-                </div>
-
-                <h2 className="text-lg sm:text-xl font-bold tracking-tight text-white">
-                  Full Screen For Better Reading
-                </h2>
-
-                <p className="text-[0.72rem] sm:text-xs text-zinc-300 leading-snug max-w-xs mx-auto">
-                  Tap Below To Open Your Notes In Full Screen With Zero Clutter Or Distractions.
-                </p>
-              </div>
-
-              {/* Benefits Grid (2x2 for Compact Viewport Height) */}
-              <div className="grid grid-cols-2 gap-2 text-left">
-                <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/70 p-2 sm:p-2.5">
-                  <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-[0.7rem] sm:text-[0.75rem] mb-0.5">
-                    <Lock className="h-3.5 w-3.5 shrink-0" />
-                    <span className="truncate">Distraction Free</span>
-                  </div>
-                  <p className="text-[0.62rem] sm:text-[0.66rem] text-zinc-400 leading-tight">
-                    Clean View So You Can Focus On Studying
-                  </p>
-                </div>
-
-                <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/70 p-2 sm:p-2.5">
-                  <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-[0.7rem] sm:text-[0.75rem] mb-0.5">
-                    <CameraOff className="h-3.5 w-3.5 shrink-0" />
-                    <span className="truncate">Safe Notes</span>
-                  </div>
-                  <p className="text-[0.62rem] sm:text-[0.66rem] text-zinc-400 leading-tight">
-                    Official Teacher Study Materials
-                  </p>
-                </div>
-
-                <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/70 p-2 sm:p-2.5">
-                  <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-[0.7rem] sm:text-[0.75rem] mb-0.5">
-                    <Sparkles className="h-3.5 w-3.5 shrink-0" />
-                    <span className="truncate">Personalized</span>
-                  </div>
-                  <p className="text-[0.62rem] sm:text-[0.66rem] text-zinc-400 leading-tight">
-                    Linked Directly To Your Student Account
-                  </p>
-                </div>
-
-                <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/70 p-2 sm:p-2.5">
-                  <div className="flex items-center gap-1.5 text-emerald-400 font-bold text-[0.7rem] sm:text-[0.75rem] mb-0.5">
-                    <Radio className="h-3.5 w-3.5 shrink-0" />
-                    <span className="truncate">Fast &amp; Smooth</span>
-                  </div>
-                  <p className="text-[0.62rem] sm:text-[0.66rem] text-zinc-400 leading-tight">
-                    Optimized For Smooth Reading On Your Phone
-                  </p>
-                </div>
-              </div>
-
-              {/* Student Identity Verification */}
-              <div className="rounded-xl border border-zinc-800/80 bg-black/60 px-3 py-1.5 text-[0.68rem] font-mono text-zinc-400 flex items-center justify-between">
-                <span>Student: {user?.roll_number || payload.watermark.roll_number}</span>
-                <span className="text-emerald-400 font-bold">Verified Student</span>
-              </div>
-            </div>
-
-            {/* Actions anchored at bottom */}
-            <div className="pt-2.5 space-y-1.5 sm:space-y-2 mt-auto">
-              <button
-                type="button"
-                onClick={handleAuthorizeMobileDrm}
-                className="inline-flex h-10 sm:h-11 w-full items-center justify-center gap-2 rounded-xl sm:rounded-2xl bg-emerald-500 text-zinc-950 font-bold text-xs shadow-md transition-all hover:bg-emerald-400 active:scale-98 cursor-pointer"
-              >
-                <span>Open Fullscreen &amp; Start Reading</span>
-                <ArrowRight className="h-4 w-4" />
-              </button>
-
-              <button
-                type="button"
-                onClick={onClose}
-                className="inline-flex h-8 sm:h-9 w-full items-center justify-center gap-1 rounded-lg border border-zinc-800/80 text-zinc-400 font-semibold text-[0.72rem] sm:text-xs hover:text-white hover:bg-zinc-900 active:scale-98 transition-all cursor-pointer"
-              >
-                <span>Back To Study Dashboard</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* ================= BLACKOUT SHIELD OVERLAY (CLICK TO RESUME) ================= */}
       {isScreenBlurred && !isAccountBlocked && !isDrmDisabled && (
         <div
           onClick={() => resumeReading()}
-          className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/95 text-white p-6 text-center backdrop-blur-2xl animate-in fade-in duration-75 cursor-pointer select-none"
+          className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/95 text-white p-4 sm:p-6 text-center backdrop-blur-2xl animate-in fade-in duration-75 cursor-pointer select-none"
         >
           {/* Central Holographic Shield Card */}
+          <div
+            onClick={(e) => {
+              e.stopPropagation();
+              resumeReading();
+            }}
+            className="relative z-10 max-w-lg w-full rounded-2xl sm:rounded-3xl border border-emerald-500/40 bg-zinc-900/95 p-5 sm:p-8 shadow-[0_0_60px_-15px_rgba(16,185,129,0.4)] backdrop-blur-xl space-y-4 sm:space-y-5"
+          >
+            {/* Animated Shield Radar Beacon */}
+            <div className="relative mx-auto grid h-14 w-14 sm:h-20 sm:w-20 place-items-center rounded-2xl sm:rounded-3xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 shadow-inner">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-2xl sm:rounded-3xl bg-emerald-400/20 opacity-75" />
+              <ShieldCheck className="h-7 w-7 sm:h-10 sm:w-10 text-emerald-400" />
+            </div>
+
+            <div className="space-y-1.5 sm:space-y-2">
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-3 py-0.5 text-xs font-bold text-emerald-300">
+                <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+                <span>Reading Paused</span>
+              </div>
+
+              <h2 className="text-xl sm:text-3xl font-bold tracking-tight text-white">
+                Tap Anywhere To Keep Reading
+              </h2>
+
+              <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-md mx-auto">
+                {isMobile
+                  ? "Your Reading Was Paused. Tap The Button Below To Resume Reading Instantly."
+                  : "Your Notes Are Safe. Click Anywhere On Screen To Jump Right Back In."}
+              </p>
+            </div>
+
+            {/* Verification Chip */}
+            <div className="rounded-xl sm:rounded-2xl border border-zinc-800 bg-zinc-950/80 p-2.5 sm:p-3 text-[0.68rem] sm:text-[0.7rem] font-mono text-zinc-400 space-y-1">
+              <div className="flex items-center justify-between text-emerald-400 font-bold">
+                <span>Student Roll No:</span>
+                <span>{user?.roll_number || payload.watermark.roll_number}</span>
+              </div>
+              <div className="flex items-center justify-between text-zinc-500">
+                <span>Protected Reading:</span>
+                <span className="text-emerald-400 font-bold">Active &amp; Ready</span>
+              </div>
+            </div>
+
+            {/* Click To Resume CTA - Direct Resume Without Fullscreen Requirement */}
+            <button
+              type="button"
+              onClick={() => resumeReading()}
+              className="inline-flex h-10 sm:h-11 w-full items-center justify-center gap-2 rounded-xl sm:rounded-2xl bg-emerald-500 text-zinc-950 font-bold text-xs shadow-lg transition-all hover:bg-emerald-400 active:scale-95 cursor-pointer"
+            >
+              <span>Click To Resume Reading</span>
+              <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+            </button>
+          </div>
+        </div>
+      )}
           <div
             onClick={(e) => {
               e.stopPropagation();
@@ -616,7 +580,11 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
             className="grid h-6 w-6 xs:h-7 xs:w-7 place-items-center rounded-lg xs:rounded-xl bg-card text-foreground disabled:opacity-30 disabled:cursor-not-allowed hover:bg-surface active:scale-90 transition-all cursor-pointer border border-border/60"
             title="Previous Page (ArrowLeft)"
           >
-            <ChevronLeft className="h-3.5 w-3.5 xs:h-4 xs:w-4" />
+            {navigatingDirection === "prev" ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+            ) : (
+              <ChevronLeft className="h-3.5 w-3.5 xs:h-4 xs:w-4" />
+            )}
           </button>
 
           {isJumpInputOpen ? (
@@ -641,10 +609,11 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
                 setJumpPageValue(`${currentPage}`);
                 setIsJumpInputOpen(true);
               }}
-              className="font-mono font-bold text-foreground px-1.5 xs:px-2.5 text-[0.65rem] xs:text-xs hover:text-primary transition-colors cursor-pointer select-none"
+              className="font-mono font-bold text-foreground px-1.5 xs:px-2.5 text-[0.65rem] xs:text-xs hover:text-primary transition-colors cursor-pointer select-none inline-flex items-center gap-1"
               title="Click To Jump To Page"
             >
-              {currentPage} / {payload.total_pages}
+              {isPageRendering && <Loader2 className="h-2.5 w-2.5 animate-spin text-primary" />}
+              <span>{currentPage} / {payload.total_pages}</span>
             </button>
           )}
 
@@ -655,7 +624,11 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
             className="grid h-6 w-6 xs:h-7 xs:w-7 place-items-center rounded-lg xs:rounded-xl bg-card text-foreground disabled:opacity-30 disabled:cursor-not-allowed hover:bg-surface active:scale-90 transition-all cursor-pointer border border-border/60"
             title="Next Page (ArrowRight)"
           >
-            <ChevronRight className="h-3.5 w-3.5 xs:h-4 xs:w-4" />
+            {navigatingDirection === "next" || isPageRendering ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+            ) : (
+              <ChevronRight className="h-3.5 w-3.5 xs:h-4 xs:w-4" />
+            )}
           </button>
         </div>
 
@@ -845,6 +818,10 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
                 watermark={payload.watermark}
                 isDrmDisabled={isDrmDisabled}
                 onTotalPagesDetected={handleTotalPagesDetected}
+                onPageRenderingChange={(rendering) => {
+                  setIsPageRendering(rendering);
+                  if (!rendering) setNavigatingDirection(null);
+                }}
               />
             </div>
           ) : (
