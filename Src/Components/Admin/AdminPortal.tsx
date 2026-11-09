@@ -2749,12 +2749,12 @@ export function AdminPortal() {
                       className={cn(
                         "flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs cursor-pointer transition-all active:scale-[0.98]",
                         isActive
-                          ? "bg-emerald-500/10 text-emerald-800 dark:text-emerald-400 font-bold border border-emerald-500/20 shadow-2xs"
+                          ? "bg-slate-900 text-white font-semibold shadow-xs dark:bg-white/[0.08] dark:text-white dark:border dark:border-white/[0.1]"
                           : "text-slate-600 dark:text-zinc-400 font-medium hover:bg-slate-100 dark:hover:bg-white/[0.04] hover:text-slate-950 dark:hover:text-white",
                       )}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
-                        <Icon className="h-4 w-4 shrink-0" />
+                        <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-emerald-400" : "text-slate-400 dark:text-zinc-500")} />
                         <span className="truncate">{station.label}</span>
                       </div>
                       <span
@@ -2882,12 +2882,12 @@ export function AdminPortal() {
                     "flex w-full items-center rounded-xl cursor-pointer transition-all active:scale-[0.98]",
                     sidebarCollapsed ? "justify-center p-2.5" : "justify-between px-3 py-2 text-xs",
                     isActive
-                      ? "bg-emerald-500/10 text-emerald-800 dark:text-emerald-400 font-bold border border-emerald-500/20 shadow-2xs"
+                      ? "bg-slate-900 text-white font-semibold shadow-xs dark:bg-white/[0.08] dark:text-white dark:border dark:border-white/[0.1]"
                       : "text-slate-600 dark:text-zinc-400 font-medium hover:bg-slate-100 dark:hover:bg-white/[0.04] hover:text-slate-900 dark:hover:text-zinc-100",
                   )}
                 >
                   <div className="flex items-center gap-2.5">
-                    <Icon className="h-4 w-4 shrink-0" />
+                    <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-emerald-400" : "text-slate-400 dark:text-zinc-500")} />
                     {!sidebarCollapsed && <span className="truncate">{station.label}</span>}
                   </div>
                   {!sidebarCollapsed && (

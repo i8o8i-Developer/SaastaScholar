@@ -194,11 +194,11 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
       )}
 
       {/* ================= 1. Welcome Header Banner ================= */}
-      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-br from-emerald-500/10 via-surface to-teal-500/10 p-5 sm:p-8 backdrop-blur-md shadow-xs">
+      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border bg-card p-5 sm:p-7 shadow-xs">
         <div className="flex flex-col gap-4 sm:gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-1.5 sm:space-y-2 min-w-0">
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 sm:px-3 py-0.5 text-[0.68rem] sm:text-xs font-bold text-emerald-700 dark:text-emerald-300">
-              <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-2.5 sm:px-3 py-0.5 text-[0.68rem] sm:text-xs font-semibold text-foreground shadow-2xs">
+              <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-primary shrink-0" />
               <span>NIMS Student Study Space</span>
             </div>
             <h1 className="font-display text-lg min-[360px]:text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-foreground break-words">
@@ -211,8 +211,8 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
 
           <div className="grid grid-cols-2 gap-2.5 sm:flex sm:flex-row sm:items-center sm:gap-3 shrink-0">
             {/* Live IST Real-Time Clock Card */}
-            <div className="rounded-2xl border border-emerald-500/25 bg-surface/90 p-2.5 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs min-w-0">
-              <div className="flex items-center justify-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-mono font-bold text-[0.6rem] sm:text-[0.65rem] uppercase tracking-wider whitespace-nowrap">
+            <div className="rounded-2xl border border-border bg-surface p-2.5 sm:p-3.5 flex flex-col items-center justify-center text-center shadow-2xs min-w-0">
+              <div className="flex items-center justify-center gap-1.5 text-muted-foreground font-mono font-bold text-[0.6rem] sm:text-[0.65rem] uppercase tracking-wider whitespace-nowrap">
                 <span className="relative flex h-1.5 w-1.5 shrink-0">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
@@ -228,9 +228,9 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
             </div>
 
             {/* Target CGPA Goal Card */}
-            <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-2.5 sm:p-4 flex flex-col items-center justify-center text-center shadow-xs min-w-0">
-              <div className="flex items-center justify-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-bold text-[0.6rem] sm:text-[0.65rem] uppercase tracking-wider whitespace-nowrap">
-                <Target className="h-3 w-3 shrink-0" />
+            <div className="rounded-2xl border border-border bg-surface p-2.5 sm:p-3.5 flex flex-col items-center justify-center text-center shadow-2xs min-w-0">
+              <div className="flex items-center justify-center gap-1.5 text-muted-foreground font-bold text-[0.6rem] sm:text-[0.65rem] uppercase tracking-wider whitespace-nowrap">
+                <Target className="h-3 w-3 text-primary shrink-0" />
                 <span>Target CGPA</span>
               </div>
               <span className="font-display text-base sm:text-xl font-black text-foreground font-mono whitespace-nowrap my-0.5">
@@ -248,16 +248,16 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
       {summary?.next_lecture?.day_status === "DAY_ENDED" ? (
         <div
           onClick={() => onNavigateTab("planner")}
-          className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-emerald-500/25 bg-gradient-to-br from-emerald-500/10 via-card to-teal-500/5 p-5 sm:p-6 shadow-xs hover:border-emerald-500/50 hover:shadow-md transition-all cursor-pointer group space-y-4"
+          className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border bg-card p-5 sm:p-6 shadow-xs hover:border-primary/40 hover:shadow-sm transition-all cursor-pointer group space-y-4"
         >
           {/* Top Row: Icon + Badge + Action CTA */}
-          <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-3">
+          <div className="flex items-center justify-between gap-2 border-b border-border pb-3">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="grid h-9 w-9 sm:h-10 sm:w-10 shrink-0 place-items-center rounded-xl sm:rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition-transform shadow-xs">
+              <div className="grid h-9 w-9 sm:h-10 sm:w-10 shrink-0 place-items-center rounded-xl sm:rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition-transform shadow-xs">
                 <CheckCircle2 className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
               <div className="flex items-center gap-2 flex-wrap min-w-0">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/15 px-2.5 sm:px-3 py-1 text-[0.65rem] sm:text-[0.68rem] font-bold text-emerald-700 dark:text-emerald-300 truncate">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 sm:px-3 py-1 text-[0.65rem] sm:text-[0.68rem] font-bold text-emerald-700 dark:text-emerald-300 truncate">
                   <CheckCircle2 className="h-3 w-3 shrink-0" />
                   <span>Classes Concluded Today</span>
                 </span>
@@ -286,7 +286,7 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
           {/* Tomorrow's Preview Card */}
           {summary.next_lecture?.day === "Tomorrow" && summary.next_lecture?.title && summary.next_lecture.title !== "No Scheduled Lectures In Blueprint" && (
             <div className="pt-2">
-              <div className="rounded-2xl border border-border/80 bg-surface/80 p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs hover:border-primary/40 transition-colors">
+              <div className="rounded-2xl border border-border bg-surface p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs hover:border-primary/40 transition-colors">
                 <div className="flex items-center gap-3 min-w-0">
                   <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary border border-primary/20">
                     <Clock className="h-4 w-4" />
@@ -322,7 +322,7 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
                     <Clock className="h-3.5 w-3.5" />
                     <span>{summary.next_lecture.time}</span>
                   </span>
-                  <span className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-1.5 text-xs font-bold text-primary-foreground shadow-xs group-hover:bg-primary-deep transition-all">
+                  <span className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3.5 py-1.5 text-xs font-bold text-primary-foreground shadow-xs hover:bg-primary-deep transition-all">
                     <span>View Schedule</span>
                     <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-0.5 transition-transform" />
                   </span>
@@ -334,16 +334,16 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
       ) : summary?.next_lecture?.day_status === "NO_CLASSES_TODAY" ? (
         <div
           onClick={() => onNavigateTab("planner")}
-          className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-emerald-500/25 bg-gradient-to-br from-emerald-500/10 via-card to-teal-500/5 p-5 sm:p-6 shadow-xs hover:border-emerald-500/50 hover:shadow-md transition-all cursor-pointer group space-y-4"
+          className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border bg-card p-5 sm:p-6 shadow-xs hover:border-primary/40 hover:shadow-sm transition-all cursor-pointer group space-y-4"
         >
           {/* Top Row: Icon + Badge + Action CTA */}
-          <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-3">
+          <div className="flex items-center justify-between gap-2 border-b border-border pb-3">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="grid h-9 w-9 sm:h-10 sm:w-10 shrink-0 place-items-center rounded-xl sm:rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition-transform shadow-xs">
+              <div className="grid h-9 w-9 sm:h-10 sm:w-10 shrink-0 place-items-center rounded-xl sm:rounded-2xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition-transform shadow-xs">
                 <Calendar className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
               <div className="flex items-center gap-2 flex-wrap min-w-0">
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/15 px-2.5 sm:px-3 py-1 text-[0.65rem] sm:text-[0.68rem] font-bold text-emerald-700 dark:text-emerald-300 truncate">
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 sm:px-3 py-1 text-[0.65rem] sm:text-[0.68rem] font-bold text-emerald-700 dark:text-emerald-300 truncate">
                   <BookOpen className="h-3 w-3 shrink-0" />
                   <span>{istClock.weekdayCode === "Sun" ? "Sunday Institutional Revision" : "Academic Self-Study Day"}</span>
                 </span>
@@ -467,10 +467,10 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
           <div
             onClick={() => onNavigateTab("planner")}
             className={cn(
-              "relative overflow-hidden rounded-2xl sm:rounded-3xl border p-5 sm:p-6 shadow-xs hover:shadow-md transition-all cursor-pointer group space-y-3.5",
+              "relative overflow-hidden rounded-2xl sm:rounded-3xl border p-5 sm:p-6 shadow-xs hover:shadow-sm transition-all cursor-pointer group space-y-3.5",
               nextLec.is_ongoing
-                ? "border-rose-500/40 bg-gradient-to-br from-rose-500/10 via-card to-rose-950/10 hover:border-rose-500/60 ring-1 ring-rose-500/20"
-                : "border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 via-card to-teal-500/5 hover:border-emerald-500/50"
+                ? "border-rose-500/40 bg-card hover:border-rose-500/60 ring-1 ring-rose-500/20"
+                : "border-border bg-card hover:border-primary/40"
             )}
           >
             {/* Header Row: Live Status Badge + Day label + Timetable CTA */}

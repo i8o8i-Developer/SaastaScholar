@@ -426,12 +426,12 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
                     "flex w-full items-center rounded-xl text-xs cursor-pointer transition-all active:scale-[0.98]",
                     sidebarCollapsed ? "justify-center p-2.5" : "justify-between px-3 py-2.5",
                     isActive
-                      ? "bg-emerald-500/10 text-emerald-800 dark:text-emerald-400 font-bold border border-emerald-500/20 shadow-2xs"
+                      ? "bg-slate-900 text-white font-semibold shadow-xs dark:bg-white/[0.08] dark:text-white dark:border dark:border-white/[0.1]"
                       : "text-slate-600 dark:text-zinc-400 font-medium hover:bg-slate-100 dark:hover:bg-white/[0.04] hover:text-slate-900 dark:hover:text-zinc-100",
                   )}
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-emerald-700 dark:text-emerald-400" : "text-slate-400 dark:text-zinc-500")} />
+                    <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-emerald-400" : "text-slate-400 dark:text-zinc-500")} />
                     {!sidebarCollapsed && <span className="truncate">{item.label}</span>}
                   </div>
                   {!sidebarCollapsed && hasBadge && (
@@ -554,12 +554,12 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
                     className={cn(
                       "flex w-full items-center justify-between rounded-xl px-3 py-2.5 text-xs cursor-pointer transition-all active:scale-[0.98]",
                       isActive
-                        ? "bg-emerald-500/10 text-emerald-800 dark:text-emerald-400 font-bold border border-emerald-500/20 shadow-2xs"
+                        ? "bg-slate-900 text-white font-semibold shadow-xs dark:bg-white/[0.08] dark:text-white dark:border dark:border-white/[0.1]"
                         : "text-slate-700 dark:text-zinc-300 font-medium hover:bg-slate-100 dark:hover:bg-white/[0.04] hover:text-slate-950 dark:hover:text-white",
                     )}
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-emerald-700 dark:text-emerald-400" : "text-slate-400 dark:text-zinc-500")} />
+                      <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-emerald-400" : "text-slate-400 dark:text-zinc-500")} />
                       <span className="truncate">{item.label}</span>
                     </div>
                     {hasBadge && (
@@ -675,7 +675,7 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
 
             {/* Real-Time IST Synchronization Pill */}
             <div
-              className="hidden xl:flex items-center gap-2 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1 text-xs font-mono text-emerald-700 dark:text-emerald-300 shadow-2xs select-none"
+              className="hidden xl:flex items-center gap-2 rounded-full border border-border bg-card/90 px-3 py-1 text-xs font-mono text-foreground shadow-2xs select-none dark:border-white/[0.08]"
               title={`Indian Standard Time (UTC+05:30) • ${istClock.dateString}`}
             >
               <span className="relative flex h-2 w-2">
@@ -683,7 +683,7 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
               <span className="font-bold">{istClock.timeString}</span>
-              <span className="text-[0.62rem] font-sans font-extrabold uppercase px-1 py-0.2 rounded bg-emerald-500/20 text-emerald-700 dark:text-emerald-300">IST</span>
+              <span className="text-[0.62rem] font-sans font-bold uppercase px-1.5 py-0.5 rounded bg-surface border border-border/80 text-muted-foreground">IST</span>
             </div>
           </div>
 

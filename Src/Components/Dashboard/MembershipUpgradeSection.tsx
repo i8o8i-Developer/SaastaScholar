@@ -598,23 +598,27 @@ export function MembershipUpgradeSection({
           </div>
 
           {/* Action Buttons: Instant Downgrade or Payment / Checkout - Robust Unbroken Row */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-1 border-t border-border dark:border-white/[0.06]">
-            {/* Total Section - ALWAYS On A Single Clean Row */}
-            <div className="flex items-baseline gap-2 whitespace-nowrap shrink-0">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 pt-3 border-t border-border dark:border-white/[0.06]">
+            {/* Total Section - ALWAYS On A Single Clean Unbroken Row */}
+            <div className="flex items-center gap-2 whitespace-nowrap shrink-0 select-none">
               <span className="text-xs uppercase font-bold text-muted-foreground dark:text-zinc-400 tracking-wider">Total:</span>
               {appliedCoupon ? (
-                <div className="inline-flex items-baseline gap-2 whitespace-nowrap">
+                <div className="inline-flex items-baseline gap-1.5 whitespace-nowrap">
                   <span className="text-xs text-muted-foreground line-through font-mono dark:text-zinc-500">₹{basePrice}</span>
-                  <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono tracking-tight">₹{appliedCoupon.final_amount_inr}</span>
+                  <span className="text-2xl font-black text-emerald-600 dark:text-emerald-400 font-mono tracking-tight whitespace-nowrap">
+                    ₹{appliedCoupon.final_amount_inr}
+                  </span>
                 </div>
               ) : (
-                <span className="text-2xl font-black text-foreground dark:text-white font-mono tracking-tight">₹{basePrice}</span>
+                <span className="text-2xl font-black text-foreground dark:text-white font-mono tracking-tight whitespace-nowrap">
+                  ₹{basePrice}
+                </span>
               )}
-              <span className="text-[0.7rem] text-muted-foreground dark:text-zinc-400 font-medium">(GST Included)</span>
+              <span className="text-[0.7rem] text-muted-foreground dark:text-zinc-400 font-medium whitespace-nowrap">(GST Included)</span>
             </div>
 
             {/* Action Buttons */}
-            <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 justify-end">
+            <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 w-full md:w-auto justify-start md:justify-end">
               {isDowngradeSelected && (
                 <button
                   type="button"

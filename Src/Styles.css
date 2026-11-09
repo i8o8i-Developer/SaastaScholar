@@ -124,15 +124,15 @@
   --brand-blue-deep: #005e80;
   --brand-blue-soft: rgba(0, 126, 172, 0.08);
 
-  /* unslop Graphite Ramp for Clean Light Mode */
-  --background: #fafafa;
-  --foreground: #171717;
-  --surface: #f4f4f5;
-  --surface-foreground: #171717;
+  /* unslop Graphite Ramp for Clean Light Mode with Grounded Contrast */
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --surface: #f1f5f9;
+  --surface-foreground: #0f172a;
   --card: #ffffff;
-  --card-foreground: #171717;
+  --card-foreground: #0f172a;
   --popover: #ffffff;
-  --popover-foreground: #171717;
+  --popover-foreground: #0f172a;
 
   /* Primary Brand Theme Token = Crisp Academic Emerald */
   --primary: #059669;
@@ -140,10 +140,10 @@
   --primary-soft: rgba(5, 150, 105, 0.08);
   --primary-deep: #047857;
 
-  --secondary: #f4f4f5;
-  --secondary-foreground: #171717;
-  --muted: #f4f4f5;
-  --muted-foreground: #525252;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #475569;
 
   /* Accent Theme Token */
   --accent: rgba(5, 150, 105, 0.08);
@@ -156,9 +156,9 @@
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
 
-  --border: rgba(0, 0, 0, 0.08);
-  --border-strong: rgba(0, 0, 0, 0.14);
-  --input: rgba(0, 0, 0, 0.08);
+  --border: rgba(15, 23, 42, 0.08);
+  --border-strong: rgba(15, 23, 42, 0.14);
+  --input: rgba(15, 23, 42, 0.08);
   --ring: #059669;
 
   --chart-1: #059669;
@@ -167,13 +167,13 @@
   --chart-4: #10b981;
   --chart-5: #0ea5e9;
 
-  --sidebar: #fafafa;
-  --sidebar-foreground: #171717;
+  --sidebar: #f8fafc;
+  --sidebar-foreground: #0f172a;
   --sidebar-primary: #059669;
   --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: rgba(5, 150, 105, 0.08);
   --sidebar-accent-foreground: #059669;
-  --sidebar-border: rgba(0, 0, 0, 0.08);
+  --sidebar-border: rgba(15, 23, 42, 0.08);
   --sidebar-ring: #059669;
 }
 
