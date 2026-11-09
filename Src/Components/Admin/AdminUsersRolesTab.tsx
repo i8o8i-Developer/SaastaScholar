@@ -13,6 +13,7 @@ import {
   Sliders,
   Sparkles,
   CheckCircle2,
+  Edit3,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -155,9 +156,20 @@ export function AdminUsersRolesTab() {
   // Modals State
   const [showCreateUserModal, setShowCreateUserModal] = useState<boolean>(false);
   const [showCreateRoleModal, setShowCreateRoleModal] = useState<boolean>(false);
+  const [showEditRoleModal, setShowEditRoleModal] = useState<boolean>(false);
+  const [roleToEdit, setRoleToEdit] = useState<AdminRole | null>(null);
   const [showResetPasswordModal, setShowResetPasswordModal] = useState<boolean>(false);
   const [selectedUserForPassword, setSelectedUserForPassword] = useState<AdminStaffUser | null>(null);
   const [newPasswordValue, setNewPasswordValue] = useState<string>("");
+
+  // Form State: Edit Role
+  const [editRoleForm, setEditRoleForm] = useState<{
+    name: string;
+    description: string;
+  }>({
+    name: "",
+    description: "",
+  });
 
   // Form State: Create Admin User
   const [createUserForm, setCreateUserForm] = useState<{
@@ -191,11 +203,21 @@ export function AdminUsersRolesTab() {
         adminRolesApi.list(),
         adminStaffUsersApi.list(),
       ]);
-      setRoles(fetchedRoles);
+      const cleanRoles = fetchedRoles.filter(
+        (r) => r.name !== "Academic Dean" && r.name !== "Faculty Coordinator"
+      );
+      setRoles(cleanRoles);
       setUsers(fetchedUsers);
 
-      if (fetchedRoles.length > 0 && !selectedRole && fetchedRoles[0]) {
-        selectRoleForEditing(fetchedRoles[0]);
+      if (cleanRoles.length > 0 && !selectedRole && cleanRoles[0]) {
+        selectRoleForEditing(cleanRoles[0]);
+      } else if (cleanRoles.length > 0 && selectedRole) {
+        const found = cleanRoles.find((r) => r.id === selectedRole.id);
+        if (found) {
+          setSelectedRole(found);
+        } else if (cleanRoles[0]) {
+          selectRoleForEditing(cleanRoles[0]);
+        }
       }
     } catch (err: any) {
       toast.error(err.message || "Failed To Load Roles And Staff Users.");
@@ -348,8 +370,49 @@ export function AdminUsersRolesTab() {
     }
   };
 
+  // Open Edit Role Details Modal
+  const openEditRoleModal = (role: AdminRole) => {
+    setRoleToEdit(role);
+    setEditRoleForm({
+      name: role.name,
+      description: role.description || "",
+    });
+    setShowEditRoleModal(true);
+  };
+
+  // Update Role Details Handler
+  const handleUpdateRole = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!roleToEdit) return;
+    if (!editRoleForm.name.trim()) {
+      toast.error("Role Name Is Required.");
+      return;
+    }
+
+    try {
+      const updated = await adminRolesApi.update(roleToEdit.id, {
+        name: toTitleCase(editRoleForm.name.trim()),
+        description: editRoleForm.description.trim(),
+      });
+
+      toast.success(`Role Name Updated To '${toTitleCase(updated.name)}' Successfully!`);
+      setRoles((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
+      if (selectedRole?.id === updated.id) {
+        setSelectedRole(updated);
+      }
+      setShowEditRoleModal(false);
+      setRoleToEdit(null);
+    } catch (err: any) {
+      toast.error(err.message || "Failed To Update Role Details.");
+    }
+  };
+
   // Delete Role Handler
   const handleDeleteRole = async (roleId: string, roleName: string) => {
+    if (roleName === "Super Administrator") {
+      toast.error("The Super Administrator Role Cannot Be Removed.");
+      return;
+    }
     if (!confirm(`Are You Sure You Want To Delete The Role '${roleName}'? This Cannot Be Undone.`)) {
       return;
     }
@@ -574,19 +637,32 @@ export function AdminUsersRolesTab() {
 
                     <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/40 text-xs text-muted-foreground">
                       <span>Users Assigned: <strong className="text-foreground">{role.users_count ?? 0}</strong></span>
-                      {!role.is_system_role && (
+                      <div className="flex items-center gap-1.5">
                         <button
                           type="button"
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleDeleteRole(role.id, role.name);
+                            openEditRoleModal(role);
                           }}
-                          className="text-muted-foreground hover:text-rose-400 transition-colors p-1"
-                          title="Delete Custom Role"
+                          className="h-7 w-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-surface border border-transparent hover:border-border transition-all cursor-pointer"
+                          title="Edit Role Name & Description"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Edit3 className="w-3.5 h-3.5" />
                         </button>
-                      )}
+                        {role.name !== "Super Administrator" && (
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteRole(role.id, role.name);
+                            }}
+                            className="h-7 w-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-rose-400 hover:bg-rose-500/10 border border-transparent hover:border-rose-500/20 transition-all cursor-pointer"
+                            title="Delete Role"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
                     </div>
                   </div>
                 );
@@ -605,9 +681,17 @@ export function AdminUsersRolesTab() {
                       <h3 className="font-display font-bold text-base sm:text-lg text-foreground">
                         {toTitleCase(selectedRole.name)} Permissions Matrix
                       </h3>
+                      <button
+                        type="button"
+                        onClick={() => openEditRoleModal(selectedRole)}
+                        className="h-7 w-7 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-surface border border-transparent hover:border-border transition-all cursor-pointer"
+                        title="Edit Role Name & Description"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                      </button>
                       {selectedRole.is_system_role && (
                         <span className="px-2 py-0.5 rounded-md text-[11px] font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20">
-                          Default System Template
+                          System Template
                         </span>
                       )}
                     </div>
@@ -1131,6 +1215,76 @@ export function AdminUsersRolesTab() {
                   className="h-9 px-5 rounded-xl bg-primary hover:bg-emerald-500 text-zinc-950 font-bold text-xs cursor-pointer shadow-sm transition-all active:scale-95"
                 >
                   Create Role
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ===================================================================== */}
+      {/* MODAL: EDIT ROLE DETAILS */}
+      {/* ===================================================================== */}
+      {showEditRoleModal && roleToEdit && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-fadeIn">
+          <div className="w-full max-w-md rounded-3xl border border-border/80 bg-card p-6 space-y-5 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-border/70 pb-3.5">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-primary/10 border border-primary/20 text-primary flex items-center justify-center">
+                  <Edit3 className="w-4 h-4" />
+                </div>
+                <h3 className="font-display font-bold text-foreground text-base">Edit Role Details</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowEditRoleModal(false)}
+                className="text-muted-foreground hover:text-foreground cursor-pointer p-1"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <form onSubmit={handleUpdateRole} className="space-y-4 text-xs">
+              <div>
+                <label className="block text-foreground font-semibold mb-1 text-xs">
+                  Role Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Senior Faculty Advisor"
+                  value={editRoleForm.name}
+                  onChange={(e) => setEditRoleForm({ ...editRoleForm, name: e.target.value })}
+                  className="w-full h-10 px-3 rounded-xl border border-border bg-surface/60 text-foreground placeholder:text-muted-foreground text-xs focus:outline-none focus:ring-1 focus:ring-primary"
+                />
+              </div>
+
+              <div>
+                <label className="block text-foreground font-semibold mb-1 text-xs">
+                  Role Description
+                </label>
+                <textarea
+                  rows={3}
+                  placeholder="Explain Responsibilities And Departmental Scope..."
+                  value={editRoleForm.description}
+                  onChange={(e) => setEditRoleForm({ ...editRoleForm, description: e.target.value })}
+                  className="w-full p-3 rounded-xl border border-border bg-surface/60 text-foreground placeholder:text-muted-foreground text-xs focus:outline-none focus:ring-1 focus:ring-primary resize-none"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-border/70">
+                <button
+                  type="button"
+                  onClick={() => setShowEditRoleModal(false)}
+                  className="h-9 px-4 rounded-xl border border-border bg-card hover:bg-surface text-foreground font-semibold text-xs cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="h-9 px-5 rounded-xl bg-primary hover:bg-emerald-500 text-zinc-950 font-bold text-xs cursor-pointer shadow-sm transition-all active:scale-95"
+                >
+                  Update Role Name
                 </button>
               </div>
             </form>

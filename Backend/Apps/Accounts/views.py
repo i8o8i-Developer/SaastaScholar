@@ -1046,39 +1046,6 @@ DEFAULT_SYSTEM_ROLES = [
         }
     },
     {
-        "name": "Academic Dean",
-        "description": "Full authority over academic structure, syllabi, course publisher, timetables, assignments, circulars, and milestones.",
-        "is_system_role": True,
-        "permissions": {
-            "overview": {"view": True, "manage": False, "delete": False, "security": False},
-            "structure": {"view": True, "manage": True, "delete": True, "security": False},
-            "publisher": {"view": True, "manage": True, "delete": True, "security": False},
-            "timetable": {"view": True, "manage": True, "delete": True, "security": False},
-            "assignments": {"view": True, "manage": True, "delete": True, "security": False},
-            "notices": {"view": True, "manage": True, "delete": True, "security": False},
-            "milestones": {"view": True, "manage": True, "delete": True, "security": False},
-            "students": {"view": True, "manage": False, "delete": False, "security": False},
-            "support": {"view": True, "manage": False, "delete": False, "security": False},
-            "forum": {"view": True, "manage": True, "delete": False, "security": False},
-            "marketing": {"view": True, "manage": False, "delete": False, "security": False},
-        }
-    },
-    {
-        "name": "Faculty Coordinator",
-        "description": "Coordinates course study materials, assignments, daily lecture timetables, and department notices.",
-        "is_system_role": True,
-        "permissions": {
-            "overview": {"view": True, "manage": False, "delete": False, "security": False},
-            "structure": {"view": True, "manage": False, "delete": False, "security": False},
-            "publisher": {"view": True, "manage": True, "delete": False, "security": False},
-            "timetable": {"view": True, "manage": True, "delete": False, "security": False},
-            "assignments": {"view": True, "manage": True, "delete": False, "security": False},
-            "notices": {"view": True, "manage": True, "delete": False, "security": False},
-            "milestones": {"view": True, "manage": False, "delete": False, "security": False},
-            "forum": {"view": True, "manage": True, "delete": False, "security": False},
-        }
-    },
-    {
         "name": "Finance & Billing Officer",
         "description": "Oversees student subscription tiers, Razorpay payment orders, promo discount codes, and access matrices.",
         "is_system_role": True,
@@ -1106,8 +1073,10 @@ DEFAULT_SYSTEM_ROLES = [
 ]
 
 def seed_default_roles_if_empty():
-    """Seeds Initial System Pre-Configured Roles If Table Is Currently Empty."""
+    """Seeds Initial System Pre-Configured Roles And Purges Deprecated Roles."""
     try:
+        AdminRole.objects.filter(name__in=["Academic Dean", "Faculty Coordinator"]).delete()
+
         for role_data in DEFAULT_SYSTEM_ROLES:
             role, created = AdminRole.objects.get_or_create(
                 name=role_data["name"],
@@ -1178,9 +1147,13 @@ class AdminRoleDetailView(APIView):
         permissions_payload = request.data.get("permissions")
 
         if name and name != role.name:
-            if not role.is_system_role:
-                role.name = name
-        if description:
+            if AdminRole.objects.filter(name__iexact=name).exclude(pk=role.pk).exists():
+                return Response(
+                    {"error": f"Another Role Named '{name}' Already Exists."},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+            role.name = name
+        if description is not None and description != "":
             role.description = description
         if permissions_payload is not None:
             role.permissions = permissions_payload
@@ -1193,8 +1166,8 @@ class AdminRoleDetailView(APIView):
         if not role:
             return Response({"error": "Role Not Found."}, status=status.HTTP_404_NOT_FOUND)
 
-        if role.is_system_role:
-            return Response({"error": "System Default Roles Cannot Be Deleted."}, status=status.HTTP_400_BAD_REQUEST)
+        if role.name == "Super Administrator":
+            return Response({"error": "The Super Administrator Role Cannot Be Removed."}, status=status.HTTP_400_BAD_REQUEST)
 
         if role.admin_users.exists():
             return Response(
