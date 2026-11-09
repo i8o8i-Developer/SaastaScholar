@@ -216,6 +216,7 @@ export function Login() {
   };
 
   // Promotional Discount Coupon & Billing Cycle State
+  const [showDiscountModal, setShowDiscountModal] = useState<boolean>(false);
   const [billingCycle, setBillingCycle] = useState<"monthly" | "semester">("monthly");
   const [couponCode, setCouponCode] = useState<string>("");
   const [appliedCoupon, setAppliedCoupon] = useState<{
@@ -1421,18 +1422,87 @@ export function Login() {
                               </button>
                             </div>
                             {!isFreePlan && (
-                              <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-3.5 py-2.5 flex items-center justify-between text-xs animate-in fade-in">
-                                <div className="space-y-0.5">
-                                  <span className="font-bold text-foreground block">
-                                    {activePlanPricing.name} Plan Selected ({billingCycle === "semester" ? "Semester Pass" : "Monthly"})
-                                  </span>
-                                  <span className="text-[0.68rem] text-emerald-600 dark:text-emerald-400 font-semibold block">
-                                    Billing Cycle &amp; Coupon Options Configured On The Right &rarr;
-                                  </span>
+                              <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-3.5 space-y-2.5 text-xs animate-in fade-in shadow-2xs">
+                                <div className="flex items-center justify-between gap-2">
+                                  <div className="space-y-0.5 min-w-0">
+                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                      <span className="font-bold text-foreground text-xs sm:text-sm">
+                                        {activePlanPricing.name} Plan Selected
+                                      </span>
+                                      <span className="text-[0.65rem] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-700 dark:text-emerald-300">
+                                        {billingCycle === "semester" ? "Semester Pass (Save 20%)" : "Monthly Pass"}
+                                      </span>
+                                    </div>
+                                    <div className="text-[0.68rem] text-muted-foreground truncate">
+                                      {billingCycle === "semester"
+                                        ? `₹${activePlanPricing.semester} Billed Per Semester`
+                                        : `₹${activePlanPricing.monthly} Billed Per Month`}
+                                    </div>
+                                  </div>
+
+                                  <div className="text-right shrink-0">
+                                    {appliedCoupon && appliedCoupon.discount_amount_inr > 0 ? (
+                                      <div>
+                                        <span className="text-[0.7rem] text-muted-foreground line-through mr-1 font-mono">
+                                          ₹{currentBasePrice}
+                                        </span>
+                                        <span className="font-mono text-sm sm:text-base font-black text-emerald-600 dark:text-emerald-400">
+                                          ₹{currentFinalPayable}
+                                        </span>
+                                      </div>
+                                    ) : (
+                                      <span className="font-mono text-sm sm:text-base font-black text-emerald-600 dark:text-emerald-400">
+                                        ₹{currentFinalPayable}
+                                      </span>
+                                    )}
+                                  </div>
                                 </div>
-                                <span className="font-mono text-sm font-black text-emerald-600 dark:text-emerald-400">
-                                  ₹{currentFinalPayable}
-                                </span>
+
+                                {/* Interactive Discount Code & Billing Options Bar */}
+                                <div className="pt-2 border-t border-emerald-500/20 flex flex-wrap items-center justify-between gap-2">
+                                  {appliedCoupon ? (
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                      <span className="inline-flex items-center gap-1 text-[0.72rem] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 rounded-lg">
+                                        <CheckCircle2 className="h-3 w-3 text-emerald-500 shrink-0" />
+                                        <span>Coupon '{appliedCoupon.code}' Applied ({appliedCoupon.discount_percent}% Off)</span>
+                                      </span>
+                                      <button
+                                        type="button"
+                                        onClick={() => setShowDiscountModal(true)}
+                                        className="text-[0.68rem] font-bold text-primary hover:underline cursor-pointer"
+                                      >
+                                        Change
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={handleRemoveCoupon}
+                                        className="text-[0.68rem] font-bold text-rose-500 hover:underline cursor-pointer"
+                                      >
+                                        Remove
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      onClick={() => setShowDiscountModal(true)}
+                                      className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-500/40 bg-emerald-500/15 hover:bg-emerald-500/25 px-2.5 py-1.5 text-xs font-bold text-emerald-700 dark:text-emerald-300 transition-all cursor-pointer active:scale-95 shadow-2xs group"
+                                    >
+                                      <Tag className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 transition-transform group-hover:rotate-12 shrink-0" />
+                                      <span>Do You Have A Discount Code?</span>
+                                      <span className="text-[0.65rem] bg-emerald-600 text-white px-1.5 py-0.2 rounded-md font-bold">
+                                        Tap Here &rarr;
+                                      </span>
+                                    </button>
+                                  )}
+
+                                  <button
+                                    type="button"
+                                    onClick={() => setShowDiscountModal(true)}
+                                    className="text-[0.68rem] font-semibold text-muted-foreground hover:text-foreground underline cursor-pointer ml-auto"
+                                  >
+                                    {billingCycle === "semester" ? "Switch To Monthly Pass" : "Switch To Semester Pass"}
+                                  </button>
+                                </div>
                               </div>
                             )}
 
@@ -1710,9 +1780,9 @@ export function Login() {
                   </p>
                 </div>
 
-                {/* 4. Billing Cycle & Promotional Coupon Code (Right Side Position) */}
+                {/* 4. Billing Cycle & Promotional Coupon Code (Desktop Right Side Position) */}
                 {authMode === "register" && signupStep === 3 && !isFreePlan && (
-                  <div className="rounded-3xl border border-emerald-500/30 bg-emerald-500/10 p-4 sm:p-5 space-y-3.5 shadow-xs animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="hidden lg:block rounded-3xl border border-emerald-500/30 bg-emerald-500/10 p-4 sm:p-5 space-y-3.5 shadow-xs animate-in fade-in slide-in-from-top-2 duration-200">
                     {/* Billing Cycle Toggle */}
                     <div className="space-y-1.5">
                       <label className="text-xs font-bold text-foreground flex items-center justify-between">
@@ -1874,6 +1944,183 @@ export function Login() {
           </p>
         </div>
       </div>
+
+      {/* ===================== Interactive Promotional Discount Code Dialog Modal ===================== */}
+      <Dialog open={showDiscountModal} onOpenChange={(open) => !open && setShowDiscountModal(false)}>
+        <DialogContent className="w-[95vw] sm:w-full sm:max-w-md p-5 sm:p-6 bg-card border border-border/80 shadow-2xl rounded-3xl overflow-y-auto max-h-[90vh]">
+          <DialogHeader className="text-left space-y-1">
+            <div className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+              <Tag className="h-3.5 w-3.5" />
+              <span>Promotional Discount Voucher</span>
+            </div>
+            <DialogTitle className="text-base sm:text-lg font-bold text-foreground">
+              Do You Have A Discount Code?
+            </DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground">
+              Select Your Preferred Billing Cycle And Apply A Promotional Coupon For Your {activePlanPricing.name} Plan.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 mt-2">
+            {/* 1. Billing Cycle Toggle */}
+            <div className="space-y-1.5">
+              <label className="text-xs font-bold text-foreground flex items-center justify-between">
+                <span>Select Billing Cycle</span>
+                <span className="text-[0.65rem] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded-full">
+                  {billingCycle === "semester" ? "Save 20% With Semester Pass" : "Billed Monthly"}
+                </span>
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setBillingCycle("monthly");
+                    setAppliedCoupon(null);
+                  }}
+                  className={cn(
+                    "rounded-xl py-2 px-3 text-xs font-bold border transition-all cursor-pointer text-center",
+                    billingCycle === "monthly"
+                      ? "border-primary bg-primary/10 text-primary shadow-xs ring-1 ring-primary/40 font-extrabold"
+                      : "border-border/80 bg-card text-muted-foreground hover:border-primary/40"
+                  )}
+                >
+                  Monthly (₹{activePlanPricing.monthly}/mo)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setBillingCycle("semester");
+                    setAppliedCoupon(null);
+                  }}
+                  className={cn(
+                    "rounded-xl py-2 px-3 text-xs font-bold border transition-all cursor-pointer text-center relative",
+                    billingCycle === "semester"
+                      ? "border-emerald-500 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 shadow-xs ring-1 ring-emerald-500/50 font-extrabold"
+                      : "border-border/80 bg-card text-muted-foreground hover:border-emerald-500/40"
+                  )}
+                >
+                  Semester (₹{activePlanPricing.semester}/sem)
+                </button>
+              </div>
+            </div>
+
+            {/* 2. Coupon Input Box */}
+            <div className="space-y-2 pt-2 border-t border-border/80">
+              <label className="text-xs font-bold text-foreground flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <Tag className="h-3.5 w-3.5 text-primary" />
+                  <span>Enter Promotional Voucher Code</span>
+                </span>
+                {appliedCoupon && (
+                  <button
+                    type="button"
+                    onClick={handleRemoveCoupon}
+                    className="text-[0.68rem] font-bold text-rose-500 hover:underline flex items-center gap-0.5 cursor-pointer"
+                  >
+                    <X className="h-3 w-3" />
+                    <span>Remove Coupon</span>
+                  </button>
+                )}
+              </label>
+
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <input
+                    type="text"
+                    value={couponCode}
+                    onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                    placeholder="Enter Code (E.g. SAASTA100)"
+                    disabled={Boolean(appliedCoupon)}
+                    className="h-10 w-full rounded-xl border border-border bg-card pr-3 pl-3 text-xs font-bold uppercase tracking-wider focus:border-primary focus:outline-none disabled:opacity-60"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={handleApplyCoupon}
+                  disabled={couponLoading || !couponCode.trim() || Boolean(appliedCoupon)}
+                  className="inline-flex h-10 items-center justify-center gap-1 rounded-xl bg-primary px-4 text-xs font-bold text-primary-foreground shadow-xs hover:bg-primary-deep transition-all disabled:opacity-50 cursor-pointer shrink-0"
+                >
+                  {couponLoading ? (
+                    <span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+                  ) : (
+                    <span>Apply Code</span>
+                  )}
+                </button>
+              </div>
+
+              {/* Quick Preset Chips */}
+              {!appliedCoupon && (
+                <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                  <span className="text-[0.62rem] text-muted-foreground font-semibold">Presets:</span>
+                  <button
+                    type="button"
+                    onClick={() => handleSelectQuickCoupon("SAASTA100")}
+                    className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-[0.65rem] font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 cursor-pointer"
+                  >
+                    SAASTA100 (100% Free Pass)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSelectQuickCoupon("SCHOLAR20")}
+                    className="rounded-lg border border-border bg-card px-2 py-0.5 text-[0.65rem] font-bold text-muted-foreground hover:text-foreground cursor-pointer"
+                  >
+                    SCHOLAR20 (20% Off)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleSelectQuickCoupon("EXAM50")}
+                    className="rounded-lg border border-border bg-card px-2 py-0.5 text-[0.65rem] font-bold text-muted-foreground hover:text-foreground cursor-pointer"
+                  >
+                    EXAM50 (₹50 Off)
+                  </button>
+                </div>
+              )}
+
+              {/* Applied Coupon Breakdown */}
+              {appliedCoupon && (
+                <div className="rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-3 space-y-1.5 animate-in fade-in">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                      <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
+                      <span>{appliedCoupon.code} Applied Successfully</span>
+                    </span>
+                    <span className="text-[0.65rem] font-bold bg-emerald-500 text-white px-2 py-0.5 rounded-full">
+                      {appliedCoupon.discount_percent}% Discount
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-[0.72rem] text-muted-foreground border-t border-emerald-500/20 pt-1">
+                    <span>Base Plan Price:</span>
+                    <span>₹{currentBasePrice}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-[0.72rem] text-emerald-600 dark:text-emerald-400 font-bold">
+                    <span>Coupon Savings:</span>
+                    <span>-₹{appliedCoupon.discount_amount_inr}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs font-black text-foreground border-t border-emerald-500/20 pt-1">
+                    <span>Final Payable Amount:</span>
+                    <span className="text-emerald-600 dark:text-emerald-400 text-sm">
+                      ₹{appliedCoupon.final_amount_inr}
+                      {appliedCoupon.final_amount_inr === 0 && " (100% Free Pass)"}
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Actions */}
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-border/80">
+              <button
+                type="button"
+                onClick={() => setShowDiscountModal(false)}
+                className="w-full sm:w-auto rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground shadow-sm hover:bg-primary-deep transition-all cursor-pointer flex items-center justify-center gap-1.5"
+              >
+                <CheckCircle2 className="h-3.5 w-3.5" />
+                <span>Confirm &amp; Apply (₹{currentFinalPayable})</span>
+              </button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* ===================== Interactive Password Reset Dialog Modal ===================== */}
       <Dialog open={showResetModal} onOpenChange={(open) => !open && setShowResetModal(false)}>
