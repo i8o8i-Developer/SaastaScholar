@@ -312,25 +312,25 @@ export function AdminCouponsTab() {
         )}
       </div>
 
-      {/* Enhanced Create Promo Discount Code Modal - Graphite Ramp */}
+      {/* Enhanced Create Promo Discount Code Modal - Clean Unslop & Dual Theme */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="relative w-full max-w-lg rounded-3xl border border-white/[0.08] bg-[#18191d] shadow-2xl overflow-hidden flex flex-col text-slate-100 max-h-[92vh]">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/60 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="relative w-full max-w-lg rounded-3xl border border-border bg-card shadow-2xl overflow-hidden flex flex-col text-card-foreground dark:bg-[#18191d] dark:border-white/[0.08] dark:text-slate-100 max-h-[92vh]">
             {/* Modal Header */}
-            <div className="px-6 py-4.5 border-b border-white/[0.08] flex items-center justify-between bg-[#1c1d22]">
+            <div className="px-6 py-4.5 border-b border-border bg-surface/70 flex items-center justify-between dark:bg-[#1c1d22] dark:border-white/[0.08]">
               <div className="flex items-center gap-3">
-                <div className="h-9 w-9 rounded-xl bg-white/[0.04] text-emerald-400 border border-white/[0.08] flex items-center justify-center">
+                <div className="h-9 w-9 rounded-xl bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 flex items-center justify-center dark:bg-white/[0.04] dark:text-emerald-400 dark:border-white/[0.08]">
                   <Tag className="h-4 w-4" />
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm text-white tracking-tight">Create Promo Discount Code</h3>
-                  <p className="text-xs text-zinc-400">Issue New Discount Codes For Student Checkouts</p>
+                  <h3 className="font-bold text-sm text-foreground tracking-tight dark:text-white">Create Promo Discount Code</h3>
+                  <p className="text-xs text-muted-foreground dark:text-zinc-400">Issue New Discount Codes For Student Checkouts</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setShowCreateModal(false)}
-                className="h-8 w-8 rounded-xl flex items-center justify-center bg-white/[0.04] hover:bg-white/[0.08] text-zinc-400 hover:text-white border border-white/[0.06] transition-colors cursor-pointer"
+                className="h-8 w-8 rounded-xl flex items-center justify-center bg-surface hover:bg-muted text-muted-foreground hover:text-foreground border border-border transition-colors cursor-pointer dark:bg-white/[0.04] dark:hover:bg-white/[0.08] dark:text-zinc-400 dark:hover:text-white dark:border-white/[0.06]"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -341,14 +341,14 @@ export function AdminCouponsTab() {
               {/* Coupon Code Input & Random Generator */}
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="font-bold text-white text-xs flex items-center gap-1.5">
+                  <label className="font-bold text-foreground text-xs flex items-center gap-1.5 dark:text-white">
                     <span>Coupon Code</span>
-                    <span className="text-[0.65rem] text-emerald-400 font-mono">(Uppercase Only)</span>
+                    <span className="text-[0.65rem] text-emerald-600 dark:text-emerald-400 font-mono">(Uppercase Only)</span>
                   </label>
                   <button
                     type="button"
                     onClick={() => handleGenerateRandomCode()}
-                    className="text-xs text-emerald-400 hover:text-emerald-300 font-bold flex items-center gap-1 cursor-pointer transition-colors"
+                    className="text-xs text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 font-bold flex items-center gap-1 cursor-pointer transition-colors"
                   >
                     <Sparkles className="h-3.5 w-3.5" />
                     <span>Generate Random</span>
@@ -360,18 +360,18 @@ export function AdminCouponsTab() {
                   onChange={(e) => setNewCoupon({ ...newCoupon, code: e.target.value.toUpperCase() })}
                   placeholder="Enter Promo Code (e.g. SCHOLAR50)"
                   required
-                  className="h-11 w-full rounded-xl border border-white/[0.08] bg-[#121316] px-3.5 font-mono font-bold text-sm tracking-widest uppercase text-white focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 transition-colors"
+                  className="h-11 w-full rounded-xl border border-border bg-background px-3.5 font-mono font-bold text-sm tracking-widest uppercase text-foreground focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 transition-colors dark:bg-[#121316] dark:border-white/[0.08] dark:text-white"
                 />
 
                 {/* Quick Prefix Switchers */}
                 <div className="flex items-center gap-1.5 mt-2.5 overflow-x-auto pb-1 text-[0.68rem]">
-                  <span className="text-zinc-400 font-medium shrink-0">Prefix Presets:</span>
+                  <span className="text-muted-foreground font-medium shrink-0 dark:text-zinc-400">Prefix Presets:</span>
                   {["SCHOLAR", "TOPPER", "FESTIVE", "MERIT", "VIP", "EARLYBIRD"].map((pfx) => (
                     <button
                       key={pfx}
                       type="button"
                       onClick={() => handleGenerateRandomCode(pfx)}
-                      className="px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-zinc-300 hover:text-white border border-white/[0.06] font-mono transition-colors cursor-pointer shrink-0"
+                      className="px-2.5 py-1 rounded-lg bg-surface hover:bg-muted text-foreground border border-border font-mono transition-colors cursor-pointer shrink-0 dark:bg-white/[0.04] dark:hover:bg-white/[0.08] dark:text-zinc-300 dark:hover:text-white dark:border-white/[0.06]"
                     >
                       {pfx}
                     </button>
@@ -381,16 +381,16 @@ export function AdminCouponsTab() {
 
               {/* Discount Model Type (3 Options) - Clean Segmented Control */}
               <div>
-                <label className="block font-bold text-white text-xs mb-1.5">Discount Model &amp; Type</label>
-                <div className="grid grid-cols-3 gap-1 p-1 rounded-xl bg-[#121316] border border-white/[0.08]">
+                <label className="block font-bold text-foreground text-xs mb-1.5 dark:text-white">Discount Model &amp; Type</label>
+                <div className="grid grid-cols-3 gap-1 p-1 rounded-xl bg-surface border border-border dark:bg-[#121316] dark:border-white/[0.08]">
                   <button
                     type="button"
                     onClick={() => setNewCoupon({ ...newCoupon, discount_type: "flat" })}
                     className={cn(
                       "py-2 rounded-lg font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5",
                       newCoupon.discount_type === "flat"
-                        ? "bg-[#22242a] text-white border border-white/[0.1] shadow-sm"
-                        : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"
+                        ? "bg-card text-foreground border border-border shadow-xs dark:bg-[#22242a] dark:text-white dark:border-white/[0.1]"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/40 dark:text-zinc-400 dark:hover:text-white dark:hover:bg-white/[0.04]"
                     )}
                   >
                     <Coins className="h-3.5 w-3.5" />
@@ -403,8 +403,8 @@ export function AdminCouponsTab() {
                     className={cn(
                       "py-2 rounded-lg font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5",
                       newCoupon.discount_type === "percent"
-                        ? "bg-[#22242a] text-white border border-white/[0.1] shadow-sm"
-                        : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"
+                        ? "bg-card text-foreground border border-border shadow-xs dark:bg-[#22242a] dark:text-white dark:border-white/[0.1]"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/40 dark:text-zinc-400 dark:hover:text-white dark:hover:bg-white/[0.04]"
                     )}
                   >
                     <Percent className="h-3.5 w-3.5" />
@@ -417,8 +417,8 @@ export function AdminCouponsTab() {
                     className={cn(
                       "py-2 rounded-lg font-bold text-xs transition-all cursor-pointer flex items-center justify-center gap-1.5",
                       newCoupon.discount_type === "free"
-                        ? "bg-[#22242a] text-amber-300 border border-white/[0.1] shadow-sm font-bold"
-                        : "text-zinc-400 hover:text-white hover:bg-white/[0.04]"
+                        ? "bg-card text-amber-700 border border-amber-300 shadow-xs font-bold dark:bg-[#22242a] dark:text-amber-300 dark:border-white/[0.1]"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/40 dark:text-zinc-400 dark:hover:text-white dark:hover:bg-white/[0.04]"
                     )}
                   >
                     <Gift className="h-3.5 w-3.5" />
@@ -430,7 +430,7 @@ export function AdminCouponsTab() {
               {/* Value Input & Quick Presets */}
               {newCoupon.discount_type === "flat" && (
                 <div className="space-y-2">
-                  <label className="block font-bold text-white text-xs">Flat Discount Amount In INR (₹)</label>
+                  <label className="block font-bold text-foreground text-xs dark:text-white">Flat Discount Amount In INR (₹)</label>
                   <input
                     type="number"
                     min={1}
@@ -438,10 +438,10 @@ export function AdminCouponsTab() {
                     value={newCoupon.discount_amount}
                     onChange={(e) => setNewCoupon({ ...newCoupon, discount_amount: Number(e.target.value) })}
                     placeholder="Enter Discount Amount In INR"
-                    className="h-10 w-full rounded-xl border border-white/[0.08] bg-[#121316] px-3 font-mono font-bold text-sm text-white focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 transition-colors"
+                    className="h-10 w-full rounded-xl border border-border bg-background px-3 font-mono font-bold text-sm text-foreground focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 transition-colors dark:bg-[#121316] dark:border-white/[0.08] dark:text-white"
                   />
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[0.68rem] text-zinc-400 font-medium">Quick Presets:</span>
+                    <span className="text-[0.68rem] text-muted-foreground font-medium dark:text-zinc-400">Quick Presets:</span>
                     {[30, 50, 70, 100, 150].map((amt) => (
                       <button
                         key={amt}
@@ -450,8 +450,8 @@ export function AdminCouponsTab() {
                         className={cn(
                           "px-2.5 py-1 rounded-lg border text-[0.68rem] font-bold font-mono transition-colors cursor-pointer",
                           newCoupon.discount_amount === amt
-                            ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-300"
-                            : "bg-white/[0.04] border-white/[0.08] text-zinc-300 hover:bg-white/[0.08]"
+                            ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-700 dark:text-emerald-300"
+                            : "bg-surface border-border text-muted-foreground hover:bg-muted dark:bg-white/[0.04] dark:border-white/[0.08] dark:text-zinc-300 dark:hover:bg-white/[0.08]"
                         )}
                       >
                         ₹{amt} Off
@@ -463,7 +463,7 @@ export function AdminCouponsTab() {
 
               {newCoupon.discount_type === "percent" && (
                 <div className="space-y-2">
-                  <label className="block font-bold text-white text-xs">Discount Percentage (1% - 100%)</label>
+                  <label className="block font-bold text-foreground text-xs dark:text-white">Discount Percentage (1% - 100%)</label>
                   <input
                     type="number"
                     min={1}
@@ -471,10 +471,10 @@ export function AdminCouponsTab() {
                     value={newCoupon.discount_percent}
                     onChange={(e) => setNewCoupon({ ...newCoupon, discount_percent: Number(e.target.value) })}
                     placeholder="Enter Discount Percentage"
-                    className="h-10 w-full rounded-xl border border-white/[0.08] bg-[#121316] px-3 font-mono font-bold text-sm text-white focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 transition-colors"
+                    className="h-10 w-full rounded-xl border border-border bg-background px-3 font-mono font-bold text-sm text-foreground focus:border-emerald-500/50 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 transition-colors dark:bg-[#121316] dark:border-white/[0.08] dark:text-white"
                   />
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[0.68rem] text-zinc-400 font-medium">Quick Presets:</span>
+                    <span className="text-[0.68rem] text-muted-foreground font-medium dark:text-zinc-400">Quick Presets:</span>
                     {[10, 20, 25, 50, 75].map((pct) => (
                       <button
                         key={pct}
@@ -483,8 +483,8 @@ export function AdminCouponsTab() {
                         className={cn(
                           "px-2.5 py-1 rounded-lg border text-[0.68rem] font-bold font-mono transition-colors cursor-pointer",
                           newCoupon.discount_percent === pct
-                            ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-300"
-                            : "bg-white/[0.04] border-white/[0.08] text-zinc-300 hover:bg-white/[0.08]"
+                            ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-700 dark:text-emerald-300"
+                            : "bg-surface border-border text-muted-foreground hover:bg-muted dark:bg-white/[0.04] dark:border-white/[0.08] dark:text-zinc-300 dark:hover:bg-white/[0.08]"
                         )}
                       >
                         {pct}% Off
@@ -495,12 +495,12 @@ export function AdminCouponsTab() {
               )}
 
               {newCoupon.discount_type === "free" && (
-                <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.06] p-3 text-xs text-amber-200/90 space-y-1">
-                  <div className="font-bold flex items-center gap-1.5 text-amber-300">
+                <div className="rounded-xl border border-amber-500/20 bg-amber-500/[0.06] p-3 text-xs text-amber-800 dark:text-amber-200/90 space-y-1">
+                  <div className="font-bold flex items-center gap-1.5 text-amber-800 dark:text-amber-300">
                     <Gift className="h-4 w-4" />
                     <span>Full 100% Fee Waiver Pass</span>
                   </div>
-                  <p className="text-[0.72rem] text-amber-200/70 leading-normal">
+                  <p className="text-[0.72rem] text-amber-700/80 dark:text-amber-200/70 leading-normal">
                     This Coupon Completely Waives The Order Amount To ₹0, Instantly Upgrading The Student Account To The Selected Plan Tier Without Requiring Payment Processing.
                   </p>
                 </div>
@@ -509,11 +509,11 @@ export function AdminCouponsTab() {
               {/* Tier & Maximum Usages */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-bold text-white text-xs mb-1.5">Applicable Tier</label>
+                  <label className="block font-bold text-foreground text-xs mb-1.5 dark:text-white">Applicable Tier</label>
                   <select
                     value={newCoupon.applicable_tier}
                     onChange={(e) => setNewCoupon({ ...newCoupon, applicable_tier: e.target.value })}
-                    className="h-10 w-full rounded-xl border border-white/[0.08] bg-[#121316] px-3 text-xs font-semibold text-white focus:border-emerald-500/50 focus:outline-none cursor-pointer transition-colors"
+                    className="h-10 w-full rounded-xl border border-border bg-background px-3 text-xs font-semibold text-foreground focus:border-emerald-500/50 focus:outline-none cursor-pointer transition-colors dark:bg-[#121316] dark:border-white/[0.08] dark:text-white"
                   >
                     <option value="ALL">All Paid Membership Plans</option>
                     <option value="BASIC">Basic Plan Only (₹99)</option>
@@ -522,7 +522,7 @@ export function AdminCouponsTab() {
                   </select>
                 </div>
                 <div>
-                  <label className="block font-bold text-white text-xs mb-1.5">Max Usages</label>
+                  <label className="block font-bold text-foreground text-xs mb-1.5 dark:text-white">Max Usages</label>
                   <input
                     type="number"
                     min={1}
@@ -530,14 +530,14 @@ export function AdminCouponsTab() {
                     value={newCoupon.max_uses}
                     onChange={(e) => setNewCoupon({ ...newCoupon, max_uses: Number(e.target.value) })}
                     placeholder="Enter Maximum Usages"
-                    className="h-10 w-full rounded-xl border border-white/[0.08] bg-[#121316] px-3 font-mono text-xs text-white focus:border-emerald-500/50 focus:outline-none transition-colors"
+                    className="h-10 w-full rounded-xl border border-border bg-background px-3 font-mono text-xs text-foreground focus:border-emerald-500/50 focus:outline-none transition-colors dark:bg-[#121316] dark:border-white/[0.08] dark:text-white"
                   />
                 </div>
               </div>
 
               {/* Validity Days */}
               <div>
-                <label className="block font-bold text-white text-xs mb-1.5">Validity (Days)</label>
+                <label className="block font-bold text-foreground text-xs mb-1.5 dark:text-white">Validity (Days)</label>
                 <input
                   type="number"
                   min={1}
@@ -545,30 +545,30 @@ export function AdminCouponsTab() {
                   value={newCoupon.valid_days}
                   onChange={(e) => setNewCoupon({ ...newCoupon, valid_days: Number(e.target.value) })}
                   placeholder="Enter Validity In Days"
-                  className="h-10 w-full rounded-xl border border-white/[0.08] bg-[#121316] px-3 font-mono text-xs text-white focus:border-emerald-500/50 focus:outline-none transition-colors"
+                  className="h-10 w-full rounded-xl border border-border bg-background px-3 font-mono text-xs text-foreground focus:border-emerald-500/50 focus:outline-none transition-colors dark:bg-[#121316] dark:border-white/[0.08] dark:text-white"
                 />
               </div>
 
               {/* Live Student Checkout Voucher Preview - Quiet Receipt Card */}
-              <div className="rounded-2xl border border-white/[0.08] bg-[#141416] p-4 space-y-2">
-                <div className="flex items-center justify-between text-xs font-bold text-zinc-300">
+              <div className="rounded-2xl border border-border bg-surface/60 p-4 space-y-2 dark:border-white/[0.08] dark:bg-[#141416]">
+                <div className="flex items-center justify-between text-xs font-bold text-foreground dark:text-zinc-300">
                   <span className="flex items-center gap-1.5">
-                    <BadgePercent className="h-4 w-4 text-emerald-400" />
+                    <BadgePercent className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
                     <span>Live Student Checkout Preview</span>
                   </span>
-                  <span className="font-mono bg-white/[0.04] text-emerald-400 px-2 py-0.5 rounded-lg text-[0.65rem] border border-white/[0.08]">
+                  <span className="font-mono bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 px-2 py-0.5 rounded-lg text-[0.65rem] border border-emerald-500/20 dark:bg-white/[0.04] dark:border-white/[0.08]">
                     {newCoupon.code || "SCHOLARXX"}
                   </span>
                 </div>
-                <div className="p-3 rounded-xl bg-[#18191d] border border-white/[0.06] flex items-center justify-between font-mono text-xs">
+                <div className="p-3 rounded-xl bg-card border border-border flex items-center justify-between font-mono text-xs dark:bg-[#18191d] dark:border-white/[0.06]">
                   <div>
-                    <span className="text-zinc-400 block text-[0.7rem]">Standard Premium Plan:</span>
-                    <span className="line-through text-zinc-500">₹{previewCalc.original}</span>
-                    <span className="ml-2 font-bold text-emerald-400">→ ₹{previewCalc.final}</span>
+                    <span className="text-muted-foreground block text-[0.7rem] dark:text-zinc-400">Standard Premium Plan:</span>
+                    <span className="line-through text-muted-foreground/60 dark:text-zinc-500">₹{previewCalc.original}</span>
+                    <span className="ml-2 font-bold text-emerald-600 dark:text-emerald-400">→ ₹{previewCalc.final}</span>
                   </div>
                   <div className="text-right">
-                    <span className="text-[0.68rem] text-zinc-400 block">Student Saves:</span>
-                    <span className="text-emerald-400 font-extrabold text-sm">₹{previewCalc.discount}</span>
+                    <span className="text-[0.68rem] text-muted-foreground block dark:text-zinc-400">Student Saves:</span>
+                    <span className="text-emerald-600 dark:text-emerald-400 font-extrabold text-sm">₹{previewCalc.discount}</span>
                   </div>
                 </div>
               </div>
@@ -578,13 +578,13 @@ export function AdminCouponsTab() {
                 <button
                   type="button"
                   onClick={() => setShowCreateModal(false)}
-                  className="px-4 py-2.5 rounded-xl border border-white/[0.08] bg-white/[0.04] hover:bg-white/[0.08] font-bold text-xs text-zinc-300 transition-colors cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl border border-border bg-surface hover:bg-muted font-bold text-xs text-foreground transition-colors cursor-pointer dark:border-white/[0.08] dark:bg-white/[0.04] dark:hover:bg-white/[0.08] dark:text-zinc-300"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-primary hover:bg-emerald-500 font-bold text-xs text-zinc-950 shadow-sm transition-all cursor-pointer active:scale-95"
+                  className="px-6 py-2.5 rounded-xl bg-primary hover:bg-emerald-500 font-bold text-xs text-primary-foreground dark:text-zinc-950 shadow-sm transition-all cursor-pointer active:scale-95"
                 >
                   Create Promo Code
                 </button>

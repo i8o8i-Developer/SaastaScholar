@@ -134,47 +134,47 @@
   --popover: #ffffff;
   --popover-foreground: #171717;
 
-  /* Primary Brand Theme Token = Clean Forest Green */
-  --primary: #005F15;
+  /* Primary Brand Theme Token = Crisp Academic Emerald */
+  --primary: #059669;
   --primary-foreground: #ffffff;
-  --primary-soft: rgba(0, 95, 21, 0.08);
-  --primary-deep: #00450f;
+  --primary-soft: rgba(5, 150, 105, 0.08);
+  --primary-deep: #047857;
 
   --secondary: #f4f4f5;
   --secondary-foreground: #171717;
   --muted: #f4f4f5;
-  --muted-foreground: #6b7280;
+  --muted-foreground: #525252;
 
-  /* Accent Theme Token = Ocean Blue */
-  --accent: rgba(0, 126, 172, 0.08);
-  --accent-foreground: #007EAC;
+  /* Accent Theme Token */
+  --accent: rgba(5, 150, 105, 0.08);
+  --accent-foreground: #059669;
 
   /* Highlight */
-  --highlight: #007EAC;
+  --highlight: #0284c7;
 
   /* Destructive */
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
 
   --border: rgba(0, 0, 0, 0.08);
-  --border-strong: rgba(0, 0, 0, 0.16);
-  --input: rgba(0, 0, 0, 0.1);
-  --ring: #005F15;
+  --border-strong: rgba(0, 0, 0, 0.14);
+  --input: rgba(0, 0, 0, 0.08);
+  --ring: #059669;
 
-  --chart-1: #005F15;
-  --chart-2: #007EAC;
-  --chart-3: #BA0000;
+  --chart-1: #059669;
+  --chart-2: #0284c7;
+  --chart-3: #dc2626;
   --chart-4: #10b981;
   --chart-5: #0ea5e9;
 
-  --sidebar: #f7f7f8;
+  --sidebar: #fafafa;
   --sidebar-foreground: #171717;
-  --sidebar-primary: #005F15;
+  --sidebar-primary: #059669;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: rgba(0, 126, 172, 0.08);
-  --sidebar-accent-foreground: #007EAC;
+  --sidebar-accent: rgba(5, 150, 105, 0.08);
+  --sidebar-accent-foreground: #059669;
   --sidebar-border: rgba(0, 0, 0, 0.08);
-  --sidebar-ring: #005F15;
+  --sidebar-ring: #059669;
 }
 
 .dark {

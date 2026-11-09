@@ -2633,9 +2633,9 @@ export function AdminPortal() {
 
   return (
     <>
-      {/* Mobile Screen Strictly Disabled Screen (< 768px) */}
-      <div className="flex md:hidden min-h-screen w-full bg-[#040806] text-white flex-col items-center justify-center p-4 selection:bg-emerald-500/30">
-        <div className="w-full max-w-md rounded-2xl border border-rose-500/30 bg-[#081610]/95 backdrop-blur-xl p-6 sm:p-8 shadow-[0_25px_70px_rgba(0,0,0,0.9),0_0_40px_rgba(186,0,0,0.2)] text-center relative overflow-hidden">
+      {/* Mobile Screen Strictly Disabled Screen (< 768px) - Clean Unslop */}
+      <div className="flex md:hidden min-h-screen w-full bg-background text-foreground flex-col items-center justify-center p-4">
+        <div className="w-full max-w-md rounded-3xl border border-border bg-card p-6 sm:p-8 shadow-2xl text-center relative overflow-hidden dark:bg-[#18191d] dark:border-white/[0.08]">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#BA0000] via-[#007EAC] to-[#005F15]" />
 
           <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-400 shadow-inner">
@@ -2747,10 +2747,10 @@ export function AdminPortal() {
                         setMobileNavOpen(false);
                       }}
                       className={cn(
-                        "flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs font-semibold cursor-pointer transition-all",
+                        "flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs cursor-pointer transition-all active:scale-[0.98]",
                         isActive
-                          ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-600/25"
-                          : "text-muted-foreground hover:bg-surface hover:text-foreground",
+                          ? "bg-emerald-500/10 text-emerald-800 dark:text-emerald-400 font-bold border border-emerald-500/20 shadow-2xs"
+                          : "text-slate-600 dark:text-zinc-400 font-medium hover:bg-slate-100 dark:hover:bg-white/[0.04] hover:text-slate-950 dark:hover:text-white",
                       )}
                     >
                       <div className="flex items-center gap-2.5 min-w-0">
@@ -2759,10 +2759,10 @@ export function AdminPortal() {
                       </div>
                       <span
                         className={cn(
-                          "rounded-full px-2 py-0.5 text-[0.65rem] font-mono font-bold shrink-0",
+                          "rounded-full px-2 py-0.5 text-[0.62rem] font-mono font-bold shrink-0",
                           isActive
-                            ? "bg-white/20 text-white"
-                            : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+                            ? "bg-emerald-500 text-white dark:bg-emerald-400 dark:text-zinc-950 shadow-2xs"
+                            : "bg-surface border border-border text-muted-foreground",
                         )}
                       >
                         {station.count}
@@ -2773,15 +2773,15 @@ export function AdminPortal() {
               </nav>
             </div>
 
-            <div className="pt-3 border-t border-border space-y-2">
+            <div className="pt-3 border-t border-border/80 space-y-2">
               <button
                 onClick={() => {
                   logout();
                   window.location.href = "/login";
                 }}
-                className="flex w-full items-center justify-center gap-2 rounded-xl border border-rose-500/20 bg-rose-500/5 p-2.5 text-xs font-bold text-rose-500 hover:bg-rose-500/10 cursor-pointer"
+                className="flex w-full items-center justify-center gap-2 rounded-xl border border-rose-200 dark:border-rose-500/20 bg-rose-50/80 dark:bg-rose-500/[0.06] p-2.5 text-xs font-bold text-rose-700 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-500/15 cursor-pointer transition-all active:scale-95 shadow-2xs"
               >
-                <LogOut className="h-4 w-4" />
+                <LogOut className="h-4 w-4 shrink-0" />
                 <span>Sign Out Of Workspace</span>
               </button>
             </div>
@@ -2879,11 +2879,11 @@ export function AdminPortal() {
                   onClick={() => setActiveStation(station.id as AdminStation)}
                   title={sidebarCollapsed ? `${station.label} (${station.count})` : undefined}
                   className={cn(
-                    "flex w-full items-center rounded-2xl cursor-pointer transition-all active:scale-[0.98]",
-                    sidebarCollapsed ? "justify-center p-2.5" : "justify-between px-3.5 py-2.5 text-xs font-semibold",
+                    "flex w-full items-center rounded-xl cursor-pointer transition-all active:scale-[0.98]",
+                    sidebarCollapsed ? "justify-center p-2.5" : "justify-between px-3 py-2 text-xs",
                     isActive
-                      ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold shadow-md shadow-emerald-600/25"
-                      : "text-muted-foreground hover:bg-surface hover:text-foreground",
+                      ? "bg-emerald-500/10 text-emerald-800 dark:text-emerald-400 font-bold border border-emerald-500/20 shadow-2xs"
+                      : "text-slate-600 dark:text-zinc-400 font-medium hover:bg-slate-100 dark:hover:bg-white/[0.04] hover:text-slate-900 dark:hover:text-zinc-100",
                   )}
                 >
                   <div className="flex items-center gap-2.5">
@@ -2893,10 +2893,10 @@ export function AdminPortal() {
                   {!sidebarCollapsed && (
                     <span
                       className={cn(
-                        "rounded-full px-2 py-0.5 text-[0.65rem] font-mono font-bold shrink-0",
+                        "rounded-full px-2 py-0.5 text-[0.62rem] font-mono font-bold shrink-0",
                         isActive
-                          ? "bg-white/20 text-white"
-                          : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+                          ? "bg-emerald-500 text-white dark:bg-emerald-400 dark:text-zinc-950 shadow-2xs"
+                          : "bg-surface border border-border text-muted-foreground",
                       )}
                     >
                       {station.count}
@@ -2917,7 +2917,7 @@ export function AdminPortal() {
             }}
             title={sidebarCollapsed ? "Sign Out Of Workspace" : undefined}
             className={cn(
-              "flex w-full items-center justify-center rounded-2xl border border-rose-500/20 bg-rose-500/5 text-xs font-bold text-rose-500 hover:bg-rose-500/10 cursor-pointer transition-all active:scale-95 shadow-2xs",
+              "flex w-full items-center justify-center rounded-xl border border-rose-200 dark:border-rose-500/20 bg-rose-50/80 dark:bg-rose-500/[0.06] text-xs font-bold text-rose-700 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-500/15 cursor-pointer transition-all active:scale-95 shadow-2xs",
               sidebarCollapsed ? "p-2.5" : "gap-2 p-2.5"
             )}
           >
