@@ -819,7 +819,7 @@ export function Login() {
                               type="text"
                               value={fullName}
                               onChange={(e) => setFullName(e.target.value)}
-                              placeholder="E.g. Aarav Sharma"
+                              placeholder="Enter Full Legal Name (e.g. Aarav Sharma)"
                               required
                               className="h-11 w-full rounded-2xl border border-border bg-background px-3.5 text-xs sm:text-sm focus:border-primary focus:outline-none transition-colors"
                             />
@@ -1005,7 +1005,7 @@ export function Login() {
                               type="text"
                               value={rollNumber}
                               onChange={(e) => setRollNumber(e.target.value)}
-                              placeholder="E.g. 24BCSE102"
+                              placeholder="Enter University Roll Number (e.g. 24BCSE102)"
                               required
                               className="h-11 w-full rounded-2xl border border-border bg-background px-3.5 text-xs font-mono focus:border-primary focus:outline-none transition-colors"
                             />
@@ -1018,7 +1018,7 @@ export function Login() {
                                 type="text"
                                 value={currentCgpa}
                                 onChange={(e) => setCurrentCgpa(e.target.value)}
-                                placeholder="E.g. 8.50"
+                                placeholder="Current CGPA (e.g. 8.50)"
                                 className="h-11 w-full rounded-2xl border border-border bg-background px-3 text-xs font-mono focus:border-primary focus:outline-none transition-colors"
                               />
                             </div>
@@ -1028,7 +1028,7 @@ export function Login() {
                                 type="text"
                                 value={targetCgpa}
                                 onChange={(e) => setTargetCgpa(e.target.value)}
-                                placeholder="E.g. 9.50"
+                                placeholder="Target CGPA Goal (e.g. 9.50)"
                                 className="h-11 w-full rounded-2xl border border-border bg-background px-3 text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 focus:border-primary focus:outline-none transition-colors"
                               />
                             </div>
@@ -1157,7 +1157,7 @@ export function Login() {
                                     }
                                   }
                                 }}
-                                placeholder="name.2026@student.nimsuniversity.org or yourname@gmail.com"
+                                placeholder="Enter Student Email Address (e.g. Name@Student.Nimsuniversity.Org)"
                                 required
                                 className={cn(
                                   "h-11 w-full rounded-2xl border bg-background pr-3.5 pl-10 text-xs sm:text-sm font-mono transition-colors focus:outline-none",
@@ -1254,8 +1254,8 @@ export function Login() {
                                         maxLength={6}
                                         value={signupOtp}
                                         onChange={(e) => setSignupOtp(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))}
-                                        placeholder="••••••"
-                                        className="h-10 w-full sm:w-44 text-center font-mono text-base font-extrabold tracking-[0.35em] rounded-xl border border-border bg-background focus:border-primary focus:outline-none"
+                                        placeholder="Enter 6-Digit Email Verification Code"
+                                        className="h-10 w-full sm:w-44 text-center font-mono text-base font-extrabold tracking-[0.35em] rounded-xl border border-border bg-background focus:border-primary focus:outline-none placeholder:text-xs placeholder:tracking-normal placeholder:font-normal"
                                       />
                                       <button
                                         type="button"
@@ -1299,7 +1299,7 @@ export function Login() {
                                   type="password"
                                   value={password}
                                   onChange={(e) => setPassword(e.target.value)}
-                                  placeholder="••••••••"
+                                  placeholder="Create A Secure Account Password"
                                   required
                                   className="h-11 w-full rounded-2xl border border-border bg-background pr-3.5 pl-10 text-xs sm:text-sm focus:border-primary focus:outline-none transition-colors"
                                 />
@@ -1314,7 +1314,7 @@ export function Login() {
                                   type="password"
                                   value={confirmPassword}
                                   onChange={(e) => setConfirmPassword(e.target.value)}
-                                  placeholder="••••••••"
+                                  placeholder="Re-Enter Password To Confirm"
                                   required
                                   className="h-11 w-full rounded-2xl border border-border bg-background pr-3.5 pl-10 text-xs sm:text-sm focus:border-primary focus:outline-none transition-colors"
                                 />
@@ -1586,7 +1586,7 @@ export function Login() {
                                           type="text"
                                           value={couponCode}
                                           onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                                          placeholder="E.g. SAASTA100"
+                                          placeholder="Enter Promotional Voucher Code (e.g. SAASTA100)"
                                           disabled={Boolean(appliedCoupon)}
                                           className="h-8 flex-1 rounded-lg border border-border bg-card px-2.5 text-xs font-bold uppercase tracking-wider focus:border-primary focus:outline-none disabled:opacity-60 min-w-0"
                                         />
@@ -1603,34 +1603,6 @@ export function Login() {
                                           )}
                                         </button>
                                       </div>
-
-                                      {/* Quick Presets */}
-                                      {!appliedCoupon && (
-                                        <div className="flex flex-wrap items-center gap-1 pt-1">
-                                          <span className="text-[0.6rem] text-muted-foreground font-semibold">Presets:</span>
-                                          <button
-                                            type="button"
-                                            onClick={() => handleSelectQuickCoupon("SAASTA100")}
-                                            className="rounded-md border border-emerald-500/40 bg-emerald-500/10 px-1.5 py-0.5 text-[0.6rem] font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 cursor-pointer"
-                                          >
-                                            SAASTA100 (100% Free)
-                                          </button>
-                                          <button
-                                            type="button"
-                                            onClick={() => handleSelectQuickCoupon("SCHOLAR20")}
-                                            className="rounded-md border border-border bg-card px-1.5 py-0.5 text-[0.6rem] font-bold text-foreground hover:border-primary/50 cursor-pointer"
-                                          >
-                                            SCHOLAR20 (20% Off)
-                                          </button>
-                                          <button
-                                            type="button"
-                                            onClick={() => handleSelectQuickCoupon("EXAM50")}
-                                            className="rounded-md border border-border bg-card px-1.5 py-0.5 text-[0.6rem] font-bold text-foreground hover:border-primary/50 cursor-pointer"
-                                          >
-                                            EXAM50 (₹50 Off)
-                                          </button>
-                                        </div>
-                                      )}
                                     </div>
                                   </div>
                                 )}
@@ -1703,7 +1675,7 @@ export function Login() {
                             type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            placeholder={authMode === "admin" ? "admin@saastascholar.in" : "student@nims.edu.in"}
+                            placeholder={authMode === "admin" ? "Enter Admin Email (e.g. Admin@Saastascholar.in)" : "Enter Student Email (e.g. Student@Nims.Edu.In)"}
                             required
                             className="h-11 w-full rounded-2xl border border-border bg-background pr-3.5 pl-10 text-xs sm:text-sm focus:border-primary focus:outline-none transition-colors"
                           />
@@ -1718,7 +1690,7 @@ export function Login() {
                             type="password"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            placeholder="••••••••"
+                            placeholder="Enter Your Account Password"
                             required
                             className="h-11 w-full rounded-2xl border border-border bg-background pr-3.5 pl-10 text-xs sm:text-sm focus:border-primary focus:outline-none transition-colors"
                           />
@@ -1910,156 +1882,6 @@ export function Login() {
                       : "Study Peacefully With Fast, Crystal-Clear Pages Designed To Help You Read Comfortably And Score Higher In Exams."}
                   </p>
                 </div>
-
-                {/* 4. Billing Cycle & Promotional Coupon Code (Desktop Right Side Position) */}
-                {authMode === "register" && signupStep === 3 && !isFreePlan && (
-                  <div className="hidden lg:block rounded-3xl border border-emerald-500/30 bg-emerald-500/10 p-4 sm:p-5 space-y-3.5 shadow-xs animate-in fade-in slide-in-from-top-2 duration-200">
-                    {/* Billing Cycle Toggle */}
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-bold text-foreground flex items-center justify-between">
-                        <span>Select Billing Cycle</span>
-                        <span className="text-[0.62rem] font-bold text-emerald-600 dark:text-emerald-400">
-                          {billingCycle === "semester" ? "Save 20% With Semester Pass" : "Billed Monthly"}
-                        </span>
-                      </label>
-                      <div className="grid grid-cols-2 gap-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setBillingCycle("monthly");
-                            setAppliedCoupon(null);
-                          }}
-                          className={cn(
-                            "rounded-xl py-2 px-3 text-xs font-bold border transition-all cursor-pointer text-center",
-                            billingCycle === "monthly"
-                              ? "border-primary bg-primary/10 text-primary shadow-xs ring-1 ring-primary/40"
-                              : "border-border/80 bg-card text-muted-foreground hover:border-primary/40"
-                          )}
-                        >
-                          Monthly (₹{activePlanPricing.monthly}/mo)
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setBillingCycle("semester");
-                            setAppliedCoupon(null);
-                          }}
-                          className={cn(
-                            "rounded-xl py-2 px-3 text-xs font-bold border transition-all cursor-pointer text-center relative",
-                            billingCycle === "semester"
-                              ? "border-emerald-500 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 shadow-xs ring-1 ring-emerald-500/50"
-                              : "border-border/80 bg-card text-muted-foreground hover:border-emerald-500/40"
-                          )}
-                        >
-                          Semester (₹{activePlanPricing.semester}/sem)
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Promo Discount Coupon Code Box */}
-                    <div className="space-y-2 pt-1 border-t border-emerald-500/20">
-                      <label className="text-xs font-bold text-foreground flex items-center justify-between">
-                        <span className="flex items-center gap-1.5">
-                          <Tag className="h-3.5 w-3.5 text-primary" />
-                          <span>Apply Promotional Coupon Code</span>
-                        </span>
-                        {appliedCoupon && (
-                          <button
-                            type="button"
-                            onClick={handleRemoveCoupon}
-                            className="text-[0.65rem] font-bold text-rose-500 hover:underline flex items-center gap-0.5 cursor-pointer"
-                          >
-                            <X className="h-3 w-3" />
-                            <span>Remove Coupon</span>
-                          </button>
-                        )}
-                      </label>
-
-                      <div className="flex gap-2">
-                        <div className="relative flex-1">
-                          <input
-                            type="text"
-                            value={couponCode}
-                            onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                            placeholder="Enter Code (E.g. SAASTA100)"
-                            disabled={Boolean(appliedCoupon)}
-                            className="h-10 w-full rounded-xl border border-border bg-card pr-3 pl-3 text-xs font-bold uppercase tracking-wider focus:border-primary focus:outline-none disabled:opacity-60"
-                          />
-                        </div>
-                        <button
-                          type="button"
-                          onClick={handleApplyCoupon}
-                          disabled={couponLoading || !couponCode.trim() || Boolean(appliedCoupon)}
-                          className="inline-flex h-10 items-center justify-center gap-1 rounded-xl bg-primary px-4 text-xs font-bold text-primary-foreground shadow-xs hover:bg-primary-deep transition-all disabled:opacity-50 cursor-pointer shrink-0"
-                        >
-                          {couponLoading ? (
-                            <span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
-                          ) : (
-                            <span>Apply</span>
-                          )}
-                        </button>
-                      </div>
-
-                      {/* Quick Coupon Preset Chips */}
-                      {!appliedCoupon && (
-                        <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                          <span className="text-[0.62rem] text-muted-foreground font-semibold">Presets:</span>
-                          <button
-                            type="button"
-                            onClick={() => handleSelectQuickCoupon("SAASTA100")}
-                            className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-[0.62rem] font-bold text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20 cursor-pointer"
-                          >
-                            SAASTA100 (100% Free Pass)
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleSelectQuickCoupon("SCHOLAR20")}
-                            className="rounded-lg border border-border bg-card px-2 py-0.5 text-[0.62rem] font-bold text-muted-foreground hover:text-foreground cursor-pointer"
-                          >
-                            SCHOLAR20 (20% Off)
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleSelectQuickCoupon("EXAM50")}
-                            className="rounded-lg border border-border bg-card px-2 py-0.5 text-[0.62rem] font-bold text-muted-foreground hover:text-foreground cursor-pointer"
-                          >
-                            EXAM50 (₹50 Off)
-                          </button>
-                        </div>
-                      )}
-
-                      {/* Applied Coupon Feedback & Breakdown Card */}
-                      {appliedCoupon && (
-                        <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-2.5 space-y-1.5">
-                          <div className="flex items-center justify-between text-xs">
-                            <span className="font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                              <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500" />
-                              <span>{appliedCoupon.code} Applied</span>
-                            </span>
-                            <span className="text-[0.65rem] font-bold bg-emerald-500 text-white px-2 py-0.2 rounded-full">
-                              {appliedCoupon.discount_percent}% Discount
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between text-[0.7rem] text-muted-foreground border-t border-emerald-500/20 pt-1">
-                            <span>Regular Plan Price:</span>
-                            <span>₹{currentBasePrice}</span>
-                          </div>
-                          <div className="flex items-center justify-between text-[0.7rem] text-emerald-600 dark:text-emerald-400 font-bold">
-                            <span>Voucher Savings:</span>
-                            <span>-₹{appliedCoupon.discount_amount_inr}</span>
-                          </div>
-                          <div className="flex items-center justify-between text-xs font-black text-foreground border-t border-emerald-500/20 pt-1">
-                            <span>Final Payable Amount:</span>
-                            <span className="text-emerald-600 dark:text-emerald-400 text-sm">
-                              ₹{appliedCoupon.final_amount_inr}
-                              {appliedCoupon.final_amount_inr === 0 && " (100% Free Pass)"}
-                            </span>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           </div>
@@ -2104,7 +1926,7 @@ export function Login() {
                     type="email"
                     value={resetEmail}
                     onChange={(e) => setResetEmail(e.target.value)}
-                    placeholder="student@nims.edu.in"
+                    placeholder="Enter Registered Student Email Address"
                     required
                     className="h-11 w-full rounded-2xl border border-border bg-background pr-3.5 pl-10 text-xs sm:text-sm focus:border-primary focus:outline-none transition-colors"
                   />
@@ -2144,9 +1966,9 @@ export function Login() {
                   maxLength={6}
                   value={resetOtp}
                   onChange={(e) => setResetOtp(e.target.value.replace(/\D/g, ""))}
-                  placeholder="123456"
+                  placeholder="Enter 6-Digit Verification Code"
                   required
-                  className="h-11 w-full rounded-2xl border border-border bg-background px-3.5 text-center font-mono text-base font-bold tracking-widest focus:border-primary focus:outline-none transition-colors"
+                  className="h-11 w-full rounded-2xl border border-border bg-background px-3.5 text-center font-mono text-base font-bold tracking-widest focus:border-primary focus:outline-none transition-colors placeholder:text-xs placeholder:tracking-normal placeholder:font-normal"
                 />
               </div>
 
@@ -2158,7 +1980,7 @@ export function Login() {
                     type="password"
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="At least 6 characters"
+                    placeholder="Enter New Password (At Least 6 Characters)"
                     required
                     className="h-11 w-full rounded-2xl border border-border bg-background pr-3.5 pl-10 text-xs sm:text-sm focus:border-primary focus:outline-none transition-colors"
                   />

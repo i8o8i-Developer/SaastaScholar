@@ -1,0 +1,465 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>SaastaScholar · Unslop Story</title>
+  <meta name="unslop-steps" content="Spacing, Color, Typography, Details">
+  <meta name="unslop-frame" content="0 0 1080">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    /* -------------------------------------------------------------
+       STEP 0: The Original Slop Interface
+       Muddy greenish tint, uneven paddings, gradient badges, clashing glows
+    ------------------------------------------------------------- */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #17241b;
+      color: #bbf7d0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      min-height: 900px;
+      padding: 32px 48px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .dashboard {
+      width: 1040px;
+      background: #1e3325;
+      border: 1px solid rgba(74, 222, 128, 0.25);
+      border-radius: 36px;
+      padding: 32px;
+      box-shadow: 0 0 50px rgba(16, 185, 129, 0.15);
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Header */
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid rgba(74, 222, 128, 0.2);
+      padding-bottom: 20px;
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .logo-box {
+      width: 44px;
+      height: 44px;
+      background: #10b981;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: #052e16;
+      font-size: 20px;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.4);
+    }
+
+    .title-group h1 {
+      font-size: 20px;
+      font-weight: 800;
+      color: #f0fdf4;
+      letter-spacing: -0.01em;
+    }
+
+    .title-group p {
+      font-size: 12px;
+      color: #86efac;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-top: 2px;
+    }
+
+    .badge-pill {
+      background: linear-gradient(135deg, #059669, #0284c7);
+      color: #ffffff;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 8px 16px;
+      border-radius: 20px;
+      box-shadow: 0 0 15px rgba(2, 132, 199, 0.4);
+    }
+
+    /* Cards Grid */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .plan-card {
+      background: #243e2e;
+      border: 1px solid rgba(74, 222, 128, 0.3);
+      border-radius: 28px;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 16px;
+      position: relative;
+    }
+
+    .card-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #4ade80;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: #f0fdf4;
+      margin-top: 4px;
+    }
+
+    .card-price {
+      font-size: 28px;
+      font-weight: 900;
+      color: #ffffff;
+      font-family: 'JetBrains Mono', monospace;
+      margin-top: 10px;
+    }
+
+    .card-price span {
+      font-size: 13px;
+      color: #86efac;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+    }
+
+    .card-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+      border-top: 1px solid rgba(74, 222, 128, 0.15);
+      padding-top: 12px;
+      font-size: 12px;
+      color: #bbf7d0;
+    }
+
+    .card-features li {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .action-btn {
+      width: 100%;
+      height: 42px;
+      border-radius: 21px;
+      border: none;
+      background: #10b981;
+      color: #052e16;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    /* Checkout Bottom Box */
+    .checkout-box {
+      background: #1b2f23;
+      border: 1px solid rgba(74, 222, 128, 0.25);
+      border-radius: 24px;
+      padding: 20px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .total-info {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+    }
+
+    .total-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #86efac;
+    }
+
+    .total-amount {
+      font-size: 26px;
+      font-weight: 900;
+      color: #ffffff;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .total-sub {
+      font-size: 11px;
+      color: #86efac;
+    }
+
+    /* -------------------------------------------------------------
+       STEP 1: Spacing
+       Even out the layout, align vertical rhythm, establish quiet gaps
+    ------------------------------------------------------------- */
+    .s1 .dashboard {
+      padding: 36px 40px;
+      gap: 28px;
+    }
+
+    .s1 .cards-grid {
+      gap: 24px;
+    }
+
+    .s1 .plan-card {
+      padding: 28px 24px;
+      gap: 20px;
+    }
+
+    .s1 .card-features {
+      gap: 10px;
+      padding-top: 16px;
+      margin-top: 12px;
+    }
+
+    .s1 .checkout-box {
+      padding: 22px 28px;
+    }
+
+    /* -------------------------------------------------------------
+       STEP 2: Color
+       Drain muddy green cast into unslop Graphite neutral ramp
+    ------------------------------------------------------------- */
+    .s2 body {
+      background-color: #141415;
+      color: #ededed;
+    }
+
+    .s2 .dashboard {
+      background-color: #18191c;
+      border-color: rgba(255, 255, 255, 0.08);
+      box-shadow: none;
+    }
+
+    .s2 .top-bar {
+      border-bottom-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .s2 .logo-box {
+      background-color: #1c1d20;
+      color: #10b981;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: none;
+    }
+
+    .s2 .badge-pill {
+      background: rgba(16, 185, 129, 0.12);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      box-shadow: none;
+    }
+
+    .s2 .plan-card {
+      background-color: #1c1d20;
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .s2 .card-label {
+      color: #10b981;
+    }
+
+    .s2 .card-price span {
+      color: #9ca3af;
+    }
+
+    .s2 .card-features {
+      border-top-color: rgba(255, 255, 255, 0.08);
+      color: #9ca3af;
+    }
+
+    .s2 .action-btn {
+      background-color: #10b981;
+      color: #09090b;
+      box-shadow: none;
+    }
+
+    .s2 .checkout-box {
+      background-color: #1c1d20;
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .s2 .total-label {
+      color: #9ca3af;
+    }
+
+    .s2 .total-sub {
+      color: #6b7280;
+    }
+
+    /* -------------------------------------------------------------
+       STEP 3: Typography
+       Clean hierarchy, replace shouty uppercase with crafted Title Case
+    ------------------------------------------------------------- */
+    .s3 .title-group p {
+      font-size: 11px;
+      color: #9ca3af;
+      letter-spacing: 0.02em;
+      text-transform: none;
+      font-weight: 500;
+    }
+
+    .s3 .card-label {
+      font-size: 11px;
+      letter-spacing: 0.03em;
+      font-weight: 600;
+      text-transform: none;
+    }
+
+    .s3 .card-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #ededed;
+    }
+
+    .s3 .card-features {
+      font-size: 12px;
+      line-height: 1.4;
+      color: #9ca3af;
+    }
+
+    .s3 .total-label {
+      font-size: 11px;
+      letter-spacing: 0.04em;
+      font-weight: 600;
+    }
+
+    /* -------------------------------------------------------------
+       STEP 4: Details
+       Crisp hairlines, subtle radii, intentional tactile depth
+    ------------------------------------------------------------- */
+    .s4 .dashboard {
+      border-radius: 24px;
+    }
+
+    .s4 .logo-box {
+      border-radius: 12px;
+    }
+
+    .s4 .badge-pill {
+      border-radius: 10px;
+    }
+
+    .s4 .plan-card {
+      border-radius: 18px;
+    }
+
+    .s4 .action-btn {
+      border-radius: 12px;
+      font-weight: 600;
+      transition: background-color 150ms ease;
+    }
+
+    .s4 .checkout-box {
+      border-radius: 16px;
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard" data-radius="dashboard">
+    <!-- Top Brand Bar -->
+    <div class="top-bar" data-gap="main">
+      <div class="brand-row">
+        <div class="logo-box">S</div>
+        <div class="title-group">
+          <h1>SaastaScholar Academic Engine</h1>
+          <p><span class="swap" data-at="3"><span class="from">VERIFIED STUDENT PORTAL 🚀</span><span class="to">Official Courseware &amp; Exam Solutions</span></span></p>
+        </div>
+      </div>
+      <div class="badge-pill" data-radius="badge">
+        <span class="swap" data-at="3"><span class="from">⚡ ACTIVE PASS</span><span class="to">Elite Scholar Pass</span></span>
+      </div>
+    </div>
+
+    <!-- Cards Grid -->
+    <div class="cards-grid" data-gap="main">
+      <!-- Card 1: Basic -->
+      <div class="plan-card" data-radius="card">
+        <div>
+          <span class="card-label">Starter Pass</span>
+          <h2 class="card-title">Handwritten Notes</h2>
+          <div class="card-price">₹99 <span>/ month</span></div>
+          <ul class="card-features">
+            <li>✓ Chapter-Wise Summary Sheets</li>
+            <li>✓ University Syllabus Maps</li>
+            <li>✓ Exam Date Trackers</li>
+          </ul>
+        </div>
+        <button class="action-btn" data-radius="btn">Select Basic Pass</button>
+      </div>
+
+      <!-- Card 2: Premium -->
+      <div class="plan-card" data-radius="card">
+        <div>
+          <span class="card-label">Achiever Pass</span>
+          <h2 class="card-title">Solved Papers (PYQs)</h2>
+          <div class="card-price">₹129 <span>/ month</span></div>
+          <ul class="card-features">
+            <li>✓ 10-Year Solved Exam Papers</li>
+            <li>✓ Step-By-Step Answer Schemes</li>
+            <li>✓ Handouts &amp; Lecture Slides</li>
+          </ul>
+        </div>
+        <button class="action-btn" data-radius="btn">Select Premium Pass</button>
+      </div>
+
+      <!-- Card 3: Elite -->
+      <div class="plan-card" data-radius="card">
+        <div>
+          <span class="card-label">Elite Scholar</span>
+          <h2 class="card-title">Lab Codes &amp; All Access</h2>
+          <div class="card-price">₹159 <span>/ month</span></div>
+          <ul class="card-features">
+            <li>✓ Complete Working Lab Codes</li>
+            <li>✓ Viva Voce Question Bank</li>
+            <li>✓ DRM Secure High-Def Reader</li>
+          </ul>
+        </div>
+        <button class="action-btn" data-radius="btn">Active Pass Selected</button>
+      </div>
+    </div>
+
+    <!-- Checkout Bottom Box -->
+    <div class="checkout-box" data-gap="main" data-radius="box">
+      <div class="total-info">
+        <span class="total-label">Total Payable:</span>
+        <span class="total-amount">₹159</span>
+        <span class="total-sub">(GST Included)</span>
+      </div>
+      <button class="action-btn" style="width: auto; padding: 0 28px;" data-radius="btn">
+        <span>Proceed Via Razorpay</span>
+        <span>→</span>
+      </button>
+    </div>
+  </div>
+</body>
+</html>

@@ -966,7 +966,7 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
                             }
                           }
                         }}
-                        placeholder="e.g. anubhav.2026engg1094@student.nimsuniversity.org"
+                        placeholder="Enter Student Email Address (e.g. Student@Nimsuniversity.Org)"
                         required
                         className="h-10 w-full rounded-2xl border border-border bg-background pr-3 pl-9 text-xs font-mono focus:border-primary focus:outline-none"
                       />
@@ -981,7 +981,7 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
                       type="tel"
                       value={phoneNumber}
                       onChange={(e) => setPhoneNumber(e.target.value)}
-                      placeholder="E.g. +91 98765 43210"
+                      placeholder="Enter Contact Phone Number (e.g. +91 98765 43210)"
                       className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
                     />
                   </div>
@@ -992,7 +992,7 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
                       type="text"
                       value={academicFocus}
                       onChange={(e) => setAcademicFocus(e.target.value)}
-                      placeholder="E.g. Machine Learning, Cloud Systems, DSA"
+                      placeholder="Enter Academic Focus Areas (e.g. Machine Learning, Cloud Systems, DSA)"
                       className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
                     />
                   </div>
@@ -1003,7 +1003,7 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
                       type="text"
                       value={careerGoal}
                       onChange={(e) => setCareerGoal(e.target.value)}
-                      placeholder="E.g. Software Development Engineer, Higher Studies"
+                      placeholder="Enter Career Goal (e.g. Software Development Engineer, Higher Studies)"
                       className="h-10 w-full rounded-2xl border border-border bg-background px-3 text-xs focus:border-primary focus:outline-none"
                     />
                   </div>

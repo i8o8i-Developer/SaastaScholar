@@ -368,7 +368,7 @@ export function MembershipUpgradeSection({
       </div>
 
       {/* Pricing Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-5 min-w-0">
         {PLANS.map((plan) => {
           const planRank = TIER_RANK[plan.tier] ?? 0;
           const isCurrent = currentTier === plan.tier;
@@ -579,7 +579,7 @@ export function MembershipUpgradeSection({
                     type="text"
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                    placeholder="Enter Voucher Code"
+                    placeholder="Enter Promotional Voucher Code"
                     className="h-9 w-full rounded-xl border border-border bg-card pr-3 pl-9 text-xs font-mono uppercase placeholder:normal-case placeholder:font-sans placeholder:text-muted-foreground/80 focus:border-primary focus:outline-none transition-colors"
                   />
                 </div>
@@ -596,18 +596,18 @@ export function MembershipUpgradeSection({
           </div>
 
           {/* Action Buttons: Instant Downgrade or Payment / Checkout */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-0.5">
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-xs uppercase font-bold text-muted-foreground">Total:</span>
+          <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 pt-0.5 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap shrink-0">
+              <span className="text-xs uppercase font-bold text-muted-foreground shrink-0">Total:</span>
               {appliedCoupon ? (
-                <div className="flex items-baseline gap-1.5">
+                <div className="inline-flex items-baseline gap-1.5 whitespace-nowrap shrink-0">
                   <span className="text-xs text-muted-foreground line-through font-mono">₹{basePrice}</span>
                   <span className="text-xl sm:text-2xl font-black text-emerald-500 font-mono">₹{appliedCoupon.final_amount_inr}</span>
                 </div>
               ) : (
-                <span className="text-xl sm:text-2xl font-black text-foreground font-mono">₹{basePrice}</span>
+                <span className="text-xl sm:text-2xl font-black text-foreground font-mono whitespace-nowrap shrink-0">₹{basePrice}</span>
               )}
-              <span className="text-[0.65rem] text-muted-foreground font-medium">(GST Included)</span>
+              <span className="text-[0.68rem] text-muted-foreground font-medium whitespace-nowrap shrink-0">(GST Included)</span>
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
@@ -616,12 +616,12 @@ export function MembershipUpgradeSection({
                   type="button"
                   onClick={() => handleInstantDowngrade(selectedPlan.tier)}
                   disabled={downgrading}
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-amber-500/50 bg-amber-500/10 text-amber-700 dark:text-amber-300 px-4 text-xs font-bold transition-all hover:bg-amber-500/20 active:scale-95 cursor-pointer disabled:opacity-60"
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-amber-500/50 bg-amber-500/10 text-amber-700 dark:text-amber-300 px-4 text-xs font-bold transition-all hover:bg-amber-500/20 active:scale-95 cursor-pointer disabled:opacity-60 whitespace-nowrap"
                 >
                   {downgrading ? (
                     <span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
                   ) : (
-                    <ArrowDownCircle className="h-3.5 w-3.5" />
+                    <ArrowDownCircle className="h-3.5 w-3.5 shrink-0" />
                   )}
                   <span>Apply Instant Downgrade</span>
                 </button>
@@ -632,7 +632,7 @@ export function MembershipUpgradeSection({
                 onClick={handleInitiateUpgrade}
                 disabled={upgrading}
                 className={cn(
-                  "inline-flex h-10 items-center justify-center gap-2 rounded-xl px-5 text-xs sm:text-sm font-bold shadow-md transition-all active:scale-95 disabled:opacity-60 cursor-pointer",
+                  "inline-flex h-10 items-center justify-center gap-2 rounded-xl px-5 text-xs sm:text-sm font-bold shadow-md transition-all active:scale-95 disabled:opacity-60 cursor-pointer whitespace-nowrap",
                   isDowngradeSelected
                     ? "bg-amber-600 hover:bg-amber-700 text-white"
                     : "bg-primary hover:bg-primary-deep text-primary-foreground"
@@ -642,12 +642,12 @@ export function MembershipUpgradeSection({
                   <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
                 ) : (
                   <>
-                    <Sparkles className="h-3.5 w-3.5" />
+                    <Sparkles className="h-3.5 w-3.5 shrink-0" />
                     <span>
                       {isDowngradeSelected ? "Renew At " : "Pay "}
                       ₹{appliedCoupon ? appliedCoupon.final_amount_inr : basePrice} Via Razorpay
                     </span>
-                    <ArrowRight className="h-3.5 w-3.5" />
+                    <ArrowRight className="h-3.5 w-3.5 shrink-0" />
                   </>
                 )}
               </button>
