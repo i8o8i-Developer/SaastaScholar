@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   Activity,
   AlertCircle,
@@ -39,7 +39,28 @@ import { toast } from "sonner";
 import { AcademicMaterial, apiFetch, DashboardSummary, StudentAssignment, Subject, TimetableSlot, studentSecurityApi } from "@/Lib/Api";
 import { useAuth } from "@/Hooks/UseAuth";
 import { cn } from "@/Lib/Utils";
-import { useIstClock, WEEKDAYS } from "@/Lib/IstTime";
+import { useIstClock, getIstWeekdayCode, WEEKDAYS } from "@/Lib/IstTime";
+
+function IstOverviewLiveClockCard() {
+  const istClock = useIstClock();
+  return (
+    <div className="rounded-2xl border border-border bg-surface p-2.5 sm:p-3.5 flex flex-col items-center justify-center text-center shadow-2xs min-w-0">
+      <div className="flex items-center justify-center gap-1.5 text-muted-foreground font-mono font-bold text-[0.6rem] sm:text-[0.65rem] uppercase tracking-wider whitespace-nowrap">
+        <span className="relative flex h-1.5 w-1.5 shrink-0">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+        </span>
+        <span>Live IST Time</span>
+      </div>
+      <span className="font-display text-base sm:text-xl font-black text-foreground font-mono whitespace-nowrap tracking-tight my-0.5">
+        {istClock.timeShortString}
+      </span>
+      <span className="text-[0.58rem] sm:text-[0.62rem] text-muted-foreground font-medium whitespace-nowrap truncate max-w-full">
+        {istClock.dateString}
+      </span>
+    </div>
+  );
+}
 
 interface DashboardOverviewProps {
   onNavigateTab: (tab: string) => void;
@@ -48,7 +69,7 @@ interface DashboardOverviewProps {
 
 export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOverviewProps) {
   const { user } = useAuth();
-  const istClock = useIstClock();
+  const weekdayCode = useMemo(() => getIstWeekdayCode(), []);
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [materials, setMaterials] = useState<AcademicMaterial[]>([]);
@@ -210,22 +231,8 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
           </div>
 
           <div className="grid grid-cols-2 gap-2.5 sm:flex sm:flex-row sm:items-center sm:gap-3 shrink-0">
-            {/* Live IST Real-Time Clock Card */}
-            <div className="rounded-2xl border border-border bg-surface p-2.5 sm:p-3.5 flex flex-col items-center justify-center text-center shadow-2xs min-w-0">
-              <div className="flex items-center justify-center gap-1.5 text-muted-foreground font-mono font-bold text-[0.6rem] sm:text-[0.65rem] uppercase tracking-wider whitespace-nowrap">
-                <span className="relative flex h-1.5 w-1.5 shrink-0">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
-                </span>
-                <span>Live IST Time</span>
-              </div>
-              <span className="font-display text-base sm:text-xl font-black text-foreground font-mono whitespace-nowrap tracking-tight my-0.5">
-                {istClock.timeShortString}
-              </span>
-              <span className="text-[0.58rem] sm:text-[0.62rem] text-muted-foreground font-medium whitespace-nowrap truncate max-w-full">
-                {istClock.dateString}
-              </span>
-            </div>
+            {/* Live IST Real-Time Clock Card (Isolated Leaf Component) */}
+            <IstOverviewLiveClockCard />
 
             {/* Target CGPA Goal Card */}
             <div className="rounded-2xl border border-border bg-surface p-2.5 sm:p-3.5 flex flex-col items-center justify-center text-center shadow-2xs min-w-0">
@@ -345,7 +352,7 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
               <div className="flex items-center gap-2 flex-wrap min-w-0">
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 sm:px-3 py-1 text-[0.65rem] sm:text-[0.68rem] font-bold text-emerald-700 dark:text-emerald-300 truncate">
                   <BookOpen className="h-3 w-3 shrink-0" />
-                  <span>{istClock.weekdayCode === "Sun" ? "Sunday Institutional Revision" : "Academic Self-Study Day"}</span>
+                  <span>{weekdayCode === "Sun" ? "Sunday Institutional Revision" : "Academic Self-Study Day"}</span>
                 </span>
                 <span className="text-[0.65rem] font-medium text-muted-foreground hidden md:inline">
                   • No Classroom Lectures Today
@@ -380,7 +387,7 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
                   <div className="min-w-0 space-y-0.5">
                     <div className="flex items-center gap-2">
                       <span className="text-[0.62rem] sm:text-[0.68rem] font-bold uppercase tracking-wider text-primary">
-                        Next Upcoming Class • Tomorrow ({istClock.weekdayCode === "Sun" ? "Monday" : "Next Working Day"})
+                        Next Upcoming Class • Tomorrow ({weekdayCode === "Sun" ? "Monday" : "Next Working Day"})
                       </span>
                     </div>
                     <div className="flex items-center gap-2 flex-wrap">

@@ -607,5 +607,33 @@
   left: 150%;
 }
 
+/* ==============================================================================
+   Mobile & Touchscreen 60fps/120fps Hardware-Accelerated Performance Rules
+   ============================================================================== */
+@media (hover: none) and (pointer: coarse) {
+  
+  html, body {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: none;
+  }
+
+  
+  .backdrop-blur-3xl,
+  .backdrop-blur-2xl,
+  .backdrop-blur-xl {
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+  }
+
+  
+  [data-radix-scroll-area-viewport],
+  .overflow-y-auto,
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+    transform: translateZ(0);
+    will-change: scroll-position;
+  }
+}
+
 
 

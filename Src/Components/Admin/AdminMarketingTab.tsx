@@ -68,63 +68,123 @@ const EMAIL_TEMPLATES = {
   weekly_dispatch: {
     subject: "Weekly Academic Dispatch: High-Yield Notes & Solved Papers",
     preheader: "Your Monday Study Kit: Unit Formula Sheets, Lab Viva Answers, and Exam Notes.",
-    contentHtml: `<span class="badge">Weekly Academic Dispatch</span>
-<h2 style="color:#ffffff; font-size:18px; font-weight:800; margin-top:0; text-transform:uppercase;">This Week In Your Curriculum</h2>
-<p>Hello Scholar,</p>
-<p>Here Is Your Curated Academic Study Kit For The Upcoming Week, Aligned With University Coursework:</p>
+    contentHtml: `<div style="margin-bottom:16px;">
+  <span style="display:inline-block; padding:5px 12px; background:#ecfdf5; color:#059669; border:1px solid #a7f3d0; border-radius:9999px; font-size:11px; font-weight:800; letter-spacing:0.8px; text-transform:uppercase;">
+    ★ Weekly Academic Dispatch
+  </span>
+</div>
+<h2 style="color:#0f172a; font-size:20px; font-weight:900; margin:0 0 10px 0; letter-spacing:-0.4px;">
+  Curated Study Kit For Your Semester
+</h2>
+<p style="color:#334155; font-size:13.5px; line-height:1.6; margin:0 0 16px 0;">
+  Hello Scholar, here is your curated study intelligence pack for the upcoming week, verified by campus subject experts and strictly aligned with university curriculum:
+</p>
 
-<div style="background-color:#0b140c; border:1px solid #1f3322; padding:16px; margin:20px 0; font-size:13px; line-height:1.7;">
-  <p style="margin:0 0 8px 0; color:#34d399; font-weight:700;">★ High-Yield Handouts Added:</p>
-  <p style="margin:0 0 6px 0;">• <strong>Unit 3 & 4 Handwritten Formula Sheets</strong> With Verified Derivations.</p>
-  <p style="margin:0 0 6px 0;">• <strong>Solved PYQ Papers (2020–2025)</strong> With Step-by-Step Solutions.</p>
-  <p style="margin:0;">• <strong>Lab Viva Voce Cheat-Sheets</strong> Covering Core Experiment Questions.</p>
+<div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:14px; padding:16px; margin:20px 0;">
+  <p style="margin:0 0 12px 0; color:#0f172a; font-weight:800; font-size:12.5px; text-transform:uppercase; letter-spacing:0.5px;">
+    ⚡ Newly Uploaded High-Yield Resources:
+  </p>
+  
+  <div style="background:#ffffff; border:1px solid #a7f3d0; border-left:4px solid #059669; border-radius:10px; padding:12px 14px; margin-bottom:10px;">
+    <div style="font-weight:800; color:#065f46; font-size:13px; margin-bottom:2px;">📘 Unit 3 &amp; 4 Handwritten Formula Sheets</div>
+    <div style="color:#64748b; font-size:12px; line-height:1.5;">Verified mathematical derivations, key formulas, and exam cheat-sheets.</div>
+  </div>
+
+  <div style="background:#ffffff; border:1px solid #bfdbfe; border-left:4px solid #2563eb; border-radius:10px; padding:12px 14px; margin-bottom:10px;">
+    <div style="font-weight:800; color:#1e40af; font-size:13px; margin-bottom:2px;">📝 Solved University PYQs (2020–2025)</div>
+    <div style="color:#64748b; font-size:12px; line-height:1.5;">Past examination papers with complete faculty step-by-step solutions.</div>
+  </div>
+
+  <div style="background:#ffffff; border:1px solid #ddd6fe; border-left:4px solid #7c3aed; border-radius:10px; padding:12px 14px;">
+    <div style="font-weight:800; color:#5b21b6; font-size:13px; margin-bottom:2px;">🔬 Practical Lab Manual &amp; Viva Voce Bank</div>
+    <div style="color:#64748b; font-size:12px; line-height:1.5;">Most frequently asked external examiner viva questions with model answers.</div>
+  </div>
 </div>
 
-<p>Stay Ahead In Your Internal Sessional Exams By Reviewing These Today.</p>
+<p style="color:#475569; font-size:13px; line-height:1.6; margin:16px 0;">
+  Review these verified notes today to stay ahead in your continuous assessment tests and university semester finals.
+</p>
 
-<div style="text-align:center; margin:26px 0 10px 0;">
-  <a href="https://saastascholar.durgaaisolutions.in/dashboard" class="btn-primary">
-    Open Study Repository
+<div style="text-align:center; margin:28px 0 12px 0;">
+  <a href="https://saastascholar.durgaaisolutions.in/dashboard" class="btn-primary" style="display:inline-block; background:linear-gradient(135deg, #059669 0%, #047857 100%); color:#ffffff !important; padding:13px 32px; border-radius:12px; font-weight:800; font-size:13px; text-decoration:none; box-shadow:0 4px 14px rgba(5,150,105,0.3); text-transform:uppercase; letter-spacing:0.6px;">
+    Open Study Repository →
   </a>
 </div>`,
   },
   exam_alert: {
     subject: "Urgent Examination Alert: Sessional Dates & Master Revision Guide",
     preheader: "Official Term Schedule Release and High-Priority Revision Notes.",
-    contentHtml: `<span class="badge" style="background-color:rgba(239,68,68,0.15); color:#f87171; border:1px solid #ef4444;">Examination Notice</span>
-<h2 style="color:#ffffff; font-size:18px; font-weight:800; margin-top:0; text-transform:uppercase;">Mid-Term Exam Schedule Announced</h2>
-<p>Dear Scholar,</p>
-<p>The University Examination Authority Has Released The Timetable For The Upcoming Mid-Term Sessional Assessments.</p>
+    contentHtml: `<div style="margin-bottom:16px;">
+  <span style="display:inline-block; padding:5px 12px; background:#fff1f2; color:#e11d48; border:1px solid #fecdd3; border-radius:9999px; font-size:11px; font-weight:800; letter-spacing:0.8px; text-transform:uppercase;">
+    🚨 Official Examination Notice
+  </span>
+</div>
+<h2 style="color:#0f172a; font-size:20px; font-weight:900; margin:0 0 10px 0; letter-spacing:-0.4px;">
+  Mid-Term Examination Schedule Announced
+</h2>
+<p style="color:#334155; font-size:13.5px; line-height:1.6; margin:0 0 16px 0;">
+  Dear Scholar, the University Examination Authority has published the official timetable for the upcoming mid-term sessional examinations.
+</p>
 
-<div style="background-color:#0b140c; border:1px solid #1f3322; padding:16px; margin:20px 0; font-size:13px;">
-  <p style="margin:0 0 6px 0; color:#cbd5e1;"><strong>Exam Window:</strong> Commencing Next Monday</p>
-  <p style="margin:0 0 6px 0; color:#cbd5e1;"><strong>Coverage:</strong> Units 1, 2, and 3</p>
-  <p style="margin:0; color:#34d399; font-weight:700;"><strong>Preparation Strategy:</strong> Focus on Solved PYQs and Viva Banks.</p>
+<div style="background:#fff1f2; border:1px solid #fecdd3; border-left:4px solid #e11d48; border-radius:14px; padding:16px; margin:20px 0;">
+  <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px;">
+    <strong style="color:#9f1239;">Exam Window:</strong>
+    <span style="color:#0f172a; font-weight:700;">Commencing Next Monday (09:30 AM IST)</span>
+  </div>
+  <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px;">
+    <strong style="color:#9f1239;">Syllabus Coverage:</strong>
+    <span style="color:#0f172a; font-weight:700;">Units 1, 2, and 3 Comprehensive</span>
+  </div>
+  <div style="display:flex; justify-content:space-between; font-size:13px;">
+    <strong style="color:#9f1239;">Recommended Strategy:</strong>
+    <span style="color:#059669; font-weight:800;">Focus On 5-Year Solved PYQ Banks</span>
+  </div>
 </div>
 
-<div style="text-align:center; margin:26px 0 10px 0;">
-  <a href="https://saastascholar.durgaaisolutions.in/dashboard?tab=pyqs" class="btn-primary">
-    Access Solved PYQs
+<div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:12px; padding:14px 16px; margin:18px 0; font-size:12.5px; color:#475569; line-height:1.6;">
+  <p style="margin:0 0 6px 0;"><strong>★ Exam Room Advisory:</strong> Carry Your Official College Identity Card And Hall Ticket.</p>
+  <p style="margin:0;"><strong>★ High-Yield Tip:</strong> All Expected Long-Answer Questions Are Tagged In The PYQ Repository.</p>
+</div>
+
+<div style="text-align:center; margin:28px 0 12px 0;">
+  <a href="https://saastascholar.durgaaisolutions.in/dashboard?tab=pyqs" class="btn-primary" style="display:inline-block; background:linear-gradient(135deg, #e11d48 0%, #be123c 100%); color:#ffffff !important; padding:13px 32px; border-radius:12px; font-weight:800; font-size:13px; text-decoration:none; box-shadow:0 4px 14px rgba(225,29,72,0.3); text-transform:uppercase; letter-spacing:0.6px;">
+    Access Solved Exam PYQs →
   </a>
 </div>`,
   },
   lab_viva: {
     subject: "Lab Practical Cheat-Sheet & Viva Voce Master Bank",
     preheader: "Ace Your Laboratory Evaluations With Full Viva Answers and Experiment Setups.",
-    contentHtml: `<span class="badge">Practical Study Kit</span>
-<h2 style="color:#ffffff; font-size:18px; font-weight:800; margin-top:0; text-transform:uppercase;">Lab Practical & Viva Master Bank</h2>
-<p>Hello Scholar,</p>
-<p>Ace Your Internal Laboratory Evaluations With Our Verified Lab Manuals And Frequently Asked Viva Voce Questions.</p>
+    contentHtml: `<div style="margin-bottom:16px;">
+  <span style="display:inline-block; padding:5px 12px; background:#f5f3ff; color:#7c3aed; border:1px solid #ddd6fe; border-radius:9999px; font-size:11px; font-weight:800; letter-spacing:0.8px; text-transform:uppercase;">
+    ⚡ Practical Study Kit &amp; Viva Bank
+  </span>
+</div>
+<h2 style="color:#0f172a; font-size:20px; font-weight:900; margin:0 0 10px 0; letter-spacing:-0.4px;">
+  Laboratory Practical &amp; Viva Voce Master Bank
+</h2>
+<p style="color:#334155; font-size:13.5px; line-height:1.6; margin:0 0 16px 0;">
+  Hello Scholar, secure full marks in your internal laboratory practical assessments with our verified lab manuals and viva master guide:
+</p>
 
-<div style="background-color:#0b140c; border:1px solid #1f3322; padding:16px; margin:20px 0; font-size:13px; line-height:1.7;">
-  <p style="margin:0 0 6px 0;">✔ Complete Algorithm & Flowchart Breakdowns</p>
-  <p style="margin:0 0 6px 0;">✔ Code Snippets & Test Case Outputs</p>
-  <p style="margin:0;">✔ Top 30 Faculty Viva Questions with Model Answers</p>
+<div style="background:#f5f3ff; border:1px solid #ddd6fe; border-left:4px solid #7c3aed; border-radius:14px; padding:16px; margin:20px 0;">
+  <p style="margin:0 0 10px 0; color:#5b21b6; font-weight:800; font-size:13px;">
+    ✔ Verified Lab Manual Highlights:
+  </p>
+  <div style="color:#4c1d95; font-size:12.5px; line-height:1.7;">
+    <p style="margin:0 0 6px 0;">• <strong>Complete Circuit Diagrams &amp; Flowcharts:</strong> Step-by-step schematics and algorithms.</p>
+    <p style="margin:0 0 6px 0;">• <strong>Clean Code Snippets &amp; Test Vectors:</strong> Verified inputs and exact expected output tables.</p>
+    <p style="margin:0;">• <strong>Top 30 Faculty Viva Questions:</strong> Model conceptual answers prepared by department faculty.</p>
+  </div>
 </div>
 
-<div style="text-align:center; margin:26px 0 10px 0;">
-  <a href="https://saastascholar.durgaaisolutions.in/dashboard?tab=labs" class="btn-primary">
-    Explore Lab Experiments
+<p style="color:#475569; font-size:13px; line-height:1.6; margin:16px 0;">
+  All experiments include ready-to-write observations, formula summaries, and viva questions.
+</p>
+
+<div style="text-align:center; margin:28px 0 12px 0;">
+  <a href="https://saastascholar.durgaaisolutions.in/dashboard?tab=labs" class="btn-primary" style="display:inline-block; background:linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); color:#ffffff !important; padding:13px 32px; border-radius:12px; font-weight:800; font-size:13px; text-decoration:none; box-shadow:0 4px 14px rgba(124,58,237,0.3); text-transform:uppercase; letter-spacing:0.6px;">
+    Explore Lab Experiments →
   </a>
 </div>`,
   },
@@ -605,39 +665,83 @@ export function AdminMarketingTab() {
               </span>
             </div>
 
-            {/* Email Shell */}
-            <div className="rounded-xl border border-[#1f3322] bg-[#0d140e] text-[#e2e8f0] overflow-hidden shadow-lg font-sans">
-              {/* Email Header */}
-              <div className="bg-[#005F15] p-5 text-center border-b-2 border-[#10b981]">
-                <h2 className="text-lg font-extrabold uppercase tracking-tight text-white m-0">
-                  SaastaScholar™
-                </h2>
-                <p className="text-[10px] text-[#a7f3d0] uppercase tracking-wider font-bold mt-1 m-0">
-                  Quality Education, Without The Heavy Price
-                </p>
+            {/* Email Client Mock Window */}
+            <div className="rounded-2xl border border-border/80 bg-muted/30 p-3 sm:p-4 shadow-sm font-sans space-y-3">
+              {/* Client Window Toolbar */}
+              <div className="flex items-center justify-between px-1 text-xs">
+                <div className="flex items-center gap-1.5">
+                  <span className="h-2.5 w-2.5 rounded-full bg-rose-500/80 inline-block" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-amber-500/80 inline-block" />
+                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-500/80 inline-block" />
+                  <span className="ml-2 text-[0.68rem] font-bold text-muted-foreground">Inbox · Live Dispatch Preview</span>
+                </div>
+                <div className="text-[0.65rem] text-muted-foreground font-mono">
+                  Today, 10:00 AM IST
+                </div>
               </div>
 
-              {/* Subject Bar */}
-              <div className="bg-[#121c14] border-b border-[#1f3322] p-3 text-xs">
-                <p className="text-muted-foreground text-[0.68rem] m-0">Subject:</p>
-                <p className="font-bold text-white text-xs m-0 truncate">{subject}</p>
+              {/* Envelope Metadata Card */}
+              <div className="rounded-xl border border-border/70 bg-card p-3 space-y-1.5 text-xs shadow-2xs">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="h-7 w-7 rounded-lg bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-black text-xs grid place-items-center shrink-0">
+                      SS
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-bold text-foreground text-xs truncate">SaastaScholar Support &lt;support@saastascholar.in&gt;</p>
+                      <p className="text-[0.65rem] text-muted-foreground truncate">To: All Registered Scholars (Curriculum Batch)</p>
+                    </div>
+                  </div>
+                  <span className="text-[0.62rem] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 shrink-0">
+                    Verified SPF/DKIM
+                  </span>
+                </div>
+                <div className="pt-1.5 border-t border-border/50">
+                  <p className="text-[0.7rem] text-muted-foreground font-medium truncate">
+                    Subject: <strong className="text-foreground font-bold">{subject || "No Subject Specified"}</strong>
+                  </p>
+                  {preheader && (
+                    <p className="text-[0.65rem] text-muted-foreground/80 truncate mt-0.5">
+                      Snippet: {preheader}
+                    </p>
+                  )}
+                </div>
               </div>
 
-              {/* Email Content Body */}
-              <div
-                className="p-5 text-xs text-[#cbd5e1] leading-relaxed space-y-3"
-                dangerouslySetInnerHTML={{ __html: contentHtml }}
-              />
+              {/* Email Paper Card Container */}
+              <div className="rounded-2xl border border-slate-200 dark:border-border/80 bg-white text-slate-800 overflow-hidden shadow-md">
+                {/* Email Header */}
+                <div className="bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-700 px-6 py-7 text-center text-white border-b-2 border-emerald-400">
+                  <h2 className="text-xl font-black uppercase tracking-tight text-white m-0 drop-shadow-xs">
+                    SaastaScholar™
+                  </h2>
+                  <div className="mt-2 inline-block rounded-full bg-white/20 border border-white/30 px-3 py-1 text-[10px] font-extrabold uppercase tracking-wider text-white">
+                    Quality Education, Without The Heavy Price
+                  </div>
+                </div>
 
-              {/* Email Footer */}
-              <div className="bg-[#0b140c] border-t border-[#1a2c1d] p-4 text-center text-[10px] text-[#64748b]">
-                <p className="m-0 mb-1">
-                  &copy; 2026 <strong>SaastaScholar</strong> · Owned & Engineered By DurgaAI Solutions.
-                </p>
-                <p className="m-0 mb-2">Jaipur Knowledge City, Rajasthan 303121 · DPDP Act (2023) Compliant.</p>
-                <p className="m-0 text-[#34d399] underline">
-                  Unsubscribe Instantly With One Click
-                </p>
+                {/* Email Content Body */}
+                <div
+                  className="p-6 text-xs sm:text-sm text-slate-700 leading-relaxed space-y-3"
+                  dangerouslySetInnerHTML={{ __html: contentHtml }}
+                />
+
+                {/* Email Footer */}
+                <div className="bg-slate-50 border-t border-slate-200 p-5 text-center text-[11px] text-slate-500 space-y-1">
+                  <p className="m-0 font-medium">
+                    &copy; 2026 <strong>SaastaScholar</strong> · Owned &amp; Engineered By DurgaAI Solutions.
+                  </p>
+                  <p className="m-0 text-[10px] text-slate-400">
+                    Jaipur Knowledge City, Rajasthan 303121 · DPDP Act (2023) Compliant.
+                  </p>
+                  <p className="m-0 pt-1">
+                    <span className="text-emerald-600 font-bold underline cursor-pointer">
+                      Unsubscribe Instantly With One Click
+                    </span>
+                    {" · "}
+                    <span className="text-slate-400">Manage Email Preferences</span>
+                  </p>
+                </div>
               </div>
             </div>
           </div>

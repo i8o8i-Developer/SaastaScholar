@@ -182,7 +182,7 @@ function extractArray<T>(data: any): T[] {
 export function AdminPortal() {
   const { user, logout, isAuthenticated, isLoading } = useAuth();
   const { theme, isDark, toggleTheme } = useTheme();
-  const istClock = useIstClock();
+  const todayWeekdayCode = useMemo(() => getIstWeekdayCode(), []);
   const [activeStation, setActiveStation] = useState<AdminStation>("overview");
   const [structureSubTab, setStructureSubTab] = useState<"departments" | "programs" | "sections" | "subjects" | "units">("departments");
   const [publisherType, setPublisherType] = useState<PublisherContentType>("NOTES");
@@ -6061,7 +6061,7 @@ export function AdminPortal() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-4">
                 <div className="grid grid-cols-7 gap-1 bg-surface p-1 rounded-2xl border border-border w-full sm:w-auto">
                   {WEEKDAYS.map((d) => {
-                    const isToday = istClock.weekdayCode === d;
+                    const isToday = todayWeekdayCode === d;
                     return (
                       <button
                         key={d}

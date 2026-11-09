@@ -39,21 +39,43 @@ def build_brand_email_template(
     unsubscribe_url: str = None,
 ) -> str:
     """
-    Renders Responsive, Anti-Spam Optimized HTML Email In SaastaScholar Brand Aesthetics
+    Renders Responsive, Colorful, Anti-Spam Optimized HTML Email In SaastaScholar Brand Aesthetics
     Adheres Strictly To DPDP Act (2023) And Global Deliverability Standards
     """
     unsub_section = ""
     if is_marketing or unsubscribe_url:
         unsub_link = unsubscribe_url or "https://saastascholar.durgaaisolutions.in/unsubscribe"
         unsub_section = f"""
-          <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid #1a2c1d; font-size: 11px; color: #64748b;">
+          <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid #e2e8f0; font-size: 11px; color: #64748b;">
             <p style="margin: 0 0 6px 0;">You Are Receiving This Because You Subscribed To SaastaScholar Weekly Academic Dispatch.</p>
             <p style="margin: 0;">
-              <a href="{unsub_link}" style="color: #34d399; text-decoration: underline;">Unsubscribe Instantly</a> · 
-              <a href="https://saastascholar.durgaaisolutions.in/preferences" style="color: #94a3b8; text-decoration: none;">Manage Preferences</a>
+              <a href="{unsub_link}" style="color: #059669; font-weight: 700; text-decoration: underline;">Unsubscribe Instantly</a> · 
+              <a href="https://saastascholar.durgaaisolutions.in/preferences" style="color: #64748b; text-decoration: none;">Manage Preferences</a>
             </p>
           </div>
         """
+
+    # Transform legacy dark theme inline styles to vibrant, colorful, accessible light aesthetics
+    transformed_html = (
+        content_html
+        .replace("color:#ffffff;", "color:#0f172a;")
+        .replace("color: #ffffff;", "color: #0f172a;")
+        .replace('color:#ffffff"', 'color:#0f172a"')
+        .replace("background-color:#0b140c;", "background-color:#f8fafc;")
+        .replace("background-color: #0b140c;", "background-color:#f8fafc;")
+        .replace("border:1px solid #1f3322;", "border:1px solid #e2e8f0; border-radius:12px;")
+        .replace("border: 1px solid #1f3322;", "border: 1px solid #e2e8f0; border-radius: 12px;")
+        .replace("background:#0c160e;", "background:#f0fdf4;")
+        .replace("background: #0c160e;", "background: #f0fdf4;")
+        .replace("color:#cbd5e1;", "color:#334155;")
+        .replace("color: #cbd5e1;", "color: #334155;")
+        .replace("color:#94a3b8;", "color:#64748b;")
+        .replace("color: #94a3b8;", "color: #64748b;")
+        .replace("color:#e2e8f0;", "color:#334155;")
+        .replace("color: #e2e8f0;", "color: #334155;")
+        .replace("color:#34d399;", "color:#059669;")
+        .replace("color: #34d399;", "color: #059669;")
+    )
 
     return f"""<!DOCTYPE html>
 <html lang="en">
@@ -63,101 +85,163 @@ def build_brand_email_template(
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>{title}</title>
   <style>
-    * {{
-      box-sizing: border-box;
-      border-radius: 0 !important;
-    }}
     body {{
       margin: 0;
       padding: 0;
-      background-color: #0d140e;
+      background-color: #f1f5f9;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      color: #e2e8f0;
+      color: #334155;
       -webkit-font-smoothing: antialiased;
     }}
     .container {{
       max-width: 600px;
       margin: 32px auto;
-      background-color: #121c14;
-      border: 1px solid #1f3322;
+      background-color: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
       overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
     }}
     .header {{
-      background: #005F15;
-      padding: 26px 24px;
+      background: linear-gradient(135deg, #059669 0%, #047857 50%, #0d9488 100%);
+      padding: 30px 24px;
       text-align: center;
-      border-bottom: 2px solid #10b981;
+      border-bottom: 3px solid #10b981;
     }}
     .logo-text {{
-      font-size: 22px;
-      font-weight: 800;
-      color: #ffffff;
+      font-size: 24px;
+      font-weight: 900;
+      color: #ffffff !important;
       letter-spacing: -0.5px;
       margin: 0;
       text-transform: uppercase;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.12);
     }}
-    .tagline {{
-      font-size: 11px;
-      color: #a7f3d0;
-      margin: 5px 0 0 0;
+    .tagline-pill {{
+      display: inline-block;
+      margin-top: 8px;
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      border-radius: 9999px;
+      padding: 4px 14px;
+      font-size: 10px;
+      color: #ffffff !important;
       text-transform: uppercase;
       letter-spacing: 1.2px;
-      font-weight: 700;
+      font-weight: 800;
     }}
     .body {{
       padding: 32px 28px;
-      color: #cbd5e1;
+      color: #334155;
       font-size: 14px;
-      line-height: 1.6;
+      line-height: 1.65;
+    }}
+    .body h2 {{
+      color: #0f172a !important;
+      font-weight: 800;
+      letter-spacing: -0.3px;
     }}
     .otp-box {{
       margin: 24px 0;
-      background-color: #0b140c;
-      border: 1px solid #10b981;
-      padding: 20px;
+      background-color: #f0fdf4;
+      border: 2px dashed #059669;
+      border-radius: 14px;
+      padding: 22px;
       text-align: center;
     }}
     .otp-code {{
       font-size: 34px;
       font-weight: 900;
-      color: #34d399;
+      color: #065f46 !important;
       letter-spacing: 8px;
-      font-family: monospace;
-      margin: 0;
+      font-family: 'SF Pro Mono', Monaco, Consolas, monospace;
+      margin: 4px 0;
     }}
     .footer {{
       padding: 22px 28px;
-      background-color: #0b140c;
-      border-top: 1px solid #1a2c1d;
+      background-color: #f8fafc;
+      border-top: 1px solid #e2e8f0;
       text-align: center;
       font-size: 11px;
       color: #64748b;
-      line-height: 1.5;
+      line-height: 1.6;
     }}
     .badge {{
       display: inline-block;
-      padding: 4px 10px;
-      background-color: rgba(16, 185, 129, 0.15);
-      color: #34d399;
-      border: 1px solid #10b981;
+      padding: 5px 12px;
+      background-color: #ecfdf5;
+      color: #059669;
+      border: 1px solid #a7f3d0;
+      border-radius: 9999px;
       font-size: 11px;
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 0.8px;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
     }}
     .btn-primary {{
       display: inline-block;
-      background-color: #005F15;
+      background: linear-gradient(135deg, #059669 0%, #047857 100%);
       color: #ffffff !important;
       font-weight: 800;
-      padding: 12px 28px;
+      padding: 13px 30px;
       text-decoration: none;
       font-size: 13px;
       text-transform: uppercase;
       letter-spacing: 0.8px;
-      border: 1px solid #00450f;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.28);
+      border: none;
+    }}
+    .card-emerald {{
+      background-color: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      border-left: 4px solid #059669;
+      border-radius: 12px;
+      padding: 16px;
+      margin: 18px 0;
+      font-size: 13px;
+      color: #065f46;
+    }}
+    .card-blue {{
+      background-color: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-left: 4px solid #2563eb;
+      border-radius: 12px;
+      padding: 16px;
+      margin: 18px 0;
+      font-size: 13px;
+      color: #1e40af;
+    }}
+    .card-purple {{
+      background-color: #f5f3ff;
+      border: 1px solid #ddd6fe;
+      border-left: 4px solid #7c3aed;
+      border-radius: 12px;
+      padding: 16px;
+      margin: 18px 0;
+      font-size: 13px;
+      color: #5b21b6;
+    }}
+    .card-amber {{
+      background-color: #fffbeb;
+      border: 1px solid #fde68a;
+      border-left: 4px solid #d97706;
+      border-radius: 12px;
+      padding: 16px;
+      margin: 18px 0;
+      font-size: 13px;
+      color: #92400e;
+    }}
+    .card-rose {{
+      background-color: #fff1f2;
+      border: 1px solid #fecdd3;
+      border-left: 4px solid #e11d48;
+      border-radius: 12px;
+      padding: 16px;
+      margin: 18px 0;
+      font-size: 13px;
+      color: #9f1239;
     }}
   </style>
 </head>
@@ -169,10 +253,10 @@ def build_brand_email_template(
   <div class="container">
     <div class="header">
       <h1 class="logo-text">SaastaScholar™</h1>
-      <p class="tagline">Quality Education, Without The Heavy Price</p>
+      <span class="tagline-pill">Quality Education, Without The Heavy Price</span>
     </div>
     <div class="body">
-      {content_html}
+      {transformed_html}
     </div>
     <div class="footer">
       <p style="margin: 0 0 4px 0;">&copy; 2026 <strong>SaastaScholar</strong> · Owned &amp; Engineered By DurgaAI Solutions.</p>
@@ -182,7 +266,6 @@ def build_brand_email_template(
   </div>
 </body>
 </html>"""
-
 
 def send_system_email(
     subject: str,

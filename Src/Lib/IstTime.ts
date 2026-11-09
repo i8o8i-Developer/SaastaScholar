@@ -110,14 +110,35 @@ export function useIstClock() {
   const [now, setNow] = useState<Date>(() => new Date());
 
   useEffect(() => {
-    // Initial sync
-    setNow(new Date());
+    let timer: any = null;
 
-    const timer = setInterval(() => {
+    const tick = () => {
+      // Pause clock state updates if browser tab is hidden to save battery & CPU
+      if (typeof document !== "undefined" && document.visibilityState === "hidden") {
+        return;
+      }
       setNow(new Date());
-    }, 1000);
+    };
 
-    return () => clearInterval(timer);
+    setNow(new Date());
+    timer = setInterval(tick, 1000);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        setNow(new Date());
+      }
+    };
+
+    if (typeof document !== "undefined") {
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+    }
+
+    return () => {
+      if (timer) clearInterval(timer);
+      if (typeof document !== "undefined") {
+        document.removeEventListener("visibilitychange", handleVisibilityChange);
+      }
+    };
   }, []);
 
   const timeString = formatIstTime(now, true);

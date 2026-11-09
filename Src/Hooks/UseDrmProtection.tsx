@@ -379,10 +379,8 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
     const handleTouchStart = (e: TouchEvent) => {
       if (touchTimer) clearTimeout(touchTimer);
 
-      // 
+      // 3+ finger swipe screenshot gesture detection (passive-compliant for 60/120fps mobile scrolling)
       if (e.touches && e.touches.length >= 3) {
-        e.preventDefault();
-        e.stopPropagation();
         overwriteClipboard();
         triggerBlackoutShield("MULTI_FINGER_GESTURE_CAPTURE", 4500);
         toast.error("Reading Paused. Tap Anywhere To Continue Reading.");
@@ -392,8 +390,6 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
 
     const handleTouchMove = (e: TouchEvent) => {
       if (e.touches && e.touches.length >= 3) {
-        e.preventDefault();
-        e.stopPropagation();
         triggerBlackoutShield("MULTI_FINGER_GESTURE_CAPTURE", 4500);
         return;
       }
@@ -424,8 +420,9 @@ export function useDrmProtection({ materialId, enabled = true }: UseDrmProtectio
     window.addEventListener("cut", handleCut, true);
     window.addEventListener("selectstart", handleSelectStart, true);
     window.addEventListener("dragstart", handleDragStart, true);
-    window.addEventListener("touchstart", handleTouchStart, { passive: false });
-    window.addEventListener("touchmove", handleTouchMove, { passive: false });
+    // PASSIVE touch listeners for buttery smooth 60fps/120fps mobile scrolling
+    window.addEventListener("touchstart", handleTouchStart, { passive: true });
+    window.addEventListener("touchmove", handleTouchMove, { passive: true });
     window.addEventListener("touchend", handleTouchEnd, { passive: true });
     window.addEventListener("touchcancel", handleTouchCancel, { passive: true });
     window.addEventListener("keydown", handleKeyTrackerDown, true);

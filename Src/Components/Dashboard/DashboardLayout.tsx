@@ -93,10 +93,26 @@ export const getDisplayProgram = (user: any): string => {
   return "Academic";
 };
 
+function IstHeaderClockPill() {
+  const istClock = useIstClock();
+  return (
+    <div
+      className="hidden xl:flex items-center gap-2 rounded-full border border-border bg-card/90 px-3 py-1 text-xs font-mono text-foreground shadow-2xs select-none dark:border-white/[0.08]"
+      title={`Indian Standard Time (UTC+05:30) • ${istClock.dateString}`}
+    >
+      <span className="relative flex h-2 w-2">
+        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+      </span>
+      <span className="font-bold">{istClock.timeString}</span>
+      <span className="text-[0.62rem] font-sans font-bold uppercase px-1.5 py-0.5 rounded bg-surface border border-border/80 text-muted-foreground">IST</span>
+    </div>
+  );
+}
+
 export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader }: DashboardLayoutProps) {
   const { user, logout, refreshUser } = useAuth();
   const { theme, isDark, toggleTheme } = useTheme();
-  const istClock = useIstClock();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
@@ -673,18 +689,8 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
               </button>
             </div>
 
-            {/* Real-Time IST Synchronization Pill */}
-            <div
-              className="hidden xl:flex items-center gap-2 rounded-full border border-border bg-card/90 px-3 py-1 text-xs font-mono text-foreground shadow-2xs select-none dark:border-white/[0.08]"
-              title={`Indian Standard Time (UTC+05:30) • ${istClock.dateString}`}
-            >
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              <span className="font-bold">{istClock.timeString}</span>
-              <span className="text-[0.62rem] font-sans font-bold uppercase px-1.5 py-0.5 rounded bg-surface border border-border/80 text-muted-foreground">IST</span>
-            </div>
+            {/* Real-Time IST Synchronization Pill (Isolated Leaf Component) */}
+            <IstHeaderClockPill />
           </div>
 
           {/* Quick Header Tools (Global Search, Notifications, User) */}

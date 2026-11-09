@@ -29,142 +29,122 @@ function NotFoundComponent() {
   };
 
   return (
-    <div className="min-h-screen bg-[#040806] text-[#f0fdf4] flex flex-col items-center justify-center p-4 relative overflow-hidden select-none">
-      {/* Dynamic Background Glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_15%,rgba(16,185,129,0.12)_0%,transparent_65%)] pointer-events-none" />
-      <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[520px] h-[520px] rounded-full bg-emerald-600/10 blur-[60px] pointer-events-none" />
-
-      {/* Main Glassmorphic HUD Card */}
-      <div className="relative z-10 max-w-[720px] w-full bg-[#081610]/90 backdrop-blur-2xl border border-emerald-500/20 rounded-3xl p-6 sm:p-10 text-center shadow-[0_25px_70px_-15px_rgba(0,0,0,0.85),0_0_40px_rgba(5,150,105,0.2)]">
+    <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-4 relative select-none">
+      {/* Main Unslop Academic Archive Card */}
+      <div className="relative z-10 max-w-[640px] w-full bg-card border border-border rounded-3xl p-6 sm:p-10 text-center shadow-sm space-y-6">
         {/* Status Pill */}
-        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-emerald-500/10 border border-emerald-500/25 rounded-full mb-6 font-mono text-xs text-emerald-300 uppercase tracking-wider font-bold">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-          </span>
-          SaastaScholar • Error 404: Route Not Found
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-surface border border-border rounded-full font-mono text-xs text-muted-foreground uppercase tracking-wider font-bold shadow-2xs">
+          <span className="h-2 w-2 rounded-full bg-emerald-500 shrink-0" />
+          <span>SaastaScholar Courseware Archive · 404</span>
         </div>
 
-        {/* Radar Telemetry Graphic */}
-        <div className="w-28 h-28 mx-auto mb-5 relative flex items-center justify-center">
-          <svg className="w-full h-full animate-[spin_40s_linear_infinite]" viewBox="0 0 100 100" fill="none">
-            <circle cx="50" cy="50" r="46" stroke="rgba(16, 185, 129, 0.15)" strokeWidth="1.5" />
-            <circle cx="50" cy="50" r="40" stroke="rgba(16, 185, 129, 0.35)" strokeWidth="1.5" strokeDasharray="6 4" />
-            <circle cx="50" cy="50" r="32" stroke="rgba(16, 185, 129, 0.2)" strokeWidth="1" />
-            <line x1="50" y1="2" x2="50" y2="10" stroke="rgba(52, 211, 153, 0.6)" strokeWidth="2" strokeLinecap="round" />
-            <line x1="50" y1="90" x2="50" y2="98" stroke="rgba(52, 211, 153, 0.6)" strokeWidth="2" strokeLinecap="round" />
-            <line x1="2" y1="50" x2="10" y2="50" stroke="rgba(52, 211, 153, 0.6)" strokeWidth="2" strokeLinecap="round" />
-            <line x1="90" y1="50" x2="98" y2="50" stroke="rgba(52, 211, 153, 0.6)" strokeWidth="2" strokeLinecap="round" />
-          </svg>
-          <span className="absolute font-mono text-3xl font-extrabold tracking-tight text-white drop-shadow-[0_0_12px_rgba(16,185,129,0.7)]">404</span>
+        {/* Minimal Characterful Document Graphic */}
+        <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-surface border border-border text-foreground shadow-2xs">
+          <BookOpen className="h-8 w-8 text-primary" />
         </div>
 
-        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white mb-2 bg-gradient-to-r from-white via-slate-100 to-emerald-200 bg-clip-text text-transparent">
-          Academic Material Not Found
-        </h1>
-        <p className="text-slate-300 max-w-md mx-auto text-xs sm:text-sm leading-relaxed mb-6 font-normal">
-          The Requested Study Note, Syllabus Unit, Or Past Question Paper Could Not Be Located In This Directory.
-        </p>
+        {/* Headline & Description */}
+        <div className="space-y-2">
+          <h1 className="font-display text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+            Academic Courseware Not Found
+          </h1>
+          <p className="text-xs sm:text-sm text-muted-foreground max-w-md mx-auto leading-relaxed">
+            The lecture notes, syllabus unit, or past question paper you requested does not exist at this address or may have been reorganized in the semester courseware repository.
+          </p>
+        </div>
 
         {/* Live Search Input */}
-        <form onSubmit={handleSearch} className="max-w-md mx-auto mb-5 relative">
+        <form onSubmit={handleSearch} className="max-w-md mx-auto relative">
+          <Search className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search 200+ Notes, Solved PYQs, Lab Manuals..."
-            className="w-full pl-4 pr-24 py-2.5 rounded-xl border border-emerald-500/30 bg-black/50 text-xs sm:text-sm text-white placeholder-slate-400 focus:outline-none focus:border-emerald-400 shadow-inner"
+            placeholder="Search Handwritten Notes, Solved PYQs, Lab Manuals..."
+            className="w-full pl-10 pr-24 py-2.5 rounded-xl border border-border bg-background text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary transition-colors shadow-2xs"
           />
           <button
             type="submit"
-            className="absolute right-1.5 top-1.5 bottom-1.5 px-3.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
+            className="absolute right-1.5 top-1.5 bottom-1.5 px-3.5 rounded-lg bg-primary hover:bg-primary-deep text-primary-foreground font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-xs active:scale-95"
           >
-            <Search className="h-3.5 w-3.5" />
             <span>Search</span>
           </button>
         </form>
 
         {/* Quick Academic Hub Shortcuts */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mb-6 text-xs">
-          <a href="/?tab=notes" className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-emerald-500/15 border border-white/10 hover:border-emerald-500/40 text-slate-300 hover:text-emerald-300 font-semibold transition-all">
-            <FileText className="h-3 w-3 text-emerald-400" />
-            Handwritten Notes
-          </a>
-          <a href="/?tab=syllabus" className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-emerald-500/15 border border-white/10 hover:border-emerald-500/40 text-slate-300 hover:text-emerald-300 font-semibold transition-all">
-            <BookOpen className="h-3 w-3 text-cyan-400" />
-            Syllabus
-          </a>
-          <a href="/?tab=pyqs" className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-emerald-500/15 border border-white/10 hover:border-emerald-500/40 text-slate-300 hover:text-emerald-300 font-semibold transition-all">
-            <Target className="h-3 w-3 text-amber-400" />
-            Solved PYQs
-          </a>
-          <a href="/?tab=labs" className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-emerald-500/15 border border-white/10 hover:border-emerald-500/40 text-slate-300 hover:text-emerald-300 font-semibold transition-all">
-            <FlaskConical className="h-3 w-3 text-purple-400" />
-            Lab Codes &amp; Viva
-          </a>
-          <a href="/?tab=timetable" className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-emerald-500/15 border border-white/10 hover:border-emerald-500/40 text-slate-300 hover:text-emerald-300 font-semibold transition-all">
-            <Calendar className="h-3 w-3 text-rose-400" />
-            Timetable
-          </a>
+        <div className="pt-2">
+          <span className="text-[0.68rem] font-bold text-muted-foreground uppercase tracking-wider block mb-2.5">
+            Quick Academic Repositories
+          </span>
+          <div className="flex flex-wrap items-center justify-center gap-2 text-xs">
+            <a
+              href="/?tab=notes"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface hover:bg-muted border border-border text-foreground font-semibold transition-all shadow-2xs"
+            >
+              <FileText className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" />
+              <span>Handwritten Notes</span>
+            </a>
+            <a
+              href="/?tab=syllabus"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface hover:bg-muted border border-border text-foreground font-semibold transition-all shadow-2xs"
+            >
+              <BookOpen className="h-3.5 w-3.5 text-cyan-600 dark:text-cyan-400" />
+              <span>Official Syllabus</span>
+            </a>
+            <a
+              href="/?tab=pyqs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface hover:bg-muted border border-border text-foreground font-semibold transition-all shadow-2xs"
+            >
+              <Target className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400" />
+              <span>Solved PYQs</span>
+            </a>
+            <a
+              href="/?tab=labs"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface hover:bg-muted border border-border text-foreground font-semibold transition-all shadow-2xs"
+            >
+              <FlaskConical className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400" />
+              <span>Lab Manuals</span>
+            </a>
+            <a
+              href="/?tab=timetable"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface hover:bg-muted border border-border text-foreground font-semibold transition-all shadow-2xs"
+            >
+              <Calendar className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400" />
+              <span>Timetable</span>
+            </a>
+          </div>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex flex-wrap items-center justify-center gap-3 mb-6">
+        <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
           <Link
             to="/"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-700 px-6 py-2.5 text-sm font-bold text-white shadow-lg shadow-emerald-900/30 transition-all hover:from-emerald-500 hover:to-emerald-600 border border-emerald-400/20 cursor-pointer"
+            className="inline-flex items-center justify-center gap-2 rounded-xl bg-primary hover:bg-primary-deep text-primary-foreground px-5 py-2.5 text-xs sm:text-sm font-bold shadow-sm transition-all active:scale-95 cursor-pointer"
           >
             <Home className="h-4 w-4" />
-            Return To SaastaScholar
+            <span>Return To Study Workspace</span>
           </Link>
           <button
             type="button"
-            onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = "/"}
-            className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/15 bg-white/[0.05] hover:bg-white/10 px-5 py-2.5 text-sm font-semibold text-slate-200 transition-all cursor-pointer"
+            onClick={() => (window.history.length > 1 ? window.history.back() : (window.location.href = "/"))}
+            className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-surface hover:bg-muted text-foreground px-4 py-2.5 text-xs sm:text-sm font-semibold transition-all active:scale-95 cursor-pointer shadow-2xs"
           >
             <ArrowLeft className="h-4 w-4" />
-            Go Back
+            <span>Go Back</span>
           </button>
         </div>
 
-        {/* Telemetry Diagnostics Strip */}
-        <div className="rounded-xl border border-white/[0.08] bg-black/40 p-3 mb-6 font-mono text-[0.7rem] text-slate-400 flex flex-wrap items-center justify-around gap-2 text-left">
-          <div>Status: <span className="text-emerald-400 font-bold">404 NOT_FOUND</span></div>
-          <div>Gateway: <span className="text-slate-200 font-bold">Nginx Gateway</span></div>
-          <div>Health: <span className="text-emerald-400 font-bold">● Systems Operational</span></div>
-        </div>
-
-        {/* Legal & Compliance Quick Bar in 404 */}
-        <div className="pt-5 border-t border-white/[0.08] text-xs">
-          <div className="text-[0.7rem] font-bold text-emerald-400 uppercase tracking-wider mb-2 flex items-center justify-center gap-1.5">
-            <ShieldCheck className="h-3.5 w-3.5" />
-            SaastaScholar Legal &amp; Compliance Hub
-          </div>
-          <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[0.72rem] text-slate-400">
-            <button type="button" onClick={() => openPolicy("gdpr-dpdp")} className="hover:text-emerald-300 underline cursor-pointer">GDPR &amp; DPDP</button>
+        {/* Statutory Brand & Compliance Note */}
+        <div className="pt-4 border-t border-border/80 text-center space-y-1">
+          <p className="text-[0.68rem] text-muted-foreground">
+            © {new Date().getFullYear()} <strong>SaastaScholar™</strong> · A DurgaAI Solutions Academic Innovation. All Rights Reserved.
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-x-2.5 gap-y-1 text-[0.68rem] text-muted-foreground/80">
+            <button type="button" onClick={() => openPolicy("gdpr-dpdp")} className="hover:text-foreground underline cursor-pointer">DPDP Act (2023)</button>
             <span>•</span>
-            <button type="button" onClick={() => { window.dispatchEvent(new CustomEvent("open_cookie_preferences")); }} className="hover:text-emerald-300 underline cursor-pointer">Cookie Consent</button>
+            <button type="button" onClick={() => openPolicy("payment-terms")} className="hover:text-foreground underline cursor-pointer">Student Terms</button>
             <span>•</span>
-            <button type="button" onClick={() => openPolicy("marketing-consent")} className="hover:text-emerald-300 underline cursor-pointer">Marketing Consent</button>
-            <span>•</span>
-            <button type="button" onClick={() => openPolicy("data-deletion")} className="hover:text-emerald-300 underline cursor-pointer">Data Deletion</button>
-            <span>•</span>
-            <button type="button" onClick={() => openPolicy("data-retention")} className="hover:text-emerald-300 underline cursor-pointer">Data Retention</button>
-            <span>•</span>
-            <button type="button" onClick={() => openPolicy("dpa")} className="hover:text-emerald-300 underline cursor-pointer">DPA</button>
-            <span>•</span>
-            <button type="button" onClick={() => openPolicy("third-party")} className="hover:text-emerald-300 underline cursor-pointer">Sub-Processors</button>
-            <span>•</span>
-            <button type="button" onClick={() => openPolicy("ip-policy")} className="hover:text-emerald-300 underline cursor-pointer">IP &amp; Fair Use</button>
-            <span>•</span>
-            <button type="button" onClick={() => openPolicy("payment-terms")} className="hover:text-emerald-300 underline cursor-pointer">Subscriptions</button>
-            <span>•</span>
-            <button type="button" onClick={() => openPolicy("refund-policy")} className="hover:text-emerald-300 underline cursor-pointer">Refund Policy</button>
-            <span>•</span>
-            <button type="button" onClick={() => openPolicy("cancellation-policy")} className="hover:text-emerald-300 underline cursor-pointer">Cancellation Policy</button>
-          </div>
-          <div className="mt-4 text-[0.68rem] text-white/40">
-            SaastaScholar • Owned &amp; Engineered By <strong className="text-emerald-400 font-semibold">DurgaAI Solutions</strong>
+            <button type="button" onClick={() => openPolicy("data-retention")} className="hover:text-foreground underline cursor-pointer">Privacy Policy</button>
           </div>
         </div>
       </div>
