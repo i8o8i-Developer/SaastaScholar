@@ -632,7 +632,11 @@ export function AdminPortal() {
       setTimetableSlots(extractArray<TimetableSlot>(timesRes));
       setMilestones(extractArray<MilestoneCountdown>(milesRes));
       setNotices(extractArray<DepartmentNotice>(noticesRes));
-      setStudents(extractArray<StudentUser>(usersRes));
+      setStudents(
+        extractArray<StudentUser>(usersRes).filter(
+          (stu) => !stu.is_staff && !stu.is_superuser && !stu.admin_role && !(stu as any).admin_role_id
+        )
+      );
       setAuditLogs(extractArray<AdminAuditLog>(auditRes));
       setDrmIncidents(extractArray<DrmSecurityIncident>(incidentsRes));
       setBanners(extractArray<SiteBanner>(bannersRes));
@@ -1168,8 +1172,9 @@ export function AdminPortal() {
     return true;
   });
 
-  // Filtered Students with Search Support
+  // Filtered Students with Search Support (Strictly Excludes Staff & Admin Accounts)
   const filteredStudents = students.filter((stu) => {
+    if (stu.is_staff || stu.is_superuser || stu.admin_role || (stu as any).admin_role_id) return false;
     if (selectedDeptId && stu.department) {
       const deptObj = departments.find((d) => d.id === selectedDeptId);
       if (deptObj && stu.department !== deptObj.name && stu.department !== deptObj.code && stu.department !== deptObj.id) return false;
@@ -3114,7 +3119,7 @@ export function AdminPortal() {
               </span>
               <h3 className="text-xl font-bold text-foreground">Administrative Clearance Required</h3>
               <p className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed">
-                Your assigned administrative role ({user?.admin_role_name || "Restricted Staff"}) does not possess clearance to view or manage this station. Please contact the Super Administrator if you require elevated privileges.
+                Your Assigned Administrative Role ({user?.admin_role_name || "Restricted Staff"}) Does Not Possess Clearance To View Or Manage This Station. Please Contact The Super Administrator If You Require Elevated Privileges.
               </p>
             </div>
           ) : (

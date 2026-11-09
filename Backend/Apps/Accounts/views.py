@@ -1131,8 +1131,20 @@ def seed_default_roles_if_empty():
             if not created and not role.permissions:
                 role.permissions = role_data["permissions"]
                 role.save(update_fields=["permissions"])
+
+        StudentUser.objects.filter(
+            Q(is_staff=True) | Q(is_superuser=True) | Q(admin_role__isnull=False)
+        ).update(
+            university="Office Of Academic Governance",
+            department="Institutional Administration",
+            program="Administrative Staff",
+            semester=0,
+            section="ADMIN",
+            roll_number="",
+            enrollment_no="",
+        )
     except Exception as e:
-        logger.warning(f"Role seeding encountered non-fatal error: {e}")
+        logger.warning(f"Role Seeding Encountered Non-Fatal Error: {e}")
 
 class AdminRolesListView(APIView):
     """Lists All Configured Roles And Allows Superadmins To Define New Granular Roles."""
@@ -1276,6 +1288,14 @@ class AdminStaffUsersListView(APIView):
             is_active=True,
             is_verified=True,
             admin_role=admin_role,
+            university="Office Of Academic Governance",
+            department="Institutional Administration",
+            program="Administrative Staff",
+            semester=0,
+            section="ADMIN",
+            roll_number="",
+            enrollment_no="",
+            access_tier="ELITE_PLUS",
         )
         user.set_password(password)
         user.save()

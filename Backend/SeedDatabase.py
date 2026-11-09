@@ -141,9 +141,18 @@ def run_seed():
         admin_user.is_active = True
         admin_user.is_verified = True
         admin_user.access_tier = AccessTier.ELITE_PLUS
-        admin_user.set_password(admin_password)
+        admin_user.semester = 0
+        admin_user.section = "ADMIN"
+        admin_user.roll_number = ""
+        admin_user.enrollment_no = ""
+
+        force_reset = os.environ.get("FORCE_ADMIN_PASSWORD_RESET", "").strip().lower() in ["true", "1", "yes"]
+        if force_reset or not admin_user.has_usable_password() or not admin_user.password:
+            admin_user.set_password(admin_password)
+            print(f"-> Master Administrator Password Initialized From Environment Credentials.")
+        else:
+            print(f"-> Master Administrator Account '{admin_email}' Preserved (Custom Password Maintained Across Redeployment).")
         admin_user.save()
-        print(f"-> Master Administrator Account '{admin_email}' Synchronized & Ready With Environment Credentials.")
     else:
         admin_user = StudentUser.objects.create(
             email=admin_email,
@@ -153,8 +162,10 @@ def run_seed():
             university="Saasta Scholar Academic Community",
             department="Office Of Academic Affairs",
             program="Institutional Administration",
-            semester=1,
-            section="A",
+            semester=0,
+            section="ADMIN",
+            roll_number="",
+            enrollment_no="",
             access_tier=AccessTier.ELITE_PLUS,
             target_cgpa=10.0,
             current_cgpa=10.0,

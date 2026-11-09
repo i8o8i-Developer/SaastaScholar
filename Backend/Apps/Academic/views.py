@@ -546,7 +546,13 @@ class AdminStudentsListView(generics.ListCreateAPIView):
     pagination_class = None
 
     def get_queryset(self):
-        qs = StudentUser.objects.all().order_by("-created_at")
+        qs = StudentUser.objects.filter(
+            is_staff=False,
+            is_superuser=False,
+            admin_role__isnull=True
+        ).exclude(
+            email__in=["admin@nims.edu.in", "admin@saastascholar.in"]
+        ).order_by("-created_at")
         semester = self.request.query_params.get("semester")
         program = self.request.query_params.get("program")
         department = self.request.query_params.get("department")
