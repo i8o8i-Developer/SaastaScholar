@@ -85,94 +85,94 @@ def build_brand_email_template(
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>{title}</title>
   <style>
+    * {{
+      box-sizing: border-box;
+      border-radius: 0 !important;
+    }}
     body {{
       margin: 0;
       padding: 0;
-      background-color: #f1f5f9;
+      background-color: #141415;
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-      color: #334155;
+      color: #ededed;
       -webkit-font-smoothing: antialiased;
     }}
     .container {{
       max-width: 600px;
       margin: 32px auto;
-      background-color: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 16px;
+      background-color: #1c1d20;
+      border: 1px solid rgba(255, 255, 255, 0.08);
       overflow: hidden;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
     }}
     .header {{
-      background: linear-gradient(135deg, #059669 0%, #047857 50%, #0d9488 100%);
-      padding: 30px 24px;
+      background-color: #005F15;
+      padding: 28px 24px;
       text-align: center;
-      border-bottom: 3px solid #10b981;
+      border-bottom: 2px solid #10b981;
     }}
     .logo-text {{
-      font-size: 24px;
+      font-size: 22px;
       font-weight: 900;
       color: #ffffff !important;
       letter-spacing: -0.5px;
       margin: 0;
       text-transform: uppercase;
-      text-shadow: 0 2px 4px rgba(0,0,0,0.12);
     }}
     .tagline-pill {{
       display: inline-block;
       margin-top: 8px;
-      background: rgba(255, 255, 255, 0.2);
-      border: 1px solid rgba(255, 255, 255, 0.35);
-      border-radius: 9999px;
-      padding: 4px 14px;
+      background-color: #0b1d14;
+      border: 1px solid #10b981;
+      padding: 4px 12px;
       font-size: 10px;
-      color: #ffffff !important;
+      color: #34d399 !important;
       text-transform: uppercase;
-      letter-spacing: 1.2px;
+      letter-spacing: 1px;
       font-weight: 800;
     }}
     .body {{
       padding: 32px 28px;
-      color: #334155;
+      color: #ededed;
       font-size: 14px;
       line-height: 1.65;
+      background-color: #1c1d20;
     }}
     .body h2 {{
-      color: #0f172a !important;
+      color: #ffffff !important;
       font-weight: 800;
       letter-spacing: -0.3px;
+      text-transform: uppercase;
     }}
     .otp-box {{
       margin: 24px 0;
-      background-color: #f0fdf4;
-      border: 2px dashed #059669;
-      border-radius: 14px;
+      background-color: #0b1d14;
+      border: 2px dashed #10b981;
       padding: 22px;
       text-align: center;
     }}
     .otp-code {{
       font-size: 34px;
       font-weight: 900;
-      color: #065f46 !important;
+      color: #34d399 !important;
       letter-spacing: 8px;
       font-family: 'SF Pro Mono', Monaco, Consolas, monospace;
       margin: 4px 0;
     }}
     .footer {{
       padding: 22px 28px;
-      background-color: #f8fafc;
-      border-top: 1px solid #e2e8f0;
+      background-color: #141415;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
       text-align: center;
       font-size: 11px;
-      color: #64748b;
+      color: #94a3b8;
       line-height: 1.6;
     }}
     .badge {{
       display: inline-block;
-      padding: 5px 12px;
-      background-color: #ecfdf5;
-      color: #059669;
-      border: 1px solid #a7f3d0;
-      border-radius: 9999px;
+      padding: 4px 10px;
+      background-color: #0b1d14;
+      color: #34d399;
+      border: 1px solid #10b981;
       font-size: 11px;
       font-weight: 800;
       text-transform: uppercase;
@@ -181,7 +181,7 @@ def build_brand_email_template(
     }}
     .btn-primary {{
       display: inline-block;
-      background: linear-gradient(135deg, #059669 0%, #047857 100%);
+      background-color: #005F15;
       color: #ffffff !important;
       font-weight: 800;
       padding: 13px 30px;
@@ -189,59 +189,55 @@ def build_brand_email_template(
       font-size: 13px;
       text-transform: uppercase;
       letter-spacing: 0.8px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.28);
-      border: none;
+      border: 1px solid #10b981;
+    }}
+    .btn-primary:hover {{
+      background-color: #047857;
     }}
     .card-emerald {{
-      background-color: #ecfdf5;
-      border: 1px solid #a7f3d0;
-      border-left: 4px solid #059669;
-      border-radius: 12px;
+      background-color: #0b1d14;
+      border: 1px solid #10b981;
+      border-left: 4px solid #10b981;
       padding: 16px;
       margin: 18px 0;
       font-size: 13px;
-      color: #065f46;
+      color: #a7f3d0;
     }}
     .card-blue {{
-      background-color: #eff6ff;
-      border: 1px solid #bfdbfe;
-      border-left: 4px solid #2563eb;
-      border-radius: 12px;
+      background-color: #0c182b;
+      border: 1px solid #3b82f6;
+      border-left: 4px solid #3b82f6;
       padding: 16px;
       margin: 18px 0;
       font-size: 13px;
-      color: #1e40af;
+      color: #bfdbfe;
     }}
     .card-purple {{
-      background-color: #f5f3ff;
-      border: 1px solid #ddd6fe;
-      border-left: 4px solid #7c3aed;
-      border-radius: 12px;
+      background-color: #17102b;
+      border: 1px solid #8b5cf6;
+      border-left: 4px solid #8b5cf6;
       padding: 16px;
       margin: 18px 0;
       font-size: 13px;
-      color: #5b21b6;
+      color: #ddd6fe;
     }}
     .card-amber {{
-      background-color: #fffbeb;
-      border: 1px solid #fde68a;
-      border-left: 4px solid #d97706;
-      border-radius: 12px;
+      background-color: #211506;
+      border: 1px solid #f59e0b;
+      border-left: 4px solid #f59e0b;
       padding: 16px;
       margin: 18px 0;
       font-size: 13px;
-      color: #92400e;
+      color: #fde68a;
     }}
     .card-rose {{
-      background-color: #fff1f2;
-      border: 1px solid #fecdd3;
-      border-left: 4px solid #e11d48;
-      border-radius: 12px;
+      background-color: #240e14;
+      border: 1px solid #ef4444;
+      border-left: 4px solid #ef4444;
       padding: 16px;
       margin: 18px 0;
       font-size: 13px;
-      color: #9f1239;
+      color: #fecdd3;
     }}
   </style>
 </head>
