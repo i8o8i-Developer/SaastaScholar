@@ -308,7 +308,7 @@ export function AssignmentsTracker() {
                   type="text"
                   value={aiTopic}
                   onChange={(e) => setAiTopic(e.target.value)}
-                  placeholder="e.g.  Heuristic Search Algorithms & a* Admissibility Proofs"
+                  placeholder="Enter Assignment Title (e.g. Heuristic Search Algorithms & A* Admissibility Proofs)"
                   required
                   className="h-10 w-full rounded-2xl border border-border bg-background px-3 focus:border-primary focus:outline-none"
                 />

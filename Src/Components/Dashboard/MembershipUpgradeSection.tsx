@@ -392,11 +392,11 @@ export function MembershipUpgradeSection({
                 plan.tier !== "FREE" || isPaidScholar ? "cursor-pointer" : "opacity-90 cursor-default",
                 isSelected
                   ? isDowngrade
-                    ? "border-amber-500 bg-amber-500/5 shadow-lg ring-2 ring-amber-500/40 -translate-y-0.5"
-                    : "border-primary bg-primary/5 shadow-lg ring-2 ring-primary/40 -translate-y-0.5"
+                    ? "border-amber-500/50 bg-amber-500/[0.04] shadow-md ring-1 ring-amber-500/30 -translate-y-0.5"
+                    : "border-primary bg-primary/[0.04] shadow-md ring-1 ring-primary/30 -translate-y-0.5"
                   : isDowngrade && isElite
-                  ? "border-border/80 bg-card hover:border-amber-500/40 hover:shadow-sm"
-                  : "border-border/80 bg-card hover:border-border hover:shadow-sm",
+                  ? "border-border/80 bg-card hover:border-amber-500/40 hover:shadow-xs"
+                  : "border-border/80 bg-card hover:border-border hover:shadow-xs",
                 plan.popular && !isSelected && !isElite && "border-primary/40"
               )}
             >
@@ -413,7 +413,7 @@ export function MembershipUpgradeSection({
                     <CheckCircle2
                       className={cn(
                         "h-4 w-4 shrink-0",
-                        isDowngrade ? "text-amber-500" : "text-primary"
+                        isDowngrade ? "text-amber-400" : "text-primary"
                       )}
                     />
                   )}
@@ -443,7 +443,7 @@ export function MembershipUpgradeSection({
 
               <div className="mt-5 pt-3 border-t border-border/60">
                 {isCurrent ? (
-                  <div className="w-full rounded-xl border border-emerald-500/40 bg-emerald-500/10 py-2 text-center text-xs font-bold text-emerald-500">
+                  <div className="w-full rounded-xl border border-emerald-500/30 bg-emerald-500/10 py-2 text-center text-xs font-bold text-emerald-400">
                     Active Pass
                   </div>
                 ) : plan.tier === "FREE" && isPaidScholar ? (
@@ -453,7 +453,7 @@ export function MembershipUpgradeSection({
                       e.stopPropagation();
                       setCancelModalOpen(true);
                     }}
-                    className="w-full rounded-xl py-2 text-xs font-bold border border-rose-500/40 bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 transition-all cursor-pointer shadow-2xs active:scale-95 flex items-center justify-center gap-1.5"
+                    className="w-full rounded-xl py-2 text-xs font-bold border border-rose-500/30 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 transition-all cursor-pointer shadow-2xs active:scale-95 flex items-center justify-center gap-1.5"
                   >
                     <ArrowDownCircle className="h-3.5 w-3.5 shrink-0" />
                     <span>Cancel / Downgrade To Free</span>
@@ -475,8 +475,8 @@ export function MembershipUpgradeSection({
                     className={cn(
                       "w-full rounded-xl py-2 text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95 flex items-center justify-center gap-1.5",
                       isSelected
-                        ? "bg-amber-500 text-white hover:bg-amber-600 shadow-amber-500/25"
-                        : "border border-amber-500/40 bg-amber-500/10 text-amber-700 dark:text-amber-300 hover:bg-amber-500/20"
+                        ? "bg-amber-500/20 text-amber-300 border border-amber-500/40"
+                        : "border border-border/80 bg-surface/60 text-muted-foreground hover:text-foreground hover:bg-surface"
                     )}
                   >
                     <ArrowDownCircle className="h-3.5 w-3.5 shrink-0" />
@@ -497,8 +497,8 @@ export function MembershipUpgradeSection({
                     className={cn(
                       "w-full rounded-xl py-2 text-xs font-bold transition-all cursor-pointer shadow-xs active:scale-95",
                       isSelected
-                        ? "bg-primary text-primary-foreground hover:bg-primary-deep"
-                        : "border border-border bg-card text-foreground hover:bg-muted"
+                        ? "bg-primary text-zinc-950 font-bold hover:bg-emerald-500"
+                        : "border border-border/80 bg-surface/60 text-foreground hover:bg-surface"
                     )}
                   >
                     {isSelected ? "Selected" : "Select Plan"}
@@ -510,63 +510,65 @@ export function MembershipUpgradeSection({
         })}
       </div>
 
-      {/* Checkout & Action Section For Selected Plan */}
+      {/* Checkout & Action Section For Selected Plan - Wide, Responsive, High Contrast Graphite */}
       {selectedPlan ? (
         <div
           id="checkout-summary-section"
           className={cn(
-            "mx-auto max-w-2xl overflow-hidden rounded-2xl sm:rounded-3xl border p-4 sm:p-5 shadow-xl backdrop-blur-xl space-y-3.5 animate-in fade-in slide-in-from-bottom-3 duration-300",
-            isDowngradeSelected ? "border-amber-500/40 bg-card/95" : "border-primary/35 bg-card/95"
+            "mx-auto w-full max-w-3xl overflow-hidden rounded-2xl sm:rounded-3xl border p-4 sm:p-6 shadow-xl backdrop-blur-xl space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300",
+            isDowngradeSelected
+              ? "border-amber-500/30 bg-[#18191d]"
+              : "border-white/[0.08] bg-[#18191d]"
           )}
         >
           {/* Top Bar: Plan Info & Base Price */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2.5 border-b border-border/80">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 border-b border-white/[0.08]">
             <div className="min-w-0">
               <div className="flex items-center gap-1.5">
                 <span
                   className={cn(
-                    "rounded-full border px-2 py-0.5 text-[0.62rem] font-bold uppercase tracking-wider",
+                    "rounded-full border px-2.5 py-0.5 text-[0.62rem] font-bold uppercase tracking-wider",
                     isDowngradeSelected
-                      ? "bg-amber-500/15 border-amber-500/30 text-amber-600 dark:text-amber-400"
-                      : "bg-primary/10 border-primary/25 text-primary"
+                      ? "bg-amber-500/15 border-amber-500/30 text-amber-300"
+                      : "bg-emerald-500/15 border-emerald-500/30 text-emerald-400"
                   )}
                 >
                   {isDowngradeSelected ? "Plan Downgrade" : "Step 2 · Checkout"}
                 </span>
-                <span className="rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30 px-2 py-0.5 text-[0.62rem] font-bold">
+                <span className="rounded-full bg-white/[0.04] text-zinc-300 border border-white/[0.08] px-2 py-0.5 text-[0.62rem] font-bold">
                   {selectedPlan.tier}
                 </span>
               </div>
-              <h3 className="text-sm sm:text-base font-black text-foreground mt-0.5 leading-snug">
+              <h3 className="text-sm sm:text-base font-bold text-white mt-1 leading-snug">
                 {isDowngradeSelected ? `Downgrade To ${selectedPlan.name}` : selectedPlan.name} · {billingCycle === "semester" ? "Semester Pass (180 Days)" : "Monthly Pass (30 Days)"}
               </h3>
               {isDowngradeSelected && (
-                <p className="text-[0.68rem] text-muted-foreground mt-0.5">
-                  You are downgrading from your current {currentTier} Scholar tier to {selectedPlan.name}. You can apply the instant downgrade or renew via Razorpay.
+                <p className="text-xs text-zinc-400 mt-1">
+                  You Are Downgrading From Your Current {currentTier} Scholar Tier To {selectedPlan.name}. You Can Apply The Instant Downgrade Or Renew Via Razorpay.
                 </p>
               )}
             </div>
             <div className="flex items-baseline gap-1.5 sm:text-right shrink-0">
-              <span className="text-[0.68rem] text-muted-foreground uppercase font-bold">Standard:</span>
-              <span className="text-base font-mono font-bold text-foreground">₹{basePrice}</span>
+              <span className="text-[0.68rem] text-zinc-400 uppercase font-bold">Standard:</span>
+              <span className="text-base font-mono font-bold text-white">₹{basePrice}</span>
             </div>
           </div>
 
           {/* Compact Inline Coupon Box */}
-          <div className="rounded-xl border border-border/70 bg-surface/50 p-2.5 sm:p-3 space-y-2">
+          <div className="rounded-xl border border-white/[0.08] bg-[#121316] p-3 space-y-2">
             {appliedCoupon ? (
               <div className="flex items-center justify-between gap-2 text-xs">
                 <div className="flex items-center gap-2 min-w-0">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
-                  <span className="font-mono font-black text-foreground text-xs">{appliedCoupon.code}</span>
-                  <span className="rounded-md bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold text-[0.65rem] px-1.5 py-0.5 truncate">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
+                  <span className="font-mono font-bold text-white text-xs">{appliedCoupon.code}</span>
+                  <span className="rounded-lg bg-emerald-500/15 text-emerald-400 font-bold text-[0.65rem] px-2 py-0.5 truncate border border-emerald-500/20">
                     {appliedCoupon.discount_percent > 0 ? `${appliedCoupon.discount_percent}% OFF` : `₹${appliedCoupon.discount_amount_inr} OFF`}
                   </span>
                 </div>
                 <button
                   type="button"
                   onClick={handleRemoveCoupon}
-                  className="text-xs font-bold text-rose-500 hover:text-rose-400 cursor-pointer shrink-0 underline"
+                  className="text-xs font-bold text-rose-400 hover:text-rose-300 cursor-pointer shrink-0 underline"
                 >
                   Remove
                 </button>
@@ -574,20 +576,20 @@ export function MembershipUpgradeSection({
             ) : (
               <div className="flex items-center gap-2">
                 <div className="relative flex-1 min-w-0">
-                  <Tag className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                  <Tag className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-zinc-400" />
                   <input
                     type="text"
                     value={couponCode}
                     onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                    placeholder="Enter Promotional Voucher Code"
-                    className="h-9 w-full rounded-xl border border-border bg-card pr-3 pl-9 text-xs font-mono uppercase placeholder:normal-case placeholder:font-sans placeholder:text-muted-foreground/80 focus:border-primary focus:outline-none transition-colors"
+                    placeholder="Enter Promotional Voucher Code (e.g. SCHOLAR50)"
+                    className="h-9 w-full rounded-xl border border-white/[0.08] bg-[#18191d] pr-3 pl-9 text-xs font-mono uppercase text-white placeholder:normal-case placeholder:font-sans placeholder:text-zinc-500 focus:border-emerald-500/50 focus:outline-none transition-colors"
                   />
                 </div>
                 <button
                   type="button"
                   onClick={handleApplyCoupon}
                   disabled={couponLoading || !couponCode.trim()}
-                  className="h-9 px-4 rounded-xl bg-primary text-primary-foreground text-xs font-bold hover:bg-primary-deep transition-all disabled:opacity-50 cursor-pointer shrink-0 shadow-xs active:scale-95"
+                  className="h-9 px-4 rounded-xl bg-primary text-zinc-950 text-xs font-bold hover:bg-emerald-500 transition-all disabled:opacity-50 cursor-pointer shrink-0 shadow-sm active:scale-95"
                 >
                   {couponLoading ? "Applying..." : "Apply"}
                 </button>
@@ -595,31 +597,33 @@ export function MembershipUpgradeSection({
             )}
           </div>
 
-          {/* Action Buttons: Instant Downgrade or Payment / Checkout */}
-          <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 pt-0.5 min-w-0">
-            <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap shrink-0">
-              <span className="text-xs uppercase font-bold text-muted-foreground shrink-0">Total:</span>
+          {/* Action Buttons: Instant Downgrade or Payment / Checkout - Robust Unbroken Row */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 pt-1 border-t border-white/[0.06]">
+            {/* Total Section - ALWAYS On A Single Clean Row */}
+            <div className="flex items-baseline gap-2 whitespace-nowrap shrink-0">
+              <span className="text-xs uppercase font-bold text-zinc-400 tracking-wider">Total:</span>
               {appliedCoupon ? (
-                <div className="inline-flex items-baseline gap-1.5 whitespace-nowrap shrink-0">
-                  <span className="text-xs text-muted-foreground line-through font-mono">₹{basePrice}</span>
-                  <span className="text-xl sm:text-2xl font-black text-emerald-500 font-mono">₹{appliedCoupon.final_amount_inr}</span>
+                <div className="inline-flex items-baseline gap-2 whitespace-nowrap">
+                  <span className="text-xs text-zinc-500 line-through font-mono">₹{basePrice}</span>
+                  <span className="text-2xl font-black text-emerald-400 font-mono tracking-tight">₹{appliedCoupon.final_amount_inr}</span>
                 </div>
               ) : (
-                <span className="text-xl sm:text-2xl font-black text-foreground font-mono whitespace-nowrap shrink-0">₹{basePrice}</span>
+                <span className="text-2xl font-black text-white font-mono tracking-tight">₹{basePrice}</span>
               )}
-              <span className="text-[0.68rem] text-muted-foreground font-medium whitespace-nowrap shrink-0">(GST Included)</span>
+              <span className="text-[0.7rem] text-zinc-400 font-medium">(GST Included)</span>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2">
+            {/* Action Buttons */}
+            <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 justify-end">
               {isDowngradeSelected && (
                 <button
                   type="button"
                   onClick={() => handleInstantDowngrade(selectedPlan.tier)}
                   disabled={downgrading}
-                  className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-amber-500/50 bg-amber-500/10 text-amber-700 dark:text-amber-300 px-4 text-xs font-bold transition-all hover:bg-amber-500/20 active:scale-95 cursor-pointer disabled:opacity-60 whitespace-nowrap"
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-300 px-4 text-xs font-bold transition-all hover:bg-amber-500/20 active:scale-95 cursor-pointer disabled:opacity-60 whitespace-nowrap shadow-sm"
                 >
                   {downgrading ? (
-                    <span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-amber-500 border-t-transparent" />
+                    <span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-amber-400 border-t-transparent" />
                   ) : (
                     <ArrowDownCircle className="h-3.5 w-3.5 shrink-0" />
                   )}
@@ -632,22 +636,23 @@ export function MembershipUpgradeSection({
                 onClick={handleInitiateUpgrade}
                 disabled={upgrading}
                 className={cn(
-                  "inline-flex h-10 items-center justify-center gap-2 rounded-xl px-5 text-xs sm:text-sm font-bold shadow-md transition-all active:scale-95 disabled:opacity-60 cursor-pointer whitespace-nowrap",
+                  "inline-flex h-10 items-center justify-center gap-2 rounded-xl px-5 text-xs sm:text-sm font-bold shadow-sm transition-all active:scale-95 disabled:opacity-60 cursor-pointer whitespace-nowrap",
                   isDowngradeSelected
-                    ? "bg-amber-600 hover:bg-amber-700 text-white"
-                    : "bg-primary hover:bg-primary-deep text-primary-foreground"
+                    ? "bg-white/[0.08] hover:bg-white/[0.12] text-white border border-white/[0.1]"
+                    : "bg-primary hover:bg-emerald-500 text-zinc-950 font-bold"
                 )}
               >
                 {upgrading ? (
-                  <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+                  <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                 ) : (
                   <>
-                    <Sparkles className="h-3.5 w-3.5 shrink-0" />
+                    <Zap className="h-4 w-4 shrink-0" />
                     <span>
-                      {isDowngradeSelected ? "Renew At " : "Pay "}
-                      ₹{appliedCoupon ? appliedCoupon.final_amount_inr : basePrice} Via Razorpay
+                      {isDowngradeSelected
+                        ? `Renew At ₹${appliedCoupon ? appliedCoupon.final_amount_inr : basePrice} Via Razorpay`
+                        : `Upgrade Now · ₹${appliedCoupon ? appliedCoupon.final_amount_inr : basePrice}`}
                     </span>
-                    <ArrowRight className="h-3.5 w-3.5 shrink-0" />
+                    <ArrowRight className="h-4 w-4 shrink-0" />
                   </>
                 )}
               </button>
@@ -699,29 +704,29 @@ export function MembershipUpgradeSection({
         loading={invoiceLoading}
       />
 
-      {/* Cancellation / Revert to Free Confirmation Modal */}
+      {/* Cancellation / Revert to Free Confirmation Modal - Clean Graphite */}
       {cancelModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="w-full max-w-md rounded-2xl sm:rounded-3xl border border-rose-500/30 bg-card p-5 sm:p-6 shadow-2xl space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="w-full max-w-md rounded-3xl border border-white/[0.08] bg-[#18191d] p-5 sm:p-6 shadow-2xl space-y-4 text-slate-100">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-500">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 shrink-0">
                 <AlertTriangle className="h-5 w-5" />
               </div>
               <div>
-                <h3 className="font-bold text-sm sm:text-base text-foreground">
+                <h3 className="font-bold text-sm sm:text-base text-white">
                   Cancel {currentTier} Scholar Pass?
                 </h3>
-                <p className="text-xs text-muted-foreground">
-                  Revert your account to the Free Scholar plan.
+                <p className="text-xs text-zinc-400">
+                  Revert Your Account To The Free Scholar Plan.
                 </p>
               </div>
             </div>
 
-            <div className="rounded-xl border border-border/80 bg-surface/60 p-3.5 space-y-2 text-xs">
-              <p className="font-semibold text-foreground">
-                You will lose instant access to:
+            <div className="rounded-2xl border border-white/[0.06] bg-[#121316] p-3.5 space-y-2 text-xs">
+              <p className="font-bold text-zinc-300">
+                You Will Lose Instant Access To:
               </p>
-              <ul className="space-y-1 text-muted-foreground list-disc list-inside text-[0.7rem] sm:text-xs">
+              <ul className="space-y-1.5 text-zinc-400 list-disc list-inside text-xs">
                 <li>10-Year Solved University Examination Papers</li>
                 <li>Full Laboratory Manuals &amp; Viva Code Packets</li>
                 <li>Faculty Priority Academic Guidance &amp; Daily Model Solutions</li>
@@ -734,7 +739,7 @@ export function MembershipUpgradeSection({
                 type="button"
                 onClick={() => setCancelModalOpen(false)}
                 disabled={cancelling}
-                className="rounded-xl border border-border bg-surface px-4 py-2 text-xs font-bold text-foreground hover:bg-muted cursor-pointer transition-colors"
+                className="rounded-xl border border-white/[0.08] bg-white/[0.04] px-4 py-2 text-xs font-bold text-zinc-300 hover:bg-white/[0.08] hover:text-white cursor-pointer transition-colors"
               >
                 Keep My Active Pass
               </button>
@@ -742,14 +747,14 @@ export function MembershipUpgradeSection({
                 type="button"
                 onClick={handleConfirmCancelPlan}
                 disabled={cancelling}
-                className="rounded-xl bg-rose-600 hover:bg-rose-700 px-4 py-2 text-xs font-bold text-white shadow-md cursor-pointer transition-all active:scale-95 flex items-center gap-1.5 disabled:opacity-50"
+                className="rounded-xl bg-rose-600 hover:bg-rose-500 px-4 py-2 text-xs font-bold text-white shadow-sm cursor-pointer transition-all active:scale-95 flex items-center gap-1.5 disabled:opacity-50"
               >
                 {cancelling ? (
                   <span className="inline-block h-3.5 w-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
                 ) : (
                   <ArrowDownCircle className="h-3.5 w-3.5" />
                 )}
-                <span>Confirm Cancel Plan</span>
+                <span>Confirm Cancellation</span>
               </button>
             </div>
           </div>

@@ -382,47 +382,46 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
       )}
       {/* ================= ACCOUNT SECURITY LOCKDOWN OVERLAY ================= */}
       {isAccountBlocked && !isDrmDisabled && (
-        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/95 text-white p-6 text-center backdrop-blur-3xl animate-in fade-in select-none">
-          <div className="relative z-10 max-w-lg rounded-3xl border border-rose-500/50 bg-zinc-950/95 p-8 shadow-[0_0_80px_-15px_rgba(244,63,94,0.6)] backdrop-blur-2xl space-y-5">
-            <div className="relative mx-auto grid h-20 w-20 place-items-center rounded-3xl bg-rose-500/20 border border-rose-500/40 text-rose-500 shadow-inner">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-3xl bg-rose-500/25 opacity-75" />
-              <ShieldAlert className="h-10 w-10 text-rose-500" />
+        <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/90 text-white p-4 sm:p-6 text-center backdrop-blur-2xl animate-in fade-in select-none">
+          <div className="relative z-10 max-w-md w-full rounded-2xl sm:rounded-3xl border border-rose-500/20 bg-[#18191d] p-6 sm:p-8 shadow-2xl space-y-4">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400">
+              <ShieldAlert className="h-7 w-7 text-rose-400" />
             </div>
 
-            <div className="space-y-2">
-              <div className="inline-flex items-center gap-1.5 rounded-full border border-rose-500/40 bg-rose-500/20 px-3 py-1 text-xs font-bold text-rose-400">
+            <div className="space-y-1.5">
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-rose-500/20 bg-rose-500/10 px-2.5 py-0.5 text-[0.68rem] font-medium text-rose-400">
                 <AlertTriangle className="h-3.5 w-3.5" />
                 <span>Account Notice</span>
               </div>
 
-              <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
                 Reading Paused
               </h2>
 
-              <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-md mx-auto">
+              <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed max-w-sm mx-auto">
                 {blockReason || "Screen Capture Was Detected. Please Contact Platform Administrator Or Support To Continue Reading."}
               </p>
             </div>
 
-            <div className="rounded-2xl border border-rose-950 bg-rose-950/30 p-3.5 text-[0.7rem] font-mono text-zinc-400 space-y-1.5 text-left">
-              <div className="flex items-center justify-between text-rose-400 font-bold">
+            <div className="rounded-xl border border-white/[0.06] bg-[#141416] p-3 text-xs font-mono text-zinc-400 space-y-1.5 text-left">
+              <div className="flex items-center justify-between text-rose-400 font-semibold">
                 <span>Student Roll Number:</span>
                 <span>{user?.roll_number || payload.watermark.roll_number}</span>
               </div>
               <div className="flex items-center justify-between text-zinc-400">
                 <span>Notices:</span>
-                <span className="text-rose-400 font-bold">{violationsCount || 1}</span>
+                <span className="text-rose-400 font-semibold">{violationsCount || 1}</span>
               </div>
               <div className="flex items-center justify-between text-zinc-500">
                 <span>Status:</span>
-                <span className="text-rose-400 font-bold">Reader Temporarily Paused</span>
+                <span className="text-rose-400 font-semibold">Reader Temporarily Paused</span>
               </div>
             </div>
 
             <button
               type="button"
               onClick={onClose}
-              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl bg-rose-600 text-white font-bold text-xs shadow-lg transition-all hover:bg-rose-500 active:scale-95 cursor-pointer"
+              className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-bold text-xs shadow-sm transition-all active:scale-[0.98] cursor-pointer"
             >
               <span>Back To Study Dashboard</span>
               <ArrowRight className="h-4 w-4" />
@@ -435,7 +434,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
       {isScreenBlurred && !isAccountBlocked && !isDrmDisabled && (
         <div
           onClick={() => resumeReading()}
-          className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/95 text-white p-4 sm:p-6 text-center backdrop-blur-2xl animate-in fade-in duration-75 cursor-pointer select-none"
+          className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/90 text-white p-4 sm:p-6 text-center backdrop-blur-2xl animate-in fade-in duration-75 cursor-pointer select-none"
         >
           {/* Central Holographic Shield Card */}
           <div
@@ -443,25 +442,24 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
               e.stopPropagation();
               resumeReading();
             }}
-            className="relative z-10 max-w-lg w-full rounded-2xl sm:rounded-3xl border border-emerald-500/40 bg-zinc-900/95 p-5 sm:p-8 shadow-[0_0_60px_-15px_rgba(16,185,129,0.4)] backdrop-blur-xl space-y-4 sm:space-y-5"
+            className="relative z-10 max-w-md w-full rounded-2xl sm:rounded-3xl border border-white/[0.08] bg-[#18191d] p-6 sm:p-8 shadow-2xl space-y-4"
           >
-            {/* Animated Shield Radar Beacon */}
-            <div className="relative mx-auto grid h-14 w-14 sm:h-20 sm:w-20 place-items-center rounded-2xl sm:rounded-3xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 shadow-inner">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-2xl sm:rounded-3xl bg-emerald-400/20 opacity-75" />
-              <ShieldCheck className="h-7 w-7 sm:h-10 sm:w-10 text-emerald-400" />
+            {/* Shield Icon Container */}
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-white/[0.04] border border-white/[0.08] text-emerald-400">
+              <ShieldCheck className="h-7 w-7 text-emerald-400" />
             </div>
 
-            <div className="space-y-1.5 sm:space-y-2">
-              <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-3 py-0.5 text-xs font-bold text-emerald-300">
-                <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
+            <div className="space-y-1.5">
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-white/[0.08] bg-white/[0.04] px-2.5 py-0.5 text-[0.68rem] font-medium text-zinc-300">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
                 <span>Reading Paused</span>
               </div>
 
-              <h2 className="text-xl sm:text-3xl font-bold tracking-tight text-white">
+              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
                 Tap Anywhere To Keep Reading
               </h2>
 
-              <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-md mx-auto">
+              <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed max-w-sm mx-auto">
                 {isMobile
                   ? "Your Reading Was Paused. Tap The Button Below To Resume Reading Instantly."
                   : "Your Notes Are Safe. Click Anywhere On Screen To Jump Right Back In."}
@@ -469,14 +467,14 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
             </div>
 
             {/* Verification Chip */}
-            <div className="rounded-xl sm:rounded-2xl border border-zinc-800 bg-zinc-950/80 p-2.5 sm:p-3 text-[0.68rem] sm:text-[0.7rem] font-mono text-zinc-400 space-y-1">
-              <div className="flex items-center justify-between text-emerald-400 font-bold">
+            <div className="rounded-xl border border-white/[0.06] bg-[#141416] p-3 text-xs font-mono text-zinc-400 space-y-1.5 text-left">
+              <div className="flex items-center justify-between text-zinc-300">
                 <span>Student Roll No:</span>
-                <span>{user?.roll_number || payload.watermark.roll_number}</span>
+                <span className="text-white font-bold">{user?.roll_number || payload.watermark.roll_number}</span>
               </div>
               <div className="flex items-center justify-between text-zinc-500">
                 <span>Protected Reading:</span>
-                <span className="text-emerald-400 font-bold">Active &amp; Ready</span>
+                <span className="text-emerald-400 font-semibold">Active &amp; Ready</span>
               </div>
             </div>
 
@@ -484,7 +482,7 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
             <button
               type="button"
               onClick={() => resumeReading()}
-              className="inline-flex h-10 sm:h-11 w-full items-center justify-center gap-2 rounded-xl sm:rounded-2xl bg-emerald-500 text-zinc-950 font-bold text-xs shadow-lg transition-all hover:bg-emerald-400 active:scale-95 cursor-pointer"
+              className="inline-flex h-10 sm:h-11 w-full items-center justify-center gap-2 rounded-xl bg-primary hover:bg-emerald-500 text-zinc-950 font-bold text-xs shadow-sm transition-all active:scale-[0.98] cursor-pointer"
             >
               <span>Click To Resume Reading</span>
               <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
