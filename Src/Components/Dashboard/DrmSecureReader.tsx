@@ -165,13 +165,12 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
 
   // Auto-clear navigating direction when rendering completes or timeout occurs
   useEffect(() => {
-    if (navigatingDirection) {
-      const timer = setTimeout(() => {
-        setNavigatingDirection(null);
-        setIsPageRendering(false);
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
+    if (!navigatingDirection) return undefined;
+    const timer = setTimeout(() => {
+      setNavigatingDirection(null);
+      setIsPageRendering(false);
+    }, 2000);
+    return () => clearTimeout(timer);
   }, [navigatingDirection]);
 
   // Optional Fullscreen Study Sandbox
@@ -489,60 +488,6 @@ export function DrmSecureReader({ materialId, onClose }: DrmSecureReaderProps) {
             >
               <span>Click To Resume Reading</span>
               <ArrowRight className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-            </button>
-          </div>
-        </div>
-      )}
-          <div
-            onClick={(e) => {
-              e.stopPropagation();
-              resumeReading();
-            }}
-            className="relative z-10 max-w-lg rounded-3xl border border-emerald-500/40 bg-zinc-900/95 p-8 shadow-[0_0_60px_-15px_rgba(16,185,129,0.4)] backdrop-blur-xl space-y-5"
-          >
-            {/* Animated Shield Radar Beacon */}
-            <div className="relative mx-auto grid h-20 w-20 place-items-center rounded-3xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 shadow-inner">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-3xl bg-emerald-400/20 opacity-75" />
-              <ShieldCheck className="h-10 w-10 text-emerald-400" />
-            </div>
-
-            <div className="space-y-2">
-              <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/40 bg-emerald-500/15 px-3 py-1 text-xs font-bold text-emerald-300">
-                <Sparkles className="h-3.5 w-3.5" />
-                <span>Reading Paused</span>
-              </div>
-
-              <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
-                Tap Anywhere To Keep Reading
-              </h2>
-
-              <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed max-w-md mx-auto">
-                {isMobile
-                  ? "Your Reading Was Paused. Tap The Button Below To Resume Reading."
-                  : "Your Notes Are Safe. Click Anywhere On Screen To Jump Right Back In!"}
-              </p>
-            </div>
-
-            {/* Verification Chip */}
-            <div className="rounded-2xl border border-zinc-800 bg-zinc-950/80 p-3 text-[0.7rem] font-mono text-zinc-400 space-y-1">
-              <div className="flex items-center justify-between text-emerald-400 font-bold">
-                <span>Student Roll No:</span>
-                <span>{user?.roll_number || payload.watermark.roll_number}</span>
-              </div>
-              <div className="flex items-center justify-between text-zinc-500">
-                <span>Protected Reading:</span>
-                <span className="text-emerald-400 font-bold">Active &amp; Ready</span>
-              </div>
-            </div>
-
-            {/* Click To Resume CTA */}
-            <button
-              type="button"
-              onClick={() => resumeReading()}
-              className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl bg-emerald-500 text-zinc-950 font-bold text-xs shadow-lg transition-all hover:bg-emerald-400 active:scale-95 cursor-pointer"
-            >
-              <span>Click To Resume Reading</span>
-              <ArrowRight className="h-4 w-4" />
             </button>
           </div>
         </div>
