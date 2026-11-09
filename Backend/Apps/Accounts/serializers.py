@@ -1,12 +1,64 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import authenticate
-from .models import StudentUser, SecuritySession, AdminAuditLog
+from .models import StudentUser, SecuritySession, AdminAuditLog, AdminRole
+
+class AdminRoleSerializer(serializers.ModelSerializer):
+    users_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = AdminRole
+        fields = [
+            "id",
+            "name",
+            "description",
+            "is_system_role",
+            "permissions",
+            "users_count",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = ["id", "is_system_role", "created_at", "updated_at"]
+
+    def get_users_count(self, obj):
+        return obj.admin_users.count()
+
+class AdminStaffUserSerializer(serializers.ModelSerializer):
+    admin_role_name = serializers.CharField(source="admin_role.name", read_only=True)
+    admin_permissions = serializers.SerializerMethodField()
+
+    class Meta:
+        model = StudentUser
+        fields = [
+            "id",
+            "email",
+            "username",
+            "full_name",
+            "phone_number",
+            "is_staff",
+            "is_superuser",
+            "is_active",
+            "admin_role",
+            "admin_role_name",
+            "admin_permissions",
+            "created_at",
+            "last_login",
+        ]
+        read_only_fields = ["id", "created_at", "last_login", "admin_role_name", "admin_permissions"]
+
+    def get_admin_permissions(self, obj):
+        if obj.is_superuser:
+            return {"*": {"view": True, "manage": True, "delete": True, "security": True}}
+        if obj.admin_role:
+            return obj.admin_role.permissions
+        return {}
 
 class StudentUserSerializer(serializers.ModelSerializer):
     avatar_url = serializers.SerializerMethodField()
     active_sessions_count = serializers.SerializerMethodField()
     program_code = serializers.SerializerMethodField()
+    admin_role_name = serializers.CharField(source="admin_role.name", read_only=True)
+    admin_permissions = serializers.SerializerMethodField()
 
     class Meta:
         model = StudentUser
@@ -35,6 +87,9 @@ class StudentUserSerializer(serializers.ModelSerializer):
             "is_staff",
             "is_superuser",
             "is_active",
+            "admin_role",
+            "admin_role_name",
+            "admin_permissions",
             "is_drm_blocked",
             "is_login_blocked",
             "cooldown_until",
@@ -44,7 +99,14 @@ class StudentUserSerializer(serializers.ModelSerializer):
             "active_sessions_count",
             "created_at",
         ]
-        read_only_fields = ["id", "is_verified", "is_staff", "is_superuser", "created_at"]
+        read_only_fields = ["id", "is_verified", "is_staff", "is_superuser", "created_at", "admin_role_name", "admin_permissions"]
+
+    def get_admin_permissions(self, obj):
+        if obj.is_superuser:
+            return {"*": {"view": True, "manage": True, "delete": True, "security": True}}
+        if obj.admin_role:
+            return obj.admin_role.permissions
+        return {}
 
     def get_avatar_url(self, obj):
         if obj.avatar_image:
@@ -216,6 +278,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         is_admin_user = bool(
             self.user.is_staff or 
             self.user.is_superuser or 
+            getattr(self.user, "admin_role_id", None) is not None or
             getattr(self.user, "email", "") == "admin@nims.edu.in"
         )
 

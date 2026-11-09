@@ -1294,17 +1294,17 @@ def send_drm_warning_email(
 
 Hello {full_name},
 
-A copy protection violation was detected on your scholar account:
+A Copy Protection Violation Was Detected On Your Scholar Account:
 - Incident Timestamp: {now_str}
 - Total Recorded Violations: {violation_count}
 - Security Cooldown Period: {cooldown_minutes} Minutes
 - Flagged Reason: {reason}
 
-Digital Rights Management (DRM) is active to protect university faculty materials, solved model papers, and topper notes from unauthorized scraping and external redistribution.
+Digital Rights Management (DRM) Is Active To Protect University Faculty Materials, Solved Model Papers, And Topper Notes From Unauthorized Scraping And External Redistribution.
 
-If this cooldown was triggered accidentally, your reading access will automatically restore after the {cooldown_minutes}-minute cooldown. Continued violations may result in permanent academic portal suspension.
+If This Cooldown Was Triggered Accidentally, Your Reading Access Will Automatically Restore After The {cooldown_minutes}-Minute Cooldown. Continued Violations May Result In Permanent Academic Portal Suspension.
 
-Need help? Contact support@saastascholar.in
+Need Assistance? Contact support@saastascholar.in
 """
 
     html_content = f"""
@@ -1314,7 +1314,7 @@ Need help? Contact support@saastascholar.in
     </h2>
     <p>Hello <strong>{full_name}</strong>,</p>
     <p>
-      An automated document security violation was detected while accessing verified study materials on your account.
+      An Automated Document Security Violation Was Detected While Accessing Verified Study Materials On Your Account.
     </p>
 
     <div style="background-color:#240e14; border:1px solid #ef4444; border-left:4px solid #ef4444; padding:16px; margin:20px 0; font-size:13px; color:#fecdd3;">
@@ -1339,7 +1339,7 @@ Need help? Contact support@saastascholar.in
     </div>
 
     <div style="background-color:#1c1d20; border:1px solid rgba(255,255,255,0.08); padding:14px; margin-bottom:20px; font-size:12px; color:#94a3b8; line-height:1.5;">
-      <strong>SECURITY NOTICE:</strong> SaastaScholar study materials carry cryptographic watermark identifiers tied to your student roll number. Your reading session will resume automatically once the cooldown period expires.
+      <strong>SECURITY NOTICE:</strong> SaastaScholar Study Materials Carry Cryptographic Watermark Identifiers Tied To Your Student Roll Number. Your Reading Session Will Resume Automatically Once The Cooldown Period Expires.
     </div>
 
     <div style="text-align:center; margin:24px 0 10px 0;">
@@ -1371,12 +1371,12 @@ def send_assignment_reminder_email(
 
 Hello {full_name},
 
-This is an automated academic deadline reminder for:
+This Is An Automated Academic Deadline Reminder For:
 - Assignment Title: {assignment_title}
 - Course Subject: {subject_name}
 - Submission Cutoff: {due_date}
 
-Please ensure your solved practical solution or assignment document is uploaded before the deadline to avoid grade penalties.
+Please Ensure Your Solved Practical Solution Or Assignment Document Is Uploaded Before The Deadline To Avoid Grade Penalties.
 
 Upload Your Submission:
 {submission_link}
@@ -1391,7 +1391,7 @@ Upload Your Submission:
     </h2>
     <p>Hello <strong>{full_name}</strong>,</p>
     <p>
-      An official semester assignment is approaching its submission deadline. Please review the requirements below:
+      An Official Semester Assignment Is Approaching Its Submission Deadline. Please Review The Requirements Below:
     </p>
 
     <div style="background-color:#211506; border:1px solid #f59e0b; border-left:4px solid #f59e0b; padding:16px; margin:20px 0; font-size:13px; color:#fde68a;">
@@ -1436,17 +1436,17 @@ def send_study_material_alert_email(
     subject = f"New Study Resource Uploaded: {material_title} ({subject_name})"
     preheader = f"Verified Study Material Has Been Added To Your Semester Library For {subject_name}."
 
-    text_body = f"""New Resource Available in SaastaScholar Library
+    text_body = f"""New Resource Available In SaastaScholar Library
 
 Hello {full_name},
 
-A new high-yield study resource has been published for your cohort:
+A New High-Yield Study Resource Has Been Published For Your Cohort:
 - Resource Title: {material_title}
 - Subject: {subject_name}
 - Coverage: {unit_code}
 - Published By: {uploader_name}
 
-Access it now in your student study space:
+Access It Now In Your Student Study Space:
 https://saastascholar.durgaaisolutions.in/dashboard?tab=notes
 
 — SaastaScholar Course Library
@@ -1459,7 +1459,7 @@ https://saastascholar.durgaaisolutions.in/dashboard?tab=notes
     </h2>
     <p>Hello <strong>{full_name}</strong>,</p>
     <p>
-      Fresh lecture notes and exam derivations have been added to your academic department library.
+      Fresh Lecture Notes And Exam Derivations Have Been Added To Your Academic Department Library.
     </p>
 
     <div style="background-color:#0b1d14; border:1px solid #10b981; border-left:4px solid #10b981; padding:16px; margin:20px 0; font-size:13px; color:#a7f3d0;">
@@ -1511,12 +1511,12 @@ def send_support_ticket_resolved_email(
 
 Hello {full_name},
 
-Your support ticket #{ticket_id} regarding '{ticket_subject}' has been resolved.
+Your Support Ticket #{ticket_id} Regarding '{ticket_subject}' Has Been Resolved.
 
 Official Resolution Notes:
 {resolution_notes}
 
-If you have additional questions, reply directly to this email or visit:
+If You Have Additional Questions, Reply Directly To This Email Or Visit:
 https://saastascholar.durgaaisolutions.in/dashboard?tab=help
 
 — SaastaScholar Academic Help Desk
@@ -1529,7 +1529,7 @@ https://saastascholar.durgaaisolutions.in/dashboard?tab=help
     </h2>
     <p>Hello <strong>{full_name}</strong>,</p>
     <p>
-      Our student operations team has addressed your support inquiry. Here are the official resolution details:
+      Our Student Operations Team Has Addressed Your Support Inquiry. Here Are The Official Resolution Details:
     </p>
 
     <div style="background-color:#0c182b; border:1px solid #3b82f6; border-left:4px solid #3b82f6; padding:16px; margin:20px 0; font-size:13px; color:#bfdbfe;">
@@ -1583,7 +1583,7 @@ def send_promo_code_offer_email(
 
 Hello {full_name},
 
-Congratulations! You have received a limited-time scholarship coupon:
+Congratulations! You Have Received A Limited-Time Scholarship Coupon:
 - Voucher Code: {promo_code}
 - Benefit: {discount_text}
 - Applicable Plan: {plan_name}
@@ -1602,7 +1602,7 @@ https://saastascholar.durgaaisolutions.in/pricing
     </h2>
     <p>Hello <strong>{full_name}</strong>,</p>
     <p>
-      As a valued scholar, we are pleased to offer an exclusive promotional voucher for your academic pass.
+      As A Valued Scholar, We Are Pleased To Offer An Exclusive Promotional Voucher For Your Academic Pass.
     </p>
 
     <div class="otp-box" style="background-color:#17102b; border:2px dashed #8b5cf6;">
@@ -1616,7 +1616,7 @@ https://saastascholar.durgaaisolutions.in/pricing
     </div>
 
     <div style="background-color:#0b1d14; border:1px solid #10b981; padding:14px; margin-bottom:20px; font-size:12.5px; color:#a7f3d0; text-align:center;">
-      Valid for all semester passes including handwritten notes, model PYQs, and priority lab viva packs.
+      Valid For All Semester Passes Including Handwritten Notes, Model PYQs, And Priority Lab Viva Packs.
     </div>
 
     <div style="text-align:center; margin:26px 0 10px 0;">

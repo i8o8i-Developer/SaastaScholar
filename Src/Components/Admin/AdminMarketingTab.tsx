@@ -290,46 +290,6 @@ const EMAIL_TEMPLATES = {
   </a>
 </div>`,
   },
-  placement_alert: {
-    subject: "Campus Placement Drive: Technical Engineering & AI Roles",
-    preheader: "Recruitment Drive Announcement: Junior Machine Learning Engineer Intern.",
-    contentHtml: `<div style="margin-bottom:16px;">
-  <span style="display:inline-block; padding:4px 10px; background:#0c182b; color:#60a5fa; border:1px solid #3b82f6; border-radius:0; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.5px;">
-    💼 Placement Drive Alert
-  </span>
-</div>
-<h2 style="color:#ffffff; font-size:20px; font-weight:900; margin:0 0 10px 0; letter-spacing:-0.4px; text-transform:uppercase;">
-  Campus Internship &amp; Full-Time Hiring Announcement
-</h2>
-<p style="color:#ededed; font-size:13.5px; line-height:1.6; margin:0 0 16px 0;">
-  Dear Scholar, The Campus Placement Cell Has Announced An Exclusive Hiring Opportunity For Engineering Students:
-</p>
-
-<div style="background:#0c182b; border:1px solid #3b82f6; border-left:4px solid #3b82f6; border-radius:0; padding:16px; margin:18px 0;">
-  <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px;">
-    <strong style="color:#60a5fa;">Hiring Partner:</strong>
-    <span style="color:#ffffff; font-weight:800;">DurgaAI Research Labs</span>
-  </div>
-  <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px;">
-    <strong style="color:#60a5fa;">Target Role:</strong>
-    <span style="color:#ffffff; font-weight:700;">Junior ML Engineer Intern</span>
-  </div>
-  <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px;">
-    <strong style="color:#60a5fa;">Stipend / Package:</strong>
-    <span style="color:#34d399; font-weight:900;">₹45,000 / Month + PPO</span>
-  </div>
-  <div style="display:flex; justify-content:space-between; font-size:13px;">
-    <strong style="color:#60a5fa;">Eligibility Criteria:</strong>
-    <span style="color:#ffffff;">B.Tech CSE / AIML (Min CGPA: 7.5+)</span>
-  </div>
-</div>
-
-<div style="text-align:center; margin:28px 0 12px 0;">
-  <a href="https://saastascholar.durgaaisolutions.in/dashboard?tab=placements" class="btn-primary" style="display:inline-block; background:#1d4ed8; border:1px solid #3b82f6; border-radius:0; color:#ffffff; text-decoration:none; font-weight:800; font-size:13px; padding:12px 24px; text-transform:uppercase; letter-spacing:0.5px;">
-    Apply On Placement Portal →
-  </a>
-</div>`,
-  },
   maintenance_announcement: {
     subject: "Scheduled Platform Maintenance & Offline Examination Prep",
     preheader: "System Upgrade Window & Offline DRM Reading Notice.",
@@ -746,13 +706,6 @@ export function AdminMarketingTab() {
                   className="px-3 py-1.5 rounded-xl border border-fuchsia-500/30 bg-fuchsia-500/10 text-fuchsia-400 text-xs font-bold hover:bg-fuchsia-500/20 transition-colors cursor-pointer shadow-2xs"
                 >
                   Scholarship &amp; Promo
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleTemplateSelect("placement_alert")}
-                  className="px-3 py-1.5 rounded-xl border border-blue-500/30 bg-blue-500/10 text-blue-400 text-xs font-bold hover:bg-blue-500/20 transition-colors cursor-pointer shadow-2xs"
-                >
-                  Placement &amp; Intern Drive
                 </button>
                 <button
                   type="button"

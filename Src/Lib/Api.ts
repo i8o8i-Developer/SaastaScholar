@@ -64,6 +64,9 @@ export interface StudentUser {
   is_staff?: boolean;
   is_superuser?: boolean;
   is_active?: boolean;
+  admin_role?: string | null;
+  admin_role_name?: string;
+  admin_permissions?: Record<string, Record<string, boolean>>;
   is_drm_blocked?: boolean;
   is_login_blocked?: boolean;
   cooldown_until?: string | null;
@@ -996,6 +999,81 @@ export const studentSubscriptionApi = {
       }
     ),
 };
+
+export interface AdminRole {
+  id: string;
+  name: string;
+  description: string;
+  is_system_role: boolean;
+  permissions: Record<string, { view?: boolean; manage?: boolean; delete?: boolean; security?: boolean } | boolean>;
+  users_count?: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AdminStaffUser {
+  id: string;
+  email: string;
+  username: string;
+  full_name: string;
+  phone_number?: string;
+  is_staff: boolean;
+  is_superuser: boolean;
+  is_active: boolean;
+  admin_role?: string | null;
+  admin_role_name?: string;
+  admin_permissions?: Record<string, { view?: boolean; manage?: boolean; delete?: boolean; security?: boolean } | boolean>;
+  created_at: string;
+  last_login?: string | null;
+}
+
+export const adminRolesApi = {
+  list: async (): Promise<AdminRole[]> => {
+    const res = await apiFetch<any>("/accounts/admin/roles/");
+    return Array.isArray(res) ? res : res?.results || [];
+  },
+  create: (data: { name: string; description: string; permissions: Record<string, any> }) =>
+    apiFetch<AdminRole>("/accounts/admin/roles/", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  update: (id: string, data: { name?: string; description?: string; permissions?: Record<string, any> }) =>
+    apiFetch<AdminRole>(`/accounts/admin/roles/${id}/`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+  delete: (id: string) =>
+    apiFetch<{ success: boolean; message: string }>(`/accounts/admin/roles/${id}/`, {
+      method: "DELETE",
+    }),
+};
+
+export const adminStaffUsersApi = {
+  list: async (): Promise<AdminStaffUser[]> => {
+    const res = await apiFetch<any>("/accounts/admin/staff-users/");
+    return Array.isArray(res) ? res : res?.results || [];
+  },
+  create: (data: { email: string; full_name: string; password: string; phone_number?: string | undefined; admin_role_id?: string | undefined }) =>
+    apiFetch<AdminStaffUser>("/accounts/admin/staff-users/", {
+      method: "POST",
+      body: JSON.stringify(data),
+    }),
+  update: (id: string, data: { full_name?: string | undefined; phone_number?: string | undefined; is_active?: boolean | undefined; admin_role_id?: string | null | undefined }) =>
+    apiFetch<AdminStaffUser>(`/accounts/admin/staff-users/${id}/`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    }),
+  delete: (id: string) =>
+    apiFetch<{ success: boolean; message: string }>(`/accounts/admin/staff-users/${id}/`, {
+      method: "DELETE",
+    }),
+  resetPassword: (id: string, newPassword: string) =>
+    apiFetch<{ success: boolean; message: string }>(`/accounts/admin/staff-users/${id}/reset-password/`, {
+      method: "POST",
+      body: JSON.stringify({ new_password: newPassword }),
+    }),
+};
+
 
 
 

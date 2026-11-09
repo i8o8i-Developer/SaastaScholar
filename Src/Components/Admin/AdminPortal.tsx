@@ -88,6 +88,8 @@ import { AdminOrdersTab } from "./AdminOrdersTab";
 import { AdminCouponsTab } from "./AdminCouponsTab";
 import { AdminPlanMatrixTab } from "./AdminPlanMatrixTab";
 import { AdminMarketingTab } from "./AdminMarketingTab";
+import { AdminEmailStudioTab } from "./AdminEmailStudioTab";
+import { AdminUsersRolesTab } from "./AdminUsersRolesTab";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -159,7 +161,9 @@ type AdminStation =
   | "banners"
   | "support"
   | "forum"
-  | "marketing";
+  | "marketing"
+  | "email-studio"
+  | "roles";
 
 type PublisherContentType =
   | "NOTES"
@@ -2740,6 +2744,8 @@ export function AdminPortal() {
                   { id: "support", label: "Help Desk Tickets", icon: HelpCircle, count: tickets.length },
                   { id: "forum", label: "Student Discussions", icon: MessageSquare, count: posts.length },
                   { id: "marketing", label: "Marketing & Dispatches", icon: Mail, count: "Reach" },
+                  { id: "email-studio", label: "Email Templates Studio", icon: Sparkles, count: "16 Tmpl" },
+                  { id: "roles", label: "Users & Roles RBAC", icon: UserCheck, count: "RBAC" },
                 ].map((station) => {
                   const Icon = station.icon;
                   const isActive = activeStation === station.id;
@@ -2876,6 +2882,8 @@ export function AdminPortal() {
               { id: "support", label: "Help Desk Tickets", icon: HelpCircle, count: tickets.length },
               { id: "forum", label: "Student Discussions", icon: MessageSquare, count: posts.length },
               { id: "marketing", label: "Marketing & Dispatches", icon: Mail, count: "Reach" },
+              { id: "email-studio", label: "Email Templates Studio", icon: Sparkles, count: "16 Tmpl" },
+              { id: "roles", label: "Users & Roles RBAC", icon: UserCheck, count: "RBAC" },
             ].map((station) => {
               const Icon = station.icon;
               const isActive = activeStation === station.id;
@@ -3051,6 +3059,18 @@ export function AdminPortal() {
                 <>
                   <span className="sm:hidden">Marketing</span>
                   <span className="hidden sm:inline">Marketing Emails &amp; Weekly Academic Dispatch</span>
+                </>
+              )}
+              {activeStation === "email-studio" && (
+                <>
+                  <span className="sm:hidden">Email Studio</span>
+                  <span className="hidden sm:inline">Official Email Templates Studio &amp; Dispatcher</span>
+                </>
+              )}
+              {activeStation === "roles" && (
+                <>
+                  <span className="sm:hidden">Users &amp; Roles</span>
+                  <span className="hidden sm:inline">Admin Staff Users &amp; Roles Governance (RBAC)</span>
                 </>
               )}
             </span>
@@ -8264,6 +8284,14 @@ export function AdminPortal() {
 
           {activeStation === "marketing" && (
             <AdminMarketingTab />
+          )}
+
+          {activeStation === "email-studio" && (
+            <AdminEmailStudioTab />
+          )}
+
+          {activeStation === "roles" && (
+            <AdminUsersRolesTab />
           )}
 
         </div>

@@ -1014,3 +1014,333 @@ class PasswordResetConfirmView(APIView):
             "success": True,
             "message": "Password Has Been Successfully Updated! A security notification has been sent to your email.",
         })
+
+
+# ==============================================================================
+# RBAC: ADMIN USERS & ROLES GOVERNANCE CENTER
+# ==============================================================================
+
+from .models import AdminRole
+from .serializers import AdminRoleSerializer, AdminStaffUserSerializer
+
+class IsAdminStaffOrRole(permissions.BasePermission):
+    """Allows Access Only To Authenticated Staff, Superusers, Or Role-Assigned Admin Accounts."""
+    def has_permission(self, request, view):
+        user = request.user
+        return bool(
+            user and user.is_authenticated and (
+                user.is_staff or 
+                user.is_superuser or 
+                getattr(user, "admin_role_id", None) is not None or
+                getattr(user, "email", "") == "admin@nims.edu.in"
+            )
+        )
+
+DEFAULT_SYSTEM_ROLES = [
+    {
+        "name": "Super Administrator",
+        "description": "Unrestricted administrative clearance across all stations, configurations, user management, and security controls.",
+        "is_system_role": True,
+        "permissions": {
+            "*": {"view": True, "manage": True, "delete": True, "security": True}
+        }
+    },
+    {
+        "name": "Academic Dean",
+        "description": "Full authority over academic structure, syllabi, course publisher, timetables, assignments, circulars, and milestones.",
+        "is_system_role": True,
+        "permissions": {
+            "overview": {"view": True, "manage": False, "delete": False, "security": False},
+            "structure": {"view": True, "manage": True, "delete": True, "security": False},
+            "publisher": {"view": True, "manage": True, "delete": True, "security": False},
+            "timetable": {"view": True, "manage": True, "delete": True, "security": False},
+            "assignments": {"view": True, "manage": True, "delete": True, "security": False},
+            "notices": {"view": True, "manage": True, "delete": True, "security": False},
+            "milestones": {"view": True, "manage": True, "delete": True, "security": False},
+            "students": {"view": True, "manage": False, "delete": False, "security": False},
+            "support": {"view": True, "manage": False, "delete": False, "security": False},
+            "forum": {"view": True, "manage": True, "delete": False, "security": False},
+            "marketing": {"view": True, "manage": False, "delete": False, "security": False},
+        }
+    },
+    {
+        "name": "Faculty Coordinator",
+        "description": "Coordinates course study materials, assignments, daily lecture timetables, and department notices.",
+        "is_system_role": True,
+        "permissions": {
+            "overview": {"view": True, "manage": False, "delete": False, "security": False},
+            "structure": {"view": True, "manage": False, "delete": False, "security": False},
+            "publisher": {"view": True, "manage": True, "delete": False, "security": False},
+            "timetable": {"view": True, "manage": True, "delete": False, "security": False},
+            "assignments": {"view": True, "manage": True, "delete": False, "security": False},
+            "notices": {"view": True, "manage": True, "delete": False, "security": False},
+            "milestones": {"view": True, "manage": False, "delete": False, "security": False},
+            "forum": {"view": True, "manage": True, "delete": False, "security": False},
+        }
+    },
+    {
+        "name": "Finance & Billing Officer",
+        "description": "Oversees student subscription tiers, Razorpay payment orders, promo discount codes, and access matrices.",
+        "is_system_role": True,
+        "permissions": {
+            "overview": {"view": True, "manage": False, "delete": False, "security": False},
+            "students": {"view": True, "manage": False, "delete": False, "security": False},
+            "subscriptions": {"view": True, "manage": True, "delete": True, "security": False},
+            "coupons": {"view": True, "manage": True, "delete": True, "security": False},
+            "plan-matrix": {"view": True, "manage": True, "delete": False, "security": False},
+            "marketing": {"view": True, "manage": True, "delete": False, "security": False},
+            "email-studio": {"view": True, "manage": True, "delete": False, "security": False},
+        }
+    },
+    {
+        "name": "Student Support Officer",
+        "description": "Manages student help desk tickets, community discussions, student inquiries, and disciplinary notifications.",
+        "is_system_role": True,
+        "permissions": {
+            "overview": {"view": True, "manage": False, "delete": False, "security": False},
+            "students": {"view": True, "manage": True, "delete": False, "security": True},
+            "support": {"view": True, "manage": True, "delete": True, "security": False},
+            "forum": {"view": True, "manage": True, "delete": True, "security": False},
+            "notices": {"view": True, "manage": True, "delete": False, "security": False},
+        }
+    }
+]
+
+def seed_default_roles_if_empty():
+    """Seeds Initial System Pre-Configured Roles If Table Is Currently Empty."""
+    try:
+        for role_data in DEFAULT_SYSTEM_ROLES:
+            role, created = AdminRole.objects.get_or_create(
+                name=role_data["name"],
+                defaults={
+                    "description": role_data["description"],
+                    "is_system_role": role_data["is_system_role"],
+                    "permissions": role_data["permissions"],
+                }
+            )
+            if not created and not role.permissions:
+                role.permissions = role_data["permissions"]
+                role.save(update_fields=["permissions"])
+    except Exception as e:
+        logger.warning(f"Role seeding encountered non-fatal error: {e}")
+
+class AdminRolesListView(APIView):
+    """Lists All Configured Roles And Allows Superadmins To Define New Granular Roles."""
+    permission_classes = [IsAdminStaffOrRole]
+
+    def get(self, request):
+        seed_default_roles_if_empty()
+        roles = AdminRole.objects.all().order_by("name")
+        return Response(AdminRoleSerializer(roles, many=True).data)
+
+    def post(self, request):
+        name = str(request.data.get("name") or "").strip()
+        description = str(request.data.get("description") or "").strip()
+        permissions_payload = request.data.get("permissions") or {}
+
+        if not name:
+            return Response({"error": "Role Name Is Required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if AdminRole.objects.filter(name__iexact=name).exists():
+            return Response({"error": f"A Role Named '{name}' Already Exists."}, status=status.HTTP_400_BAD_REQUEST)
+
+        role = AdminRole.objects.create(
+            name=name,
+            description=description,
+            is_system_role=False,
+            permissions=permissions_payload,
+        )
+
+        return Response(AdminRoleSerializer(role).data, status=status.HTTP_201_CREATED)
+
+class AdminRoleDetailView(APIView):
+    """Retrieves, Updates, Or Removes A Specific Administrative Role."""
+    permission_classes = [IsAdminStaffOrRole]
+
+    def get_object(self, pk):
+        try:
+            return AdminRole.objects.get(pk=pk)
+        except AdminRole.DoesNotExist:
+            return None
+
+    def get(self, request, pk):
+        role = self.get_object(pk)
+        if not role:
+            return Response({"error": "Role Not Found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(AdminRoleSerializer(role).data)
+
+    def put(self, request, pk):
+        role = self.get_object(pk)
+        if not role:
+            return Response({"error": "Role Not Found."}, status=status.HTTP_404_NOT_FOUND)
+
+        name = str(request.data.get("name") or "").strip()
+        description = str(request.data.get("description") or "").strip()
+        permissions_payload = request.data.get("permissions")
+
+        if name and name != role.name:
+            if not role.is_system_role:
+                role.name = name
+        if description:
+            role.description = description
+        if permissions_payload is not None:
+            role.permissions = permissions_payload
+
+        role.save()
+        return Response(AdminRoleSerializer(role).data)
+
+    def delete(self, request, pk):
+        role = self.get_object(pk)
+        if not role:
+            return Response({"error": "Role Not Found."}, status=status.HTTP_404_NOT_FOUND)
+
+        if role.is_system_role:
+            return Response({"error": "System Default Roles Cannot Be Deleted."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if role.admin_users.exists():
+            return Response(
+                {"error": f"Cannot Delete Role: {role.admin_users.count()} Active Admin User(s) Are Currently Assigned."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        role.delete()
+        return Response({"success": True, "message": "Role Has Been Successfully Removed."})
+
+class AdminStaffUsersListView(APIView):
+    """Lists Administrative Users And Handles Administrative Account Creation."""
+    permission_classes = [IsAdminStaffOrRole]
+
+    def get(self, request):
+        from django.db.models import Q
+        admin_users = StudentUser.objects.filter(
+            Q(is_staff=True) | 
+            Q(is_superuser=True) | 
+            Q(admin_role__isnull=False) |
+            Q(email="admin@nims.edu.in")
+        ).select_related("admin_role").order_by("-created_at")
+
+        return Response(AdminStaffUserSerializer(admin_users, many=True).data)
+
+    def post(self, request):
+        email = str(request.data.get("email") or "").strip().lower()
+        full_name = str(request.data.get("full_name") or "").strip()
+        password = str(request.data.get("password") or "").strip()
+        phone_number = str(request.data.get("phone_number") or "").strip()
+        role_id = request.data.get("admin_role_id")
+
+        if not email or "@" not in email:
+            return Response({"error": "A Valid Email Address Is Required."}, status=status.HTTP_400_BAD_REQUEST)
+        if not full_name:
+            return Response({"error": "Full Name Is Required."}, status=status.HTTP_400_BAD_REQUEST)
+        if not password or len(password) < 6:
+            return Response({"error": "Password Must Be At Least 6 Characters Long."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if StudentUser.objects.filter(email__iexact=email).exists():
+            return Response({"error": "An Account With This Email Already Exists."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Generate unique username from email
+        base_username = email.split("@")[0].replace(".", "_")
+        username = base_username
+        counter = 1
+        while StudentUser.objects.filter(username=username).exists():
+            username = f"{base_username}_{counter}"
+            counter += 1
+
+        admin_role = None
+        if role_id:
+            try:
+                admin_role = AdminRole.objects.get(pk=role_id)
+            except AdminRole.DoesNotExist:
+                return Response({"error": "Specified Admin Role Not Found."}, status=status.HTTP_404_NOT_FOUND)
+
+        user = StudentUser.objects.create(
+            email=email,
+            username=username,
+            full_name=full_name,
+            phone_number=phone_number,
+            is_staff=True,
+            is_active=True,
+            is_verified=True,
+            admin_role=admin_role,
+        )
+        user.set_password(password)
+        user.save()
+
+        return Response(AdminStaffUserSerializer(user).data, status=status.HTTP_201_CREATED)
+
+class AdminStaffUserDetailView(APIView):
+    """Manages Individual Admin User Details, Active Status, And Role Reassignment."""
+    permission_classes = [IsAdminStaffOrRole]
+
+    def get_object(self, pk):
+        try:
+            return StudentUser.objects.select_related("admin_role").get(pk=pk)
+        except StudentUser.DoesNotExist:
+            return None
+
+    def get(self, request, pk):
+        user = self.get_object(pk)
+        if not user:
+            return Response({"error": "Admin User Not Found."}, status=status.HTTP_404_NOT_FOUND)
+        return Response(AdminStaffUserSerializer(user).data)
+
+    def put(self, request, pk):
+        user = self.get_object(pk)
+        if not user:
+            return Response({"error": "Admin User Not Found."}, status=status.HTTP_404_NOT_FOUND)
+
+        if "full_name" in request.data:
+            user.full_name = str(request.data["full_name"]).strip()
+        if "phone_number" in request.data:
+            user.phone_number = str(request.data["phone_number"]).strip()
+        if "is_active" in request.data:
+            user.is_active = bool(request.data["is_active"])
+        if "admin_role_id" in request.data:
+            role_id = request.data["admin_role_id"]
+            if role_id:
+                try:
+                    user.admin_role = AdminRole.objects.get(pk=role_id)
+                except AdminRole.DoesNotExist:
+                    return Response({"error": "Specified Role Not Found."}, status=status.HTTP_404_NOT_FOUND)
+            else:
+                user.admin_role = None
+
+        user.save()
+        return Response(AdminStaffUserSerializer(user).data)
+
+    def delete(self, request, pk):
+        user = self.get_object(pk)
+        if not user:
+            return Response({"error": "Admin User Not Found."}, status=status.HTTP_404_NOT_FOUND)
+
+        if user.is_superuser:
+            return Response({"error": "Super Administrator Accounts Cannot Be Removed."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Revoke administrative clearance
+        user.is_staff = False
+        user.admin_role = None
+        user.save(update_fields=["is_staff", "admin_role"])
+
+        return Response({"success": True, "message": "Admin Privileges Have Been Successfully Revoked."})
+
+class AdminStaffUserResetPasswordView(APIView):
+    """Directly Updates The Password For An Administrative Staff Member."""
+    permission_classes = [IsAdminStaffOrRole]
+
+    def post(self, request, pk):
+        try:
+            user = StudentUser.objects.get(pk=pk)
+        except StudentUser.DoesNotExist:
+            return Response({"error": "Admin User Not Found."}, status=status.HTTP_404_NOT_FOUND)
+
+        new_password = str(request.data.get("new_password") or "").strip()
+        if not new_password or len(new_password) < 6:
+            return Response({"error": "New Password Must Be At Least 6 Characters Long."}, status=status.HTTP_400_BAD_REQUEST)
+
+        user.set_password(new_password)
+        user.save(update_fields=["password"])
+
+        return Response({
+            "success": True,
+            "message": f"Password For {user.full_name or user.email} Successfully Updated."
+        })

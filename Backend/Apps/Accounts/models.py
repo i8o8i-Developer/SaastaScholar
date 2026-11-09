@@ -16,6 +16,38 @@ class AccessTier(models.TextChoices):
     VIP = "VIP", "Elite"
 
 
+class AdminRole(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True, default="")
+    is_system_role = models.BooleanField(default=False, help_text="System default roles cannot be deleted")
+    # Permissions dictionary mapping station id (e.g. 'overview', 'structure') to {view: bool, manage: bool, delete: bool, security: bool}
+    permissions = models.JSONField(default=dict, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Admin Role"
+        verbose_name_plural = "Admin Roles"
+        ordering = ["name"]
+
+    def __str__(self):
+        return self.name
+
+    def has_permission(self, station: str, action: str = "view") -> bool:
+        if not self.permissions:
+            return False
+        # Wildcard / Super Admin permissions check
+        if self.permissions.get("*", {}).get(action, False) or self.permissions.get("*", {}).get("manage", False):
+            return True
+        station_perms = self.permissions.get(station, {})
+        if isinstance(station_perms, dict):
+            return bool(station_perms.get(action, False))
+        if isinstance(station_perms, bool):
+            return station_perms
+        return False
+
+
 class StudentUser(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(unique=True)
@@ -24,6 +56,16 @@ class StudentUser(AbstractUser):
     bio = models.TextField(blank=True, default="")
     academic_focus = models.CharField(max_length=255, blank=True, default="")
     career_goal = models.CharField(max_length=255, blank=True, default="")
+    
+    # Administrative Role & Permissions
+    admin_role = models.ForeignKey(
+        AdminRole,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="admin_users",
+        help_text="Assigned Administrative Role for Admin Portal access",
+    )
     
     # Institutional University Details
     university = models.CharField(max_length=255, default="NIMS University, Rajasthan")
@@ -68,6 +110,15 @@ class StudentUser(AbstractUser):
 
     def __str__(self):
         return f"{self.full_name or self.username} ({self.roll_number})"
+
+    def has_admin_station_access(self, station: str, action: str = "view") -> bool:
+        if self.is_superuser:
+            return True
+        if not self.is_staff and not self.admin_role_id:
+            return False
+        if not self.admin_role:
+            return True
+        return self.admin_role.has_permission(station, action)
 
 class SecuritySession(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)

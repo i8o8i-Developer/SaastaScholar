@@ -29,6 +29,7 @@ import { cn } from "@/Lib/Utils";
 import { toast } from "sonner";
 
 export function AssignmentsTracker() {
+  const [underDevelopment, setUnderDevelopment] = useState<boolean>(true);
   const [assignments, setAssignments] = useState<StudentAssignment[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -140,37 +141,120 @@ export function AssignmentsTracker() {
 
   return (
     <div className="space-y-4 sm:space-y-6 max-w-7xl mx-auto min-w-0">
-      {/* ================= Header Banner ================= */}
-      <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-r from-emerald-500/10 via-surface to-teal-500/10 p-3.5 xs:p-4.5 sm:p-7 backdrop-blur-md shadow-xs min-w-0">
-        <div className="flex flex-col gap-4 sm:gap-6 lg:flex-row lg:items-center lg:justify-between min-w-0">
-          <div className="space-y-1.5 sm:space-y-2 min-w-0">
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 sm:px-3 py-0.5 text-[0.62rem] xs:text-[0.68rem] sm:text-xs font-bold text-emerald-700 dark:text-emerald-300">
-              <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
-              <span>AI Powered Academic Workflow Engine</span>
+      {/* ================= Under Active Development Overlay / Standby ================= */}
+      {underDevelopment ? (
+        <div className="space-y-6 animate-in fade-in duration-300">
+          {/* Main Hero Card */}
+          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-amber-500/30 bg-[#0d0e12] p-6 sm:p-10 shadow-[0_16px_50px_-20px_rgba(245,158,11,0.25)] min-w-0">
+            <div className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-amber-500/10 blur-3xl" />
+
+            <div className="relative space-y-4 max-w-3xl">
+              <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-500/10 px-3.5 py-1 text-xs font-bold text-amber-400">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500" />
+                </span>
+                <span>Feature Under Active Development</span>
+              </div>
+
+              <h1 className="font-display text-xl xs:text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+                Assignment Tracker &amp; AI Formatter
+              </h1>
+
+              <p className="text-xs sm:text-base text-zinc-400 leading-relaxed">
+                This Academic Coursework Engine Is Under Active Development And Will Be Available In An Upcoming Release. All Underlying Modules, Submission APIs, Rubrics, And AI Formatter Codebases Are Safely Preserved In Cold Standby.
+              </p>
+
+              <div className="pt-2 flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => setUnderDevelopment(false)}
+                  className="inline-flex items-center gap-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 px-4 py-2 text-xs font-bold text-amber-300 transition-all cursor-pointer shadow-sm active:scale-95"
+                >
+                  <Cpu className="h-3.5 w-3.5" />
+                  <span>Resume Development Workspace (Preview Mode)</span>
+                </button>
+              </div>
             </div>
-            <h1 className="font-display text-base xs:text-lg sm:text-2xl md:text-3xl font-bold tracking-tight text-foreground break-words leading-tight">
-              Assignment Tracker &amp; Formatter Hub
-            </h1>
-            <p className="text-[0.7rem] xs:text-xs md:text-sm text-muted-foreground leading-relaxed max-w-2xl break-words">
-              Track Term Submissions, Marks Weightage, Due Dates, And Generate IEEE-Standard Academic Outlines With Gemini AI.
-            </p>
           </div>
 
-          <button
-            type="button"
-            onClick={() => {
-              setAiTopic("");
-              setAiSubject(subjects[0]?.name || "Artificial Intelligence");
-              setGeneratedOutline(null);
-              setAiModalOpen(true);
-            }}
-            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 sm:px-5 py-2.5 sm:py-3 text-xs font-bold text-white shadow-lg shadow-emerald-600/25 hover:from-emerald-700 hover:to-teal-700 active:scale-95 transition-all cursor-pointer shrink-0"
-          >
-            <Wand2 className="h-4 w-4 shrink-0" />
-            <span>Launch Gemini AI Formatter</span>
-          </button>
+          {/* Planned Capabilities Grid */}
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="rounded-2xl border border-white/10 bg-[#0f1013] p-5 space-y-2">
+              <div className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-500/15 text-emerald-400 font-bold">
+                <FileCheck2 className="h-5 w-5" />
+              </div>
+              <h3 className="font-bold text-sm text-white">Coursework Submission Hub</h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Direct Student Document Submissions With Cryptographic Timestamps, Anti-Tamper Tokens, And Sessional Weightage Tracking.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-[#0f1013] p-5 space-y-2">
+              <div className="grid h-10 w-10 place-items-center rounded-xl bg-purple-500/15 text-purple-400 font-bold">
+                <Sparkles className="h-5 w-5" />
+              </div>
+              <h3 className="font-bold text-sm text-white">Gemini AI Outline Generator</h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Automatic IEEE, APA, And University LaTeX Academic Format Generation With Verified References And Abstract Summaries.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-white/10 bg-[#0f1013] p-5 space-y-2">
+              <div className="grid h-10 w-10 place-items-center rounded-xl bg-cyan-500/15 text-cyan-400 font-bold">
+                <Layers className="h-5 w-5" />
+              </div>
+              <h3 className="font-bold text-sm text-white">Assessment Telemetry &amp; Rubrics</h3>
+              <p className="text-xs text-zinc-400 leading-relaxed">
+                Real-Time Marks Weightage, Faculty Evaluator Feedback, And Continuous Assessment Scores Synced Directly With Semester CGPA Targets.
+              </p>
+            </div>
+          </div>
         </div>
-      </div>
+      ) : (
+        <>
+          <div className="flex items-center justify-between p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs font-bold text-amber-300">
+            <span>Development Preview Mode Active · All Code Fully Functional</span>
+            <button
+              type="button"
+              onClick={() => setUnderDevelopment(true)}
+              className="px-3 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/40 text-[0.7rem] cursor-pointer"
+            >
+              Return To Standby State
+            </button>
+          </div>
+
+          {/* ================= Header Banner ================= */}
+          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-r from-emerald-500/10 via-surface to-teal-500/10 p-3.5 xs:p-4.5 sm:p-7 backdrop-blur-md shadow-xs min-w-0">
+            <div className="flex flex-col gap-4 sm:gap-6 lg:flex-row lg:items-center lg:justify-between min-w-0">
+              <div className="space-y-1.5 sm:space-y-2 min-w-0">
+                <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 sm:px-3 py-0.5 text-[0.62rem] xs:text-[0.68rem] sm:text-xs font-bold text-emerald-700 dark:text-emerald-300">
+                  <Sparkles className="h-3 w-3 sm:h-3.5 sm:w-3.5 shrink-0" />
+                  <span>AI Powered Academic Workflow Engine</span>
+                </div>
+                <h1 className="font-display text-base xs:text-lg sm:text-2xl md:text-3xl font-bold tracking-tight text-foreground break-words leading-tight">
+                  Assignment Tracker &amp; Formatter Hub
+                </h1>
+                <p className="text-[0.7rem] xs:text-xs md:text-sm text-muted-foreground leading-relaxed max-w-2xl break-words">
+                  Track Term Submissions, Marks Weightage, Due Dates, And Generate IEEE-Standard Academic Outlines With Gemini AI.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setAiTopic("");
+                  setAiSubject(subjects[0]?.name || "Artificial Intelligence");
+                  setGeneratedOutline(null);
+                  setAiModalOpen(true);
+                }}
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 sm:px-5 py-2.5 sm:py-3 text-xs font-bold text-white shadow-lg shadow-emerald-600/25 hover:from-emerald-700 hover:to-teal-700 active:scale-95 transition-all cursor-pointer shrink-0"
+              >
+                <Wand2 className="h-4 w-4 shrink-0" />
+                <span>Launch AI Formatter</span>
+              </button>
+            </div>
+          </div>
 
       {/* ================= Assignments Grid ================= */}
       {loading ? (
@@ -414,6 +498,8 @@ export function AssignmentsTracker() {
             )}
           </div>
         </div>
+      )}
+        </>
       )}
     </div>
   );

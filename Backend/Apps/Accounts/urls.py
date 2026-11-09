@@ -18,6 +18,11 @@ from .views import (
     PasswordResetRequestView,
     PasswordResetConfirmView,
     EmailTestView,
+    AdminRolesListView,
+    AdminRoleDetailView,
+    AdminStaffUsersListView,
+    AdminStaffUserDetailView,
+    AdminStaffUserResetPasswordView,
 )
 
 urlpatterns = [
@@ -35,6 +40,13 @@ urlpatterns = [
     path("password-reset/", PasswordResetRequestView.as_view(), name="auth-password-reset-request"),
     path("password-reset-confirm/", PasswordResetConfirmView.as_view(), name="auth-password-reset-confirm"),
     
+    # Admin Staff & Roles Governance Center
+    path("admin/roles/", AdminRolesListView.as_view(), name="auth-admin-roles-list"),
+    path("admin/roles/<uuid:pk>/", AdminRoleDetailView.as_view(), name="auth-admin-role-detail"),
+    path("admin/staff-users/", AdminStaffUsersListView.as_view(), name="auth-admin-staff-users-list"),
+    path("admin/staff-users/<uuid:pk>/", AdminStaffUserDetailView.as_view(), name="auth-admin-staff-user-detail"),
+    path("admin/staff-users/<uuid:pk>/reset-password/", AdminStaffUserResetPasswordView.as_view(), name="auth-admin-staff-user-reset-pwd"),
+
     # Admin Student Registry & Security Center
     path("admin/users/", AdminStudentsListView.as_view(), name="auth-admin-users"),
     path("admin/users/semester-upgrade/", AdminStudentSemesterUpgradeView.as_view(), name="auth-admin-student-semester-upgrade"),
