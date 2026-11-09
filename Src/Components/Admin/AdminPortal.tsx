@@ -92,6 +92,14 @@ import { AdminCouponsTab } from "./AdminCouponsTab";
 import { AdminPlanMatrixTab } from "./AdminPlanMatrixTab";
 import { AdminMarketingTab } from "./AdminMarketingTab";
 import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "../Ui/DropdownMenu";
+import {
   AcademicMaterial,
   AdminAuditLog,
   apiFetch,
@@ -6752,7 +6760,7 @@ export function AdminPortal() {
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 sm:flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <button
                       type="button"
                       onClick={() => {
@@ -6845,314 +6853,323 @@ export function AdminPortal() {
                       </p>
                     </div>
                   ) : (
-                    <div className="w-full overflow-hidden rounded-3xl border border-border/80 bg-card/85 shadow-xl backdrop-blur-xl">
-                      <table className="w-full text-left text-xs border-collapse">
-                        <thead className="bg-surface/85 border-b border-border/80 text-[0.68rem] uppercase font-black text-muted-foreground tracking-wider backdrop-blur-md">
-                          <tr>
-                            <th className="py-3.5 px-4">Scholar &amp; Credentials</th>
-                            <th className="py-3.5 px-3 w-[200px] max-w-[210px]">Cohort &amp; Program</th>
-                            <th className="py-3.5 px-3 text-center">Membership Plan</th>
-                            <th className="py-3.5 px-2 text-center">Status &amp; DRM</th>
-                            <th className="py-3.5 px-2 text-center">Violations &amp; Cooldown</th>
-                            <th className="py-3.5 px-4 text-right">Actions</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-border/50">
-                          {filteredStudents.map((st) => {
-                            const hasActiveCooldown = st.cooldown_until && new Date(st.cooldown_until) > new Date();
-                            return (
-                              <tr key={st.id} className="group hover:bg-surface/60 transition-all duration-200">
-                                {/* 1. Scholar & Credentials */}
-                                <td className="py-3.5 px-4">
-                                  <div className="flex items-center gap-2.5 min-w-0">
-                                    <div className="relative grid h-9 w-9 place-items-center rounded-2xl bg-gradient-to-br from-emerald-500/25 via-emerald-600/15 to-teal-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-extrabold text-sm shadow-inner shrink-0 group-hover:scale-105 group-hover:border-emerald-500/50 transition-all">
-                                      {st.full_name?.charAt(0) || "S"}
-                                      <span
-                                        className={cn(
-                                          "absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-card ring-1 ring-black/10",
-                                          st.is_login_blocked || st.is_active === false
-                                            ? "bg-rose-500"
-                                            : "bg-emerald-500"
-                                        )}
-                                      />
-                                    </div>
-                                    <div className="min-w-0 space-y-0.5">
-                                      <span className="font-bold text-xs sm:text-sm text-foreground tracking-tight group-hover:text-primary transition-colors block truncate" title={st.full_name || "Scholar"}>
-                                        {st.full_name || "Scholar"}
-                                      </span>
-                                      <span className="text-[0.65rem] text-muted-foreground block truncate font-medium" title={st.email}>
-                                        {st.email}
-                                      </span>
-                                      <div className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded font-mono text-[0.6rem] font-bold bg-primary/10 text-primary border border-primary/20">
-                                        <span>ID:</span>
-                                        <span className="tracking-wide">{st.roll_number || "—"}</span>
+                    <div className="w-full overflow-hidden rounded-2xl sm:rounded-3xl border border-border bg-card shadow-sm">
+                      <div className="overflow-x-auto w-full scrollbar-thin">
+                        <table className="w-full min-w-[820px] text-left text-xs border-collapse">
+                          <thead className="bg-surface/90 border-b border-border text-[0.68rem] uppercase font-black text-muted-foreground tracking-wider whitespace-nowrap">
+                            <tr>
+                              <th className="py-3.5 px-4 min-w-[200px]">Scholar &amp; Credentials</th>
+                              <th className="py-3.5 px-3 min-w-[170px] w-[180px]">Cohort &amp; Program</th>
+                              <th className="py-3.5 px-3 text-center min-w-[125px]">Membership Plan</th>
+                              <th className="py-3.5 px-2 text-center min-w-[110px]">Status &amp; DRM</th>
+                              <th className="py-3.5 px-2 text-center min-w-[120px]">Violations &amp; Cooldown</th>
+                              <th className="py-3.5 px-4 text-right min-w-[100px]">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-border/50">
+                            {filteredStudents.map((st) => {
+                              const hasActiveCooldown = st.cooldown_until && new Date(st.cooldown_until) > new Date();
+                              return (
+                                <tr key={st.id} className="group hover:bg-surface/60 transition-all duration-200">
+                                  {/* 1. Scholar & Credentials */}
+                                  <td className="py-3.5 px-4">
+                                    <div className="flex items-center gap-2.5 min-w-0">
+                                      <div className="relative grid h-9 w-9 place-items-center rounded-2xl bg-gradient-to-br from-emerald-500/25 via-emerald-600/15 to-teal-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-extrabold text-sm shadow-inner shrink-0 group-hover:scale-105 group-hover:border-emerald-500/50 transition-all">
+                                        {st.full_name?.charAt(0) || "S"}
+                                        <span
+                                          className={cn(
+                                            "absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-card ring-1 ring-black/10",
+                                            st.is_login_blocked || st.is_active === false
+                                              ? "bg-rose-500"
+                                              : "bg-emerald-500"
+                                          )}
+                                        />
+                                      </div>
+                                      <div className="min-w-0 space-y-0.5">
+                                        <span className="font-bold text-xs sm:text-sm text-foreground tracking-tight group-hover:text-primary transition-colors block truncate" title={st.full_name || "Scholar"}>
+                                          {st.full_name || "Scholar"}
+                                        </span>
+                                        <span className="text-[0.65rem] text-muted-foreground block truncate font-medium" title={st.email}>
+                                          {st.email}
+                                        </span>
+                                        <div className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded font-mono text-[0.6rem] font-bold bg-primary/10 text-primary border border-primary/20">
+                                          <span>ID:</span>
+                                          <span className="tracking-wide">{st.roll_number || "—"}</span>
+                                        </div>
                                       </div>
                                     </div>
-                                  </div>
-                                </td>
+                                  </td>
 
-                                {/* 2. Cohort & Program */}
-                                <td className="py-3.5 px-3 w-[200px] max-w-[210px] min-w-0">
-                                  <div className="space-y-1.5 min-w-0">
-                                    <span className="font-semibold text-xs text-foreground block leading-snug line-clamp-2 break-words" title={st.program || "B.Tech"}>
-                                      {st.program || "B.Tech"}
-                                    </span>
-                                    <div className="flex flex-col gap-1 items-start min-w-0">
-                                      <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-surface border border-border/80 text-muted-foreground font-mono text-[0.62rem] font-bold">
-                                        <GraduationCap className="h-3 w-3 text-primary shrink-0" />
-                                        <span>Sem {st.semester || 1}</span>
+                                  {/* 2. Cohort & Program */}
+                                  <td className="py-3.5 px-3 w-[200px] max-w-[210px] min-w-0">
+                                    <div className="space-y-1.5 min-w-0">
+                                      <span className="font-semibold text-xs text-foreground block leading-snug line-clamp-2 break-words" title={st.program || "B.Tech"}>
+                                        {st.program || "B.Tech"}
+                                      </span>
+                                      <div className="flex flex-col gap-1 items-start min-w-0">
+                                        <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-surface border border-border/80 text-muted-foreground font-mono text-[0.62rem] font-bold">
+                                          <GraduationCap className="h-3 w-3 text-primary shrink-0" />
+                                          <span>Sem {st.semester || 1}</span>
+                                        </div>
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            const matchedProg = programs.find((p) => p.name === st.program || p.code === st.program) || programs[0];
+                                            setSectionChangeForm({
+                                              student: st,
+                                              new_program: st.program || matchedProg?.name || "",
+                                              new_semester: st.semester || 1,
+                                              new_section: st.section || "A",
+                                              new_department: st.department || matchedProg?.department_name || "",
+                                              reason: "Class Section Reassignment And Cohort Realignment",
+                                            });
+                                            setShowSectionChangeModal(true);
+                                          }}
+                                          title={`Change Class Section For ${st.full_name || "Scholar"} (Dispatches Official Email Notification)`}
+                                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20 hover:bg-primary hover:text-white transition-all cursor-pointer font-bold font-mono text-[0.62rem] shadow-2xs active:scale-95"
+                                        >
+                                          <span>Sec {st.section || "A"}</span>
+                                          <Pencil className="h-2 w-2 opacity-80" />
+                                        </button>
                                       </div>
-                                      <button
-                                        type="button"
-                                        onClick={() => {
-                                          const matchedProg = programs.find((p) => p.name === st.program || p.code === st.program) || programs[0];
-                                          setSectionChangeForm({
-                                            student: st,
-                                            new_program: st.program || matchedProg?.name || "",
-                                            new_semester: st.semester || 1,
-                                            new_section: st.section || "A",
-                                            new_department: st.department || matchedProg?.department_name || "",
-                                            reason: "Class Section Reassignment And Cohort Realignment",
-                                          });
-                                          setShowSectionChangeModal(true);
+                                    </div>
+                                  </td>
+
+                                  {/* 3. Membership Plan */}
+                                  <td className="py-3.5 px-3 text-center">
+                                    <div className="relative inline-flex items-center justify-center">
+                                      <select
+                                        value={st.access_tier || "FREE"}
+                                        onChange={async (e) => {
+                                          const newTier = e.target.value;
+                                          if (newTier === st.access_tier) return;
+                                          try {
+                                            const res = await studentSecurityApi.performSecurityAction(st.id, {
+                                              action_type: "CHANGE_TIER",
+                                              access_tier: newTier,
+                                              reason: `Administrator Updated Membership Plan Tier To ${newTier} For ${st.full_name || st.email}`,
+                                            });
+                                            toast.success(`Membership Plan Updated To ${newTier}!`);
+                                            loadAdminData();
+                                          } catch (err: any) {
+                                            toast.error(err.message || "Failed To Update Membership Tier.");
+                                          }
                                         }}
-                                        title={`Change Class Section For ${st.full_name || "Scholar"} (Dispatches Official Email Notification)`}
-                                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20 hover:bg-primary hover:text-white transition-all cursor-pointer font-bold font-mono text-[0.62rem] shadow-2xs active:scale-95"
+                                        title="Change Student Membership Plan Tier"
+                                        className={cn(
+                                          "h-8 rounded-md border text-[0.68rem] font-extrabold px-2.5 py-0.5 focus:outline-none cursor-pointer transition-all shadow-2xs text-center appearance-none pr-6 pl-3",
+                                          st.access_tier === "ELITE"
+                                            ? "border-amber-500/50 bg-gradient-to-r from-amber-500/20 to-amber-600/10 text-amber-500 shadow-amber-500/10"
+                                            : st.access_tier === "PREMIUM"
+                                            ? "border-purple-500/50 bg-gradient-to-r from-purple-500/20 to-purple-600/10 text-purple-400 shadow-purple-500/10"
+                                            : st.access_tier === "BASIC"
+                                            ? "border-emerald-500/50 bg-gradient-to-r from-emerald-500/20 to-teal-500/10 text-emerald-500 shadow-emerald-500/10"
+                                            : "border-border/80 bg-surface/80 text-muted-foreground hover:text-foreground"
+                                        )}
                                       >
-                                        <span>Sec {st.section || "A"}</span>
-                                        <Pencil className="h-2 w-2 opacity-80" />
-                                      </button>
+                                        <option value="FREE">Free · ₹0</option>
+                                        <option value="BASIC">Basic · ₹99</option>
+                                        <option value="PREMIUM">Premium · ₹129</option>
+                                        <option value="ELITE">Elite · ₹159</option>
+                                      </select>
+                                      <ChevronDown className="pointer-events-none absolute right-2 h-3 w-3 opacity-60 text-current" />
                                     </div>
-                                  </div>
-                                </td>
+                                  </td>
 
-                                {/* 3. Membership Plan */}
-                                <td className="py-3.5 px-3 text-center">
-                                  <div className="relative inline-flex items-center justify-center">
-                                    <select
-                                      value={st.access_tier || "FREE"}
-                                      onChange={async (e) => {
-                                        const newTier = e.target.value;
-                                        if (newTier === st.access_tier) return;
-                                        try {
-                                          const res = await studentSecurityApi.performSecurityAction(st.id, {
-                                            action_type: "CHANGE_TIER",
-                                            access_tier: newTier,
-                                            reason: `Administrator Updated Membership Plan Tier To ${newTier} For ${st.full_name || st.email}`,
-                                          });
-                                          toast.success(`Membership Plan Updated To ${newTier}!`);
-                                          loadAdminData();
-                                        } catch (err: any) {
-                                          toast.error(err.message || "Failed To Update Membership Tier.");
-                                        }
-                                      }}
-                                      title="Change Student Membership Plan Tier"
-                                      className={cn(
-                                        "h-8 rounded-md border text-[0.68rem] font-extrabold px-2.5 py-0.5 focus:outline-none cursor-pointer transition-all shadow-2xs text-center appearance-none pr-6 pl-3",
-                                        st.access_tier === "ELITE"
-                                          ? "border-amber-500/50 bg-gradient-to-r from-amber-500/20 to-amber-600/10 text-amber-500 shadow-amber-500/10"
-                                          : st.access_tier === "PREMIUM"
-                                          ? "border-purple-500/50 bg-gradient-to-r from-purple-500/20 to-purple-600/10 text-purple-400 shadow-purple-500/10"
-                                          : st.access_tier === "BASIC"
-                                          ? "border-emerald-500/50 bg-gradient-to-r from-emerald-500/20 to-teal-500/10 text-emerald-500 shadow-emerald-500/10"
-                                          : "border-border/80 bg-surface/80 text-muted-foreground hover:text-foreground"
-                                      )}
-                                    >
-                                      <option value="FREE">Free · ₹0</option>
-                                      <option value="BASIC">Basic · ₹99</option>
-                                      <option value="PREMIUM">Premium · ₹129</option>
-                                      <option value="ELITE">Elite · ₹159</option>
-                                    </select>
-                                    <ChevronDown className="pointer-events-none absolute right-2 h-3 w-3 opacity-60 text-current" />
-                                  </div>
-                                </td>
-
-                                {/* 4. Status & DRM - Sharp Modern Badges & Symmetric Layout */}
-                                <td className="py-3 px-2 text-center">
-                                  <div className="flex flex-col items-center gap-1.5">
-                                    {st.is_login_blocked || st.is_active === false ? (
-                                      <span className="inline-flex items-center justify-center gap-1.5 rounded-md bg-rose-500/10 border border-rose-500/30 text-rose-500 px-2.5 py-1 text-[0.65rem] font-bold tracking-wide w-full max-w-[96px] shadow-2xs">
-                                        <span className="h-1.5 w-1.5 rounded-full bg-rose-500 shrink-0" />
-                                        <span>Suspended</span>
-                                      </span>
-                                    ) : (
-                                      <span className="inline-flex items-center justify-center gap-1.5 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 px-2.5 py-1 text-[0.65rem] font-bold tracking-wide w-full max-w-[96px] shadow-2xs">
-                                        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
-                                        <span>Active</span>
-                                      </span>
-                                    )}
-
-                                    {st.is_drm_blocked ? (
-                                      <span className="inline-flex items-center justify-center gap-1 rounded-md bg-rose-500/10 border border-rose-500/30 text-rose-500 px-2 py-0.5 text-[0.62rem] font-bold tracking-wide w-full max-w-[96px] shadow-2xs">
-                                        <span className="h-1 w-1 rounded-full bg-rose-500 shrink-0" />
-                                        <span>DRM Blocked</span>
-                                      </span>
-                                    ) : (
-                                      <span className="inline-flex items-center justify-center gap-1 rounded-md bg-teal-500/10 border border-teal-500/30 text-teal-600 dark:text-teal-400 px-2 py-0.5 text-[0.62rem] font-bold tracking-wide w-full max-w-[96px] shadow-2xs">
-                                        <span className="h-1 w-1 rounded-full bg-teal-500 shrink-0" />
-                                        <span>DRM Allowed</span>
-                                      </span>
-                                    )}
-                                  </div>
-                                </td>
-
-                                {/* 5. Violations & Cooldown - Sharp Symmetrical Badges */}
-                                <td className="py-3 px-2 text-center font-mono">
-                                  <div className="flex flex-col items-center gap-1.5">
-                                    {(st.drm_violations_count || 0) > 0 ? (
-                                      <span className="inline-flex items-center justify-center gap-1.5 rounded-md bg-rose-500/15 border border-rose-500/30 text-rose-500 px-2.5 py-1 text-[0.65rem] font-bold shadow-2xs w-full max-w-[84px]">
-                                        <AlertTriangle className="h-2.5 w-2.5 shrink-0" />
-                                        <span>{st.drm_violations_count} Alerts</span>
-                                      </span>
-                                    ) : (
-                                      <span className="inline-flex items-center justify-center gap-1.5 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 px-2.5 py-1 text-[0.65rem] font-bold shadow-2xs w-full max-w-[84px]">
-                                        <CheckCircle2 className="h-2.5 w-2.5 shrink-0" />
-                                        <span>0 Clean</span>
-                                      </span>
-                                    )}
-
-                                    {hasActiveCooldown ? (
-                                      <span className="inline-flex items-center justify-center gap-1 rounded-md bg-amber-500/15 border border-amber-500/30 text-amber-500 px-2 py-0.5 text-[0.62rem] font-bold font-mono animate-pulse shadow-2xs w-full max-w-[84px]">
-                                        <Timer className="h-2.5 w-2.5 shrink-0" />
-                                        <span>Cooldown</span>
-                                      </span>
-                                    ) : null}
-                                  </div>
-                                </td>
-
-                                {/* 6. Actions - Symmetric Unified Sharp Edge Control Bar */}
-                                <td className="py-3 px-4 text-right">
-                                  <div className="flex items-center justify-end gap-1.5">
-                                    {/* 1. Academic Semester Promotion */}
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setUpgradeSemesterForm({
-                                          mode: "single",
-                                          student_id: st.id,
-                                          student_name: st.full_name || st.username,
-                                          current_semester: st.semester,
-                                          target_semester: (st.semester || 1) + 1,
-                                          section: st.section || "A",
-                                          program: st.program || "",
-                                          reason: `Semester Academic Promotion For ${st.full_name || st.username}`,
-                                        });
-                                        setShowUpgradeSemesterModal(true);
-                                      }}
-                                      title={`Promote ${st.full_name || "Scholar"} To Semester ${(st.semester || 1) + 1}`}
-                                      className="inline-flex h-8 items-center gap-1 rounded-md border border-teal-500/30 bg-teal-500/10 px-2.5 text-[0.72rem] font-bold text-teal-600 dark:text-teal-400 hover:bg-teal-500 hover:text-white transition-all cursor-pointer shadow-2xs active:scale-95 shrink-0"
-                                    >
-                                      <TrendingUp className="h-3 w-3" />
-                                      <span>Sem +</span>
-                                    </button>
-
-                                    {/* 2. Direct Block / Unblock 1-Click Action */}
-                                    <button
-                                      type="button"
-                                      onClick={() => handleQuickToggleBlock(st)}
-                                      title={st.is_login_blocked || st.is_active === false ? "Click to Reactivate Student Account" : "Click to Suspend Student Account"}
-                                      className={cn(
-                                        "inline-flex h-8 items-center gap-1 rounded-md border px-2.5 text-[0.72rem] font-bold transition-all cursor-pointer shadow-2xs active:scale-95 shrink-0",
-                                        st.is_login_blocked || st.is_active === false
-                                          ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white"
-                                          : "border-amber-500/40 bg-amber-500/15 text-amber-600 dark:text-amber-400 hover:bg-amber-500 hover:text-white"
-                                      )}
-                                    >
+                                  {/* 4. Status & DRM - Sharp Modern Badges & Symmetric Layout */}
+                                  <td className="py-3 px-2 text-center">
+                                    <div className="flex flex-col items-center gap-1.5">
                                       {st.is_login_blocked || st.is_active === false ? (
-                                        <>
-                                          <UserCheck className="h-3 w-3" />
-                                          <span>Unblock</span>
-                                        </>
+                                        <span className="inline-flex items-center justify-center gap-1.5 rounded-md bg-rose-500/10 border border-rose-500/30 text-rose-500 px-2.5 py-1 text-[0.65rem] font-bold tracking-wide w-full max-w-[96px] shadow-2xs">
+                                          <span className="h-1.5 w-1.5 rounded-full bg-rose-500 shrink-0" />
+                                          <span>Suspended</span>
+                                        </span>
                                       ) : (
-                                        <>
-                                          <UserX className="h-3 w-3" />
-                                          <span>Block</span>
-                                        </>
+                                        <span className="inline-flex items-center justify-center gap-1.5 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 px-2.5 py-1 text-[0.65rem] font-bold tracking-wide w-full max-w-[96px] shadow-2xs">
+                                          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
+                                          <span>Active</span>
+                                        </span>
                                       )}
-                                    </button>
 
-                                    {/* 3. Direct Password Reset Trigger (Compact Sharp Icon Button) */}
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setSelectedStudentForAction(st);
-                                        setSecurityActionForm({
-                                          action_type: "RESET_PASSWORD",
-                                          reason: "Administrator direct password reset",
-                                          cooldown_hours: 24,
-                                          warning_message: "",
-                                          access_tier: st.access_tier || "FREE",
-                                          new_password: "",
-                                          section: st.section || "A",
-                                        });
-                                        setShowSecurityModal(true);
-                                      }}
-                                      title="Reset Student Password"
-                                      className="grid h-8 w-8 place-items-center rounded-md border border-purple-500/30 bg-purple-500/10 text-purple-600 dark:text-purple-400 hover:bg-purple-500 hover:text-white transition-all cursor-pointer shadow-2xs active:scale-95 shrink-0"
-                                    >
-                                      <Key className="h-3.5 w-3.5" />
-                                    </button>
+                                      {st.is_drm_blocked ? (
+                                        <span className="inline-flex items-center justify-center gap-1 rounded-md bg-rose-500/10 border border-rose-500/30 text-rose-500 px-2 py-0.5 text-[0.62rem] font-bold tracking-wide w-full max-w-[96px] shadow-2xs">
+                                          <span className="h-1 w-1 rounded-full bg-rose-500 shrink-0" />
+                                          <span>DRM Blocked</span>
+                                        </span>
+                                      ) : (
+                                        <span className="inline-flex items-center justify-center gap-1 rounded-md bg-teal-500/10 border border-teal-500/30 text-teal-600 dark:text-teal-400 px-2 py-0.5 text-[0.62rem] font-bold tracking-wide w-full max-w-[96px] shadow-2xs">
+                                          <span className="h-1 w-1 rounded-full bg-teal-500 shrink-0" />
+                                          <span>DRM Allowed</span>
+                                        </span>
+                                      )}
+                                    </div>
+                                  </td>
 
-                                    {/* 4. Instant Fresh Slate Clean Action (Compact Sharp Icon Button) */}
-                                    <button
-                                      type="button"
-                                      onClick={() => handleQuickFreshSlate(st)}
-                                      title="Fresh Slate: Lift All DRM Locks, Cooldowns, And Zero Violations"
-                                      className="grid h-8 w-8 place-items-center rounded-md border border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-white transition-all cursor-pointer shadow-2xs active:scale-95 shrink-0"
-                                    >
-                                      <Sparkles className="h-3.5 w-3.5" />
-                                    </button>
+                                  {/* 5. Violations & Cooldown - Sharp Symmetrical Badges */}
+                                  <td className="py-3 px-2 text-center font-mono">
+                                    <div className="flex flex-col items-center gap-1.5">
+                                      {(st.drm_violations_count || 0) > 0 ? (
+                                        <span className="inline-flex items-center justify-center gap-1.5 rounded-md bg-rose-500/15 border border-rose-500/30 text-rose-500 px-2.5 py-1 text-[0.65rem] font-bold shadow-2xs w-full max-w-[84px]">
+                                          <AlertTriangle className="h-2.5 w-2.5 shrink-0" />
+                                          <span>{st.drm_violations_count} Alerts</span>
+                                        </span>
+                                      ) : (
+                                        <span className="inline-flex items-center justify-center gap-1.5 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-600 dark:text-emerald-400 px-2.5 py-1 text-[0.65rem] font-bold shadow-2xs w-full max-w-[84px]">
+                                          <CheckCircle2 className="h-2.5 w-2.5 shrink-0" />
+                                          <span>0 Clean</span>
+                                        </span>
+                                      )}
 
-                                    {/* 5. Advanced DRM Security Settings */}
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setSelectedStudentForAction(st);
-                                        setSecurityActionForm({
-                                          action_type: st.is_drm_blocked ? "UNBLOCK_DRM" : "BLOCK_DRM",
-                                          reason: "",
-                                          cooldown_hours: 24,
-                                          warning_message: "",
-                                          access_tier: st.access_tier || "FREE",
-                                          new_password: "",
-                                          section: st.section || "A",
-                                        });
-                                        setShowSecurityModal(true);
-                                      }}
-                                      title="DRM Reading Vault Controls & Cooldowns"
-                                      className="grid h-8 w-8 place-items-center rounded-md border border-border/90 bg-surface/80 text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all cursor-pointer shadow-2xs active:scale-95 shrink-0"
-                                    >
-                                      <Shield className="h-3.5 w-3.5" />
-                                    </button>
+                                      {hasActiveCooldown ? (
+                                        <span className="inline-flex items-center justify-center gap-1 rounded-md bg-amber-500/15 border border-amber-500/30 text-amber-500 px-2 py-0.5 text-[0.62rem] font-bold font-mono animate-pulse shadow-2xs w-full max-w-[84px]">
+                                          <Timer className="h-2.5 w-2.5 shrink-0" />
+                                          <span>Cooldown</span>
+                                        </span>
+                                      ) : null}
+                                    </div>
+                                  </td>
 
-                                    {/* 6. Permanent Delete Account */}
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        setSelectedStudentForAction(st);
-                                        setSecurityActionForm({
-                                          action_type: "HARD_DELETE_USER",
-                                          reason: "Permanent Administrative Hard Delete",
-                                          cooldown_hours: 24,
-                                          warning_message: "",
-                                          access_tier: st.access_tier || "FREE",
-                                          new_password: "",
-                                          section: st.section || "A",
-                                        });
-                                        setShowSecurityModal(true);
-                                      }}
-                                      title="Permanently Delete Student Account"
-                                      className="grid h-8 w-8 place-items-center rounded-md border border-rose-500/30 bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white transition-all cursor-pointer shadow-2xs active:scale-95 shrink-0"
-                                    >
-                                      <Trash2 className="h-3.5 w-3.5" />
-                                    </button>
-                                  </div>
-                                </td>
-                              </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
+                                  {/* 6. Actions - Single Sleek Dropdown Action Menu */}
+                                  <td className="py-3 px-4 text-right whitespace-nowrap">
+                                    <div className="inline-flex items-center justify-end">
+                                      <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                          <button
+                                            type="button"
+                                            className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-border bg-surface px-2.5 sm:px-3 text-xs font-bold text-foreground hover:bg-muted hover:border-primary/40 transition-all cursor-pointer shadow-2xs active:scale-95 shrink-0"
+                                            title={`Manage Actions For ${st.full_name || st.username || "Scholar"}`}
+                                          >
+                                            <span>Actions</span>
+                                            <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                                          </button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end" className="w-56 p-1.5 rounded-2xl border border-border bg-card shadow-xl text-xs space-y-0.5 z-50">
+                                          <DropdownMenuLabel className="px-2 py-1 text-[0.65rem] font-bold text-muted-foreground uppercase tracking-wider">
+                                            Scholar Governance
+                                          </DropdownMenuLabel>
+
+                                          {/* 1. Academic Semester Promotion */}
+                                          <DropdownMenuItem
+                                            onClick={() => {
+                                              setUpgradeSemesterForm({
+                                                mode: "single",
+                                                student_id: st.id,
+                                                student_name: st.full_name || st.username,
+                                                current_semester: st.semester,
+                                                target_semester: (st.semester || 1) + 1,
+                                                section: st.section || "A",
+                                                program: st.program || "",
+                                                reason: `Semester Academic Promotion For ${st.full_name || st.username}`,
+                                              });
+                                              setShowUpgradeSemesterModal(true);
+                                            }}
+                                            className="flex items-center gap-2 px-2.5 py-2 rounded-xl font-bold cursor-pointer hover:bg-surface text-foreground"
+                                          >
+                                            <TrendingUp className="h-3.5 w-3.5 text-teal-600 dark:text-teal-400 shrink-0" />
+                                            <span>Promote To Sem {(st.semester || 1) + 1}</span>
+                                          </DropdownMenuItem>
+
+                                          {/* 2. Direct Block / Unblock */}
+                                          <DropdownMenuItem
+                                            onClick={() => handleQuickToggleBlock(st)}
+                                            className="flex items-center gap-2 px-2.5 py-2 rounded-xl font-bold cursor-pointer hover:bg-surface text-foreground"
+                                          >
+                                            {st.is_login_blocked || st.is_active === false ? (
+                                              <>
+                                                <UserCheck className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                                                <span>Reactivate Account</span>
+                                              </>
+                                            ) : (
+                                              <>
+                                                <UserX className="h-3.5 w-3.5 text-amber-600 dark:text-amber-400 shrink-0" />
+                                                <span>Suspend Account</span>
+                                              </>
+                                            )}
+                                          </DropdownMenuItem>
+
+                                          {/* 3. Direct Password Reset */}
+                                          <DropdownMenuItem
+                                            onClick={() => {
+                                              setSelectedStudentForAction(st);
+                                              setSecurityActionForm({
+                                                action_type: "RESET_PASSWORD",
+                                                reason: "Administrator Direct Password Reset",
+                                                cooldown_hours: 24,
+                                                warning_message: "",
+                                                access_tier: st.access_tier || "FREE",
+                                                new_password: "",
+                                                section: st.section || "A",
+                                              });
+                                              setShowSecurityModal(true);
+                                            }}
+                                            className="flex items-center gap-2 px-2.5 py-2 rounded-xl font-bold cursor-pointer hover:bg-surface text-foreground"
+                                          >
+                                            <Key className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
+                                            <span>Reset Password</span>
+                                          </DropdownMenuItem>
+
+                                          {/* 4. Global Clean Slate */}
+                                          <DropdownMenuItem
+                                            onClick={() => handleQuickFreshSlate(st)}
+                                            className="flex items-center gap-2 px-2.5 py-2 rounded-xl font-bold cursor-pointer hover:bg-surface text-foreground"
+                                          >
+                                            <Sparkles className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                                            <span>Fresh Slate (Clear Locks)</span>
+                                          </DropdownMenuItem>
+
+                                          {/* 5. Advanced DRM Security Settings */}
+                                          <DropdownMenuItem
+                                            onClick={() => {
+                                              setSelectedStudentForAction(st);
+                                              setSecurityActionForm({
+                                                action_type: st.is_drm_blocked ? "UNBLOCK_DRM" : "BLOCK_DRM",
+                                                reason: "",
+                                                cooldown_hours: 24,
+                                                warning_message: "",
+                                                access_tier: st.access_tier || "FREE",
+                                                new_password: "",
+                                                section: st.section || "A",
+                                              });
+                                              setShowSecurityModal(true);
+                                            }}
+                                            className="flex items-center gap-2 px-2.5 py-2 rounded-xl font-bold cursor-pointer hover:bg-surface text-foreground"
+                                          >
+                                            <Shield className="h-3.5 w-3.5 text-primary shrink-0" />
+                                            <span>DRM Security Settings</span>
+                                          </DropdownMenuItem>
+
+                                          <DropdownMenuSeparator className="my-1 border-border/80" />
+
+                                          {/* 6. Permanent Delete Account */}
+                                          <DropdownMenuItem
+                                            onClick={() => {
+                                              setSelectedStudentForAction(st);
+                                              setSecurityActionForm({
+                                                action_type: "HARD_DELETE_USER",
+                                                reason: "Permanent Administrative Hard Delete",
+                                                cooldown_hours: 24,
+                                                warning_message: "",
+                                                access_tier: st.access_tier || "FREE",
+                                                new_password: "",
+                                                section: st.section || "A",
+                                              });
+                                              setShowSecurityModal(true);
+                                            }}
+                                            className="flex items-center gap-2 px-2.5 py-2 rounded-xl font-bold cursor-pointer hover:bg-rose-500/10 text-rose-600 dark:text-rose-400"
+                                          >
+                                            <Trash2 className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400 shrink-0" />
+                                            <span>Delete Scholar Account</span>
+                                          </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                      </DropdownMenu>
+                                    </div>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   )}
                 </div>

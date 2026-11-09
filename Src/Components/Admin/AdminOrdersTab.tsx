@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   Award,
   CheckCircle2,
+  ChevronDown,
   Download,
   Eye,
   FileText,
@@ -24,6 +25,14 @@ import {
 import { toast } from "sonner";
 import { adminSubscriptionApi, RazorpayOrderRecord } from "@/Lib/Api";
 import { cn } from "@/Lib/Utils";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+} from "../Ui/DropdownMenu";
 
 export function AdminOrdersTab() {
   const [orders, setOrders] = useState<RazorpayOrderRecord[]>([]);
@@ -651,17 +660,17 @@ export function AdminOrdersTab() {
       </div>
 
       {/* Filter and Action Bar */}
-      <div className="rounded-2xl border border-border/80 bg-surface/60 p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+      <div className="rounded-2xl border border-border/80 bg-surface/60 p-4 flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+        <div className="flex flex-wrap items-center gap-2.5">
           {/* Status Tabs */}
-          <div className="flex items-center gap-1 rounded-xl bg-background border border-border p-1 text-xs">
+          <div className="flex flex-wrap items-center gap-1 rounded-xl bg-background border border-border p-1 text-xs">
             {["ALL", "PAID", "CREATED", "FAILED", "REFUNDED"].map((st) => (
               <button
                 key={st}
                 type="button"
                 onClick={() => setStatusFilter(st)}
                 className={cn(
-                  "px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer",
+                  "px-3 py-1.5 rounded-lg font-bold transition-all cursor-pointer whitespace-nowrap",
                   statusFilter === st
                     ? "bg-primary text-primary-foreground shadow-xs"
                     : "text-muted-foreground hover:text-foreground"
@@ -676,7 +685,7 @@ export function AdminOrdersTab() {
           <select
             value={tierFilter}
             onChange={(e) => setTierFilter(e.target.value)}
-            className="h-9 rounded-xl border border-border bg-background px-3 text-xs font-semibold focus:border-primary focus:outline-none cursor-pointer"
+            className="h-9 rounded-xl border border-border bg-background px-3 text-xs font-semibold focus:border-primary focus:outline-none cursor-pointer shrink-0"
           >
             <option value="ALL">All Plan Tiers</option>
             <option value="FREE">Free</option>
@@ -687,13 +696,13 @@ export function AdminOrdersTab() {
         </div>
 
         {/* Search Input, Create Manual Order & Refresh */}
-        <div className="flex items-center gap-2 w-full sm:w-auto">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full lg:w-auto">
           <form
             onSubmit={(e) => {
               e.preventDefault();
               fetchOrders();
             }}
-            className="relative flex-1 sm:w-56"
+            className="relative flex-1 sm:w-56 min-w-[160px]"
           >
             <Search className="pointer-events-none absolute top-1/2 left-3 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <input
@@ -708,7 +717,7 @@ export function AdminOrdersTab() {
           <button
             type="button"
             onClick={() => setShowCreateModal(true)}
-            className="h-9 px-3 rounded-xl bg-primary hover:bg-primary-deep text-primary-foreground text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs whitespace-nowrap"
+            className="h-9 px-3 rounded-xl bg-primary hover:bg-primary-deep text-primary-foreground text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-xs whitespace-nowrap active:scale-95"
             title="Create Manual Order / Upgrade Scholar"
           >
             <Plus className="h-3.5 w-3.5" />
@@ -718,7 +727,7 @@ export function AdminOrdersTab() {
           <button
             type="button"
             onClick={fetchOrders}
-            className="h-9 px-3 rounded-xl border border-border bg-card text-foreground hover:bg-surface text-xs font-bold flex items-center gap-1.5 cursor-pointer"
+            className="h-9 px-3 rounded-xl border border-border bg-card text-foreground hover:bg-surface text-xs font-bold flex items-center gap-1.5 cursor-pointer whitespace-nowrap active:scale-95"
           >
             <RefreshCw className={cn("h-3.5 w-3.5", loading && "animate-spin")} />
             <span>Refresh</span>
@@ -727,18 +736,18 @@ export function AdminOrdersTab() {
       </div>
 
       {/* Orders Table */}
-      <div className="overflow-x-auto rounded-2xl border border-border/80 bg-card shadow-xs">
-        <table className="w-full text-left text-xs">
-          <thead className="bg-surface/90 border-b border-border text-[0.65rem] uppercase font-bold text-muted-foreground tracking-wider">
+      <div className="overflow-x-auto w-full rounded-2xl border border-border/80 bg-card shadow-xs scrollbar-thin">
+        <table className="w-full min-w-[800px] text-left text-xs border-collapse">
+          <thead className="bg-surface/90 border-b border-border text-[0.65rem] uppercase font-bold text-muted-foreground tracking-wider whitespace-nowrap">
             <tr>
-              <th className="p-4">Scholar / Student</th>
-              <th className="p-4">Plan Tier</th>
-              <th className="p-4">Cycle</th>
-              <th className="p-4">Amount</th>
-              <th className="p-4">Status</th>
-              <th className="p-4">Invoice No.</th>
-              <th className="p-4">Date &amp; Time</th>
-              <th className="p-4 text-right">Actions</th>
+              <th className="p-4 min-w-[170px]">Scholar / Student</th>
+              <th className="p-4 min-w-[95px]">Plan Tier</th>
+              <th className="p-4 min-w-[80px]">Cycle</th>
+              <th className="p-4 min-w-[110px]">Amount</th>
+              <th className="p-4 min-w-[90px]">Status</th>
+              <th className="p-4 min-w-[130px]">Invoice No.</th>
+              <th className="p-4 min-w-[110px]">Date &amp; Time</th>
+              <th className="p-4 text-right min-w-[90px]">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border/60">
@@ -761,18 +770,18 @@ export function AdminOrdersTab() {
                 return (
                   <tr key={ord.id} className="hover:bg-surface/40 transition-colors">
                     <td className="p-4">
-                      <div className="flex items-center gap-2.5">
+                      <div className="flex items-center gap-2.5 min-w-0">
                         <div className="grid h-8 w-8 place-items-center rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-bold text-xs shrink-0">
                           {ord.user_name?.charAt(0) || "S"}
                         </div>
                         <div className="min-w-0">
-                          <span className="font-bold text-foreground block truncate">{ord.user_name || "Scholar"}</span>
-                          <span className="text-[0.65rem] text-muted-foreground block truncate">{ord.user_email}</span>
+                          <span className="font-bold text-foreground block truncate" title={ord.user_name || "Scholar"}>{ord.user_name || "Scholar"}</span>
+                          <span className="text-[0.65rem] text-muted-foreground block truncate" title={ord.user_email}>{ord.user_email}</span>
                           <span className="text-[0.62rem] font-mono text-primary">{ord.user_roll || "—"}</span>
                         </div>
                       </div>
                     </td>
-                    <td className="p-4">
+                    <td className="p-4 whitespace-nowrap">
                       <span
                         className={cn(
                           "rounded-full px-2.5 py-0.5 text-[0.62rem] font-bold uppercase tracking-wider",
@@ -788,14 +797,14 @@ export function AdminOrdersTab() {
                         {ord.plan_tier}
                       </span>
                     </td>
-                    <td className="p-4 font-mono capitalize">{ord.cycle}</td>
-                    <td className="p-4 font-mono font-bold text-foreground">
+                    <td className="p-4 font-mono capitalize whitespace-nowrap">{ord.cycle}</td>
+                    <td className="p-4 font-mono font-bold text-foreground whitespace-nowrap">
                       ₹{ord.amount_inr || ord.amount / 100}
                       {ord.discount_inr > 0 && (
                         <span className="text-[0.62rem] text-emerald-600 block">Saved ₹{ord.discount_inr}</span>
                       )}
                     </td>
-                    <td className="p-4">
+                    <td className="p-4 whitespace-nowrap">
                       <span
                         className={cn(
                           "rounded-full px-2.5 py-0.5 text-[0.62rem] font-bold uppercase",
@@ -811,7 +820,7 @@ export function AdminOrdersTab() {
                         {ord.status}
                       </span>
                     </td>
-                    <td className="p-4 font-mono text-[0.7rem] text-muted-foreground">
+                    <td className="p-4 font-mono text-[0.7rem] text-muted-foreground whitespace-nowrap">
                       {ord.invoice_number || "—"}
                     </td>
                     <td className="p-4 text-[0.7rem] text-muted-foreground whitespace-nowrap">
@@ -821,77 +830,87 @@ export function AdminOrdersTab() {
                         year: "numeric",
                       })}
                     </td>
-                    <td className="p-4 text-right">
-                      <div className="flex items-center justify-end gap-1.5 flex-wrap">
-                        {/* Receipt Button */}
-                        <button
-                          type="button"
-                          onClick={() => handleViewInvoice(ord.id)}
-                          className="h-7 px-2 rounded-lg border border-border bg-card hover:bg-surface text-foreground font-semibold text-[0.68rem] flex items-center gap-1 cursor-pointer"
-                          title="View Official Receipt"
-                        >
-                          <FileText className="h-3 w-3 text-primary" />
-                          <span>Receipt</span>
-                        </button>
+                    <td className="p-4 text-right whitespace-nowrap">
+                      <div className="inline-flex items-center justify-end">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button
+                              type="button"
+                              className="inline-flex h-8 items-center gap-1.5 rounded-xl border border-border bg-surface px-2.5 sm:px-3 text-xs font-bold text-foreground hover:bg-muted hover:border-primary/40 transition-all cursor-pointer shadow-2xs active:scale-95 shrink-0"
+                              title={`Manage Actions For Order ${ord.invoice_number || ord.id}`}
+                            >
+                              <span>Actions</span>
+                              <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-52 p-1.5 rounded-2xl border border-border bg-card shadow-xl text-xs space-y-0.5 z-50">
+                            <DropdownMenuLabel className="px-2 py-1 text-[0.65rem] font-bold text-muted-foreground uppercase tracking-wider">
+                              Order Actions
+                            </DropdownMenuLabel>
 
-                        {/* Merge Button */}
-                        {hasDuplicates && (
-                          <button
-                            type="button"
-                            onClick={() => handleAction(ord.id, "MERGE_DUPLICATES")}
-                            className="h-7 px-2 rounded-lg border border-purple-500/30 bg-purple-500/10 text-purple-600 dark:text-purple-400 hover:bg-purple-500/20 font-bold text-[0.68rem] flex items-center gap-1 cursor-pointer"
-                            title="Merge failed/duplicate checkouts for this scholar into one clean record"
-                          >
-                            <GitMerge className="h-3 w-3" />
-                            <span>Merge</span>
-                          </button>
-                        )}
+                            {/* 1. Official Receipt */}
+                            <DropdownMenuItem
+                              onClick={() => handleViewInvoice(ord.id)}
+                              className="flex items-center gap-2 px-2.5 py-2 rounded-xl font-bold cursor-pointer hover:bg-surface text-foreground"
+                            >
+                              <FileText className="h-3.5 w-3.5 text-primary shrink-0" />
+                              <span>View Receipt</span>
+                            </DropdownMenuItem>
 
-                        {/* Mark Paid Button: STRICTLY DISABLED FOR FAILED ORDERS */}
-                        {isCreated && !isFailed && !isPaid && !isRefunded && (
-                          <button
-                            type="button"
-                            onClick={() => handleAction(ord.id, "MARK_PAID")}
-                            className="h-7 px-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[0.68rem] flex items-center gap-1 cursor-pointer"
-                            title="Manually Mark Paid & Upgrade Account"
-                          >
-                            <CheckCircle2 className="h-3 w-3" />
-                            <span>Mark Paid</span>
-                          </button>
-                        )}
+                            {/* 2. Mark Paid (For Created orders) */}
+                            {isCreated && !isFailed && !isPaid && !isRefunded && (
+                              <DropdownMenuItem
+                                onClick={() => handleAction(ord.id, "MARK_PAID")}
+                                className="flex items-center gap-2 px-2.5 py-2 rounded-xl font-bold cursor-pointer hover:bg-surface text-emerald-600 dark:text-emerald-400"
+                              >
+                                <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                                <span>Mark Paid &amp; Upgrade</span>
+                              </DropdownMenuItem>
+                            )}
 
-                        {/* Refund Button: Only for Paid Orders */}
-                        {isPaid && (
-                          <button
-                            type="button"
-                            onClick={() => handleAction(ord.id, "REFUND")}
-                            className="h-7 px-2 rounded-lg border border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:bg-rose-500/20 font-bold text-[0.68rem] flex items-center gap-1 cursor-pointer"
-                            title="Refund & Downgrade to Free"
-                          >
-                            <RotateCcw className="h-3 w-3" />
-                            <span>Refund</span>
-                          </button>
-                        )}
+                            {/* 3. Refund (For Paid orders) */}
+                            {isPaid && (
+                              <DropdownMenuItem
+                                onClick={() => handleAction(ord.id, "REFUND")}
+                                className="flex items-center gap-2 px-2.5 py-2 rounded-xl font-bold cursor-pointer hover:bg-surface text-rose-600 dark:text-rose-400"
+                              >
+                                <RotateCcw className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400 shrink-0" />
+                                <span>Refund &amp; Downgrade</span>
+                              </DropdownMenuItem>
+                            )}
 
-                        {/* Edit Button (CRUD) */}
-                        <button
-                          type="button"
-                          onClick={() => handleOpenEdit(ord)}
-                          className="h-7 w-7 rounded-lg border border-border bg-card hover:bg-surface text-muted-foreground hover:text-foreground flex items-center justify-center cursor-pointer"
-                          title="Edit Order Attributes (CRUD)"
-                        >
-                          <Edit className="h-3 w-3" />
-                        </button>
+                            {/* 4. Merge Duplicates */}
+                            {hasDuplicates && (
+                              <DropdownMenuItem
+                                onClick={() => handleAction(ord.id, "MERGE_DUPLICATES")}
+                                className="flex items-center gap-2 px-2.5 py-2 rounded-xl font-bold cursor-pointer hover:bg-surface text-purple-600 dark:text-purple-400"
+                              >
+                                <GitMerge className="h-3.5 w-3.5 text-purple-600 dark:text-purple-400 shrink-0" />
+                                <span>Merge Duplicates</span>
+                              </DropdownMenuItem>
+                            )}
 
-                        {/* Delete Button (CRUD) */}
-                        <button
-                          type="button"
-                          onClick={() => handleDeleteOrder(ord)}
-                          className="h-7 w-7 rounded-lg border border-rose-500/20 bg-rose-500/10 text-rose-600 hover:bg-rose-500/20 flex items-center justify-center cursor-pointer"
-                          title="Delete Order (CRUD)"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </button>
+                            {/* 5. Edit Order Attributes */}
+                            <DropdownMenuItem
+                              onClick={() => handleOpenEdit(ord)}
+                              className="flex items-center gap-2 px-2.5 py-2 rounded-xl font-bold cursor-pointer hover:bg-surface text-foreground"
+                            >
+                              <Edit className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                              <span>Edit Order Details</span>
+                            </DropdownMenuItem>
+
+                            <DropdownMenuSeparator className="my-1 border-border/80" />
+
+                            {/* 6. Delete Order Record */}
+                            <DropdownMenuItem
+                              onClick={() => handleDeleteOrder(ord)}
+                              className="flex items-center gap-2 px-2.5 py-2 rounded-xl font-bold cursor-pointer hover:bg-rose-500/10 text-rose-600 dark:text-rose-400"
+                            >
+                              <Trash2 className="h-3.5 w-3.5 text-rose-600 dark:text-rose-400 shrink-0" />
+                              <span>Delete Order Record</span>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
                     </td>
                   </tr>
