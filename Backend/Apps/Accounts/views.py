@@ -1036,10 +1036,52 @@ class IsAdminStaffOrRole(permissions.BasePermission):
             )
         )
 
+def check_user_station_permission(user, station_id, action="view"):
+    """Validates Whether An Administrative User Has Granular Permission For A Given Station."""
+    if not user or not user.is_authenticated:
+        return False
+    if user.is_superuser or getattr(user, "email", "") == "admin@nims.edu.in":
+        return True
+    role = getattr(user, "admin_role", None)
+    if not role:
+        return False
+    perms = getattr(role, "permissions", None) or {}
+    if "*" in perms:
+        star = perms["*"]
+        if isinstance(star, bool):
+            return star
+        if isinstance(star, dict):
+            if action in star:
+                return bool(star[action])
+            return bool(star.get("view", False))
+    station_perm = perms.get(station_id)
+    if not station_perm:
+        return False
+    if isinstance(station_perm, bool):
+        return station_perm
+    if isinstance(station_perm, dict):
+        if action in station_perm:
+            return bool(station_perm[action])
+        if action == "view":
+            return bool(
+                station_perm.get("view") or
+                station_perm.get("manage") or
+                station_perm.get("delete") or
+                station_perm.get("security")
+            )
+        return bool(station_perm.get(action, False))
+    return False
+
+class HasRolesStationPermission(permissions.BasePermission):
+    """Enforces That The User Possesses Explicit 'roles' Station Clearance."""
+    def has_permission(self, request, view):
+        action = "view" if request.method in permissions.SAFE_METHODS else ("delete" if request.method == "DELETE" else "manage")
+        return check_user_station_permission(request.user, "roles", action)
+
 DEFAULT_SYSTEM_ROLES = [
     {
         "name": "Super Administrator",
-        "description": "Unrestricted administrative clearance across all stations, configurations, user management, and security controls.",
+        "description": "UnRestricted Administrative Clearance Across All Stations, Configurations, User Management, And Security Controls.",
         "is_system_role": True,
         "permissions": {
             "*": {"view": True, "manage": True, "delete": True, "security": True}
@@ -1047,7 +1089,7 @@ DEFAULT_SYSTEM_ROLES = [
     },
     {
         "name": "Finance & Billing Officer",
-        "description": "Oversees student subscription tiers, Razorpay payment orders, promo discount codes, and access matrices.",
+        "description": "Oversees Student Subscription Tiers, Razorpay Payment Orders, Promo Discount Codes, And Access Matrices.",
         "is_system_role": True,
         "permissions": {
             "overview": {"view": True, "manage": False, "delete": False, "security": False},
@@ -1060,7 +1102,7 @@ DEFAULT_SYSTEM_ROLES = [
     },
     {
         "name": "Student Support Officer",
-        "description": "Manages student help desk tickets, community discussions, student inquiries, and disciplinary notifications.",
+        "description": "Manages Student Help Desk Tickets, Community Discussions, Student Inquiries, And Disciplinary Notifications.",
         "is_system_role": True,
         "permissions": {
             "overview": {"view": True, "manage": False, "delete": False, "security": False},
@@ -1094,7 +1136,7 @@ def seed_default_roles_if_empty():
 
 class AdminRolesListView(APIView):
     """Lists All Configured Roles And Allows Superadmins To Define New Granular Roles."""
-    permission_classes = [IsAdminStaffOrRole]
+    permission_classes = [IsAdminStaffOrRole, HasRolesStationPermission]
 
     def get(self, request):
         seed_default_roles_if_empty()
@@ -1123,7 +1165,7 @@ class AdminRolesListView(APIView):
 
 class AdminRoleDetailView(APIView):
     """Retrieves, Updates, Or Removes A Specific Administrative Role."""
-    permission_classes = [IsAdminStaffOrRole]
+    permission_classes = [IsAdminStaffOrRole, HasRolesStationPermission]
 
     def get_object(self, pk):
         try:
@@ -1180,7 +1222,7 @@ class AdminRoleDetailView(APIView):
 
 class AdminStaffUsersListView(APIView):
     """Lists Administrative Users And Handles Administrative Account Creation."""
-    permission_classes = [IsAdminStaffOrRole]
+    permission_classes = [IsAdminStaffOrRole, HasRolesStationPermission]
 
     def get(self, request):
         from django.db.models import Q
@@ -1242,7 +1284,7 @@ class AdminStaffUsersListView(APIView):
 
 class AdminStaffUserDetailView(APIView):
     """Manages Individual Admin User Details, Active Status, And Role Reassignment."""
-    permission_classes = [IsAdminStaffOrRole]
+    permission_classes = [IsAdminStaffOrRole, HasRolesStationPermission]
 
     def get_object(self, pk):
         try:
@@ -1297,7 +1339,7 @@ class AdminStaffUserDetailView(APIView):
 
 class AdminStaffUserResetPasswordView(APIView):
     """Directly Updates The Password For An Administrative Staff Member."""
-    permission_classes = [IsAdminStaffOrRole]
+    permission_classes = [IsAdminStaffOrRole, HasRolesStationPermission]
 
     def post(self, request, pk):
         try:

@@ -123,6 +123,7 @@ import {
   communityApi,
   globalDrmApi,
   toTitleCase,
+  hasStationPermission,
 } from "@/Lib/Api";
 import { cn } from "@/Lib/Utils";
 
@@ -267,6 +268,54 @@ export function AdminPortal() {
     is_dismissible: true,
     priority: 10,
   });
+
+  // Granular Station Definitions & Role-Based Access Control Filtering
+  const allAdminStations = useMemo(() => [
+    { id: "overview" as AdminStation, label: "Admin Overview", icon: LayoutDashboard, count: "Live" },
+    { id: "structure" as AdminStation, label: "College Structure", icon: Building2, count: departments.length },
+    { id: "publisher" as AdminStation, label: "Upload Study Material", icon: Upload, count: materials.length + labs.length },
+    { id: "timetable" as AdminStation, label: "Class Timetables", icon: Clock, count: timetableSlots.length },
+    { id: "assignments" as AdminStation, label: "Student Assignments", icon: FileText, count: assignments.length },
+    { id: "notices" as AdminStation, label: "College Circulars", icon: Megaphone, count: notices.length },
+    { id: "milestones" as AdminStation, label: "Exam Dates & Timers", icon: Calendar, count: milestones.length },
+    { id: "students" as AdminStation, label: "Student Accounts", icon: Users, count: students.length },
+    { id: "subscriptions" as AdminStation, label: "Payments & Invoices", icon: Award, count: "Live" },
+    { id: "coupons" as AdminStation, label: "Discount Coupons", icon: Tag, count: "Promo" },
+    { id: "plan-matrix" as AdminStation, label: "Plan Access Matrix", icon: ShieldCheck, count: "Matrix" },
+    { id: "banners" as AdminStation, label: "Announcement Banners", icon: Radio, count: banners.filter((b) => b.is_active).length },
+    { id: "badges" as AdminStation, label: "Menu Badges", icon: Sparkles, count: badges.filter((b) => b.is_active && b.badge_text).length },
+    { id: "support" as AdminStation, label: "Help Desk Tickets", icon: HelpCircle, count: tickets.length },
+    { id: "forum" as AdminStation, label: "Student Discussions", icon: MessageSquare, count: posts.length },
+    { id: "marketing" as AdminStation, label: "Marketing & Dispatches", icon: Mail, count: "Reach" },
+    { id: "roles" as AdminStation, label: "Users & Roles RBAC", icon: UserCheck, count: "RBAC" },
+  ], [
+    departments.length,
+    materials.length,
+    labs.length,
+    timetableSlots.length,
+    assignments.length,
+    notices.length,
+    milestones.length,
+    students.length,
+    banners,
+    badges,
+    tickets.length,
+    posts.length,
+  ]);
+
+  const permittedStations = useMemo(() => {
+    return allAdminStations.filter((station) => hasStationPermission(user, station.id, "view"));
+  }, [allAdminStations, user]);
+
+  // Auto-redirect to first permitted station if activeStation is unauthorized
+  useEffect(() => {
+    if (!user || isLoading) return;
+    const isCurrentAllowed = hasStationPermission(user, activeStation, "view");
+    const firstPermitted = permittedStations[0];
+    if (!isCurrentAllowed && firstPermitted) {
+      setActiveStation(firstPermitted.id);
+    }
+  }, [user, isLoading, activeStation, permittedStations]);
 
   // ================= Cascading Selection State =================
   const [selectedDeptId, setSelectedDeptId] = useState<string>("");
@@ -545,23 +594,23 @@ export function AdminPortal() {
         drmConfigRes,
         bannersRes,
       ] = await Promise.all([
-        apiFetch("/academic/admin/departments/"),
-        apiFetch("/academic/admin/programs/"),
-        apiFetch("/academic/admin/sections/"),
-        apiFetch("/academic/admin/subjects/"),
+        apiFetch("/academic/admin/departments/").catch(() => []),
+        apiFetch("/academic/admin/programs/").catch(() => []),
+        apiFetch("/academic/admin/sections/").catch(() => []),
+        apiFetch("/academic/admin/subjects/").catch(() => []),
         apiFetch("/academic/admin/units/").catch(() => []),
-        apiFetch("/academic/admin/materials/"),
-        apiFetch("/academic/admin/labs/"),
-        apiFetch("/assignments/admin/assignments/"),
-        apiFetch("/planner/admin/timetable/"),
-        apiFetch("/planner/admin/milestones/"),
-        apiFetch("/academic/admin/notices/"),
-        studentSecurityApi.getStudents(),
-        apiFetch("/academic/admin/badges/"),
-        communityApi.getTickets(),
-        communityApi.getPosts(),
-        studentSecurityApi.getAuditLogs(),
-        studentSecurityApi.getDrmIncidents(),
+        apiFetch("/academic/admin/materials/").catch(() => []),
+        apiFetch("/academic/admin/labs/").catch(() => []),
+        apiFetch("/assignments/admin/assignments/").catch(() => []),
+        apiFetch("/planner/admin/timetable/").catch(() => []),
+        apiFetch("/planner/admin/milestones/").catch(() => []),
+        apiFetch("/academic/admin/notices/").catch(() => []),
+        studentSecurityApi.getStudents().catch(() => []),
+        apiFetch("/academic/admin/badges/").catch(() => []),
+        communityApi.getTickets().catch(() => []),
+        communityApi.getPosts().catch(() => []),
+        studentSecurityApi.getAuditLogs().catch(() => []),
+        studentSecurityApi.getDrmIncidents().catch(() => []),
         globalDrmApi.getConfig().catch(() => ({ is_drm_enabled: true })),
         apiFetch("/academic/admin/banners/").catch(() => []),
       ]);
@@ -2725,58 +2774,46 @@ export function AdminPortal() {
 
               {/* Station Navigation List */}
               <nav className="mt-4 space-y-1">
-                {[
-                  { id: "overview", label: "Admin Overview", icon: LayoutDashboard, count: "Live" },
-                  { id: "structure", label: "College Structure", icon: Building2, count: departments.length },
-                  { id: "publisher", label: "Upload Study Material", icon: Upload, count: materials.length + labs.length },
-                  { id: "timetable", label: "Class Timetables", icon: Clock, count: timetableSlots.length },
-                  { id: "assignments", label: "Student Assignments", icon: FileText, count: assignments.length },
-                  { id: "notices", label: "College Circulars", icon: Megaphone, count: notices.length },
-                  { id: "milestones", label: "Exam Dates & Timers", icon: Calendar, count: milestones.length },
-                  { id: "students", label: "Student Accounts", icon: Users, count: students.length },
-                  { id: "subscriptions", label: "Payments & Invoices", icon: Award, count: "Live" },
-                  { id: "coupons", label: "Discount Coupons", icon: Tag, count: "Promo" },
-                  { id: "plan-matrix", label: "Plan Access Matrix", icon: ShieldCheck, count: "Matrix" },
-                  { id: "banners", label: "Announcement Banners", icon: Radio, count: banners.filter((b) => b.is_active).length },
-                  { id: "badges", label: "Menu Badges", icon: Sparkles, count: badges.filter((b) => b.is_active && b.badge_text).length },
-                  { id: "support", label: "Help Desk Tickets", icon: HelpCircle, count: tickets.length },
-                  { id: "forum", label: "Student Discussions", icon: MessageSquare, count: posts.length },
-                  { id: "marketing", label: "Marketing & Dispatches", icon: Mail, count: "Reach" },
-                  { id: "roles", label: "Users & Roles RBAC", icon: UserCheck, count: "RBAC" },
-                ].map((station) => {
-                  const Icon = station.icon;
-                  const isActive = activeStation === station.id;
-                  return (
-                    <button
-                      key={station.id}
-                      onClick={() => {
-                        setActiveStation(station.id as AdminStation);
-                        setMobileNavOpen(false);
-                      }}
-                      className={cn(
-                        "flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs cursor-pointer transition-all active:scale-[0.98]",
-                        isActive
-                          ? "bg-slate-900 text-white font-semibold shadow-xs dark:bg-white/[0.08] dark:text-white dark:border dark:border-white/[0.1]"
-                          : "text-slate-600 dark:text-zinc-400 font-medium hover:bg-slate-100 dark:hover:bg-white/[0.04] hover:text-slate-950 dark:hover:text-white",
-                      )}
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-emerald-400" : "text-slate-400 dark:text-zinc-500")} />
-                        <span className="truncate">{station.label}</span>
-                      </div>
-                      <span
+                {permittedStations.length === 0 ? (
+                  <div className="p-4 text-center text-xs text-muted-foreground bg-surface/50 rounded-xl border border-dashed border-border/80">
+                    No Administrative Stations Permitted For Your Assigned Role.
+                  </div>
+                ) : (
+                  permittedStations.map((station) => {
+                    const Icon = station.icon;
+                    const isActive = activeStation === station.id;
+                    return (
+                      <button
+                        key={station.id}
+                        onClick={() => {
+                          setActiveStation(station.id as AdminStation);
+                          setMobileNavOpen(false);
+                        }}
                         className={cn(
-                          "rounded-full px-2 py-0.5 text-[0.62rem] font-mono font-bold shrink-0",
+                          "flex w-full items-center justify-between rounded-xl px-3 py-2 text-xs cursor-pointer transition-all active:scale-[0.98]",
                           isActive
-                            ? "bg-emerald-500 text-white dark:bg-emerald-400 dark:text-zinc-950 shadow-2xs"
-                            : "bg-surface border border-border text-muted-foreground",
+                            ? "bg-slate-900 text-white font-semibold shadow-xs dark:bg-white/[0.08] dark:text-white dark:border dark:border-white/[0.1]"
+                            : "text-slate-600 dark:text-zinc-400 font-medium hover:bg-slate-100 dark:hover:bg-white/[0.04] hover:text-slate-950 dark:hover:text-white",
                         )}
                       >
-                        {station.count}
-                      </span>
-                    </button>
-                  );
-                })}
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-emerald-400" : "text-slate-400 dark:text-zinc-500")} />
+                          <span className="truncate">{station.label}</span>
+                        </div>
+                        <span
+                          className={cn(
+                            "rounded-full px-2 py-0.5 text-[0.62rem] font-mono font-bold shrink-0",
+                            isActive
+                              ? "bg-emerald-500 text-white dark:bg-emerald-400 dark:text-zinc-950 shadow-2xs"
+                              : "bg-surface border border-border text-muted-foreground",
+                          )}
+                        >
+                          {station.count}
+                        </span>
+                      </button>
+                    );
+                  })
+                )}
               </nav>
             </div>
 
@@ -2840,7 +2877,7 @@ export function AdminPortal() {
           >
             <div className={cn("flex items-center", sidebarCollapsed ? "justify-center" : "gap-3")}>
               <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white font-bold text-xs shadow-xs shrink-0">
-                <span>AD</span>
+                <span>{user?.full_name ? user.full_name.split(" ").filter(Boolean).map((n) => n[0]).slice(0, 2).join("").toUpperCase() : "AD"}</span>
               </div>
               {!sidebarCollapsed && (
                 <div className="min-w-0 flex-1">
@@ -2848,9 +2885,9 @@ export function AdminPortal() {
                     {user?.full_name || "Academic Controller"}
                   </h4>
                   <div className="flex items-center gap-1.5 mt-0.5">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[0.6rem] font-bold text-emerald-600 dark:text-emerald-400">
-                      <ShieldCheck className="h-3 w-3" />
-                      <span>Master Admin</span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[0.6rem] font-bold text-emerald-600 dark:text-emerald-400 max-w-full">
+                      <ShieldCheck className="h-3 w-3 shrink-0" />
+                      <span className="truncate">{user?.admin_role_name || (user?.is_superuser ? "Super Administrator" : "Staff Administrator")}</span>
                     </span>
                   </div>
                 </div>
@@ -2862,59 +2899,47 @@ export function AdminPortal() {
         {/* Station Navigation List (Smoothly Scrollable on any viewport height) */}
         <div className="flex-1 min-h-0 overflow-y-auto mt-3 pr-1 -mr-1 space-y-1 scrollbar-thin scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20 overscroll-contain">
           <nav className="space-y-1">
-            {[
-              { id: "overview", label: "Admin Overview", icon: LayoutDashboard, count: "Live" },
-              { id: "structure", label: "College Structure", icon: Building2, count: departments.length },
-              { id: "publisher", label: "Upload Study Material", icon: Upload, count: materials.length + labs.length },
-              { id: "timetable", label: "Class Timetables", icon: Clock, count: timetableSlots.length },
-              { id: "assignments", label: "Student Assignments", icon: FileText, count: assignments.length },
-              { id: "notices", label: "College Circulars", icon: Megaphone, count: notices.length },
-              { id: "milestones", label: "Exam Dates & Timers", icon: Calendar, count: milestones.length },
-              { id: "students", label: "Student Accounts", icon: Users, count: students.length },
-              { id: "subscriptions", label: "Payments & Invoices", icon: Award, count: "Live" },
-              { id: "coupons", label: "Discount Coupons", icon: Tag, count: "Promo" },
-              { id: "plan-matrix", label: "Plan Access Matrix", icon: ShieldCheck, count: "Matrix" },
-              { id: "banners", label: "Announcement Banners", icon: Radio, count: banners.filter((b) => b.is_active).length },
-              { id: "badges", label: "Menu Badges", icon: Sparkles, count: badges.filter((b) => b.is_active && b.badge_text).length },
-              { id: "support", label: "Help Desk Tickets", icon: HelpCircle, count: tickets.length },
-              { id: "forum", label: "Student Discussions", icon: MessageSquare, count: posts.length },
-              { id: "marketing", label: "Marketing & Dispatches", icon: Mail, count: "Reach" },
-              { id: "roles", label: "Users & Roles RBAC", icon: UserCheck, count: "RBAC" },
-            ].map((station) => {
-              const Icon = station.icon;
-              const isActive = activeStation === station.id;
-              return (
-                <button
-                  key={station.id}
-                  onClick={() => setActiveStation(station.id as AdminStation)}
-                  title={sidebarCollapsed ? `${station.label} (${station.count})` : undefined}
-                  className={cn(
-                    "flex w-full items-center rounded-xl cursor-pointer transition-all active:scale-[0.98]",
-                    sidebarCollapsed ? "justify-center p-2.5" : "justify-between px-3 py-2 text-xs",
-                    isActive
-                      ? "bg-slate-900 text-white font-semibold shadow-xs dark:bg-white/[0.08] dark:text-white dark:border dark:border-white/[0.1]"
-                      : "text-slate-600 dark:text-zinc-400 font-medium hover:bg-slate-100 dark:hover:bg-white/[0.04] hover:text-slate-900 dark:hover:text-zinc-100",
-                  )}
-                >
-                  <div className="flex items-center gap-2.5">
-                    <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-emerald-400" : "text-slate-400 dark:text-zinc-500")} />
-                    {!sidebarCollapsed && <span className="truncate">{station.label}</span>}
-                  </div>
-                  {!sidebarCollapsed && (
-                    <span
-                      className={cn(
-                        "rounded-full px-2 py-0.5 text-[0.62rem] font-mono font-bold shrink-0",
-                        isActive
-                          ? "bg-emerald-500 text-white dark:bg-emerald-400 dark:text-zinc-950 shadow-2xs"
-                          : "bg-surface border border-border text-muted-foreground",
-                      )}
-                    >
-                      {station.count}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+            {permittedStations.length === 0 ? (
+              <div className="p-3 text-center text-xs text-muted-foreground bg-surface/50 rounded-xl border border-dashed border-border/80">
+                {!sidebarCollapsed && "No Stations Permitted For Your Assigned Role."}
+              </div>
+            ) : (
+              permittedStations.map((station) => {
+                const Icon = station.icon;
+                const isActive = activeStation === station.id;
+                return (
+                  <button
+                    key={station.id}
+                    onClick={() => setActiveStation(station.id as AdminStation)}
+                    title={sidebarCollapsed ? `${station.label} (${station.count})` : undefined}
+                    className={cn(
+                      "flex w-full items-center rounded-xl cursor-pointer transition-all active:scale-[0.98]",
+                      sidebarCollapsed ? "justify-center p-2.5" : "justify-between px-3 py-2 text-xs",
+                      isActive
+                        ? "bg-slate-900 text-white font-semibold shadow-xs dark:bg-white/[0.08] dark:text-white dark:border dark:border-white/[0.1]"
+                        : "text-slate-600 dark:text-zinc-400 font-medium hover:bg-slate-100 dark:hover:bg-white/[0.04] hover:text-slate-900 dark:hover:text-zinc-100",
+                    )}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Icon className={cn("h-4 w-4 shrink-0", isActive ? "text-emerald-400" : "text-slate-400 dark:text-zinc-500")} />
+                      {!sidebarCollapsed && <span className="truncate">{station.label}</span>}
+                    </div>
+                    {!sidebarCollapsed && (
+                      <span
+                        className={cn(
+                          "rounded-full px-2 py-0.5 text-[0.62rem] font-mono font-bold shrink-0",
+                          isActive
+                            ? "bg-emerald-500 text-white dark:bg-emerald-400 dark:text-zinc-950 shadow-2xs"
+                            : "bg-surface border border-border text-muted-foreground",
+                        )}
+                      >
+                        {station.count}
+                      </span>
+                    )}
+                  </button>
+                );
+              })
+            )}
           </nav>
         </div>
 
@@ -3079,10 +3104,25 @@ export function AdminPortal() {
 
         {/* Station Body Canvas */}
         <div className="flex-1 overflow-y-auto p-3 xs:p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 min-w-0 overflow-x-hidden">
-          {/* ========================================================================= */}
-          {/* STATION 0: EXECUTIVE COMMAND CENTER & HOME ANALYTICS */}
-          {/* ========================================================================= */}
-          {activeStation === "overview" && (
+          {!hasStationPermission(user, activeStation, "view") ? (
+            <div className="rounded-3xl border border-rose-500/30 bg-rose-500/5 p-8 text-center max-w-xl mx-auto my-12 backdrop-blur-md shadow-lg">
+              <div className="grid h-14 w-14 place-items-center rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-500 mx-auto mb-4 shadow-inner">
+                <ShieldAlert className="h-7 w-7" />
+              </div>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-rose-500/10 border border-rose-500/25 text-rose-500 text-xs font-mono font-bold uppercase tracking-wider mb-2">
+                Access Restricted
+              </span>
+              <h3 className="text-xl font-bold text-foreground">Administrative Clearance Required</h3>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed">
+                Your assigned administrative role ({user?.admin_role_name || "Restricted Staff"}) does not possess clearance to view or manage this station. Please contact the Super Administrator if you require elevated privileges.
+              </p>
+            </div>
+          ) : (
+            <>
+              {/* ========================================================================= */}
+              {/* STATION 0: EXECUTIVE COMMAND CENTER & HOME ANALYTICS */}
+              {/* ========================================================================= */}
+              {activeStation === "overview" && (
             <div className="space-y-4 sm:space-y-6 min-w-0">
               {/* Executive Welcome Hero Banner */}
               <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-emerald-500/25 dark:border-border/80 bg-gradient-to-br from-emerald-500/10 via-emerald-50/40 to-teal-500/10 dark:from-emerald-500/15 dark:via-card dark:to-teal-500/10 p-5 sm:p-7 shadow-xs backdrop-blur-md">
@@ -8279,6 +8319,8 @@ export function AdminPortal() {
           {activeStation === "roles" && (
             <AdminUsersRolesTab />
           )}
+          </>
+        )}
 
         </div>
       </main>

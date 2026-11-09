@@ -66,7 +66,7 @@ export interface StudentUser {
   is_active?: boolean;
   admin_role?: string | null;
   admin_role_name?: string;
-  admin_permissions?: Record<string, Record<string, boolean>>;
+  admin_permissions?: Record<string, { view?: boolean; manage?: boolean; delete?: boolean; security?: boolean } | boolean>;
   is_drm_blocked?: boolean;
   is_login_blocked?: boolean;
   cooldown_until?: string | null;
@@ -1073,6 +1073,53 @@ export const adminStaffUsersApi = {
       body: JSON.stringify({ new_password: newPassword }),
     }),
 };
+
+
+export function hasStationPermission(
+  user: StudentUser | AdminStaffUser | null | undefined,
+  stationId: string,
+  action: "view" | "manage" | "delete" | "security" = "view"
+): boolean {
+  if (!user) return false;
+  if (user.is_superuser) return true;
+
+  const perms = (user as any).admin_permissions;
+  if (!perms || typeof perms !== "object") {
+    return false;
+  }
+
+  const wildcard = perms["*"];
+  if (wildcard) {
+    if (typeof wildcard === "boolean") return wildcard;
+    if (typeof wildcard === "object" && wildcard !== null) {
+      if (wildcard[action] !== undefined) return Boolean(wildcard[action]);
+      return Boolean(wildcard.view);
+    }
+  }
+
+  const stationPerm = perms[stationId];
+  if (!stationPerm) return false;
+
+  if (typeof stationPerm === "boolean") return stationPerm;
+
+  if (typeof stationPerm === "object" && stationPerm !== null) {
+    if (stationPerm[action] !== undefined) {
+      return Boolean(stationPerm[action]);
+    }
+    if (action === "view") {
+      return Boolean(
+        stationPerm.view ||
+        stationPerm.manage ||
+        stationPerm.delete ||
+        stationPerm.security
+      );
+    }
+    return Boolean(stationPerm[action]);
+  }
+
+  return false;
+}
+
 
 
 
