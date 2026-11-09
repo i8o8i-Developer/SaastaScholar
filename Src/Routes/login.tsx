@@ -558,7 +558,7 @@ export function Login() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-background py-8 px-4 sm:px-8 sm:py-12 flex items-center justify-center min-w-0">
+    <div className="relative min-h-screen overflow-hidden bg-[#090a0c] py-8 px-4 sm:px-8 sm:py-12 flex items-center justify-center min-w-0">
       {/* Blueprint Grid Overlay */}
       <div
         aria-hidden
@@ -570,7 +570,7 @@ export function Login() {
         <div className="flex flex-wrap items-center justify-between gap-1.5 sm:gap-2 min-w-0">
           <a
             href="/"
-            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/85 px-2.5 sm:px-4 py-1.5 text-xs font-semibold text-foreground shadow-2xs backdrop-blur-xs transition-all hover:border-primary/50 hover:bg-surface active:scale-95 cursor-pointer shrink-0"
+            className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-[#0f1013] px-2.5 sm:px-4 py-1.5 text-xs font-semibold text-foreground shadow-2xs backdrop-blur-xs transition-all hover:border-primary/50 hover:bg-[#141519] active:scale-95 cursor-pointer shrink-0"
           >
             <ArrowLeft className="h-3.5 w-3.5 text-primary shrink-0" />
             <span><span className="hidden min-[360px]:inline">Return To </span>Home</span>
@@ -594,9 +594,9 @@ export function Login() {
         </div>
 
         {/* Main Glassmorphic Card */}
-        <div className="overflow-hidden rounded-3xl border border-border/90 bg-card/95 shadow-xl dark:shadow-none backdrop-blur-md min-w-0 animate-smooth-entrance">
+        <div className="overflow-hidden rounded-3xl border border-white/10 bg-[#0d0e12] shadow-2xl backdrop-blur-md min-w-0 animate-smooth-entrance">
           {/* Card Top Banner Matched To Logo Palette */}
-          <div className="border-b border-border/80 bg-gradient-to-r from-[#005F15]/15 via-surface to-[#007EAC]/15 px-3.5 sm:px-8 py-3.5 sm:py-5 min-w-0">
+          <div className="border-b border-white/10 bg-gradient-to-r from-[#005F15]/20 via-[#0a0b0e] to-[#007EAC]/20 px-3.5 sm:px-8 py-3.5 sm:py-5 min-w-0">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 min-w-0">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="relative shrink-0">
@@ -619,7 +619,7 @@ export function Login() {
               </div>
 
               {/* Segmented Mode Switcher */}
-              <div className="grid grid-cols-3 sm:flex sm:items-center gap-1 bg-surface/90 p-1 rounded-2xl border border-border shadow-2xs w-full sm:w-auto shrink-0">
+              <div className="grid grid-cols-3 sm:flex sm:items-center gap-1 bg-[#07080a] p-1 rounded-2xl border border-white/10 shadow-inner w-full sm:w-auto shrink-0">
                 <button
                   type="button"
                   onClick={() => {
@@ -631,8 +631,8 @@ export function Login() {
                   className={cn(
                     "px-1.5 min-[320px]:px-2.5 sm:px-4 py-1.5 rounded-xl font-bold transition-all cursor-pointer text-[0.7rem] sm:text-xs text-center whitespace-nowrap active:scale-95",
                     authMode === "login"
-                      ? "bg-primary text-primary-foreground shadow-xs font-bold ring-1 ring-primary/30"
-                      : "text-muted-foreground hover:text-foreground hover:bg-card/60"
+                      ? "bg-emerald-500 text-black shadow-[0_0_15px_rgba(16,185,129,0.3)] font-extrabold"
+                      : "text-zinc-400 hover:text-white hover:bg-white/5"
                   )}
                 >
                   Log In
@@ -648,8 +648,8 @@ export function Login() {
                   className={cn(
                     "px-1.5 min-[320px]:px-2.5 sm:px-4 py-1.5 rounded-xl font-bold transition-all cursor-pointer text-[0.7rem] sm:text-xs text-center whitespace-nowrap active:scale-95",
                     authMode === "register"
-                      ? "bg-primary text-primary-foreground shadow-xs font-bold ring-1 ring-primary/30"
-                      : "text-muted-foreground hover:text-foreground hover:bg-card/60"
+                      ? "bg-emerald-500 text-black shadow-[0_0_15px_rgba(16,185,129,0.3)] font-extrabold"
+                      : "text-zinc-400 hover:text-white hover:bg-white/5"
                   )}
                 >
                   Sign Up
@@ -665,8 +665,8 @@ export function Login() {
                   className={cn(
                     "px-1.5 min-[320px]:px-2.5 sm:px-4 py-1.5 rounded-xl font-bold transition-all cursor-pointer text-[0.7rem] sm:text-xs text-center whitespace-nowrap active:scale-95",
                     authMode === "admin"
-                      ? "bg-emerald-600 text-white shadow-xs font-bold ring-1 ring-emerald-500/40"
-                      : "text-muted-foreground hover:text-foreground hover:bg-card/60"
+                      ? "bg-emerald-500 text-black shadow-[0_0_15px_rgba(16,185,129,0.3)] font-extrabold"
+                      : "text-zinc-400 hover:text-white hover:bg-white/5"
                   )}
                 >
                   <span className="hidden min-[340px]:inline">Admin Login</span>
@@ -717,23 +717,23 @@ export function Login() {
                       </span>
                     </div>
 
-                    <div className="flex items-center justify-between gap-1 sm:gap-2 bg-surface/85 border border-border/80 rounded-2xl p-1.5 sm:p-2 min-w-0">
+                    <div className="flex items-center justify-between gap-1 sm:gap-2 bg-[#07080a] border border-white/10 rounded-2xl p-1.5 sm:p-2 min-w-0">
                       <button
                         type="button"
                         onClick={() => setSignupStep(1)}
                         className={cn(
                           "flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 whitespace-nowrap",
                           signupStep === 1
-                            ? "bg-primary text-primary-foreground shadow-2xs font-extrabold"
+                            ? "bg-emerald-500 text-black shadow-[0_0_15px_rgba(16,185,129,0.35)] font-extrabold"
                             : signupStep > 1
-                            ? "text-primary hover:bg-primary/10"
-                            : "text-muted-foreground hover:text-foreground"
+                            ? "text-emerald-400 hover:bg-emerald-500/10"
+                            : "text-zinc-500 hover:text-white"
                         )}
                       >
-                        <span className="grid h-5 w-5 place-items-center rounded-full bg-black/15 dark:bg-white/15 text-[0.65rem] font-extrabold shrink-0">1</span>
+                        <span className="grid h-5 w-5 place-items-center rounded-full bg-black/20 text-[0.65rem] font-extrabold shrink-0">1</span>
                         <span className="text-[0.72rem] sm:text-xs">Course</span>
                       </button>
-                      <div className={cn("h-0.5 flex-1 min-w-1.5 sm:min-w-3 transition-colors", signupStep >= 2 ? "bg-primary" : "bg-border/60")} />
+                      <div className={cn("h-0.5 flex-1 min-w-1.5 sm:min-w-3 transition-colors", signupStep >= 2 ? "bg-emerald-500" : "bg-white/10")} />
                       <button
                         type="button"
                         onClick={() => {
@@ -753,16 +753,16 @@ export function Login() {
                         className={cn(
                           "flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 whitespace-nowrap",
                           signupStep === 2
-                            ? "bg-primary text-primary-foreground shadow-2xs font-extrabold"
+                            ? "bg-emerald-500 text-black shadow-[0_0_15px_rgba(16,185,129,0.35)] font-extrabold"
                             : signupStep > 2
-                            ? "text-primary hover:bg-primary/10"
-                            : "text-muted-foreground hover:text-foreground"
+                            ? "text-emerald-400 hover:bg-emerald-500/10"
+                            : "text-zinc-500 hover:text-white"
                         )}
                       >
-                        <span className="grid h-5 w-5 place-items-center rounded-full bg-black/15 dark:bg-white/15 text-[0.65rem] font-extrabold shrink-0">2</span>
+                        <span className="grid h-5 w-5 place-items-center rounded-full bg-black/20 text-[0.65rem] font-extrabold shrink-0">2</span>
                         <span className="text-[0.72rem] sm:text-xs">Cohort</span>
                       </button>
-                      <div className={cn("h-0.5 flex-1 min-w-1.5 sm:min-w-3 transition-colors", signupStep >= 3 ? "bg-primary" : "bg-border/60")} />
+                      <div className={cn("h-0.5 flex-1 min-w-1.5 sm:min-w-3 transition-colors", signupStep >= 3 ? "bg-emerald-500" : "bg-white/10")} />
                       <button
                         type="button"
                         onClick={() => {
@@ -779,11 +779,11 @@ export function Login() {
                         className={cn(
                           "flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer shrink-0 whitespace-nowrap",
                           signupStep === 3
-                            ? "bg-primary text-primary-foreground shadow-2xs font-extrabold"
-                            : "text-muted-foreground hover:text-foreground"
+                            ? "bg-emerald-500 text-black shadow-[0_0_15px_rgba(16,185,129,0.35)] font-extrabold"
+                            : "text-zinc-500 hover:text-white"
                         )}
                       >
-                        <span className="grid h-5 w-5 place-items-center rounded-full bg-black/15 dark:bg-white/15 text-[0.65rem] font-extrabold shrink-0">3</span>
+                        <span className="grid h-5 w-5 place-items-center rounded-full bg-black/20 text-[0.65rem] font-extrabold shrink-0">3</span>
                         <span className="text-[0.72rem] sm:text-xs">Security</span>
                       </button>
                     </div>
@@ -804,7 +804,7 @@ export function Login() {
                               onChange={(e) => setFullName(e.target.value)}
                               placeholder="Enter Full Legal Name (e.g. Aarav Sharma)"
                               required
-                              className="h-11 w-full rounded-2xl border border-border bg-background px-3.5 text-xs sm:text-sm focus:border-primary focus:outline-none transition-colors"
+                              className="h-11 w-full rounded-2xl border border-white/10 bg-[#07080a] text-white placeholder:text-zinc-500 px-3.5 text-xs sm:text-sm focus:border-primary focus:outline-none transition-colors"
                             />
                           </div>
 
@@ -835,7 +835,7 @@ export function Login() {
                                   setSelectedProgramId("");
                                 }
                               }}
-                              className="h-11 w-full rounded-2xl border border-border bg-background px-3 text-xs sm:text-sm font-semibold focus:border-primary focus:outline-none transition-colors"
+                              className="h-11 w-full rounded-2xl border border-white/10 bg-[#07080a] text-white placeholder:text-zinc-500 px-3 text-xs sm:text-sm font-semibold focus:border-primary focus:outline-none transition-colors"
                             >
                               {departments.length === 0 ? (
                                 <option value="">No Departments Registered Yet</option>
@@ -869,7 +869,7 @@ export function Login() {
                                   }
                                 }
                               }}
-                              className="h-11 w-full rounded-2xl border border-border bg-background px-3 text-xs sm:text-sm font-semibold focus:border-primary focus:outline-none transition-colors"
+                              className="h-11 w-full rounded-2xl border border-white/10 bg-[#07080a] text-white placeholder:text-zinc-500 px-3 text-xs sm:text-sm font-semibold focus:border-primary focus:outline-none transition-colors"
                             >
                               {availablePrograms.length === 0 ? (
                                 <option value="">Select Degree Course...</option>
@@ -938,7 +938,7 @@ export function Login() {
                                     }
                                   }
                                 }}
-                                className="h-11 w-full rounded-2xl border border-border bg-background px-3 text-xs sm:text-sm font-semibold focus:border-primary focus:outline-none"
+                                className="h-11 w-full rounded-2xl border border-white/10 bg-[#07080a] text-white placeholder:text-zinc-500 px-3 text-xs sm:text-sm font-semibold focus:border-primary focus:outline-none"
                               >
                                 {Array.from({ length: selectedProgramObj?.total_semesters || 8 }, (_, i) => i + 1).map((s) => (
                                   <option key={s} value={s}>
@@ -963,7 +963,7 @@ export function Login() {
                               <select
                                 value={section}
                                 onChange={(e) => setSection(e.target.value)}
-                                className="h-11 w-full rounded-2xl border border-border bg-background px-3 text-xs sm:text-sm font-semibold focus:border-primary focus:outline-none"
+                                className="h-11 w-full rounded-2xl border border-white/10 bg-[#07080a] text-white placeholder:text-zinc-500 px-3 text-xs sm:text-sm font-semibold focus:border-primary focus:outline-none"
                               >
                                 {createdSections.length > 0 ? (
                                   createdSections.map((sec) => {
@@ -990,7 +990,7 @@ export function Login() {
                               onChange={(e) => setRollNumber(e.target.value)}
                               placeholder="Enter University Roll Number (e.g. 24BCSE102)"
                               required
-                              className="h-11 w-full rounded-2xl border border-border bg-background px-3.5 text-xs font-mono focus:border-primary focus:outline-none transition-colors"
+                              className="h-11 w-full rounded-2xl border border-white/10 bg-[#07080a] text-white placeholder:text-zinc-500 px-3.5 text-xs font-mono focus:border-primary focus:outline-none transition-colors"
                             />
                           </div>
 
@@ -1002,7 +1002,7 @@ export function Login() {
                                 value={currentCgpa}
                                 onChange={(e) => setCurrentCgpa(e.target.value)}
                                 placeholder="Current CGPA (e.g. 8.50)"
-                                className="h-11 w-full rounded-2xl border border-border bg-background px-3 text-xs font-mono focus:border-primary focus:outline-none transition-colors"
+                                className="h-11 w-full rounded-2xl border border-white/10 bg-[#07080a] text-white placeholder:text-zinc-500 px-3 text-xs font-mono focus:border-primary focus:outline-none transition-colors"
                               />
                             </div>
                             <div>
@@ -1012,7 +1012,7 @@ export function Login() {
                                 value={targetCgpa}
                                 onChange={(e) => setTargetCgpa(e.target.value)}
                                 placeholder="Target CGPA Goal (e.g. 9.50)"
-                                className="h-11 w-full rounded-2xl border border-border bg-background px-3 text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 focus:border-primary focus:outline-none transition-colors"
+                                className="h-11 w-full rounded-2xl border border-white/10 bg-[#07080a] text-white placeholder:text-zinc-500 px-3 text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 focus:border-primary focus:outline-none transition-colors"
                               />
                             </div>
                           </div>
@@ -1238,7 +1238,7 @@ export function Login() {
                                         value={signupOtp}
                                         onChange={(e) => setSignupOtp(e.target.value.replace(/[^0-9]/g, "").slice(0, 6))}
                                         placeholder="Enter 6-Digit Email Verification Code"
-                                        className="h-10 w-full sm:w-44 text-center font-mono text-base font-extrabold tracking-[0.35em] rounded-xl border border-border bg-background focus:border-primary focus:outline-none placeholder:text-xs placeholder:tracking-normal placeholder:font-normal"
+                                        className="h-10 w-full sm:w-44 text-center font-mono text-base font-extrabold tracking-[0.35em] rounded-xl border border-white/10 bg-[#07080a] text-white placeholder:text-zinc-500 focus:border-primary focus:outline-none placeholder:text-xs placeholder:tracking-normal placeholder:font-normal"
                                       />
                                       <button
                                         type="button"
@@ -1284,7 +1284,7 @@ export function Login() {
                                   onChange={(e) => setPassword(e.target.value)}
                                   placeholder="Create A Secure Account Password"
                                   required
-                                  className="h-11 w-full rounded-2xl border border-border bg-background pr-3.5 pl-10 text-xs sm:text-sm focus:border-primary focus:outline-none transition-colors"
+                                  className="h-11 w-full rounded-2xl border border-white/10 bg-[#07080a] text-white placeholder:text-zinc-500 pr-3.5 pl-10 text-xs sm:text-sm focus:border-primary focus:outline-none transition-colors"
                                 />
                               </div>
                             </div>
@@ -1299,7 +1299,7 @@ export function Login() {
                                   onChange={(e) => setConfirmPassword(e.target.value)}
                                   placeholder="Re-Enter Password To Confirm"
                                   required
-                                  className="h-11 w-full rounded-2xl border border-border bg-background pr-3.5 pl-10 text-xs sm:text-sm focus:border-primary focus:outline-none transition-colors"
+                                  className="h-11 w-full rounded-2xl border border-white/10 bg-[#07080a] text-white placeholder:text-zinc-500 pr-3.5 pl-10 text-xs sm:text-sm focus:border-primary focus:outline-none transition-colors"
                                 />
                               </div>
                             </div>
@@ -1325,14 +1325,14 @@ export function Login() {
                                 className={cn(
                                   "rounded-xl border p-2.5 transition-all text-left cursor-pointer flex flex-col justify-between",
                                   selectedPlan === "FREE" || selectedPlan === "STARTER"
-                                    ? "border-primary bg-primary/10 shadow-xs ring-1 ring-primary/40"
-                                    : "border-border/80 bg-card hover:border-primary/40"
+                                    ? "border-emerald-500 bg-emerald-950/40 shadow-xs ring-1 ring-emerald-500/50"
+                                    : "border-white/10 bg-[#07080a] hover:border-white/20"
                                 )}
                               >
                                 <div>
                                   <div className="flex items-center justify-between">
-                                    <span className="text-[0.65rem] font-bold uppercase tracking-wider text-muted-foreground">Free</span>
-                                    {(selectedPlan === "FREE" || selectedPlan === "STARTER") && <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />}
+                                    <span className="text-[0.65rem] font-bold uppercase tracking-wider text-emerald-400">Free</span>
+                                    {(selectedPlan === "FREE" || selectedPlan === "STARTER") && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" />}
                                   </div>
                                   <span className="text-sm font-extrabold text-foreground block mt-0.5">₹0 · Free</span>
                                 </div>
@@ -1346,14 +1346,14 @@ export function Login() {
                                 className={cn(
                                   "rounded-xl border p-2.5 transition-all text-left cursor-pointer flex flex-col justify-between",
                                   selectedPlan === "BASIC" || selectedPlan === "SCHOLAR"
-                                    ? "border-primary bg-primary/10 shadow-xs ring-1 ring-primary/40"
-                                    : "border-border/80 bg-card hover:border-primary/40"
+                                    ? "border-cyan-500 bg-cyan-950/40 shadow-xs ring-1 ring-cyan-500/50"
+                                    : "border-white/10 bg-[#07080a] hover:border-white/20"
                                 )}
                               >
                                 <div>
                                   <div className="flex items-center justify-between">
-                                    <span className="text-[0.65rem] font-bold uppercase tracking-wider text-primary">Basic</span>
-                                    {(selectedPlan === "BASIC" || selectedPlan === "SCHOLAR") && <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />}
+                                    <span className="text-[0.65rem] font-bold uppercase tracking-wider text-cyan-400">Basic</span>
+                                    {(selectedPlan === "BASIC" || selectedPlan === "SCHOLAR") && <CheckCircle2 className="h-3.5 w-3.5 text-cyan-400 shrink-0" />}
                                   </div>
                                   <span className="text-sm font-extrabold text-foreground block mt-0.5">₹99<span className="text-[0.6rem] font-normal text-muted-foreground">/mo</span></span>
                                 </div>
@@ -1367,17 +1367,17 @@ export function Login() {
                                 className={cn(
                                   "rounded-xl border p-2.5 transition-all text-left cursor-pointer flex flex-col justify-between relative",
                                   selectedPlan === "PREMIUM" || selectedPlan === "ACHIEVER"
-                                    ? "border-emerald-500 bg-emerald-500/15 shadow-xs ring-1 ring-emerald-500/50"
-                                    : "border-border/80 bg-card hover:border-emerald-500/40"
+                                    ? "border-purple-500 bg-purple-950/40 shadow-xs ring-1 ring-purple-500/50"
+                                    : "border-white/10 bg-[#07080a] hover:border-white/20"
                                 )}
                               >
-                                <span className="absolute -top-1.5 right-2 text-[0.5rem] font-bold bg-emerald-600 text-white px-1.5 py-0.2 rounded-full uppercase">
+                                <span className="absolute -top-1.5 right-2 text-[0.5rem] font-bold bg-purple-600 text-white px-1.5 py-0.2 rounded-full uppercase">
                                   Popular
                                 </span>
                                 <div>
                                   <div className="flex items-center justify-between">
-                                    <span className="text-[0.65rem] font-bold uppercase tracking-wider text-emerald-600 dark:text-emerald-400">Premium</span>
-                                    {(selectedPlan === "PREMIUM" || selectedPlan === "ACHIEVER") && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />}
+                                    <span className="text-[0.65rem] font-bold uppercase tracking-wider text-purple-400">Premium</span>
+                                    {(selectedPlan === "PREMIUM" || selectedPlan === "ACHIEVER") && <CheckCircle2 className="h-3.5 w-3.5 text-purple-400 shrink-0" />}
                                   </div>
                                   <span className="text-sm font-extrabold text-foreground block mt-0.5">₹129<span className="text-[0.6rem] font-normal text-muted-foreground">/mo</span></span>
                                 </div>
@@ -1391,14 +1391,14 @@ export function Login() {
                                 className={cn(
                                   "rounded-xl border p-2.5 transition-all text-left cursor-pointer flex flex-col justify-between",
                                   selectedPlan === "ELITE" || selectedPlan === "ELITE_PLUS"
-                                    ? "border-primary bg-primary/10 shadow-xs ring-1 ring-primary/40"
-                                    : "border-border/80 bg-card hover:border-primary/40"
+                                    ? "border-amber-500 bg-amber-950/40 shadow-xs ring-1 ring-amber-500/50"
+                                    : "border-white/10 bg-[#07080a] hover:border-white/20"
                                 )}
                               >
                                 <div>
                                   <div className="flex items-center justify-between">
-                                    <span className="text-[0.65rem] font-bold uppercase tracking-wider text-muted-foreground">Elite</span>
-                                    {(selectedPlan === "ELITE" || selectedPlan === "ELITE_PLUS") && <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" />}
+                                    <span className="text-[0.65rem] font-bold uppercase tracking-wider text-amber-400">Elite</span>
+                                    {(selectedPlan === "ELITE" || selectedPlan === "ELITE_PLUS") && <CheckCircle2 className="h-3.5 w-3.5 text-amber-400 shrink-0" />}
                                   </div>
                                   <span className="text-sm font-extrabold text-foreground block mt-0.5">₹159<span className="text-[0.6rem] font-normal text-muted-foreground">/mo</span></span>
                                 </div>
@@ -1660,7 +1660,7 @@ export function Login() {
                             onChange={(e) => setEmail(e.target.value)}
                             placeholder={authMode === "admin" ? "Enter Admin Email (e.g. Admin@Saastascholar.in)" : "Enter Student Email (e.g. Student@Nims.Edu.In)"}
                             required
-                            className="h-11 w-full rounded-2xl border border-border bg-background pr-3.5 pl-10 text-xs sm:text-sm focus:border-primary focus:outline-none transition-colors"
+                            className="h-11 w-full rounded-2xl border border-white/10 bg-[#07080a] text-white placeholder:text-zinc-500 pr-3.5 pl-10 text-xs sm:text-sm focus:border-primary focus:outline-none transition-colors"
                           />
                         </div>
                       </div>
@@ -1675,7 +1675,7 @@ export function Login() {
                             onChange={(e) => setPassword(e.target.value)}
                             placeholder="Enter Your Account Password"
                             required
-                            className="h-11 w-full rounded-2xl border border-border bg-background pr-3.5 pl-10 text-xs sm:text-sm focus:border-primary focus:outline-none transition-colors"
+                            className="h-11 w-full rounded-2xl border border-white/10 bg-[#07080a] text-white placeholder:text-zinc-500 pr-3.5 pl-10 text-xs sm:text-sm focus:border-primary focus:outline-none transition-colors"
                           />
                         </div>
                         {authMode === "login" && (
@@ -1911,7 +1911,7 @@ export function Login() {
                     onChange={(e) => setResetEmail(e.target.value)}
                     placeholder="Enter Registered Student Email Address"
                     required
-                    className="h-11 w-full rounded-2xl border border-border bg-background pr-3.5 pl-10 text-xs sm:text-sm focus:border-primary focus:outline-none transition-colors"
+                    className="h-11 w-full rounded-2xl border border-white/10 bg-[#07080a] text-white placeholder:text-zinc-500 pr-3.5 pl-10 text-xs sm:text-sm focus:border-primary focus:outline-none transition-colors"
                   />
                 </div>
               </div>
@@ -1951,7 +1951,7 @@ export function Login() {
                   onChange={(e) => setResetOtp(e.target.value.replace(/\D/g, ""))}
                   placeholder="Enter 6-Digit Verification Code"
                   required
-                  className="h-11 w-full rounded-2xl border border-border bg-background px-3.5 text-center font-mono text-base font-bold tracking-widest focus:border-primary focus:outline-none transition-colors placeholder:text-xs placeholder:tracking-normal placeholder:font-normal"
+                  className="h-11 w-full rounded-2xl border border-white/10 bg-[#07080a] text-white placeholder:text-zinc-500 px-3.5 text-center font-mono text-base font-bold tracking-widest focus:border-primary focus:outline-none transition-colors placeholder:text-xs placeholder:tracking-normal placeholder:font-normal"
                 />
               </div>
 
@@ -1965,7 +1965,7 @@ export function Login() {
                     onChange={(e) => setNewPassword(e.target.value)}
                     placeholder="Enter New Password (At Least 6 Characters)"
                     required
-                    className="h-11 w-full rounded-2xl border border-border bg-background pr-3.5 pl-10 text-xs sm:text-sm focus:border-primary focus:outline-none transition-colors"
+                    className="h-11 w-full rounded-2xl border border-white/10 bg-[#07080a] text-white placeholder:text-zinc-500 pr-3.5 pl-10 text-xs sm:text-sm focus:border-primary focus:outline-none transition-colors"
                   />
                 </div>
               </div>

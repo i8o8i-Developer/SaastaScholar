@@ -124,29 +124,29 @@
   --brand-blue-deep: #0284c7;
   --brand-blue-soft: rgba(14, 165, 233, 0.12);
 
-  /* Permanent Graphite/Obsidian Palette Across All Screens */
-  --background: #141415;
-  --foreground: #ededed;
-  --surface: #19191b;
-  --surface-foreground: #ededed;
-  --card: #1c1d20;
-  --card-foreground: #ededed;
-  --popover: #232326;
-  --popover-foreground: #ededed;
+  /* Deep Obsidian / Void Black Palette Across All Screens For Vivid Color Pop */
+  --background: #090a0c;
+  --foreground: #f1f2f4;
+  --surface: #0f1013;
+  --surface-foreground: #f1f2f4;
+  --card: #131417;
+  --card-foreground: #f1f2f4;
+  --popover: #16171b;
+  --popover-foreground: #f1f2f4;
 
   /* Intentional Emerald Accent */
   --primary: #10b981;
-  --primary-foreground: #09090b;
-  --primary-soft: rgba(16, 185, 129, 0.14);
+  --primary-foreground: #020604;
+  --primary-soft: rgba(16, 185, 129, 0.16);
   --primary-deep: #059669;
 
-  --secondary: #232326;
-  --secondary-foreground: #ededed;
-  --muted: #1e1f23;
-  --muted-foreground: #9ca3af;
+  --secondary: #18191e;
+  --secondary-foreground: #f1f2f4;
+  --muted: #141519;
+  --muted-foreground: #94a3b8;
 
-  --accent: #26272c;
-  --accent-foreground: #ededed;
+  --accent: #1c1d22;
+  --accent-foreground: #f1f2f4;
 
   --highlight: #38bdf8;
 
@@ -154,8 +154,8 @@
   --destructive-foreground: #ffffff;
 
   --border: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.15);
-  --input: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --input: rgba(255, 255, 255, 0.08);
   --ring: #10b981;
 
   --chart-1: #10b981;
@@ -164,12 +164,12 @@
   --chart-4: #059669;
   --chart-5: #0284c7;
 
-  --sidebar: #101012;
-  --sidebar-foreground: #ededed;
+  --sidebar: #0b0c0e;
+  --sidebar-foreground: #f1f2f4;
   --sidebar-primary: #10b981;
-  --sidebar-primary-foreground: #09090b;
-  --sidebar-accent: #1e1f23;
-  --sidebar-accent-foreground: #ededed;
+  --sidebar-primary-foreground: #020604;
+  --sidebar-accent: #141519;
+  --sidebar-accent-foreground: #f1f2f4;
   --sidebar-border: rgba(255, 255, 255, 0.08);
   --sidebar-ring: #10b981;
 }
@@ -178,39 +178,39 @@
   /* Logo Colors in Dark Mode */
   --brand-green: #10b981;
   --brand-green-deep: #059669;
-  --brand-green-soft: rgba(16, 185, 129, 0.12);
+  --brand-green-soft: rgba(16, 185, 129, 0.14);
 
   --brand-red: #ef4444;
   --brand-red-deep: #dc2626;
-  --brand-red-soft: rgba(239, 68, 68, 0.12);
+  --brand-red-soft: rgba(239, 68, 68, 0.14);
 
   --brand-blue: #0ea5e9;
   --brand-blue-deep: #0284c7;
-  --brand-blue-soft: rgba(14, 165, 233, 0.12);
+  --brand-blue-soft: rgba(14, 165, 233, 0.14);
 
-  /* Permanent Graphite/Obsidian Palette Across All Screens */
-  --background: #141415;
-  --foreground: #ededed;
-  --surface: #19191b;
-  --surface-foreground: #ededed;
-  --card: #1c1d20;
-  --card-foreground: #ededed;
-  --popover: #232326;
-  --popover-foreground: #ededed;
+  /* Deep Obsidian / Void Black Palette Across All Screens For Vivid Color Pop */
+  --background: #090a0c;
+  --foreground: #f1f2f4;
+  --surface: #0f1013;
+  --surface-foreground: #f1f2f4;
+  --card: #131417;
+  --card-foreground: #f1f2f4;
+  --popover: #16171b;
+  --popover-foreground: #f1f2f4;
 
   /* Intentional Emerald Accent */
   --primary: #10b981;
-  --primary-foreground: #09090b;
-  --primary-soft: rgba(16, 185, 129, 0.14);
+  --primary-foreground: #020604;
+  --primary-soft: rgba(16, 185, 129, 0.16);
   --primary-deep: #059669;
 
-  --secondary: #232326;
-  --secondary-foreground: #ededed;
-  --muted: #1e1f23;
-  --muted-foreground: #9ca3af;
+  --secondary: #18191e;
+  --secondary-foreground: #f1f2f4;
+  --muted: #141519;
+  --muted-foreground: #94a3b8;
 
-  --accent: #26272c;
-  --accent-foreground: #ededed;
+  --accent: #1c1d22;
+  --accent-foreground: #f1f2f4;
 
   --highlight: #38bdf8;
 
@@ -218,8 +218,8 @@
   --destructive-foreground: #ffffff;
 
   --border: rgba(255, 255, 255, 0.08);
-  --border-strong: rgba(255, 255, 255, 0.15);
-  --input: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --input: rgba(255, 255, 255, 0.08);
   --ring: #10b981;
 
   --chart-1: #10b981;

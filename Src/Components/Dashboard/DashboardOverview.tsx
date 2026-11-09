@@ -569,12 +569,12 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
         {/* Card 1: Handwritten Notes */}
         <button
           onClick={() => onNavigateTab("notes")}
-          className="rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-3.5 sm:p-5 text-left shadow-xs hover:border-emerald-500/50 hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between space-y-3 sm:space-y-4"
+          className="rounded-2xl sm:rounded-3xl border border-white/10 bg-[#0f1013] p-3.5 sm:p-5 text-left shadow-xs hover:border-emerald-500/60 hover:shadow-[0_0_25px_rgba(16,185,129,0.15)] transition-all cursor-pointer group flex flex-col justify-between space-y-3 sm:space-y-4"
         >
           <div>
-            <div className="flex items-center justify-between border-b border-border/60 pb-2 sm:pb-3">
+            <div className="flex items-center justify-between border-b border-white/[0.08] pb-2 sm:pb-3">
               <span className="text-[0.58rem] sm:text-[0.65rem] font-bold uppercase text-muted-foreground tracking-wider line-clamp-1">Notes</span>
-              <div className="grid h-6 w-6 sm:h-8 sm:w-8 place-items-center rounded-lg sm:rounded-xl bg-emerald-500/10 text-emerald-600 shrink-0">
+              <div className="grid h-6 w-6 sm:h-8 sm:w-8 place-items-center rounded-lg sm:rounded-xl bg-emerald-500/15 text-emerald-400 shrink-0">
                 <BookOpen className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </div>
             </div>
@@ -585,7 +585,7 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
               <p className="text-[0.65rem] sm:text-xs text-muted-foreground mt-0.5 line-clamp-1">Topper Derivations</p>
             </div>
           </div>
-          <div className="flex items-center text-[0.68rem] sm:text-xs font-bold text-emerald-600 group-hover:translate-x-1 transition-transform">
+          <div className="flex items-center text-[0.68rem] sm:text-xs font-bold text-emerald-400 group-hover:translate-x-1 transition-transform">
             <span>Explore</span>
             <ChevronRight className="h-3.5 w-3.5 ml-0.5" />
           </div>
@@ -594,12 +594,12 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
         {/* Card 2: Solved PYQs */}
         <button
           onClick={() => onNavigateTab("pyqs")}
-          className="rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-3.5 sm:p-5 text-left shadow-xs hover:border-cyan-500/50 hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between space-y-3 sm:space-y-4"
+          className="rounded-2xl sm:rounded-3xl border border-white/10 bg-[#0f1013] p-3.5 sm:p-5 text-left shadow-xs hover:border-cyan-500/60 hover:shadow-[0_0_25px_rgba(6,182,212,0.15)] transition-all cursor-pointer group flex flex-col justify-between space-y-3 sm:space-y-4"
         >
           <div>
-            <div className="flex items-center justify-between border-b border-border/60 pb-2 sm:pb-3">
+            <div className="flex items-center justify-between border-b border-white/[0.08] pb-2 sm:pb-3">
               <span className="text-[0.58rem] sm:text-[0.65rem] font-bold uppercase text-muted-foreground tracking-wider line-clamp-1">Solved PYQs</span>
-              <div className="grid h-6 w-6 sm:h-8 sm:w-8 place-items-center rounded-lg sm:rounded-xl bg-cyan-500/10 text-cyan-600 shrink-0">
+              <div className="grid h-6 w-6 sm:h-8 sm:w-8 place-items-center rounded-lg sm:rounded-xl bg-cyan-500/15 text-cyan-400 shrink-0">
                 <FileCheck2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </div>
             </div>
@@ -610,7 +610,7 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
               <p className="text-[0.65rem] sm:text-xs text-muted-foreground mt-0.5 line-clamp-1">Step-By-Step Solutions</p>
             </div>
           </div>
-          <div className="flex items-center text-[0.68rem] sm:text-xs font-bold text-cyan-600 group-hover:translate-x-1 transition-transform">
+          <div className="flex items-center text-[0.68rem] sm:text-xs font-bold text-cyan-400 group-hover:translate-x-1 transition-transform">
             <span>Archive</span>
             <ChevronRight className="h-3.5 w-3.5 ml-0.5" />
           </div>
@@ -619,12 +619,12 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
         {/* Card 3: Official Syllabus */}
         <button
           onClick={() => onNavigateTab("syllabus")}
-          className="rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-3.5 sm:p-5 text-left shadow-xs hover:border-teal-500/50 hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between space-y-3 sm:space-y-4"
+          className="rounded-2xl sm:rounded-3xl border border-white/10 bg-[#0f1013] p-3.5 sm:p-5 text-left shadow-xs hover:border-teal-500/60 hover:shadow-[0_0_25px_rgba(20,184,166,0.15)] transition-all cursor-pointer group flex flex-col justify-between space-y-3 sm:space-y-4"
         >
           <div>
-            <div className="flex items-center justify-between border-b border-border/60 pb-2 sm:pb-3">
+            <div className="flex items-center justify-between border-b border-white/[0.08] pb-2 sm:pb-3">
               <span className="text-[0.58rem] sm:text-[0.65rem] font-bold uppercase text-muted-foreground tracking-wider line-clamp-1">Syllabus</span>
-              <div className="grid h-6 w-6 sm:h-8 sm:w-8 place-items-center rounded-lg sm:rounded-xl bg-teal-500/10 text-teal-600 shrink-0">
+              <div className="grid h-6 w-6 sm:h-8 sm:w-8 place-items-center rounded-lg sm:rounded-xl bg-teal-500/15 text-teal-400 shrink-0">
                 <ScrollText className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </div>
             </div>
@@ -635,7 +635,7 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
               <p className="text-[0.65rem] sm:text-xs text-muted-foreground mt-0.5 line-clamp-1">Exam Curriculum</p>
             </div>
           </div>
-          <div className="flex items-center text-[0.68rem] sm:text-xs font-bold text-teal-600 group-hover:translate-x-1 transition-transform">
+          <div className="flex items-center text-[0.68rem] sm:text-xs font-bold text-teal-400 group-hover:translate-x-1 transition-transform">
             <span>Syllabus</span>
             <ChevronRight className="h-3.5 w-3.5 ml-0.5" />
           </div>
@@ -644,12 +644,12 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
         {/* Card 4: Lab Manuals */}
         <button
           onClick={() => onNavigateTab("labs")}
-          className="rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-3.5 sm:p-5 text-left shadow-xs hover:border-purple-500/50 hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between space-y-3 sm:space-y-4"
+          className="rounded-2xl sm:rounded-3xl border border-white/10 bg-[#0f1013] p-3.5 sm:p-5 text-left shadow-xs hover:border-purple-500/60 hover:shadow-[0_0_25px_rgba(168,85,247,0.15)] transition-all cursor-pointer group flex flex-col justify-between space-y-3 sm:space-y-4"
         >
           <div>
-            <div className="flex items-center justify-between border-b border-border/60 pb-2 sm:pb-3">
+            <div className="flex items-center justify-between border-b border-white/[0.08] pb-2 sm:pb-3">
               <span className="text-[0.58rem] sm:text-[0.65rem] font-bold uppercase text-muted-foreground tracking-wider line-clamp-1">Lab Manuals</span>
-              <div className="grid h-6 w-6 sm:h-8 sm:w-8 place-items-center rounded-lg sm:rounded-xl bg-purple-500/10 text-purple-600 shrink-0">
+              <div className="grid h-6 w-6 sm:h-8 sm:w-8 place-items-center rounded-lg sm:rounded-xl bg-purple-500/15 text-purple-400 shrink-0">
                 <FlaskConical className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </div>
             </div>
@@ -660,7 +660,7 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
               <p className="text-[0.65rem] sm:text-xs text-muted-foreground mt-0.5 line-clamp-1">Code &amp; Viva Voce</p>
             </div>
           </div>
-          <div className="flex items-center text-[0.68rem] sm:text-xs font-bold text-purple-600 group-hover:translate-x-1 transition-transform">
+          <div className="flex items-center text-[0.68rem] sm:text-xs font-bold text-purple-400 group-hover:translate-x-1 transition-transform">
             <span>Labs</span>
             <ChevronRight className="h-3.5 w-3.5 ml-0.5" />
           </div>
@@ -669,12 +669,12 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
         {/* Card 5: Assignments (Spans 2 cols on mobile for balanced grid) */}
         <button
           onClick={() => onNavigateTab("assignments")}
-          className="col-span-2 sm:col-span-2 md:col-span-1 lg:col-span-1 rounded-2xl sm:rounded-3xl border border-border/80 bg-card p-3.5 sm:p-5 text-left shadow-xs hover:border-amber-500/50 hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between space-y-3 sm:space-y-4"
+          className="col-span-2 sm:col-span-2 md:col-span-1 lg:col-span-1 rounded-2xl sm:rounded-3xl border border-white/10 bg-[#0f1013] p-3.5 sm:p-5 text-left shadow-xs hover:border-amber-500/60 hover:shadow-[0_0_25px_rgba(245,158,11,0.15)] transition-all cursor-pointer group flex flex-col justify-between space-y-3 sm:space-y-4"
         >
           <div>
-            <div className="flex items-center justify-between border-b border-border/60 pb-2 sm:pb-3">
+            <div className="flex items-center justify-between border-b border-white/[0.08] pb-2 sm:pb-3">
               <span className="text-[0.58rem] sm:text-[0.65rem] font-bold uppercase text-muted-foreground tracking-wider line-clamp-1">Assignments</span>
-              <div className="grid h-6 w-6 sm:h-8 sm:w-8 place-items-center rounded-lg sm:rounded-xl bg-amber-500/10 text-amber-600 shrink-0">
+              <div className="grid h-6 w-6 sm:h-8 sm:w-8 place-items-center rounded-lg sm:rounded-xl bg-amber-500/15 text-amber-400 shrink-0">
                 <Zap className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
               </div>
             </div>
@@ -685,7 +685,7 @@ export function DashboardOverview({ onNavigateTab, onOpenReader }: DashboardOver
               <p className="text-[0.65rem] sm:text-xs text-muted-foreground mt-0.5 line-clamp-1">Due Dates &amp; AI Assist</p>
             </div>
           </div>
-          <div className="flex items-center text-[0.68rem] sm:text-xs font-bold text-amber-600 group-hover:translate-x-1 transition-transform">
+          <div className="flex items-center text-[0.68rem] sm:text-xs font-bold text-amber-400 group-hover:translate-x-1 transition-transform">
             <span>Submissions</span>
             <ChevronRight className="h-3.5 w-3.5 ml-0.5" />
           </div>

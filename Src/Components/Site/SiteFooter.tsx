@@ -348,45 +348,46 @@ export function SiteFooter() {
       />
 
       <div className="relative mx-auto w-full max-w-[84rem] px-2.5 min-[340px]:px-3.5 pt-10 pb-8 sm:px-8 sm:pt-16 sm:pb-12 min-w-0">
-        {/* ===================== Top Newsletter Card (Clean Original Palette) ===================== */}
-        <div className="mb-12 sm:mb-16 overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-card/80 p-3.5 sm:p-10 shadow-[0_12px_40px_-20px_color-mix(in_oklab,var(--color-primary-deep)_25%,transparent)] backdrop-blur-sm min-w-0">
-          <div className="grid items-center gap-6 sm:gap-8 lg:grid-cols-[1.2fr_1fr] min-w-0">
+        {/* ===================== Top Newsletter Card (Deep Void Obsidian Palette) ===================== */}
+        <div className="mb-12 sm:mb-16 overflow-hidden rounded-2xl sm:rounded-3xl border border-emerald-500/30 bg-[#0a0b0e] p-4 sm:p-10 shadow-[0_16px_50px_-20px_rgba(16,185,129,0.25)] min-w-0 relative">
+          <div className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-emerald-500/10 blur-3xl" />
+          <div className="relative grid items-center gap-6 sm:gap-8 lg:grid-cols-[1.2fr_1fr] min-w-0">
             <div className="min-w-0">
-              <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-accent/60 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[0.65rem] sm:text-xs font-semibold text-accent-foreground max-w-full">
-                <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[0.65rem] sm:text-xs font-bold text-emerald-400 max-w-full">
+                <Sparkles className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
                 <span className="truncate">Weekly Academic Dispatch</span>
               </div>
 
-              <h3 className="mt-3 text-xl sm:text-3xl font-bold tracking-tight text-foreground break-words leading-tight">
+              <h3 className="mt-3 text-xl sm:text-3xl font-extrabold tracking-tight text-white break-words leading-tight">
                 Stay Ahead In Your Semester.
               </h3>
-              <p className="mt-2 text-xs sm:text-base leading-relaxed text-muted-foreground break-words">
+              <p className="mt-2 text-xs sm:text-base leading-relaxed text-zinc-400 break-words">
                 Exam Alerts, Lab Viva Cheat-Sheets, Assignment Deadlines, And Curated University
                 Notes Delivered Directly To Your Student Inbox Every Monday.
               </p>
 
-              <div className="mt-4 flex flex-wrap items-center gap-2.5 sm:gap-4 text-[0.7rem] sm:text-xs text-muted-foreground">
-                <span className="inline-flex items-center gap-1.5 font-medium">
-                  <ShieldCheck className="h-3.5 w-3.5 text-primary shrink-0" /> Verified Academic Content
+              <div className="mt-4 flex flex-wrap items-center gap-2.5 sm:gap-4 text-[0.7rem] sm:text-xs text-zinc-400">
+                <span className="inline-flex items-center gap-1.5 font-semibold text-zinc-300">
+                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Verified Academic Content
                 </span>
-                <span className="inline-flex items-center gap-1.5 font-medium">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-primary shrink-0" /> Student Study Workspace
+                <span className="inline-flex items-center gap-1.5 font-semibold text-zinc-300">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Student Study Workspace
                 </span>
-                <span className="inline-flex items-center gap-1.5 font-medium">
-                  <Flame className="h-3.5 w-3.5 text-highlight shrink-0" /> University Syllabus Aligned
+                <span className="inline-flex items-center gap-1.5 font-semibold text-zinc-300">
+                  <Flame className="h-3.5 w-3.5 text-amber-400 shrink-0" /> University Syllabus Aligned
                 </span>
               </div>
             </div>
 
             <div className="min-w-0">
               {subscribed ? (
-                <div className="flex items-center gap-3 rounded-xl border border-primary/30 bg-accent/40 p-4 text-xs sm:text-sm font-medium text-foreground min-w-0">
-                  <div className="grid h-8 w-8 sm:h-9 sm:w-9 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
+                <div className="flex items-center gap-3 rounded-xl border border-emerald-500/40 bg-emerald-950/30 p-4 text-xs sm:text-sm font-medium text-white min-w-0 shadow-[0_0_20px_rgba(16,185,129,0.15)]">
+                  <div className="grid h-8 w-8 sm:h-9 sm:w-9 shrink-0 place-items-center rounded-full bg-emerald-500 text-black font-extrabold">
                     <Check className="h-4 w-4 sm:h-5 sm:w-5" />
                   </div>
                   <div className="min-w-0">
-                    <p className="font-semibold text-foreground truncate">You Are Officially Subscribed!</p>
-                    <p className="text-[0.7rem] sm:text-xs text-muted-foreground truncate">
+                    <p className="font-bold text-white truncate">You Are Officially Subscribed!</p>
+                    <p className="text-[0.7rem] sm:text-xs text-emerald-300/80 truncate">
                       Check {email} For Your Weekly Toolkit.
                     </p>
                   </div>
@@ -394,23 +395,23 @@ export function SiteFooter() {
               ) : (
                 <form onSubmit={handleSubscribe} className="flex flex-col gap-2 sm:flex-row min-w-0">
                   <div className="relative flex-1 min-w-0">
-                    <Mail className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Mail className="pointer-events-none absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-zinc-500" />
                     <input
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Enter Your Student Email (E.g. Name@University.edu)"
                       required
-                      className="h-11 sm:h-12 w-full rounded-xl border border-border bg-background/90 pr-3 pl-10 text-xs sm:text-sm transition-colors placeholder:text-muted-foreground/70 focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
+                      className="h-11 sm:h-12 w-full rounded-xl border border-white/15 bg-[#050608] pr-3 pl-10 text-xs sm:text-sm text-white transition-colors placeholder:text-zinc-500 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/30 focus:outline-none"
                     />
                   </div>
                   <button
                     type="submit"
                     disabled={loading}
-                    className="inline-flex h-11 sm:h-12 items-center justify-center gap-2 rounded-xl bg-primary px-5 text-xs sm:text-sm font-semibold text-primary-foreground shadow-sm transition-all hover:bg-primary-deep hover:shadow hover:-translate-y-0.5 disabled:opacity-60 cursor-pointer shrink-0"
+                    className="inline-flex h-11 sm:h-12 items-center justify-center gap-2 rounded-xl bg-emerald-500 px-6 text-xs sm:text-sm font-bold text-zinc-950 shadow-[0_0_25px_rgba(16,185,129,0.35)] transition-all hover:bg-emerald-400 hover:shadow-[0_0_35px_rgba(16,185,129,0.5)] hover:-translate-y-0.5 disabled:opacity-60 cursor-pointer shrink-0"
                   >
                     {loading ? (
-                      <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+                      <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-zinc-950 border-t-transparent" />
                     ) : (
                       <>
                         <span>Subscribe</span>
@@ -420,8 +421,8 @@ export function SiteFooter() {
                   </button>
                 </form>
               )}
-              <div className="mt-2.5 flex items-center gap-2 text-[0.72rem] sm:text-[0.78rem] text-foreground/85 font-medium tracking-wide">
-                <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
+              <div className="mt-2.5 flex items-center gap-2 text-[0.72rem] sm:text-[0.78rem] text-zinc-400 font-medium tracking-wide">
+                <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-400 shrink-0 animate-pulse" />
                 <span>Zero Spam · Unsubscribe Anytime With A Single Click.</span>
               </div>
             </div>
