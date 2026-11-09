@@ -29,7 +29,77 @@ import { cn } from "@/Lib/Utils";
 import { toast } from "sonner";
 
 export function AssignmentsTracker() {
-  const [underDevelopment, setUnderDevelopment] = useState<boolean>(true);
+  return (
+    <div className="space-y-4 sm:space-y-6 max-w-7xl mx-auto min-w-0">
+      <div className="space-y-6 animate-in fade-in duration-300">
+        {/* Main Hero Card */}
+        <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-amber-500/30 bg-[#0d0e12] p-6 sm:p-10 shadow-[0_16px_50px_-20px_rgba(245,158,11,0.25)] min-w-0">
+          <div className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-amber-500/10 blur-3xl" />
+
+          <div className="relative space-y-4 max-w-3xl">
+            <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-500/10 px-3.5 py-1 text-xs font-bold text-amber-400">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500" />
+              </span>
+              <span>Feature Under Active Development</span>
+            </div>
+
+            <h1 className="font-display text-xl xs:text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+              Assignment Tracker &amp; AI Formatter
+            </h1>
+
+            <p className="text-xs sm:text-base text-zinc-400 leading-relaxed">
+              This Academic Coursework Engine Is Under Active Development And Will Be Available In An Upcoming Release. All Underlying Modules, Submission APIs, Rubrics, And AI Formatter Codebases Are Safely Preserved In Cold Standby.
+            </p>
+          </div>
+        </div>
+
+        {/* Planned Capabilities Grid */}
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="rounded-2xl border border-white/10 bg-[#0f1013] p-5 space-y-2">
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-500/15 text-emerald-400 font-bold">
+              <FileCheck2 className="h-5 w-5" />
+            </div>
+            <h3 className="font-bold text-sm text-white">Coursework Submission Hub</h3>
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              Direct Student Document Submissions With Cryptographic Timestamps, Anti-Tamper Tokens, And Sessional Weightage Tracking.
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-[#0f1013] p-5 space-y-2">
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-purple-500/15 text-purple-400 font-bold">
+              <Sparkles className="h-5 w-5" />
+            </div>
+            <h3 className="font-bold text-sm text-white">Gemini AI Outline Generator</h3>
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              Automatic IEEE, APA, And University LaTeX Academic Format Generation With Verified References And Abstract Summaries.
+            </p>
+          </div>
+
+          <div className="rounded-2xl border border-white/10 bg-[#0f1013] p-5 space-y-2">
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-cyan-500/15 text-cyan-400 font-bold">
+              <Layers className="h-5 w-5" />
+            </div>
+            <h3 className="font-bold text-sm text-white">Assessment Telemetry &amp; Rubrics</h3>
+            <p className="text-xs text-zinc-400 leading-relaxed">
+              Real-Time Marks Weightage, Faculty Evaluator Feedback, And Continuous Assessment Scores Synced Directly With Semester CGPA Targets.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * ==============================================================================
+ * DORMANT ASSIGNMENTS WORKSPACE (PRESERVED CODEBASE)
+ * All underlying submission logic, status toggling, rubrics, and Gemini AI modals
+ * are safely preserved below and ready to be un-shelved when development resumes.
+ * ==============================================================================
+ */
+export function DormantAssignmentsWorkspace() {
   const [assignments, setAssignments] = useState<StudentAssignment[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -101,32 +171,32 @@ export function AssignmentsTracker() {
   const handleGenerateAI = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!aiTopic.trim()) {
-      toast.error("Please Enter Assignment Topic Or Title.");
+      toast.error("Please enter a research topic or assignment title.");
       return;
     }
-
+    const keyToUse = geminiApiKey.trim();
+    if (keyToUse) {
+      localStorage.setItem("nimswallah_gemini_key", keyToUse);
+    }
+    setAiGenerating(true);
+    setGeneratedOutline(null);
     try {
-      setAiGenerating(true);
-      if (geminiApiKey.trim()) {
-        localStorage.setItem("nimswallah_gemini_key", geminiApiKey.trim());
-      }
-
-      const res = await apiFetch<any>("/assignments/generate-outline/", {
+      const res = await apiFetch<{
+        outline: { section: string; details: string }[];
+        citations: string[];
+        format: string;
+        model_used: string;
+      }>("/assignments/generate-outline/", {
         method: "POST",
         body: JSON.stringify({
           topic: aiTopic,
-          subject: aiSubject || (subjects[0]?.name ?? "Computer Science & Engineering"),
+          subject: aiSubject,
           format: aiFormat,
-          gemini_api_key: geminiApiKey.trim(),
+          api_key: keyToUse || undefined,
         }),
       });
-
       setGeneratedOutline(res);
-      toast.success(
-        res.model_used?.includes("Gemini")
-          ? "Academic Outline Generated With Live Gemini AI!"
-          : "Academic Outline Formatted With Curriculum Standards."
-      );
+      toast.success("Academic Outline Generated Successfully!");
     } catch (err: any) {
       toast.error(err.message || "Failed to generate AI outline.");
     } finally {
@@ -140,89 +210,7 @@ export function AssignmentsTracker() {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6 max-w-7xl mx-auto min-w-0">
-      {/* ================= Under Active Development Overlay / Standby ================= */}
-      {underDevelopment ? (
-        <div className="space-y-6 animate-in fade-in duration-300">
-          {/* Main Hero Card */}
-          <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-amber-500/30 bg-[#0d0e12] p-6 sm:p-10 shadow-[0_16px_50px_-20px_rgba(245,158,11,0.25)] min-w-0">
-            <div className="pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full bg-amber-500/10 blur-3xl" />
-
-            <div className="relative space-y-4 max-w-3xl">
-              <div className="inline-flex items-center gap-2 rounded-full border border-amber-500/40 bg-amber-500/10 px-3.5 py-1 text-xs font-bold text-amber-400">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500" />
-                </span>
-                <span>Feature Under Active Development</span>
-              </div>
-
-              <h1 className="font-display text-xl xs:text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
-                Assignment Tracker &amp; AI Formatter
-              </h1>
-
-              <p className="text-xs sm:text-base text-zinc-400 leading-relaxed">
-                This Academic Coursework Engine Is Under Active Development And Will Be Available In An Upcoming Release. All Underlying Modules, Submission APIs, Rubrics, And AI Formatter Codebases Are Safely Preserved In Cold Standby.
-              </p>
-
-              <div className="pt-2 flex flex-wrap items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => setUnderDevelopment(false)}
-                  className="inline-flex items-center gap-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/50 px-4 py-2 text-xs font-bold text-amber-300 transition-all cursor-pointer shadow-sm active:scale-95"
-                >
-                  <Cpu className="h-3.5 w-3.5" />
-                  <span>Resume Development Workspace (Preview Mode)</span>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Planned Capabilities Grid */}
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div className="rounded-2xl border border-white/10 bg-[#0f1013] p-5 space-y-2">
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-emerald-500/15 text-emerald-400 font-bold">
-                <FileCheck2 className="h-5 w-5" />
-              </div>
-              <h3 className="font-bold text-sm text-white">Coursework Submission Hub</h3>
-              <p className="text-xs text-zinc-400 leading-relaxed">
-                Direct Student Document Submissions With Cryptographic Timestamps, Anti-Tamper Tokens, And Sessional Weightage Tracking.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-white/10 bg-[#0f1013] p-5 space-y-2">
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-purple-500/15 text-purple-400 font-bold">
-                <Sparkles className="h-5 w-5" />
-              </div>
-              <h3 className="font-bold text-sm text-white">Gemini AI Outline Generator</h3>
-              <p className="text-xs text-zinc-400 leading-relaxed">
-                Automatic IEEE, APA, And University LaTeX Academic Format Generation With Verified References And Abstract Summaries.
-              </p>
-            </div>
-
-            <div className="rounded-2xl border border-white/10 bg-[#0f1013] p-5 space-y-2">
-              <div className="grid h-10 w-10 place-items-center rounded-xl bg-cyan-500/15 text-cyan-400 font-bold">
-                <Layers className="h-5 w-5" />
-              </div>
-              <h3 className="font-bold text-sm text-white">Assessment Telemetry &amp; Rubrics</h3>
-              <p className="text-xs text-zinc-400 leading-relaxed">
-                Real-Time Marks Weightage, Faculty Evaluator Feedback, And Continuous Assessment Scores Synced Directly With Semester CGPA Targets.
-              </p>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <>
-          <div className="flex items-center justify-between p-3 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-xs font-bold text-amber-300">
-            <span>Development Preview Mode Active · All Code Fully Functional</span>
-            <button
-              type="button"
-              onClick={() => setUnderDevelopment(true)}
-              className="px-3 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 border border-amber-500/40 text-[0.7rem] cursor-pointer"
-            >
-              Return To Standby State
-            </button>
-          </div>
+    <>
 
           {/* ================= Header Banner ================= */}
           <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border/80 bg-gradient-to-r from-emerald-500/10 via-surface to-teal-500/10 p-3.5 xs:p-4.5 sm:p-7 backdrop-blur-md shadow-xs min-w-0">
@@ -499,8 +487,6 @@ export function AssignmentsTracker() {
           </div>
         </div>
       )}
-        </>
-      )}
-    </div>
+    </>
   );
 }
