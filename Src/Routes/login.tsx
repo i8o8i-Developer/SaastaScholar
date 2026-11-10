@@ -568,14 +568,14 @@ export function Login() {
   };
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-[#090a0c] py-8 px-4 sm:px-8 sm:py-12 flex items-center justify-center min-w-0">
+    <div className="relative min-h-[100dvh] w-full overflow-x-clip bg-[#090a0c] py-6 sm:py-10 px-4 sm:px-8 flex flex-col min-w-0">
       {/* Blueprint Grid Overlay */}
       <div
         aria-hidden
         className="grid-lines pointer-events-none absolute inset-0 opacity-80 [mask-image:radial-gradient(ellipse_at_center,black_75%,transparent)]"
       />
 
-      <div className="relative mx-auto w-full max-w-4xl min-w-0 space-y-4">
+      <div className="relative mx-auto my-auto w-full max-w-4xl min-w-0 space-y-4 pb-8">
         {/* Top Breadcrumb Bar */}
         <div className="flex flex-wrap items-center justify-between gap-1.5 sm:gap-2 min-w-0">
           <a
@@ -604,9 +604,9 @@ export function Login() {
         </div>
 
         {/* Main Glassmorphic Card */}
-        <div className="overflow-hidden rounded-3xl border border-white/10 bg-[#0d0e12] shadow-2xl backdrop-blur-md min-w-0 animate-smooth-entrance">
+        <div className="overflow-x-clip rounded-3xl border border-white/10 bg-[#0d0e12] shadow-2xl backdrop-blur-md min-w-0 animate-smooth-entrance">
           {/* Card Top Banner Matched To Logo Palette */}
-          <div className="border-b border-white/10 bg-gradient-to-r from-[#005F15]/20 via-[#0a0b0e] to-[#007EAC]/20 px-3.5 sm:px-8 py-3.5 sm:py-5 min-w-0">
+          <div className="rounded-t-3xl border-b border-white/10 bg-gradient-to-r from-[#005F15]/20 via-[#0a0b0e] to-[#007EAC]/20 px-3.5 sm:px-8 py-3.5 sm:py-5 min-w-0">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 min-w-0">
               <div className="flex items-center gap-3 min-w-0">
                 <div className="relative shrink-0">

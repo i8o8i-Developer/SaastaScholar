@@ -277,11 +277,11 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
   };
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-background text-foreground">
+    <div className="flex h-[100dvh] max-h-[100dvh] w-full overflow-hidden bg-background text-foreground">
       {/* ===================== Desktop Sidebar ===================== */}
       <aside
         className={cn(
-          "hidden lg:flex flex-col h-screen max-h-screen border-r border-border/80 bg-card/75 backdrop-blur-md shrink-0 transition-all duration-300",
+          "hidden lg:flex flex-col h-[100dvh] max-h-[100dvh] border-r border-border/80 bg-card/75 backdrop-blur-md shrink-0 transition-all duration-300",
           sidebarCollapsed ? "w-20 p-3" : "w-64 xl:w-72 p-5"
         )}
       >
@@ -416,7 +416,7 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
         </div>
 
         {/* Navigation Links List - Quiet, Refined, Scrollable */}
-        <div className="flex-1 min-h-0 overflow-y-auto mt-4 pr-1 -mr-1 space-y-1 scrollbar-thin scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20 overscroll-contain">
+        <div className="flex-1 min-h-0 overflow-y-auto mt-4 pr-1 -mr-1 pb-4 space-y-1 scrollbar-thin scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20 overscroll-contain">
           <nav className="space-y-1">
             {NAV_ITEMS.map((item) => {
               const Icon = item.icon;
@@ -536,7 +536,7 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
             </div>
 
             {/* Scrollable Nav Item List */}
-            <div className="flex-1 overflow-y-auto py-2.5 space-y-1 overscroll-contain pr-0.5">
+            <div className="flex-1 min-h-0 overflow-y-auto py-2.5 pb-6 space-y-1 overscroll-contain pr-0.5">
               {NAV_ITEMS.map((item) => {
                 const Icon = item.icon;
                 const isActive = activeTab === item.id;
@@ -607,7 +607,7 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
       )}
 
       {/* ===================== Main Routed Content & Header ===================== */}
-      <div className="flex flex-1 flex-col min-w-0 overflow-hidden h-screen">
+      <div className="flex flex-1 flex-col min-w-0 min-h-0 h-full overflow-hidden">
         {/* Top Header */}
         <header className="sticky top-0 z-30 flex h-14 sm:h-16 items-center justify-between border-b border-border/80 bg-card/85 px-2 xs:px-4 sm:px-8 backdrop-blur-md shrink-0">
           <div className="flex items-center gap-2 xs:gap-3 min-w-0">
@@ -866,7 +866,7 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
         </header>
 
         {/* Routed Dashboard Page Canvas */}
-        <main className="flex-1 overflow-y-auto p-2 xs:p-4 sm:p-6 lg:p-8 bg-background scrollbar-thin min-w-0 overflow-x-hidden">
+        <main className="flex-1 min-h-0 overflow-y-auto overflow-x-clip p-2.5 xs:p-4 sm:p-6 lg:p-8 pb-24 sm:pb-16 bg-background scrollbar-thin min-w-0">
           <div className="max-w-6xl mx-auto w-full mb-4 sm:mb-6">
             <BroadcastBanner target="DASHBOARD" />
           </div>

@@ -2759,7 +2759,7 @@ export function AdminPortal() {
       </div>
 
       {/* Laptop & Tablet Interface (>= 768px) */}
-      <div className="hidden md:flex h-screen w-full overflow-hidden bg-background text-foreground">
+      <div className="hidden md:flex h-[100dvh] max-h-[100dvh] w-full overflow-hidden bg-background text-foreground">
         {/* ===================== Mobile Drawer ===================== */}
         {mobileNavOpen && (
         <div className="fixed inset-0 z-50 flex lg:hidden bg-black/60 backdrop-blur-xs">
@@ -2851,7 +2851,7 @@ export function AdminPortal() {
       {/* ===================== Desktop Admin Sidebar ===================== */}
       <aside
         className={cn(
-          "hidden lg:flex flex-col h-screen max-h-screen border-r border-border/80 bg-card/85 p-3.5 backdrop-blur-xl shrink-0 shadow-sm transition-all duration-300",
+          "hidden lg:flex flex-col h-[100dvh] max-h-[100dvh] border-r border-border/80 bg-card/85 p-3.5 backdrop-blur-xl shrink-0 shadow-sm transition-all duration-300",
           sidebarCollapsed ? "w-20" : "w-60 xl:w-72"
         )}
       >
@@ -2912,7 +2912,7 @@ export function AdminPortal() {
         </div>
 
         {/* Station Navigation List (Smoothly Scrollable on any viewport height) */}
-        <div className="flex-1 min-h-0 overflow-y-auto mt-3 pr-1 -mr-1 space-y-1 scrollbar-thin scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20 overscroll-contain">
+        <div className="flex-1 min-h-0 overflow-y-auto mt-3 pr-1 -mr-1 pb-6 space-y-1 scrollbar-thin scrollbar-thumb-white/10 hover:scrollbar-thumb-white/20 overscroll-contain">
           <nav className="space-y-1">
             {permittedStations.length === 0 ? (
               <div className="p-3 text-center text-xs text-muted-foreground bg-surface/50 rounded-xl border border-dashed border-border/80">
@@ -2978,7 +2978,7 @@ export function AdminPortal() {
       </aside>
 
       {/* ===================== Main Workspace ===================== */}
-      <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <main className="flex-1 flex flex-col min-w-0 min-h-0 h-full overflow-hidden">
         {/* Top Header */}
         <header className="sticky top-0 z-30 flex h-14 sm:h-16 items-center justify-between border-b border-border bg-card/85 px-3 xs:px-4 sm:px-6 backdrop-blur-md shrink-0">
           <div className="flex items-center gap-2 xs:gap-3 min-w-0">
@@ -3118,7 +3118,7 @@ export function AdminPortal() {
         </header>
 
         {/* Station Body Canvas */}
-        <div className="flex-1 overflow-y-auto p-3 xs:p-4 sm:p-6 lg:p-8 space-y-4 sm:space-y-6 min-w-0 overflow-x-hidden">
+        <div className="flex-1 min-h-0 overflow-y-auto overflow-x-clip p-3 xs:p-4 sm:p-6 lg:p-8 pb-24 sm:pb-16 space-y-4 sm:space-y-6 min-w-0">
           {!hasStationPermission(user, activeStation, "view") ? (
             <div className="rounded-3xl border border-rose-500/30 bg-rose-500/5 p-8 text-center max-w-xl mx-auto my-12 backdrop-blur-md shadow-lg">
               <div className="grid h-14 w-14 place-items-center rounded-2xl bg-rose-500/15 border border-rose-500/30 text-rose-500 mx-auto mb-4 shadow-inner">
