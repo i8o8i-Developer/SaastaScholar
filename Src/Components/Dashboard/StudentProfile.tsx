@@ -498,9 +498,6 @@ export function StudentProfile({ onNavigateTab, onOpenReader }: StudentProfilePr
                 <span className="h-2 w-2 rounded-full bg-primary shrink-0" />
                 Academic Identity &amp; System Directory
               </span>
-              <span className="text-xs text-muted-foreground">
-                Cohort: <strong className="text-primary font-mono">{user?.program || "B.Tech"}</strong> · Sem {enrolledSemester}
-              </span>
             </div>
 
             <div className="grid gap-3.5 sm:grid-cols-2 lg:grid-cols-3">

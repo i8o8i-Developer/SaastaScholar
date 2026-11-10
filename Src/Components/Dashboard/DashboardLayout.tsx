@@ -687,17 +687,17 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
 
               {/* Notification Modal / Popover Dropdown */}
               {notificationsOpen && (
-                <div className="absolute right-[-3rem] xs:right-0 mt-3 w-[calc(100vw-1.5rem)] max-w-sm rounded-2xl xs:rounded-3xl border border-border bg-card p-3 xs:p-4 shadow-2xl z-50 animate-in fade-in zoom-in-95">
-                  <div className="flex items-center justify-between border-b border-border/80 pb-2.5 xs:pb-3">
-                    <div className="flex items-center gap-1.5 xs:gap-2">
+                <div className="absolute right-[-3rem] xs:right-0 mt-5 sm:mt-4 w-[calc(100vw-1.5rem)] max-w-sm rounded-2xl xs:rounded-3xl border border-border/90 bg-card p-4 xs:p-5 shadow-[0_24px_60px_rgba(0,0,0,0.65)] z-50 space-y-3.5 animate-in fade-in zoom-in-95">
+                  <div className="flex items-center justify-between border-b border-border/80 pb-3">
+                    <div className="flex items-center gap-2">
                       <Bell className="h-4 w-4 text-primary shrink-0" />
                       <h3 className="font-display font-bold text-xs xs:text-sm text-foreground truncate">
                         Academic Notifications
                       </h3>
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1.5">
                       {unreadCount > 0 && (
-                        <span className="rounded-full bg-emerald-500/10 px-1.5 xs:px-2 py-0.5 text-[0.55rem] xs:text-[0.65rem] font-bold text-emerald-600 dark:text-emerald-400 shrink-0">
+                        <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[0.55rem] xs:text-[0.65rem] font-bold text-emerald-600 dark:text-emerald-400 shrink-0">
                           {unreadCount} New
                         </span>
                       )}
@@ -712,7 +712,7 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
                   </div>
 
                   {/* Responsive Action Buttons Bar */}
-                  <div className="grid grid-cols-2 gap-1.5 xs:gap-2 my-2.5 xs:my-3">
+                  <div className="grid grid-cols-2 gap-2.5">
                     <button
                       type="button"
                       onClick={handleMarkAllNotificationsRead}
@@ -837,7 +837,7 @@ export function DashboardLayout({ children, activeTab, onSelectTab, onOpenReader
               </button>
 
               {userDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-[calc(100vw-1.5rem)] max-w-[14rem] rounded-2xl border border-border bg-card p-2 shadow-xl z-50 space-y-1">
+                <div className="absolute right-0 mt-5 sm:mt-4 w-[calc(100vw-1.5rem)] max-w-[14rem] rounded-2xl border border-border/90 bg-card p-2.5 shadow-[0_24px_60px_rgba(0,0,0,0.65)] z-50 space-y-1.5">
                   <div className="p-2 border-b border-border/60">
                     <p className="font-bold text-xs text-foreground truncate">{user?.full_name}</p>
                     <p className="text-[0.65rem] text-muted-foreground truncate">{user?.email}</p>

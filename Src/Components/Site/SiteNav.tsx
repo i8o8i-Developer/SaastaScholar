@@ -1,17 +1,17 @@
-import { Menu, X } from "lucide-react";
+import { Award, Bell, BookOpen, Calendar, ChevronRight, Code2, FlaskConical, Menu, Sparkles, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { cn } from "@/Lib/Utils";
 import { Cta } from "./Primitives";
 
 const NAV_ITEMS = [
-  { label: "Features", href: "#features" },
-  { label: "Notes & PYQs", href: "#academic-hub" },
-  { label: "Homework AI", href: "#assignments" },
-  { label: "Practicals", href: "#practicals" },
-  { label: "Notices", href: "#notifications" },
-  { label: "Timetable", href: "#planner" },
-  { label: "Pricing", href: "#pricing" },
+  { label: "Features", desc: "Core Study Workspace", href: "#features", icon: Sparkles },
+  { label: "Notes & PYQs", desc: "Handwritten PDFs & Papers", href: "#academic-hub", icon: BookOpen },
+  { label: "Homework AI", desc: "Coursework & AI Outline", href: "#assignments", icon: Code2 },
+  { label: "Practicals", desc: "Lab Manuals & Viva Q&A", href: "#practicals", icon: FlaskConical },
+  { label: "Notices", desc: "Official Campus Circulars", href: "#notifications", icon: Bell },
+  { label: "Timetable", desc: "Daily Classes & Exam Dates", href: "#planner", icon: Calendar },
+  { label: "Pricing", desc: "Flexible Scholar Plans", href: "#pricing", icon: Award },
 ];
 
 export function SiteNav() {
@@ -135,33 +135,76 @@ export function SiteNav() {
         </div>
       </div>
 
-      {/* Slide-Down Mobile Drawer Menu */}
+      {/* Slide-Down Mobile & Tablet Menu */}
       {open ? (
-        <div className="border-t border-border bg-background xl:hidden animate-in fade-in slide-in-from-top-2 duration-200">
-          <nav aria-label="Mobile Navigation" className="mx-auto max-w-[84rem] px-5 py-4 sm:px-8">
-            <ul className="grid gap-1">
-              {NAV_ITEMS.map((item) => (
-                <li key={item.href}>
-                  <a
-                    href={item.href}
-                    onClick={(e) => {
-                      setOpen(false);
-                      handleNavClick(e, item.href);
-                    }}
-                    className="block rounded-xl px-3 py-2.5 text-sm font-semibold text-foreground hover:bg-secondary transition-colors"
-                  >
-                    {item.label}
-                  </a>
-                </li>
-              ))}
+        <div className="border-t border-white/[0.08] bg-[#0b0c0f]/98 backdrop-blur-xl shadow-[0_24px_60px_rgba(0,0,0,0.7)] xl:hidden max-h-[calc(100dvh-4.5rem)] overflow-y-auto animate-in fade-in slide-in-from-top-2 duration-200">
+          <nav aria-label="Mobile Navigation" className="mx-auto max-w-[84rem] px-4 py-5 sm:px-8 space-y-4">
+            <div className="flex items-center justify-between px-1">
+              <span className="text-[0.68rem] font-bold uppercase tracking-widest text-muted-foreground">
+                Explore Platform
+              </span>
+              <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-2.5 py-0.5 text-[0.65rem] font-bold text-emerald-400">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                Live Academic Portal
+              </span>
+            </div>
+
+            <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+              {NAV_ITEMS.map((item) => {
+                const Icon = item.icon;
+                return (
+                  <li key={item.href}>
+                    <a
+                      href={item.href}
+                      onClick={(e) => {
+                        setOpen(false);
+                        handleNavClick(e, item.href);
+                      }}
+                      className="group flex items-center justify-between gap-3 rounded-2xl border border-white/[0.07] bg-[#121317] p-3 text-left transition-all duration-200 hover:border-emerald-500/35 hover:bg-emerald-500/[0.06] active:scale-[0.98]"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-emerald-400 group-hover:bg-emerald-500 group-hover:text-zinc-950 transition-colors">
+                          <Icon className="h-4 w-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <span className="block text-xs sm:text-sm font-bold text-foreground truncate group-hover:text-emerald-300 transition-colors">
+                            {item.label}
+                          </span>
+                          <span className="block text-[0.68rem] text-muted-foreground truncate">
+                            {item.desc}
+                          </span>
+                        </div>
+                      </div>
+                      <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/60 group-hover:text-emerald-400 group-hover:translate-x-0.5 transition-all" />
+                    </a>
+                  </li>
+                );
+              })}
             </ul>
-            <div className="mt-4 grid grid-cols-2 gap-2.5 pt-3 border-t border-border/80">
-              <Cta href="/login" variant="outline" size="sm" onClick={() => setOpen(false)} className="w-full text-center">
-                Log In
-              </Cta>
-              <Cta href="/login?mode=signup" size="sm" onClick={() => setOpen(false)} className="w-full text-center">
-                Get Started
-              </Cta>
+
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-4 border-t border-white/[0.08]">
+              <p className="text-xs text-muted-foreground hidden sm:block">
+                Instant Access To Verified Handwritten Notes, Solved PYQs &amp; Daily Timetables.
+              </p>
+              <div className="grid grid-cols-2 sm:flex items-center gap-2.5 sm:ml-auto">
+                <Cta
+                  href="/login"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setOpen(false)}
+                  className="w-full sm:w-auto sm:min-w-[130px] text-center"
+                >
+                  Log In
+                </Cta>
+                <Cta
+                  href="/login?mode=signup"
+                  size="sm"
+                  onClick={() => setOpen(false)}
+                  className="w-full sm:w-auto sm:min-w-[150px] text-center"
+                >
+                  Get Started
+                </Cta>
+              </div>
             </div>
           </nav>
         </div>
