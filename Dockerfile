@@ -71,8 +71,7 @@ WORKDIR /app
 
 # Copy Backend & Requirements
 COPY Backend/Requirements.txt /app/Backend/Requirements.txt
-RUN pip install --no-cache-dir -r /app/Backend/Requirements.txt \
-    && opentelemetry-bootstrap --action=install || true
+RUN pip install --no-cache-dir -r /app/Backend/Requirements.txt
 
 COPY Backend /app/Backend
 COPY start.sh /app/start.sh
