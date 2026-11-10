@@ -329,7 +329,7 @@ def send_system_email(
                 last_error = str(exc)
                 logger.warning(f"-> [Email Dispatch Attempt {attempt + 1} Failed] {last_error}")
                 if attempt == 0:
-                    time.sleep(0.6)
+                    time.sleep(0.25)
                     continue
 
         logger.error(f"-> [Email Dispatch Failed] Could Not Send '{subject}' To {recipient_email}: {last_error}")

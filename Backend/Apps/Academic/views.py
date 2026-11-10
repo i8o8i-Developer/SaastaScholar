@@ -1,7 +1,7 @@
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.db.models import Count, Q
+from django.db.models import Count, Prefetch, Q
 from django.shortcuts import get_object_or_404
 
 from .models import (
@@ -42,7 +42,9 @@ from Apps.Accounts.serializers import StudentUserSerializer
 from .cache_utils import get_or_set_redis_cache, make_cache_key, invalidate_redis_pattern
 
 class DepartmentListView(generics.ListAPIView):
-    queryset = Department.objects.prefetch_related("programs", "subjects").all()
+    queryset = Department.objects.prefetch_related(
+        Prefetch("programs", queryset=ProgramSpecialization.objects.select_related("department"))
+    ).annotate(subjects_count_annotated=Count("subjects", distinct=True)).all()
     serializer_class = DepartmentSerializer
     permission_classes = [permissions.AllowAny]
     pagination_class = None
@@ -352,7 +354,9 @@ class MarkAllNoticesReadView(APIView):
 # ==============================================================================
 
 class AdminDepartmentListCreateView(generics.ListCreateAPIView):
-    queryset = Department.objects.prefetch_related("programs", "subjects").all()
+    queryset = Department.objects.prefetch_related(
+        Prefetch("programs", queryset=ProgramSpecialization.objects.select_related("department"))
+    ).annotate(subjects_count_annotated=Count("subjects", distinct=True)).all()
     serializer_class = DepartmentSerializer
     permission_classes = [permissions.IsAdminUser]
     pagination_class = None
@@ -412,7 +416,11 @@ class AdminNoticeDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAdminUser]
 
 class AdminSubjectListCreateView(generics.ListCreateAPIView):
-    queryset = Subject.objects.select_related("department").prefetch_related("programs").all()
+    queryset = Subject.objects.select_related("department").prefetch_related("programs").annotate(
+        materials_count=Count("materials", distinct=True),
+        experiments_count=Count("experiments", distinct=True),
+        units_count_annotated=Count("units", distinct=True),
+    ).all()
     serializer_class = SubjectSerializer
     permission_classes = [permissions.IsAdminUser]
     pagination_class = None
@@ -546,12 +554,18 @@ class AdminStudentsListView(generics.ListCreateAPIView):
     pagination_class = None
 
     def get_queryset(self):
-        qs = StudentUser.objects.filter(
+        qs = StudentUser.objects.select_related("admin_role").filter(
             is_staff=False,
             is_superuser=False,
             admin_role__isnull=True
         ).exclude(
             email__in=["admin@nims.edu.in", "admin@saastascholar.in"]
+        ).annotate(
+            active_sessions_annotated=Count(
+                "security_sessions",
+                filter=Q(security_sessions__is_revoked=False),
+                distinct=True,
+            )
         ).order_by("-created_at")
         semester = self.request.query_params.get("semester")
         program = self.request.query_params.get("program")

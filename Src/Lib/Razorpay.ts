@@ -62,7 +62,7 @@ export async function initiateRazorpayPayment({
   onSuccess?: ((res: RazorpayVerifyResponse) => void) | undefined;
   onError?: ((err: any) => void) | undefined;
 }) {
-  const loadingToast = toast.loading("Account Created! Opening Secure Payment Gateway...");
+  const loadingToast = toast.loading("Initializing Secure Payment Gateway...");
 
   try {
     // 1. Create Real Order On Backend
@@ -77,17 +77,17 @@ export async function initiateRazorpayPayment({
 
     toast.dismiss(loadingToast);
 
-    // If 100% Free Plan activated directly
+    // If 100% Free Plan or 100% Coupon Pass activated directly
     if (orderData.free_tier) {
-      toast.success(orderData.message || "Free Plan Activated Successfully!");
+      toast.success(orderData.message || "Membership Plan Activated Successfully!");
       if (onSuccess) {
         onSuccess({
           success: true,
-          access_tier: "FREE",
-          plan_name: "Free Plan",
+          access_tier: orderData.plan_tier || "FREE",
+          plan_name: orderData.plan_name || "Academic Plan",
           payment_id: "free_tier",
-          expires_in_days: 365,
-          message: orderData.message || "Free Plan Activated",
+          expires_in_days: cycle === "semester" ? 180 : 30,
+          message: orderData.message || "Plan Activated",
         });
       }
       return;

@@ -543,6 +543,9 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
   }
 
   const fetchPromise = (async () => {
+    const controller = !options.signal && typeof AbortController !== "undefined" ? new AbortController() : null;
+    const timeoutId = controller ? setTimeout(() => controller.abort(), 20000) : null;
+
     try {
       const headers: HeadersInit = {
         "Content-Type": "application/json",
@@ -553,6 +556,7 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
       let res = await fetch(`${API_BASE}${endpoint}`, {
         ...options,
         headers,
+        signal: options.signal ?? controller?.signal ?? null,
       });
 
       // Handle 401 Unauthorized With Automatic JWT Token Refresh & Retry
@@ -619,7 +623,15 @@ export async function apiFetch<T>(endpoint: string, options: RequestInit = {}): 
 
       const text = await res.text();
       return text ? JSON.parse(text) : ({} as T);
+    } catch (err: any) {
+      if (err?.name === "AbortError") {
+        throw new Error("Request Timed Out While Connecting To Server. Please Retry.");
+      }
+      throw err;
     } finally {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
       if (cacheKey) {
         inFlightRequests.delete(cacheKey);
       }

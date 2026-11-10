@@ -361,14 +361,18 @@ export function Login() {
   // Fetch Live Academic Blueprint
   const loadAcademicBlueprint = async () => {
     try {
-      const [deptsRes, progsRes, secsRes] = await Promise.all([
+      const [deptsRes, progsRes, secsRes] = await Promise.allSettled([
         apiFetch("/academic/departments/"),
         apiFetch("/academic/programs/"),
         apiFetch("/academic/sections/"),
       ]);
-      const depts = Array.isArray(deptsRes) ? deptsRes : ((deptsRes as any)?.results || []);
-      const progs = Array.isArray(progsRes) ? progsRes : ((progsRes as any)?.results || []);
-      const secs = Array.isArray(secsRes) ? secsRes : ((secsRes as any)?.results || []);
+      const rawDepts = deptsRes.status === "fulfilled" ? deptsRes.value : [];
+      const rawProgs = progsRes.status === "fulfilled" ? progsRes.value : [];
+      const rawSecs = secsRes.status === "fulfilled" ? secsRes.value : [];
+
+      const depts = Array.isArray(rawDepts) ? rawDepts : ((rawDepts as any)?.results || []);
+      const progs = Array.isArray(rawProgs) ? rawProgs : ((rawProgs as any)?.results || []);
+      const secs = Array.isArray(rawSecs) ? rawSecs : ((rawSecs as any)?.results || []);
 
       setDepartments(depts);
       setPrograms(progs);
@@ -387,6 +391,8 @@ export function Login() {
           }
           return chosenDept;
         });
+      } else if (progs.length > 0) {
+        setSelectedProgramId((prevProg) => prevProg || progs[0].id);
       }
     } catch (err) {
       // Handled gracefully
@@ -453,8 +459,10 @@ export function Login() {
         const progCode = (selectedProgramObj?.code || "STU").replace(/[^A-Za-z0-9]/g, "").slice(0, 4).toUpperCase();
         const studentRoll: string = rollNumber.trim() ? rollNumber.trim() : `26${progCode}001`;
         const studentSection: string = (section && section.trim()) ? section.trim().toUpperCase() : "A";
-        const studentTarget: string = targetCgpa.trim() ? targetCgpa.trim() : "9.50";
-        const studentCurrent: string = currentCgpa.trim() ? currentCgpa.trim() : "9.00";
+        const parsedTarget = Number.parseFloat(targetCgpa.trim());
+        const parsedCurrent = Number.parseFloat(currentCgpa.trim());
+        const studentTarget: string = Number.isFinite(parsedTarget) ? parsedTarget.toFixed(2) : "9.50";
+        const studentCurrent: string = Number.isFinite(parsedCurrent) ? parsedCurrent.toFixed(2) : "9.00";
 
         const initialAssignedTier = isFreePlan ? "FREE" : selectedPlan;
 
@@ -523,7 +531,9 @@ export function Login() {
         const isUserAdmin = Boolean(
           authenticatedUser.is_staff ||
           authenticatedUser.is_superuser ||
-          authenticatedUser.email === "admin@nims.edu.in"
+          authenticatedUser.admin_role ||
+          authenticatedUser.email?.toLowerCase() === "admin@nims.edu.in" ||
+          authenticatedUser.email?.toLowerCase() === "admin@saastascholar.in"
         );
 
         if (authMode === "admin") {
@@ -897,11 +907,11 @@ export function Login() {
                                 toast.error("Real Student Name Required. Dummy Or Test Names (E.g., 'test', 'fake', 'dummy') Are Strictly Prohibited.");
                                 return;
                               }
-                              if (!selectedDeptId) {
+                              if (departments.length > 0 && !selectedDeptId) {
                                 toast.error("Please Select A College Department.");
                                 return;
                               }
-                              if (!selectedProgramId) {
+                              if (availablePrograms.length > 0 && !selectedProgramId) {
                                 toast.error("Please Select A Degree Course / Branch.");
                                 return;
                               }

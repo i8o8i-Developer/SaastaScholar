@@ -65,10 +65,10 @@ if [ -n "$OTEL_EXPORTER_OTLP_ENDPOINT" ] && command -v opentelemetry-instrument 
     export OTEL_RESOURCE_ATTRIBUTES="service.name=${OTEL_SERVICE_NAME:-saastascholar-app},deployment.environment=${DEPLOYMENT_ENV:-production}"
     export OTEL_EXPORTER_OTLP_PROTOCOL="http/protobuf"
     export OTEL_METRICS_EXPORTER="none"
-    opentelemetry-instrument gunicorn Core.wsgi:application --bind 127.0.0.1:8000 --workers 3 --threads 4 --timeout 300 &
+    opentelemetry-instrument gunicorn Core.wsgi:application --bind 127.0.0.1:8000 --workers 4 --threads 8 --keep-alive 5 --timeout 120 &
 else
     echo "-> Launching Gunicorn Server..."
-    gunicorn Core.wsgi:application --bind 127.0.0.1:8000 --workers 3 --threads 4 --timeout 300 &
+    gunicorn Core.wsgi:application --bind 127.0.0.1:8000 --workers 4 --threads 8 --keep-alive 5 --timeout 120 &
 fi
 
 # Ensure Gunicorn Is Ready Before Launching Nginx

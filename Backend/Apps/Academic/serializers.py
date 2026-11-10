@@ -108,18 +108,24 @@ class SectionBatchSerializer(serializers.ModelSerializer):
 
 class DepartmentSerializer(serializers.ModelSerializer):
     programs = ProgramSpecializationSerializer(many=True, read_only=True)
-    subjects_count = serializers.IntegerField(source="subjects.count", read_only=True)
+    subjects_count = serializers.SerializerMethodField()
 
     class Meta:
         model = Department
         fields = ["id", "name", "code", "description", "head_of_department", "programs", "subjects_count", "created_at"]
+
+    def get_subjects_count(self, obj):
+        annotated = getattr(obj, "subjects_count_annotated", None)
+        if annotated is not None:
+            return annotated
+        return obj.subjects.count()
 
 class SubjectSerializer(serializers.ModelSerializer):
     department_name = serializers.CharField(source="department.name", read_only=True)
     department_code = serializers.CharField(source="department.code", read_only=True)
     materials_count = serializers.IntegerField(read_only=True, default=0)
     experiments_count = serializers.IntegerField(read_only=True, default=0)
-    units_count = serializers.IntegerField(source="units.count", read_only=True)
+    units_count = serializers.SerializerMethodField()
     program = serializers.UUIDField(write_only=True, required=False)
     programs = serializers.PrimaryKeyRelatedField(
         queryset=ProgramSpecialization.objects.all(),
@@ -157,6 +163,12 @@ class SubjectSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "department": {"required": False},
         }
+
+    def get_units_count(self, obj):
+        annotated = getattr(obj, "units_count_annotated", None)
+        if annotated is not None:
+            return annotated
+        return obj.units.count()
 
     def get_program_ids(self, obj):
         return [str(p.id) for p in obj.programs.all()]
@@ -275,7 +287,13 @@ class AcademicMaterialListSerializer(serializers.ModelSerializer):
     def get_is_bookmarked(self, obj):
         request = self.context.get("request")
         if request and request.user.is_authenticated:
-            return UserBookmark.objects.filter(user=request.user, material=obj).exists()
+            bookmarked_ids = self.context.get("_bookmarked_ids")
+            if bookmarked_ids is None:
+                bookmarked_ids = set(
+                    UserBookmark.objects.filter(user=request.user).values_list("material_id", flat=True)
+                )
+                self.context["_bookmarked_ids"] = bookmarked_ids
+            return obj.id in bookmarked_ids
         return False
 
 class AcademicMaterialSerializer(serializers.ModelSerializer):
@@ -445,7 +463,13 @@ class AcademicMaterialSerializer(serializers.ModelSerializer):
     def get_is_bookmarked(self, obj):
         request = self.context.get("request")
         if request and request.user.is_authenticated:
-            return UserBookmark.objects.filter(user=request.user, material=obj).exists()
+            bookmarked_ids = self.context.get("_bookmarked_ids")
+            if bookmarked_ids is None:
+                bookmarked_ids = set(
+                    UserBookmark.objects.filter(user=request.user).values_list("material_id", flat=True)
+                )
+                self.context["_bookmarked_ids"] = bookmarked_ids
+            return obj.id in bookmarked_ids
         return False
 
 class LabExperimentSerializer(serializers.ModelSerializer):

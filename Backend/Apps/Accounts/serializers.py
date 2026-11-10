@@ -118,30 +118,54 @@ class StudentUserSerializer(serializers.ModelSerializer):
         return None
 
     def get_active_sessions_count(self, obj):
+        annotated = getattr(obj, "active_sessions_annotated", None)
+        if annotated is not None:
+            return annotated
         return obj.security_sessions.filter(is_revoked=False).count()
+
+    def _get_program_lookup(self):
+        cached_local = getattr(self, "_cached_programs_list", None)
+        if cached_local is not None:
+            return cached_local
+        try:
+            from django.core.cache import cache
+            cached = cache.get("accounts:program_code_lookup")
+            if cached is not None:
+                self._cached_programs_list = cached
+                return cached
+        except Exception:
+            pass
+        try:
+            from Apps.Academic.models import ProgramSpecialization
+            items = list(ProgramSpecialization.objects.values_list("name", "code"))
+            self._cached_programs_list = items
+            try:
+                from django.core.cache import cache
+                cache.set("accounts:program_code_lookup", items, timeout=120)
+            except Exception:
+                pass
+            return items
+        except Exception:
+            self._cached_programs_list = []
+            return []
 
     def get_program_code(self, obj):
         if not obj.program:
             return "Academic"
         p = obj.program.strip()
+        p_lower = p.lower()
         try:
-            from Apps.Academic.models import ProgramSpecialization
-            from django.db.models import Q
-            
-            prog = ProgramSpecialization.objects.filter(Q(name__iexact=p) | Q(code__iexact=p)).first()
-            if not prog:
-                prog = ProgramSpecialization.objects.filter(Q(name__icontains=p) | Q(code__icontains=p)).first()
-            if not prog:
-                #
-                p_lower = p.lower()
-                for candidate in ProgramSpecialization.objects.all():
-                    c_name = candidate.name.lower()
-                    c_code = candidate.code.lower()
-                    if c_name in p_lower or p_lower in c_name or c_code in p_lower:
-                        prog = candidate
-                        break
-            if prog and prog.code:
-                return prog.code
+            programs = self._get_program_lookup()
+            for name, code in programs:
+                if (name and name.lower() == p_lower) or (code and code.lower() == p_lower):
+                    if code:
+                        return code
+            for name, code in programs:
+                c_name = (name or "").lower()
+                c_code = (code or "").lower()
+                if (c_name and (c_name in p_lower or p_lower in c_name)) or (c_code and c_code in p_lower):
+                    if code:
+                        return code
         except Exception:
             pass
 
@@ -271,6 +295,14 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     portal = serializers.CharField(required=False, allow_blank=True, write_only=True)
 
     def validate(self, attrs):
+        raw_email = str(attrs.get(self.username_field) or "").strip()
+        if raw_email:
+            matched_user = StudentUser.objects.filter(email__iexact=raw_email).first()
+            if matched_user:
+                attrs[self.username_field] = matched_user.email
+            else:
+                attrs[self.username_field] = raw_email.lower()
+
         data = super().validate(attrs)
         
         # Enforce Strict Portal / Role Context Segregation
@@ -279,8 +311,11 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             self.user.is_staff or 
             self.user.is_superuser or 
             getattr(self.user, "admin_role_id", None) is not None or
-            getattr(self.user, "email", "") == "admin@nims.edu.in"
+            getattr(self.user, "email", "").lower() in ("admin@nims.edu.in", "admin@saastascholar.in")
         )
+        if is_admin_user and getattr(self.user, "admin_role_id", None) is not None and not self.user.is_staff:
+            self.user.is_staff = True
+            self.user.save(update_fields=["is_staff"])
 
         if portal == "student":
             if is_admin_user:

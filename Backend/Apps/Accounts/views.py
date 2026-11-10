@@ -34,7 +34,8 @@ class CustomLoginView(TokenObtainPairView):
         response = super().post(request, *args, **kwargs)
         if response.status_code == 200:
             try:
-                user = StudentUser.objects.filter(email=request.data.get("email")).first()
+                raw_email = str(request.data.get("email") or "").strip()
+                user = StudentUser.objects.filter(email__iexact=raw_email).first()
                 if user:
                     ip = get_client_ip(request)
                     ua = request.META.get("HTTP_USER_AGENT", "")[:255]
@@ -228,8 +229,9 @@ class RegisterView(generics.CreateAPIView):
         token.save(update_fields=["is_used", "is_verified"])
 
         try:
+            import threading
             from Core.mail import send_welcome_email
-            send_welcome_email(user)
+            threading.Thread(target=send_welcome_email, args=(user,), daemon=True).start()
         except Exception:
             pass
         
@@ -848,6 +850,9 @@ class AdminAuditLogListView(generics.ListAPIView):
                 | Q(actor_email__icontains=search)
                 | Q(reason__icontains=search)
             )
+        show_all = str(self.request.query_params.get("all", "")).lower() in ("true", "1", "yes")
+        if not show_all:
+            return qs[:250]
         return qs
 
 class AdminBulkResetSecurityView(APIView):

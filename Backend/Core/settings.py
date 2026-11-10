@@ -94,6 +94,11 @@ if DATABASE_URL:
             "PASSWORD": url.password,
             "HOST": url.hostname,
             "PORT": str(url.port or "5432"),
+            "CONN_MAX_AGE": 60,
+            "CONN_HEALTH_CHECKS": True,
+            "OPTIONS": {
+                "connect_timeout": 10,
+            },
         }
     }
 elif DB_NAME and DB_USER and DB_PASSWORD:
@@ -105,6 +110,11 @@ elif DB_NAME and DB_USER and DB_PASSWORD:
             "PASSWORD": DB_PASSWORD,
             "HOST": DB_HOST,
             "PORT": DB_PORT,
+            "CONN_MAX_AGE": 60,
+            "CONN_HEALTH_CHECKS": True,
+            "OPTIONS": {
+                "connect_timeout": 10,
+            },
         }
     }
 else:
@@ -112,6 +122,7 @@ else:
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
             "NAME": BASE_DIR / "db.sqlite3",
+            "CONN_MAX_AGE": 60,
         }
     }
 
@@ -137,10 +148,10 @@ try:
                 "CLIENT_CLASS": "django_redis.client.DefaultClient",
                 "CONNECTION_POOL_KWARGS": {
                     "max_connections": 100,
-                    "retry_on_timeout": True,
+                    "retry_on_timeout": False,
                 },
-                "SOCKET_CONNECT_TIMEOUT": 2,
-                "SOCKET_TIMEOUT": 2,
+                "SOCKET_CONNECT_TIMEOUT": 0.5,
+                "SOCKET_TIMEOUT": 0.5,
                 "IGNORE_EXCEPTIONS": True, # Fail-safe fallback so API always succeeds
             },
             "KEY_PREFIX": "nimswallah",
@@ -283,4 +294,4 @@ DEFAULT_FROM_EMAIL = os.environ.get(
     "DEFAULT_FROM_EMAIL",
     f"SaastaScholar Support <{EMAIL_HOST_USER}>" if EMAIL_HOST_USER else "support@saastascholar.in"
 ).strip()
-EMAIL_TIMEOUT = int(os.environ.get("EMAIL_TIMEOUT", 10))
+EMAIL_TIMEOUT = int(os.environ.get("EMAIL_TIMEOUT", 6))

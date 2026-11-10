@@ -471,10 +471,49 @@ class RazorpayCreateOrderView(APIView):
             if applied_coupon:
                 applied_coupon.times_used += 1
                 applied_coupon.save(update_fields=["times_used"])
+
+            invoice_no = f"INV-{timezone.now().year}-{uuid.uuid4().hex[:8].upper()}"
+            free_order_id = f"FREE_COUPON_{uuid.uuid4().hex[:10].upper()}"
+            RazorpayOrder.objects.create(
+                user=user,
+                order_id=free_order_id,
+                amount=0,
+                currency="INR",
+                plan_tier=plan_tier,
+                cycle=cycle,
+                status="paid",
+                payment_id=free_order_id,
+                invoice_number=invoice_no,
+                discount_code=coupon_code if applied_coupon else "",
+                discount_amount_paise=discount_paise,
+            )
+
+            duration_days = 180 if cycle == "semester" else 30
+            now = timezone.now()
+            plan_obj = SubscriptionPlan.objects.filter(tier__iexact=plan_tier).first()
+            if plan_obj:
+                UserSubscription.objects.filter(user=user, is_active=True).update(is_active=False)
+                UserSubscription.objects.create(
+                    user=user,
+                    plan=plan_obj,
+                    start_date=now,
+                    end_date=now + timedelta(days=duration_days),
+                    is_active=True,
+                    transaction_id=free_order_id,
+                )
+
+            try:
+                from Apps.Academic.cache_utils import invalidate_redis_pattern
+                invalidate_redis_pattern(f"*{user.id}*")
+                invalidate_redis_pattern(f"subscriptions:access:{user.id}*")
+            except Exception:
+                pass
+
             return Response({
                 "free_tier": True,
                 "message": f"{plan_name} Activated Successfully With 100% Discount Pass! No Payment Required.",
                 "plan_tier": plan_tier,
+                "invoice_number": invoice_no,
                 "discount_inr": round(discount_paise / 100, 2),
                 "final_amount_inr": 0,
             })
@@ -632,6 +671,7 @@ class RazorpayVerifyPaymentView(APIView):
                 price_semester=round(tier_info.get("semester", 0) / 100, 2),
             )
 
+        UserSubscription.objects.filter(user=user, is_active=True).update(is_active=False)
         UserSubscription.objects.create(
             user=user,
             plan=plan_obj,
@@ -642,8 +682,16 @@ class RazorpayVerifyPaymentView(APIView):
         )
 
         try:
+            from Apps.Academic.cache_utils import invalidate_redis_pattern
+            invalidate_redis_pattern(f"*{user.id}*")
+            invalidate_redis_pattern(f"subscriptions:access:{user.id}*")
+        except Exception:
+            pass
+
+        try:
+            import threading
             from Core.mail import send_payment_success_email
-            send_payment_success_email(order_record)
+            threading.Thread(target=send_payment_success_email, args=(order_record,), daemon=True).start()
         except Exception:
             pass
 

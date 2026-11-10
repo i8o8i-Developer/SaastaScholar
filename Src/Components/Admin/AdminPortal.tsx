@@ -569,101 +569,111 @@ export function AdminPortal() {
     is_broadcast_all: true,
   });
 
-  // Load All Admin Stores
+  // Load All Admin Stores Progressively (Never Blocks UI Behind A Single Slow Endpoint)
   const loadAdminData = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const [
-        deptsRes,
-        progsRes,
-        secsRes,
-        subsRes,
-        unitsRes,
-        matsRes,
-        labsRes,
-        assignsRes,
-        timesRes,
-        milesRes,
-        noticesRes,
-        usersRes,
-        badgesRes,
-        ticketsRes,
-        postsRes,
-        auditRes,
-        incidentsRes,
-        drmConfigRes,
-        bannersRes,
-      ] = await Promise.all([
-        apiFetch("/academic/admin/departments/").catch(() => []),
-        apiFetch("/academic/admin/programs/").catch(() => []),
-        apiFetch("/academic/admin/sections/").catch(() => []),
-        apiFetch("/academic/admin/subjects/").catch(() => []),
-        apiFetch("/academic/admin/units/").catch(() => []),
-        apiFetch("/academic/admin/materials/").catch(() => []),
-        apiFetch("/academic/admin/labs/").catch(() => []),
-        apiFetch("/assignments/admin/assignments/").catch(() => []),
-        apiFetch("/planner/admin/timetable/").catch(() => []),
-        apiFetch("/planner/admin/milestones/").catch(() => []),
-        apiFetch("/academic/admin/notices/").catch(() => []),
-        studentSecurityApi.getStudents().catch(() => []),
-        apiFetch("/academic/admin/badges/").catch(() => []),
-        communityApi.getTickets().catch(() => []),
-        communityApi.getPosts().catch(() => []),
-        studentSecurityApi.getAuditLogs().catch(() => []),
-        studentSecurityApi.getDrmIncidents().catch(() => []),
-        globalDrmApi.getConfig().catch(() => ({ is_drm_enabled: true })),
-        apiFetch("/academic/admin/banners/").catch(() => []),
+      const handleAuthError = (err: any) => {
+        const errMsg = err?.message || "";
+        if (errMsg.includes("Credentials Were Not Provided") || errMsg.includes("401")) {
+          removeAccessToken();
+          window.location.href = "/login?mode=admin";
+        }
+      };
+
+      const fetchAndApply = <T,>(promise: Promise<T>, onResolve: (data: T) => void) =>
+        promise
+          .then((res) => {
+            onResolve(res);
+          })
+          .catch((err) => {
+            handleAuthError(err);
+          });
+
+      // Wave 1: Primary Executive Metrics & Core Blueprint (Updates State Immediately Per Endpoint)
+      await Promise.allSettled([
+        fetchAndApply(apiFetch("/academic/admin/departments/"), (res) =>
+          setDepartments(extractArray<Department>(res))
+        ),
+        fetchAndApply(apiFetch("/academic/admin/programs/"), (res) =>
+          setPrograms(extractArray<ProgramSpecialization>(res))
+        ),
+        fetchAndApply(apiFetch("/academic/admin/sections/"), (res) =>
+          setSections(extractArray<SectionBatch>(res))
+        ),
+        fetchAndApply(apiFetch("/academic/admin/subjects/"), (res) =>
+          setSubjects(extractArray<Subject>(res))
+        ),
+        fetchAndApply(studentSecurityApi.getStudents(), (res) =>
+          setStudents(
+            extractArray<StudentUser>(res).filter(
+              (stu) => !stu.is_staff && !stu.is_superuser && !stu.admin_role && !(stu as any).admin_role_id
+            )
+          )
+        ),
+        fetchAndApply(apiFetch("/academic/admin/materials/"), (res) =>
+          setMaterials(extractArray<AcademicMaterial>(res))
+        ),
+        fetchAndApply(apiFetch("/academic/admin/labs/"), (res) =>
+          setLabs(extractArray<LabExperiment>(res))
+        ),
+        fetchAndApply(apiFetch("/planner/admin/timetable/"), (res) =>
+          setTimetableSlots(extractArray<TimetableSlot>(res))
+        ),
       ]);
 
-      if (drmConfigRes && typeof (drmConfigRes as any).is_drm_enabled === "boolean") {
-        const disabled = !(drmConfigRes as any).is_drm_enabled;
-        setIsDrmDisabled(disabled);
-        setDrmGloballyDisabled(disabled);
-      }
-
-      setDepartments(extractArray<Department>(deptsRes));
-      setPrograms(extractArray<ProgramSpecialization>(progsRes));
-      setSections(extractArray<SectionBatch>(secsRes));
-      setSubjects(extractArray<Subject>(subsRes));
-      setUnits(extractArray<SubjectUnit>(unitsRes));
-      setMaterials(extractArray<AcademicMaterial>(matsRes));
-      setLabs(extractArray<LabExperiment>(labsRes));
-      setAssignments(extractArray<StudentAssignment>(assignsRes));
-      setTimetableSlots(extractArray<TimetableSlot>(timesRes));
-      setMilestones(extractArray<MilestoneCountdown>(milesRes));
-      setNotices(extractArray<DepartmentNotice>(noticesRes));
-      setStudents(
-        extractArray<StudentUser>(usersRes).filter(
-          (stu) => !stu.is_staff && !stu.is_superuser && !stu.admin_role && !(stu as any).admin_role_id
-        )
-      );
-      setAuditLogs(extractArray<AdminAuditLog>(auditRes));
-      setDrmIncidents(extractArray<DrmSecurityIncident>(incidentsRes));
-      setBanners(extractArray<SiteBanner>(bannersRes));
-
-      // Community
-      setTickets(Array.isArray(ticketsRes) ? ticketsRes : (ticketsRes as any)?.results || []);
-      setPosts(Array.isArray(postsRes) ? postsRes : (postsRes as any)?.results || []);
-
-      const loadedBadges = extractArray<SidebarBadgeConfig>(badgesRes);
-      setBadges(loadedBadges);
-      const draftMap: Record<string, { badge_text: string; badge_variant: string; is_active: boolean }> = {};
-      loadedBadges.forEach((b) => {
-        draftMap[b.id] = {
-          badge_text: b.badge_text || "",
-          badge_variant: b.badge_variant || "emerald",
-          is_active: b.is_active,
-        };
-      });
-      setEditingBadge(draftMap);
+      // Wave 2: Secondary Modules, Community & Security Logs (Non-Blocking Progressive Hydration)
+      await Promise.allSettled([
+        fetchAndApply(apiFetch("/academic/admin/units/"), (res) =>
+          setUnits(extractArray<SubjectUnit>(res))
+        ),
+        fetchAndApply(apiFetch("/assignments/admin/assignments/"), (res) =>
+          setAssignments(extractArray<StudentAssignment>(res))
+        ),
+        fetchAndApply(apiFetch("/planner/admin/milestones/"), (res) =>
+          setMilestones(extractArray<MilestoneCountdown>(res))
+        ),
+        fetchAndApply(apiFetch("/academic/admin/notices/"), (res) =>
+          setNotices(extractArray<DepartmentNotice>(res))
+        ),
+        fetchAndApply(apiFetch("/academic/admin/banners/"), (res) =>
+          setBanners(extractArray<SiteBanner>(res))
+        ),
+        fetchAndApply(apiFetch("/academic/admin/badges/"), (res) => {
+          const loadedBadges = extractArray<SidebarBadgeConfig>(res);
+          setBadges(loadedBadges);
+          const draftMap: Record<string, { badge_text: string; badge_variant: string; is_active: boolean }> = {};
+          loadedBadges.forEach((b) => {
+            draftMap[b.id] = {
+              badge_text: b.badge_text || "",
+              badge_variant: b.badge_variant || "emerald",
+              is_active: b.is_active,
+            };
+          });
+          setEditingBadge(draftMap);
+        }),
+        fetchAndApply(communityApi.getTickets(), (res) =>
+          setTickets(Array.isArray(res) ? res : (res as any)?.results || [])
+        ),
+        fetchAndApply(communityApi.getPosts(), (res) =>
+          setPosts(Array.isArray(res) ? res : (res as any)?.results || [])
+        ),
+        fetchAndApply(studentSecurityApi.getAuditLogs(), (res) =>
+          setAuditLogs(extractArray<AdminAuditLog>(res))
+        ),
+        fetchAndApply(studentSecurityApi.getDrmIncidents(), (res) =>
+          setDrmIncidents(extractArray<DrmSecurityIncident>(res))
+        ),
+        fetchAndApply(globalDrmApi.getConfig(), (res) => {
+          if (res && typeof (res as any).is_drm_enabled === "boolean") {
+            const disabled = !(res as any).is_drm_enabled;
+            setIsDrmDisabled(disabled);
+            setDrmGloballyDisabled(disabled);
+          }
+        }),
+      ]);
     } catch (err: any) {
-      const errMsg = err.message || "";
-      if (errMsg.includes("Credentials Were Not Provided") || errMsg.includes("token") || errMsg.includes("401")) {
-        removeAccessToken();
-        window.location.href = "/login?mode=admin";
-        return;
-      }
-      toast.error(err.message || "Failed To Load Academic Records.");
+      toast.error(err?.message || "Failed To Load Academic Records.");
     } finally {
       setLoading(false);
     }
@@ -3197,7 +3207,7 @@ export function AdminPortal() {
                   </div>
                   <div className="min-w-0">
                     <h3 className="font-display font-extrabold text-xl sm:text-2xl lg:text-3xl text-foreground font-mono truncate">
-                      {students.length || 1}
+                      {students.length}
                     </h3>
                     <p className="text-[0.68rem] sm:text-xs text-muted-foreground font-semibold mt-0.5 truncate">
                       Total Students
@@ -3205,7 +3215,7 @@ export function AdminPortal() {
                   </div>
                   <div className="text-[0.6rem] sm:text-[0.68rem] text-muted-foreground pt-1.5 sm:pt-2 border-t border-border/80 flex items-center justify-between font-mono gap-1 min-w-0">
                     <span className="truncate">Protection</span>
-                    <span className="font-bold text-foreground shrink-0">{students.length || 1} Active</span>
+                    <span className="font-bold text-foreground shrink-0">{students.length} Active</span>
                   </div>
                 </div>
 

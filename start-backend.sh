@@ -33,4 +33,4 @@ echo "-> Checking And Seeding Database Records..."
 python SeedDatabase.py || true
 
 echo "-> Starting Django Gunicorn API Server On 0.0.0.0:8000..."
-exec gunicorn Core.wsgi:application --bind 0.0.0.0:8000 --workers 3 --threads 4 --timeout 300
+exec gunicorn Core.wsgi:application --bind 0.0.0.0:8000 --workers 4 --threads 8 --keep-alive 5 --timeout 120

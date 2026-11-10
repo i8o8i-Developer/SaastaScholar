@@ -65,7 +65,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
 
       const isUserAdmin = Boolean(
-        res.user.is_staff || res.user.is_superuser || res.user.email === "admin@nims.edu.in"
+        res.user.is_staff ||
+          res.user.is_superuser ||
+          res.user.admin_role ||
+          res.user.email?.toLowerCase() === "admin@nims.edu.in" ||
+          res.user.email?.toLowerCase() === "admin@saastascholar.in"
       );
 
       // Deep Client-Side Gate: Prevent Cross-Portal Contamination

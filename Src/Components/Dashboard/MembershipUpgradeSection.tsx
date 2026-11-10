@@ -112,7 +112,20 @@ export function MembershipUpgradeSection({
   onUpgradeSuccess,
 }: MembershipUpgradeSectionProps) {
   const { user, refreshUser } = useAuth();
-  const currentTier = (user?.access_tier || "FREE").toUpperCase();
+  const rawTier = (user?.access_tier || "FREE").toUpperCase();
+  const TIER_ALIAS_MAP: Record<string, "FREE" | "BASIC" | "PREMIUM" | "ELITE"> = {
+    FREE: "FREE",
+    STARTER: "FREE",
+    BASIC: "BASIC",
+    SCHOLAR: "BASIC",
+    PREMIUM: "PREMIUM",
+    ACHIEVER: "PREMIUM",
+    SEMESTER_TOPPER: "PREMIUM",
+    ELITE: "ELITE",
+    ELITE_PLUS: "ELITE",
+    VIP: "ELITE",
+  };
+  const currentTier = TIER_ALIAS_MAP[rawTier] || "FREE";
   const currentRank = TIER_RANK[currentTier] ?? 0;
   const isElite = currentTier === "ELITE";
   const isPaidScholar = currentRank > 0;
