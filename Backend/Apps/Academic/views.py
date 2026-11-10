@@ -139,7 +139,7 @@ class SubjectListView(generics.ListAPIView):
             if not department and not program:
                 student_filter = build_student_academic_filter(user)
                 qs = qs.filter(student_filter).distinct()
-        return qs
+        return qs.order_by("semester", "code", "id")
 
     def list(self, request, *args, **kwargs):
         user = request.user
@@ -188,7 +188,7 @@ class AcademicMaterialListView(generics.ListAPIView):
         if user.is_authenticated and not user.is_staff and not user.is_superuser:
             student_filter = build_student_academic_filter(user, subject_prefix="subject")
             qs = qs.filter(student_filter).distinct()
-        return qs
+        return qs.order_by("-created_at", "id")
 
     def list(self, request, *args, **kwargs):
         user = request.user
@@ -232,7 +232,7 @@ class LabExperimentListView(generics.ListAPIView):
         if user.is_authenticated and not user.is_staff and not user.is_superuser:
             student_filter = build_student_academic_filter(user, subject_prefix="subject")
             qs = qs.filter(student_filter).distinct()
-        return qs
+        return qs.order_by("-created_at", "id")
 
     def list(self, request, *args, **kwargs):
         user = request.user

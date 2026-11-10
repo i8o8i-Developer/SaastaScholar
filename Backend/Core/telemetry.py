@@ -88,17 +88,30 @@ def send_startup_heartbeat():
         print(f"-> [SigNoz APM] Startup Heartbeat Notice: {exc}")
 
 
+_TELEMETRY_INITIALIZED = False
+
 def setup_telemetry():
     """
     Automatic OpenTelemetry Instrumentation For SigNoz APM
     Streams Distributed Traces, Database Queries, Logs, And API Latencies
+    Without Recursive Logging Deadlocks Or Blocking Request Threads
     """
+    global _TELEMETRY_INITIALIZED
+    if _TELEMETRY_INITIALIZED:
+        return
+
     endpoint = os.environ.get("OTEL_EXPORTER_OTLP_ENDPOINT", "").strip()
     if not endpoint:
         return
 
+    _TELEMETRY_INITIALIZED = True
     service_name = os.environ.get("OTEL_SERVICE_NAME", "saastascholar-app")
     environment = os.environ.get("DEPLOYMENT_ENV", "production")
+
+    # Prevent Recursive Logging Loops From Exporter HTTP Libraries
+    for noisy_logger in ("opentelemetry", "urllib3", "requests"):
+        lg = logging.getLogger(noisy_logger)
+        lg.propagate = False
 
     # 1. Setup Traces Provider
     try:
@@ -118,19 +131,28 @@ def setup_telemetry():
         provider = TracerProvider(resource=resource)
 
         trace_endpoint = endpoint if endpoint.endswith("/v1/traces") else f"{endpoint.rstrip('/')}/v1/traces"
-        exporter = OTLPSpanExporter(endpoint=trace_endpoint)
-        provider.add_span_processor(BatchSpanProcessor(exporter))
+        exporter = OTLPSpanExporter(endpoint=trace_endpoint, timeout=2)
+        provider.add_span_processor(
+            BatchSpanProcessor(exporter, schedule_delay_millis=5000, export_timeout_millis=2000)
+        )
         trace.set_tracer_provider(provider)
 
-        # Instrument Django, PostgreSQL, and Redis
-        DjangoInstrumentor().instrument()
-        Psycopg2Instrumentor().instrument()
-        RedisInstrumentor().instrument()
+        # Safely Instrument Django, PostgreSQL, and Redis Once
+        django_inst = DjangoInstrumentor()
+        if not django_inst.is_instrumented_by_opentelemetry:
+            django_inst.instrument()
+        psycopg_inst = Psycopg2Instrumentor()
+        if not psycopg_inst.is_instrumented_by_opentelemetry:
+            psycopg_inst.instrument()
+        redis_inst = RedisInstrumentor()
+        if not redis_inst.is_instrumented_by_opentelemetry:
+            redis_inst.instrument()
+
         print(f"-> [SigNoz APM] Tracing Connected: {trace_endpoint}")
     except Exception as exc:
         print(f"-> [SigNoz APM] Tracing Notice: {exc}")
 
-    # 2. Setup Logs Provider (Streams Django And Python logs To SigNoz)
+    # 2. Setup Logs Provider (Attach Exclusively To Application Loggers To Prevent Deadlocks)
     try:
         from opentelemetry._logs import set_logger_provider
         from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
@@ -144,16 +166,22 @@ def setup_telemetry():
         })
         logger_provider = LoggerProvider(resource=log_resource)
         log_endpoint = endpoint if endpoint.endswith("/v1/logs") else f"{endpoint.rstrip('/')}/v1/logs"
-        log_exporter = OTLPLogExporter(endpoint=log_endpoint)
-        logger_provider.add_log_record_processor(BatchLogRecordProcessor(log_exporter))
+        log_exporter = OTLPLogExporter(endpoint=log_endpoint, timeout=2)
+        logger_provider.add_log_record_processor(
+            BatchLogRecordProcessor(log_exporter, schedule_delay_millis=5000, export_timeout_millis=2000)
+        )
         set_logger_provider(logger_provider)
 
-        # Attach handler to root logger
         handler = LoggingHandler(level=logging.INFO, logger_provider=logger_provider)
-        logging.getLogger().addHandler(handler)
+        for app_logger_name in ("saastascholar", "django.request"):
+            logging.getLogger(app_logger_name).addHandler(handler)
         print(f"-> [SigNoz APM] Logging Connected: {log_endpoint}")
     except Exception as exc:
         print(f"-> [SigNoz APM] Logging Notice: {exc}")
 
-    # 3. Emit Startup Heartbeat
-    send_startup_heartbeat()
+    # 3. Emit Non-Blocking Startup Heartbeat
+    try:
+        import threading
+        threading.Thread(target=send_startup_heartbeat, daemon=True).start()
+    except Exception:
+        pass
